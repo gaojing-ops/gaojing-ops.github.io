@@ -23,8 +23,8 @@ export function createCamp(runtime,platform,afterAction=()=>{}){
   const character=CHARACTERS[id];
   const button=document.createElement('button');button.type='button';button.className='hero-card';button.dataset.hero=id;
   button.setAttribute('aria-label',`${character.name} · ${HERO_COPY[id]?.[0]||character.desc}`);
-  button.innerHTML=`<canvas class="hero-portrait" width="140" height="160" aria-hidden="true"></canvas><span class="hero-card-copy"><strong>${escape(character.name)}</strong><small>${escape(HERO_COPY[id]?.[0]||character.desc)}</small><span>${Math.round(character.stats.maxHp)} 生命 · ${Math.round(character.stats.speed)} 移速</span></span><span class="hero-check" aria-hidden="true">◆</span>`;
-  const portrait=button.querySelector('canvas');art.drawPortrait(portrait.getContext('2d'),id,0,10,140);
+  button.innerHTML=`<canvas class="hero-portrait" width="160" height="160" aria-hidden="true"></canvas><span class="hero-card-copy"><strong>${escape(character.name)}</strong><small>${escape(HERO_COPY[id]?.[0]||character.desc)}</small><span>${Math.round(character.stats.maxHp)} 生命 · ${Math.round(character.stats.speed)} 移速</span></span><span class="hero-check" aria-hidden="true">◆</span>`;
+  const portrait=button.querySelector('canvas');art.drawPortrait(portrait.getContext('2d'),id,0,0,160);
   button.addEventListener('click',()=>{selected=id;selectHero();});heroes.append(button);cards.set(id,button);
  }
  function selectHero(){
@@ -37,7 +37,7 @@ export function createCamp(runtime,platform,afterAction=()=>{}){
  }
  function refreshCurses(){
   const signature=JSON.stringify(game.meta?.data||{});if(signature===progressSignature)return;progressSignature=signature;
-  if(runtime.catalogs)for(const [id,button] of cards){const portrait=button.querySelector('canvas'),ctx=portrait.getContext('2d');ctx.clearRect(0,0,portrait.width,portrait.height);art.drawPortrait(ctx,id,0,10,140);}
+  if(runtime.catalogs)for(const [id,button] of cards){const portrait=button.querySelector('canvas'),ctx=portrait.getContext('2d');ctx.clearRect(0,0,portrait.width,portrait.height);art.drawPortrait(ctx,id,0,0,160);}
   const scene=sm.scenes.curseSelect;scene.enter({charId:selected,metaData:game.meta?.data||{}});
   chosenCurses=new Set(scene.defs.filter(c=>c.active&&c.unlocked).map(c=>c.id));curseList.replaceChildren();
   for(const curse of scene.defs){

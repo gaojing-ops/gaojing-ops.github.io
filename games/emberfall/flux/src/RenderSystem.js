@@ -1,17 +1,10 @@
 // ─── 统一主渲染系统 (从 Game.js 分离) ──────────────────────────
 // 挂载到 Game.prototype，维护 Game 类瘦身
 const { drawDamageNumber } = require('./Renderer');
+const { drawSentry } = require('./FacetedArt');
 const { fastSin, fastCos } = require('./MathLUT');
 const { now: perfNow } = require('./platform');
 const SpeedRunSceneModule = require('./scenes/SpeedRunScene');
-
-// 炮台六边形预计算表
-const _HEX_COS = [], _HEX_SIN = [];
-for (let _i = 0; _i < 6; _i++) {
-    const _a = (_i / 6) * Math.PI * 2 - Math.PI / 6;
-    _HEX_COS.push(fastCos(_a));
-    _HEX_SIN.push(fastSin(_a));
-}
 
 function installRenderSystem(GameClass) {
     // 注意: _drawLastStand 和 _drawBossEntrance 在 HUD.js 中定义，此处不再重复定义
@@ -184,41 +177,7 @@ function installRenderSystem(GameClass) {
 
             if (this.player.turrets) {
                 for (const t of this.player.turrets) {
-                    if (!t.active) continue;
-                    ctx.save();
-                    ctx.translate(t.x, t.y);
-                    ctx.fillStyle = '#1a1808';
-                    ctx.strokeStyle = '#ffcc00';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    for (let i = 0; i < 6; i++) {
-                        const px = _HEX_COS[i] * 12;
-                        const py = _HEX_SIN[i] * 12;
-                        if (i === 0) ctx.moveTo(px, py);
-                        else ctx.lineTo(px, py);
-                    }
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-                    const pulse = 0.5 + fastSin(this.time * 5) * 0.3;
-                    ctx.fillStyle = `rgba(255, 204, 0, ${pulse})`;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 5, 0, Math.PI * 2);
-                    ctx.fill();
-                    const hpRatio = t.hp / t.maxHp;
-                    ctx.fillStyle = '#333';
-                    ctx.fillRect(-10, 15, 20, 3);
-                    ctx.fillStyle = hpRatio > 0.5 ? '#ffcc00' : '#ff6600';
-                    ctx.fillRect(-10, 15, 20 * hpRatio, 3);
-                    if (t.lastTarget && this.time - t.lastShootTime < 0.15) {
-                        ctx.strokeStyle = 'rgba(255, 204, 0, ' + (1 - (this.time - t.lastShootTime) / 0.15) + ')';
-                        ctx.lineWidth = 1.5;
-                        ctx.beginPath();
-                        ctx.moveTo(0, 0);
-                        ctx.lineTo(t.lastTarget.x - t.x, t.lastTarget.y - t.y);
-                        ctx.stroke();
-                    }
-                    ctx.restore();
+                    if (t.active) drawSentry(ctx, t, this.time);
                 }
             }
 
