@@ -1,6 +1,17 @@
 // Presentation vocabulary only. Stable gameplay IDs, formulas and saves are untouched.
 const table=source=>Object.fromEntries(source.trim().split('\n').map(row=>{const [id,name,...description]=row.split('|');return [id,{name,desc:description.join('|')}];}));
 export const LORE={
+ characters:table(`
+tracer|守灯人|提灯穿林 · 越行越勇
+walker|铁卫|铁誓不退 · 以甲还击
+gunner|逐风者|逐风挽弓 · 站定蓄势
+cryomancer|霜语者|霜语成咒 · 碎冰伤敌
+biohazard|毒枝术士|荆枝染毒 · 以毒回春
+berserker|破晓狂刃|燃血挥刃 · 残灯破晓
+arcane|星纱法师|星火织咒 · 五灵合鸣
+engineer|符文工匠|巧手铭灯 · 三灯守阵
+assassin|暮影刺客|暮影藏锋 · 疾步猎夜
+`),
  weapons:table(`
 flux_bolt|引路烛|放出追寻敌人的烛火，轻微修正飞行方向。
 chain_spark|跃枝雷|雷光击中敌人后，跃向附近的下一名敌人。
