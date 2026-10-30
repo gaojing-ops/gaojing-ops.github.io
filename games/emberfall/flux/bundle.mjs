@@ -25960,5 +25960,16 @@ const cache=new Map();
 function load(id){if(cache.has(id))return cache.get(id).exports;const record=factories[id];if(!record)throw Error('Missing module '+id);const module={exports:{}};cache.set(id,module);record[0](request=>load(record[1][request]),module,module.exports);return module.exports;}
 const runtime=load('entry.js');
 runtime.art=load('src/Art.js');
+const catalog=(file,key)=>load('src/'+file+'.js')[key];
+runtime.catalogs={
+ weapons:catalog('WeaponData','weapons'),passives:catalog('WeaponData','passives'),evolution:catalog('Evolution','EVOLUTION_RECIPES'),
+ skills:catalog('SkillSystem','SKILL_DEFS'),characters:catalog('Character','CHARACTERS'),
+ meta:catalog('MetaSystem','META_UPGRADES'),talents:load('src/TalentTree.js'),skins:catalog('Skins','SKINS'),
+ pets:catalog('Pet','PET_TYPES'),auras:catalog('Auras','AURA_TYPES'),relics:Object.fromEntries(catalog('Relic','RELIC_DEFS').map(row=>[row.id,row])),
+ achievements:catalog('AchievementSystem','ACHIEVEMENT_DEFS'),builds:load('src/BuildPreset.js'),
+ bosses:load('src/BossData.js'),enemies:catalog('Enemy','TYPES'),stages:catalog('StageSystem','STAGE_CONFIGS'),
+ events:Object.fromEntries(catalog('EventSystem','EVENT_DEFS').map(row=>[row.id,row])),
+ speed:load('src/scenes/SpeedRunScene.js'),elements:catalog('SynergySystem','ELEMENTS')
+};
 await runtime.art.preload();
 mountFlux(runtime,platform);
