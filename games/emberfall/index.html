@@ -2,21 +2,27 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101918">
-<meta name="description" content="长夜余烬：二十分钟五章生存远征，武器进化、元素协同、角色技能与局外成长。"><title>长夜余烬 · EMBERFALL</title>
+<meta name="description" content="长夜余烬：选择守夜者，穿过二十分钟长夜。组合武器、解锁进化，完成五章远征。"><title>长夜余烬 · EMBERFALL</title>
 <link rel="stylesheet" href="/games/navigation.css"><link rel="stylesheet" href="./flux.css">
 </head>
 <body>
-<header class="site-header"><a class="brand" href="/games/emberfall/">♨ <span>长夜余烬<small>EMBERFALL</small></span></a><span>二十分钟，穿过长夜。</span><a href="/">游戏小站 ↗</a></header>
+<header class="site-header"><a class="brand" href="/games/emberfall/"><span class="brand-emblem">♨</span><span>长夜余烬<small>EMBERFALL</small></span></a><span class="edition">独立肉鸽 · 长夜远征</span><nav aria-label="营地导航"><button data-camp-scene="compendium">图鉴</button><button data-camp-scene="shop">成长</button><button data-camp-scene="leaderboard">战绩</button><button id="help-web">玩法 <span>?</span></button><button id="sound-web" aria-label="切换音效">音效</button></nav></header>
 <nav class="game-switcher" aria-label="切换游戏"><span>选择游戏</span><a href="/games/keystone/">五人远征 <small>自动秘境</small></a><a href="/games/emberfall/" aria-current="page">长夜余烬 <small>生存肉鸽</small></a></nav>
-<main>
-<section class="intro"><p>THE LONG NIGHT AWAITS</p><h1>让每一次升级，都成为你的流派。</h1><p>20 分钟 · 5 个章节 · 武器进化 · 元素协同 · 芯片与天赋</p></section>
-<div class="game-layout"><section id="game-shell" aria-label="长夜余烬游戏">
-<div class="game-toolbar"><span id="status" role="status">正在点燃火光…</span><button id="pause-web" disabled>暂停</button><button id="sound-web">音效</button><button id="help-web">玩法</button><button id="fullscreen-web">全屏</button></div>
-<div id="scene-controls" class="scene-controls" aria-label="当前场景操作"></div>
-<div class="canvas-wrap"><canvas id="flux-canvas" tabindex="0" aria-label="长夜余烬战斗画面，WASD 或方向键移动，空格闪避，E 释放角色技能"></canvas><p id="loading">正在加载远征…</p></div>
+<main class="page-shell">
+<section class="page-heading"><div><p class="eyebrow">THE LONG NIGHT AWAITS</p><h1>守住火光，穿过长夜。</h1></div><div class="chapter-mark"><span>CHAPTER 01</span><strong>灰烬林地</strong><span>◇</span></div></section>
+<section id="game-shell" class="at-camp" aria-label="长夜余烬游戏">
+<div class="game-toolbar"><span id="status" role="status">远征待命 · 灰烬林地</span><span class="toolbar-wave">五章远征</span><button id="pause-web" disabled>暂停</button><button id="fullscreen-web">全屏</button></div>
+<section id="camp-view" aria-label="远征营地">
+<div class="camp-stage"><canvas id="camp-background" aria-hidden="true"></canvas><div class="camp-shade"></div><div class="camp-copy"><div class="camp-ornament"><span></span> ◈ <span></span></div><p class="camp-eyebrow">当世界沉入黑暗</p><h2>你，是最后的火光。</h2><p class="camp-description">在围猎中生存，在余烬中成长。<br>守过二十分钟，迎接黎明。</p><button id="camp-start" class="primary-button" disabled><span>♨</span>踏入长夜 <span>↗</span></button><p id="camp-start-hero" class="camp-start-note">选择一位守夜者，开始你的远征。</p><p class="camp-features">自动攻击 · 选择强化 · 每次都是新旅程</p></div><div class="stage-coordinate"><span>黑潮正从林地深处逼近</span><span>ASHEN WOODS · 01</span></div></div>
+<div class="controls-bar"><span><kbd>WASD</kbd> 移动</span><span><kbd>SPACE</kbd> 闪避</span><span><kbd>E</kbd> 技能</span><span><kbd>P</kbd> 暂停</span><span class="auto-attack">● 自动锁定攻击</span></div>
+<section class="camp-selection" aria-labelledby="camp-selection-title"><div class="panel-heading"><div><span class="section-index">01 /</span><h2 id="camp-selection-title">选择守夜者</h2></div><span class="small-caps">YOUR HERO</span></div><div id="camp-heroes" class="hero-grid" role="group" aria-label="选择守夜者"></div><div class="hero-summary"><div><span>本次守夜者</span><strong id="camp-hero-name">守灯人</strong></div><p id="camp-description"></p><span id="camp-hero-stats"></span></div></section>
+<section class="camp-settings" aria-labelledby="camp-mode-title"><div class="panel-heading"><div><span class="section-index">02 /</span><h2 id="camp-mode-title">选择旅程</h2></div><span class="small-caps">YOUR JOURNEY</span></div><div class="run-modes" role="group" aria-label="远征模式"><button data-run-mode="normal" aria-pressed="true"><strong>长夜远征</strong><span>二十分钟 · 五章旅程</span></button><button data-run-mode="boss" aria-pressed="false"><strong>首领连战</strong><span>十波强敌 · 波间强化</span></button><button data-run-mode="speed" aria-pressed="false"><strong>疾行试炼</strong><span>击杀目标 · 挑战纪录</span></button></div><p id="camp-mode-note" class="subtle">五个章节，每章四分钟。沿途选择奖励，组合武器与进化。</p><details id="camp-conditions"><summary>附加试炼 <span>可选 · 挑战诅咒与额外奖励</span></summary><div id="camp-curses" class="curse-list"></div></details><div class="camp-bottom"><span>你的最高纪录 <strong id="camp-best">等待第一位守夜者</strong></span><button data-camp-scene="daily">每日试炼 ↗</button></div></section>
 </section>
-<aside><h2>守夜者手记</h2><article><span>01 / SURVIVE</span><h3>二十分钟，五章远征</h3><p>每章 4 分钟，进入不同地图。章节结束后选择奖励，完成第五章迎来通关，还可继续无尽挑战。</p></article><article><span>02 / BUILD</span><h3>养成武器，解锁进化</h3><p>武器最高 6 级。集齐对应被动，并满足击杀、治疗等条件或使用进化核心，才能在强化选择中进化。具体配方在武器图鉴里查看。</p></article><article><span>03 / REACT</span><h3>让元素彼此回应</h3><p>冰与火触发蒸发，电与冰触发碎裂。武器、被动、遗物与角色技能一起决定你的战斗方式。</p></article><article><span>04 / CONTROL</span><h3>走位，闪避，再反击</h3><p>电脑：WASD / 方向键移动，空格闪避，E 技能，P / Esc 暂停。升级时可按数字键选择。<br>触屏：按住画面拖动移动，点击右下方闪避与技能。</p></article><p class="note">离开页面会暂停，返回后手动继续。成长与战绩保存在当前浏览器；微信好友榜仅在小程序中可用。</p><p id="storage-note" class="note" hidden>当前浏览器无法写入存档，本次数据暂存在页面内存中。</p><a class="trial-link" href="./trial.html">原三分钟试炼 ↗</a></aside></div>
+<div id="play-view" hidden><div id="scene-controls" class="scene-controls" aria-label="当前场景操作"></div><div class="canvas-wrap"><canvas id="flux-canvas" tabindex="0" aria-label="长夜余烬战斗画面，WASD 或方向键移动，空格闪避，E 释放角色技能"></canvas></div></div>
+<p id="loading" class="loading-note">正在点燃营地的火光…</p>
+</section>
+<footer class="page-footer"><span>每一局，都是一场新的远征。</span><span>拾取余烬 → 选择强化 → 突破重围</span><a href="./trial.html">原三分钟试炼 ↗</a></footer><p id="storage-note" class="note" hidden>当前浏览器无法保存数据，本次成长暂存在页面内存中。</p>
 </main>
-<dialog id="help-dialog"><h2>长夜余烬 · 远征指南</h2><p>按小程序原规则进行：5 章，每章 4 分钟。选择角色、搭配武器与被动，解锁进化并触发元素协同。击杀首领、开启宝箱、收集遗物和芯片，回到营地购买成长与天赋。</p><p>电脑使用 WASD / 方向键移动、空格闪避、E 技能、P / Esc 暂停；手机按住画面拖动移动。升级与章节奖励时战斗暂停。</p><p>暂停菜单内可查看装备与伤害统计，也可启用原有的自动走位和自动升级。</p><p>进行中的战斗不跨刷新恢复，局外成长与战绩保存在本机。微信好友与全服排行不接入网页。</p><button id="help-close">知道了</button></dialog>
+<dialog id="help-dialog"><h2>守夜者指南</h2><p>在首页选好守夜者与旅程，点击「踏入长夜」出发。长夜远征包含五章，每章四分钟。组合武器与被动，解锁进化，击败首领并收集芯片。</p><p>电脑：WASD / 方向键移动，空格闪避，E 技能，P / Esc 暂停，升级时可按数字键选择。触屏：拖动画面移动，点击闪避或技能按钮。</p><p>离开页面会暂停，返回后手动继续。局外成长与战绩保存在当前浏览器，进行中的战斗不跨刷新恢复。</p><button id="help-close">记住了</button></dialog>
 <noscript>请启用 JavaScript 后游玩。</noscript><script type="module" src="./flux/bundle.mjs"></script>
 </body></html>
