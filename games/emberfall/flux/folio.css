@@ -1,5 +1,16 @@
 /* One material language for the camp, field HUD and every page of the folio. */
 :root{--stone-0:#101d17;--stone-1:#18271e;--stone-2:#223429;--stone-face:#304436;--stone-edge:#647657;--brass:#b79b62;--brass-light:#ddc58c;--paper:#d5d7bb;--sage:#a5b295;--dim-sage:#7e9274}
+.folio-watch{display:flex;align-items:center;gap:22px;padding:18px 24px;margin:0 0 24px;border:1px solid #8a8a565e;border-left:3px solid var(--brass);background:linear-gradient(115deg,#a3904f18,transparent 65%)}
+.folio-watch .folio-portrait{width:76px;height:76px;margin:0;object-fit:contain}.folio-watch .folio-icon{margin:0;width:55px;height:55px}
+.folio-watch h3{font:25px/1.5 "SimSun",serif;color:var(--brass-light);font-weight:400;letter-spacing:2px;margin:8px 0}.folio-watch p{font-size:12px;line-height:1.9;color:var(--sage);margin:0}
+.folio-loadout{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.folio-loadout>span{display:flex;align-items:center;gap:12px;padding:12px 18px;border:1px solid #64765770;background:#12201888;font:15px "SimSun",serif;color:var(--paper)}
+.folio-loadout .folio-icon{width:36px;height:36px;margin:0}.folio-loadout small{display:block;margin-top:8px;color:var(--sage);font:10px "Microsoft YaHei",sans-serif}
+.folio-choice-label{display:flex;justify-content:space-between;gap:16px;margin:0 0 17px;font-size:11px;color:var(--brass);letter-spacing:1px}.folio-choice-label>span:last-child{font:8px Georgia,serif;letter-spacing:2px;color:var(--dim-sage)}
+.folio-card.is-selected{border-color:var(--brass);background:linear-gradient(135deg,#9c8a4d20,#263b2a);box-shadow:inset 0 0 0 2px #b79b6215}.folio-card.is-selected:before{background:var(--brass)}
+.folio-card.is-owned .folio-badge{color:#c6c69e}.folio-card.is-choice .folio-card-action .folio-button{border-color:#b79b6299;color:var(--brass-light)}
+.folio-card.is-choice:focus-within{border-color:var(--brass)}
+.folio-card meter{appearance:none;background:#101d17;border:0;border-radius:0}.folio-card meter::-webkit-meter-bar{background:#101d17;border:0;border-radius:0}.folio-card meter::-webkit-meter-optimum-value{background:var(--brass);border-radius:0}
+@media(max-width:620px){.folio-watch{padding:15px;gap:12px}.folio-watch .folio-portrait{width:62px;height:62px}.folio-watch h3{font-size:21px}.folio-watch p{font-size:11px}.folio-choice-label>span:last-child{display:none}.folio-loadout{gap:8px}.folio-loadout>span{padding:10px 12px;font-size:13px}}
 .web-folio{position:relative;min-height:560px;padding:35px 32px 22px;color:var(--paper);font-family:"Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#26382955 0,transparent 38%),linear-gradient(315deg,#35402c22,transparent 50%),var(--stone-1);border-top:1px solid #50624a44;box-shadow:inset 0 1px #8f9a6f12}
 .web-folio[hidden],.has-folio .canvas-wrap{display:none!important}
 .folio-ornament{position:absolute;top:29px;right:31px;width:31px;height:31px;opacity:.65}

@@ -115,3 +115,38 @@ test('the complete native art path renders skill areas and clones without alteri
  try{assert.doesNotThrow(()=>{w.drawEffects(context);w.drawGroundEffects(context);e.game.particles.draw(context);});}finally{Math.random=random;}
  assert.equal(fields(),before);assert.doesNotThrow(()=>e.game.draw());
 });
+
+test('pause settings, empty damage records and real result data keep valid native artwork',()=>{
+ const e=environment();e.game.startWithCharacter('tracer',[]);e.game._tutorialStep=-1;e.sm.switchTo('playing');e.game.isPaused=true;e.sync();
+ e.click('锋芒记录');assert.match(e.root.html,/尚未留下伤敌的记录/);
+ e.click('行旅设置');
+ assert.match(e.root.html,/data-icon="bell"/);assert.match(e.root.html,/data-icon="eye"/);
+ for(const [,attrs] of e.root.html.matchAll(/<article\s+([^>]+)>/g))assert.doesNotMatch(attrs,/<|&lt;canvas/,'canvas markup cannot become a card class');
+ e.click('光影：');assert.equal(e.game.qualityLevel,0);e.click('光影：');assert.equal(e.game.qualityLevel,1);
+ e.game.isPaused=false;e.game.time=143;e.game.endGame();e.sync();
+ assert.match(e.root.html,/folio-loadout/);assert.match(e.root.html,/data-icon="flux_bolt"/);assert.match(e.root.html,/引路烛/);
+ assert.doesNotMatch(e.root.html,/undefined|NaN|芯片|金币|LV\./);
+ e.click('前往余烬之庭');assert.equal(e.sm.currentSceneName,'shop');e.click('返回营地');assert.equal(e.sm.currentSceneName,'title');
+ e.game.startWithCharacter('tracer',[]);e.game.victoryEnd();e.sync();e.click('继续无尽守夜');assert.equal(e.game.endlessMode,true);assert.equal(e.sm.currentSceneName,'playing');
+});
+
+test('cosmetic ownership, companion selection and insufficient balances retain source purchase rules',()=>{
+ const e=environment();e.game.meta.data.chips=3000;e.sm.switchTo('shop');e.sync();e.click('灯色');
+ e.click('800 余烬');assert.equal(e.game.meta.data.chips,2200);assert.equal(e.game.meta.getSelectedSkin('tracer'),e.catalogs.skins.tracer.find(s=>s.cost===800).id);
+ assert.match(e.root.html,/folio-card is-selected/);e.click('旅伴');e.click('寻访旅伴');assert.equal(e.game.meta.data.chips,1200);
+ e.click('邀请同行');assert.equal(e.game.meta.data.equippedPets.length,1);assert.match(e.root.html,/folio-card is-selected/);
+ e.click('留在营地');assert.equal(e.game.meta.data.equippedPets.length,0);
+ e.click('足下灯纹');assert.ok(e.root.buttons.find(b=>b.label.includes('2,000 余烬')).disabled);
+ const before=JSON.stringify(e.game.meta.data);e.sync();assert.equal(JSON.stringify(e.game.meta.data),before);
+});
+
+test('stone notifications wrap long text without mutating timers, rewards or random state',()=>{
+ const e=environment(true),g=e.game;
+ g.achievements.currentToast={text:'🏆 连杀大师',sub:'达成 20 连杀 (+10 芯片)',timer:2.5};
+ g.eventSystem.eventBanner={text:'数据暴雨 — 大量经验宝石从天而降，拾取后获得经验。'.repeat(4),timer:2};
+ g.eventEnhancer.activeEvents=[{type:'bloodMoon',timer:60}];g.eventEnhancer.reaperCount=2;
+ const fields=()=>JSON.stringify([g.achievements.currentToast,g.eventSystem.eventBanner,g.eventEnhancer.activeEvents,g.eventEnhancer.reaperCount,g.meta.data.chips]),before=fields(),random=Math.random;
+ Math.random=()=>{throw Error('notification consumed combat RNG');};draws.length=0;
+ try{for(const w of [390,1000]){g.achievements.draw(context,w,844);g.eventSystem.draw(context,w,844);g.eventEnhancer.draw(context,w,844);}}finally{Math.random=random;}
+ assert.equal(fields(),before);assert.doesNotMatch(draws.join(''),/芯片|数据暴雨|🏆|HP|XP/);assert.ok(draws.some(line=>line.includes('血月临林')));
+});

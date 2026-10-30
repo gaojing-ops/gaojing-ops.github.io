@@ -228,7 +228,9 @@ function installRenderSystem(GameClass) {
 
             try { this._drawHUD(); } catch (_e) { throw new Error('_drawHUD: ' + _e.message); }
 
-            if (this.isSpeedRunMode) {
+            if (this.isSpeedRunMode && this._drawSpeedRunHUD) {
+                this._drawSpeedRunHUD();
+            } else if (this.isSpeedRunMode) {
                 const { KILL_TARGET, formatTime } = SpeedRunSceneModule;
                 const _srKills = this.speedRunKills || 0;
                 const _srElapsed = Math.floor((this.time - (this.speedRunStartTime || 0)) * 1000);
