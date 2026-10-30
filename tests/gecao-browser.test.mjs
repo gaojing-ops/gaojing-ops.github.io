@@ -44,15 +44,16 @@ test('both helpers keep an unfocused window running and release stale keyboard m
  e.frame(1000);e.frame(1100);
  e.windowEvents.keydown({key:'d',target:{closest(){return null;}},preventDefault(){}});e.frame(1200);assert.deepEqual(e.game.input.getVector(),{x:1,y:0});
  e.windowEvents.blur();assert.equal(e.game.isPaused,false);assert.deepEqual(e.game.input.getVector(),{x:0,y:0});
- e.frame(1300);assert.ok(Math.abs(e.game.time-.3)<1e-9);
+ e.frame(1300);assert.ok(Math.abs(e.game.time-.2)<1e-9,'unfocused RAF yields to the timer');e.timer(1300);assert.ok(Math.abs(e.game.time-.3)<1e-9);
+ e.setTime(1350);e.windowEvents.focus();assert.equal(e.timers.size,0);assert.ok(Math.abs(e.game.time-.35)<1e-9);e.frame(1350);assert.ok(Math.abs(e.game.time-.35)<1e-9);
 });
 
 test('both helpers advance hidden combat without animation frames and do not double-count on return',()=>{
  const e=environment();e.game.autoPlay=e.game.autoUpgrade=true;e.frame(1000);e.frame(1100);
- document.hidden=true;e.events.visibilitychange();assert.equal(e.game.isPaused,false);assert.equal(e.timers.size,1);
+ e.windowEvents.blur();document.hidden=true;e.events.visibilitychange();assert.equal(e.game.isPaused,false);assert.equal(e.timers.size,1);
  e.timer(2100);assert.ok(Math.abs(e.game.time-1.1)<1e-9);assert.ok(Math.abs(e.game.cooldown-3.9)<1e-9);
  const before=e.game.time;e.frame(2100);assert.equal(e.game.time,before,'hidden RAF never advances a second clock');
- e.setTime(2500);document.hidden=false;e.events.visibilitychange();assert.equal(e.timers.size,0);assert.ok(Math.abs(e.game.time-1.5)<1e-9,'the final partial hidden interval is included');
+ e.setTime(2500);document.hidden=false;e.events.visibilitychange();assert.equal(e.timers.size,1,'an unfocused visible window still uses the timer');e.windowEvents.focus();assert.equal(e.timers.size,0);assert.ok(Math.abs(e.game.time-1.5)<1e-9,'the final partial hidden interval is included');
  e.frame(2500);assert.ok(Math.abs(e.game.time-1.5)<1e-9);e.frame(2600);assert.ok(Math.abs(e.game.time-1.6)<1e-9);
 });
 
