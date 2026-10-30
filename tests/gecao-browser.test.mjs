@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {createBrowserPlatform,mountFlux} from '../games/emberfall/flux/browser.mjs';
 
 function environment(width=0){
- const nodes=new Map(),stored=new Map(),events={},windowEvents={};let nextFrame;
+ const nodes=new Map(),stored=new Map(),events={},windowEvents={},timers=new Map();let nextFrame,now=0,timerId=0;
  class Node{
   constructor(){this.events={};this.children=[];this.hidden=false;}
   addEventListener(name,fn){(this.events[name]??=[]).push(fn);}
@@ -16,6 +16,8 @@ function environment(width=0){
  globalThis.Image=class{constructor(){this.attrs=new Map();}getAttribute(k){return this.attrs.get(k);}setAttribute(k,v){this.attrs.set(k,v);}};
  globalThis.localStorage={getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)};
  globalThis.requestAnimationFrame=fn=>(nextFrame=fn,1);globalThis.cancelAnimationFrame=()=>{};
+ Object.defineProperty(globalThis,'performance',{configurable:true,value:{now:()=>now}});
+ globalThis.setTimeout=(fn,delay)=>(timers.set(++timerId,{fn,delay}),timerId);globalThis.clearTimeout=id=>timers.delete(id);
  const canvas=new Node();const shell={clientWidth:width};canvas.closest=()=>shell;const context=new Proxy({}, {get:()=>()=>{},set:()=>true});
  const input={active:false,vector:{x:0,y:0},getVector(){return this.vector;},_end(){this.active=false;this.vector={x:0,y:0};}};
  const game={resize(w,h){this.width=w;this.height=h;},input,isRunning:true,isPaused:false,_tutorialStep:-1,time:0,player:{level:1,kills:0},draw(){},update(dt){this.updates=(this.updates||0)+1;this.cooldown=(this.cooldown||5)-dt;},_handleTouchInput(){},lastTime:null};
@@ -23,7 +25,7 @@ function environment(width=0){
  const sound={pauseBGM(){},resumeBGM(){},stopBGM(){}};
  const platform=createBrowserPlatform(canvas);
  mountFlux({game,sm,SFX:sound,canvas,ctx:context,info:platform.api.getSystemInfoSync(),dpr:1,CHARACTERS:{}},platform);
- return {game,nodes,stored,events,windowEvents,canvas,platform,shell,frame:time=>nextFrame(time)};
+ return {game,sm,nodes,stored,events,windowEvents,canvas,platform,shell,timers,setTime(time){now=time;},frame(time){now=time;nextFrame(time);},timer(time){now=time;const [id,task]=timers.entries().next().value||[];assert.ok(task,'a background tick is scheduled');timers.delete(id);task.fn();}};
 }
 
 test('web pause, blur, hidden tabs and tutorial freeze time and cooldowns',()=>{
@@ -35,6 +37,50 @@ test('web pause, blur, hidden tabs and tutorial freeze time and cooldowns',()=>{
  e.nodes.get('pause-web').events.click[0]();e.game._tutorialStep=0;e.frame(6200);assert.equal(e.game.time,.2);
  e.game._tutorialStep=-1;document.hidden=true;e.events.visibilitychange();e.frame(7200);assert.equal(e.game.time,.2);
  document.hidden=false;e.events.visibilitychange();e.frame(8200);assert.equal(e.game.isPaused,true);
+});
+
+test('both helpers keep an unfocused window running and release stale keyboard movement',()=>{
+ const e=environment();e.game.autoPlay=true;e.game.autoUpgrade=true;
+ e.frame(1000);e.frame(1100);
+ e.windowEvents.keydown({key:'d',target:{closest(){return null;}},preventDefault(){}});e.frame(1200);assert.deepEqual(e.game.input.getVector(),{x:1,y:0});
+ e.windowEvents.blur();assert.equal(e.game.isPaused,false);assert.deepEqual(e.game.input.getVector(),{x:0,y:0});
+ e.frame(1300);assert.ok(Math.abs(e.game.time-.3)<1e-9);
+});
+
+test('both helpers advance hidden combat without animation frames and do not double-count on return',()=>{
+ const e=environment();e.game.autoPlay=e.game.autoUpgrade=true;e.frame(1000);e.frame(1100);
+ document.hidden=true;e.events.visibilitychange();assert.equal(e.game.isPaused,false);assert.equal(e.timers.size,1);
+ e.timer(2100);assert.ok(Math.abs(e.game.time-1.1)<1e-9);assert.ok(Math.abs(e.game.cooldown-3.9)<1e-9);
+ const before=e.game.time;e.frame(2100);assert.equal(e.game.time,before,'hidden RAF never advances a second clock');
+ e.setTime(2500);document.hidden=false;e.events.visibilitychange();assert.equal(e.timers.size,0);assert.ok(Math.abs(e.game.time-1.5)<1e-9,'the final partial hidden interval is included');
+ e.frame(2500);assert.ok(Math.abs(e.game.time-1.5)<1e-9);e.frame(2600);assert.ok(Math.abs(e.game.time-1.6)<1e-9);
+});
+
+test('one helper alone still pauses, and manual pause remains authoritative with both on',()=>{
+ for(const [autoPlay,autoUpgrade] of [[false,false],[true,false],[false,true],[true,true]]){
+  const e=environment();Object.assign(e.game,{autoPlay,autoUpgrade});e.frame(1000);e.frame(1100);
+  if(autoPlay&&autoUpgrade)e.nodes.get('pause-web').events.click[0]();
+  document.hidden=true;e.events.visibilitychange();assert.equal(e.game.isPaused,true);assert.equal(e.timers.size,0);
+  e.frame(3000);assert.equal(e.game.time,.1);
+  document.hidden=false;e.events.visibilitychange();e.frame(4000);assert.equal(e.game.isPaused,true);assert.equal(e.game.time,.1);
+ }
+});
+
+test('throttled background ticks use bounded normal steps and retain elapsed time',()=>{
+ const e=environment();e.game.autoPlay=e.game.autoUpgrade=true;const original=e.game.update.bind(e.game),steps=[];e.game.update=dt=>{steps.push(dt);original(dt);};e.frame(1000);e.frame(1100);
+ document.hidden=true;e.events.visibilitychange();const before=steps.length;e.timer(6100);
+ assert.equal(steps.length-before,120);assert.ok(steps.slice(before).every(dt=>dt>0&&dt<=1/60));
+ e.timer(6100);e.timer(6100);assert.ok(Math.abs(e.game.time-5.1)<1e-9,'the unprocessed interval is retained');
+ document.hidden=false;e.events.visibilitychange();e.frame(6100);assert.ok(Math.abs(e.game.time-5.1)<1e-9);
+});
+
+test('background simulation stops at results, manual pause, and page disposal',()=>{
+ const e=environment();e.game.autoPlay=e.game.autoUpgrade=true;e.frame(1000);e.frame(1100);
+ const update=e.game.update.bind(e.game);e.game.update=dt=>{update(dt);if(e.game.time>=.2){e.game.isRunning=false;e.sm.currentSceneName='gameOver';}};
+ document.hidden=true;e.events.visibilitychange();e.timer(2100);assert.ok(e.game.time<.22);assert.equal(e.timers.size,0);
+ const ended=e.game.time;document.hidden=false;e.events.visibilitychange();e.frame(2200);assert.equal(e.game.time,ended);
+ const p=environment();p.game.autoPlay=p.game.autoUpgrade=true;p.frame(1000);p.frame(1100);document.hidden=true;p.events.visibilitychange();const stale=p.timers.values().next().value.fn;
+ p.windowEvents.pagehide();assert.equal(p.timers.size,0);stale();assert.equal(p.game.time,.1);
 });
 
 test('browser saves use a separate prefix and retain data when storage is unavailable',()=>{
