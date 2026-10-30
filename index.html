@@ -40,12 +40,31 @@
       color: #667085;
       font-size: 16px;
     }
+    .game-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 28px;
+      padding: 14px 24px;
+      border-radius: 10px;
+      color: #fff7e9;
+      background: #243d39;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background .2s, transform .2s;
+    }
+    .game-link:hover { background: #34554d; transform: translateY(-2px); }
+    .game-link:focus-visible { outline: 3px solid #c39049; outline-offset: 4px; }
+    .game-note { margin-top: 12px; font-size: 13px; }
   </style>
 </head>
 <body>
   <main>
     <h1>网站准备中</h1>
     <p>新内容即将上线</p>
+    <a class="game-link" href="./games/emberfall/">试玩《长夜余烬》 <span aria-hidden="true">→</span></a>
+    <p class="game-note">网页肉鸽小游戏 · 电脑 / 手机均可玩</p>
   </main>
 </body>
 </html>
