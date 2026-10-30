@@ -35,7 +35,7 @@ export function mountFlux(runtime,platform){
  const {game,sm,SFX,canvas,ctx,info,dpr,CHARACTERS}=runtime;
  if(runtime.catalogs){runtime.catalogs.curses=runtime.CURSE_DEFS;registerLore(runtime.catalogs);}
  const status=document.getElementById('status'),controls=document.getElementById('scene-controls');
- let viewW=info.screenWidth||WIDTH,viewH=info.screenHeight||HEIGHT,backgroundTimer=null,pendingTime=0;
+ let viewW=info.screenWidth||WIDTH,viewH=info.screenHeight||HEIGHT,backgroundTimer=null,pendingTime=0,unfocused=false;
  const keys=new Set();let primary=null,last=null,raf=0,disposed=false,signature='',suspended=false,campVisible=false;
  let keyboardVector={x:0,y:0};const originalVector=game.input.getVector.bind(game.input);
  game.input.getVector=()=>keys.size?keyboardVector:originalVector();
@@ -53,6 +53,7 @@ export function mountFlux(runtime,platform){
  const camp=createCamp(runtime,platform,()=>{clearMovement();game.lastTime=null;last=null;signature='';syncControls();if(game.isRunning){canvas.focus({preventScroll:true});canvas.parentElement?.scrollIntoView?.({block:'start',behavior:'instant'});}});
  const folio=createFolio(runtime,platform,{togglePause,afterAction(){clearMovement();game.lastTime=null;last=null;signature='';syncControls();}});
  const idleEnabled=()=>!!(game.autoPlay&&game.autoUpgrade);
+ const inBackground=()=>document.hidden||unfocused;
  const mayAdvance=()=>!suspended&&game.isRunning&&!game.isPaused&&game._tutorialStep<0&&sm.currentSceneName==='playing';
  function stopBackground(){if(backgroundTimer!==null)clearTimeout(backgroundTimer);backgroundTimer=null;}
  function pause(){clearMovement();stopBackground();pendingTime=0;if(game.isRunning){game.isPaused=true;SFX.pauseBGM();}game.lastTime=null;last=null;}
@@ -71,7 +72,7 @@ export function mountFlux(runtime,platform){
  canvas.addEventListener('pointerup',event=>{if(event.pointerId!==primary)return;dispatch('end',position(event));try{canvas.releasePointerCapture(primary);}catch{}primary=null;game.lastTouchState=false;syncControls();});
  function cancel(event){if(event.pointerId!==primary)return;primary=null;game.input._end();game.lastTouchState=false;if(sm.currentScene)sm.currentScene.touchStartedHere=false;}
  canvas.addEventListener('pointercancel',cancel);canvas.addEventListener('lostpointercapture',cancel);
- const canPlay=()=>game.isRunning&&!game.isPaused&&sm.currentSceneName==='playing'&&!suspended&&!document.hidden;
+ const canPlay=()=>game.isRunning&&!game.isPaused&&sm.currentSceneName==='playing'&&!suspended&&!inBackground();
  function keydown(event){
   if(event.ctrlKey||event.altKey||event.metaKey||event.isComposing||event.target.closest?.('input,select,textarea,[contenteditable="true"],dialog'))return;
   const key=event.key.toLowerCase();
@@ -81,16 +82,21 @@ export function mountFlux(runtime,platform){
   if(/^[1-5]$/.test(key)&&sm.currentSceneName==='upgrade'&&!event.repeat){event.preventDefault();const option=sm.currentScene.options[Number(key)-1];if(option)chooseUpgrade(sm.currentScene,option);}
  }
  window.addEventListener('keydown',keydown);window.addEventListener('keyup',event=>keys.delete(event.key.toLowerCase()));
- window.addEventListener('blur',()=>{clearMovement();if(!idleEnabled())pause();});
+ function returnToForeground(){
+  const wasIdling=backgroundTimer!==null;stopBackground();suspended=false;
+  if(wasIdling)try{advance(performance.now(),true);}catch(error){runtimeError(error);}
+  last=null;game.lastTime=null;
+ }
+ window.addEventListener('blur',()=>{unfocused=true;clearMovement();if(idleEnabled()&&mayAdvance())startBackground();else pause();});
+ window.addEventListener('focus',()=>{unfocused=false;if(!document.hidden)returnToForeground();});
  document.addEventListener('visibilitychange',()=>{
   clearMovement();
   if(document.hidden){
    if(idleEnabled()&&mayAdvance()){suspended=false;if(last===null)last=performance.now();startBackground();}
    else{suspended=true;pause();}
   }else{
-   const wasIdling=backgroundTimer!==null;stopBackground();suspended=false;
-   if(wasIdling)try{advance(performance.now(),true);}catch(error){runtimeError(error);}
-   last=null;game.lastTime=null;
+   if(unfocused&&idleEnabled()&&mayAdvance())startBackground();
+   else returnToForeground();
   }
  });
  document.getElementById('pause-web').addEventListener('click',togglePause);
@@ -124,9 +130,10 @@ export function mountFlux(runtime,platform){
   pause();console.error('Emberfall browser runtime:',error);status.textContent='游戏遇到错误：'+error.message;document.getElementById('loading').textContent='游戏启动失败，请刷新重试。';
  }
  function startBackground(){
-  if(disposed||!document.hidden||backgroundTimer!==null||!idleEnabled()||!mayAdvance())return;
+  if(disposed||!inBackground()||backgroundTimer!==null||!idleEnabled()||!mayAdvance())return;
+  if(last===null)last=performance.now();
   backgroundTimer=setTimeout(()=>{
-   backgroundTimer=null;if(disposed||!document.hidden)return;
+   backgroundTimer=null;if(disposed||!inBackground())return;
    if(!idleEnabled()){pause();return;}
    try{advance(performance.now(),true);}catch(error){runtimeError(error);}
    startBackground();
@@ -134,7 +141,7 @@ export function mountFlux(runtime,platform){
  }
  function frame(timestamp){
   if(disposed)return;
-  if(document.hidden){raf=requestAnimationFrame(frame);return;}
+  if(document.hidden||(unfocused&&idleEnabled())){raf=requestAnimationFrame(frame);return;}
   try{
    advance(timestamp);
    syncControls();
