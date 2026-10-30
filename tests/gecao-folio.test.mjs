@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {createFolio,optionCopy,chooseUpgrade} from '../games/emberfall/flux/folio.mjs';
@@ -91,4 +92,17 @@ test('the themed battle HUD, boss entrance and skill controls draw without chang
  assert.ok(e.game.dashBtnRect);assert.ok(e.game.skillSystem.btnRect);
  const ctx=themedContext(context);draws.length=0;ctx.fillText('纳米修复 · 25 HP',0,0);assert.match(draws[0],/回春苔 · 25 生命/);
  assert.notEqual(themeColor('#00ffcc'),'#00ffcc');assert.equal(themeColor('#e59d51'),'#e59d51');
+});
+
+test('deployed entry, every web module and both stylesheets share one release version',()=>{
+ const page=new URL('../games/emberfall/index.html',import.meta.url),html=readFileSync(page,'utf8');
+ const map=JSON.parse(html.match(/<script type="importmap" id="emberfall-imports">([\s\S]*?)<\/script>/)[1]).imports;
+ const version=html.match(/src="\.\/flux\/bundle\.mjs\?v=([a-f0-9]+)"/)[1];
+ assert.equal(Object.keys(map).length,5);
+ for(const [source,target] of Object.entries(map)){
+  const sourceURL=new URL(source,page),targetURL=new URL(target,page);
+  assert.equal(sourceURL.pathname,targetURL.pathname);assert.equal(targetURL.searchParams.get('v'),version);assert.ok(readFileSync(sourceURL).length>0);
+ }
+ for(const name of ['./flux.css','flux/folio.css'])assert.ok(html.includes(`href="${name}?v=${version}"`));
+ assert.ok(html.indexOf('type="importmap"')<html.indexOf('type="module"'));
 });

@@ -22,7 +22,7 @@ test('homepage keeps Keystone and both games have working navigation and assets'
   }
  }
  assert.match(homepage,/src="\/games\/keystone\/app\.js"/);
- assert.match(fs.readFileSync(new URL('games/emberfall/index.html',root),'utf8'),/src="\.\/flux\/bundle\.mjs"/);
+ assert.match(fs.readFileSync(new URL('games/emberfall/index.html',root),'utf8'),/src="\.\/flux\/bundle\.mjs(?:\?v=[a-f0-9]+)?"/);
 });
 
 test('each dungeon has its own retained in-game atlas, route and source commit',()=>{

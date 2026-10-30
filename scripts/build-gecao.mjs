@@ -1,6 +1,7 @@
 import {readFile,writeFile,readdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
 const root=fileURLToPath(new URL('../games/emberfall/flux/',import.meta.url));
 const sources=new Map();
 async function walk(directory){for(const entry of await readdir(directory,{withFileTypes:true})){const file=path.join(directory,entry.name);if(entry.isDirectory())await walk(file);else if(entry.name.endsWith('.js'))sources.set(path.relative(root,file).replaceAll('\\','/'),await readFile(file,'utf8'));}}
@@ -29,4 +30,19 @@ runtime.catalogs={
  speed:load('src/scenes/SpeedRunScene.js'),elements:catalog('SynergySystem','ELEMENTS')
 };\nawait runtime.art.preload();\nmountFlux(runtime,platform);\n`;
 await writeFile(path.join(root,'bundle.mjs'),bundle);
+// Version the complete ESM graph together. Import maps keep every consumer on
+// one Lore/Theme instance while bypassing stale GitHub Pages/browser assets.
+const modules=['browser','camp','folio','lore','theme'];
+const indexPath=path.join(root,'../index.html');
+let html=(await readFile(indexPath,'utf8')).replace(/<script type="importmap" id="emberfall-imports">[\s\S]*?<\/script>\s*/g,'');
+const versioned=new Set(['./flux.css','flux.css','./flux/folio.css','flux/folio.css','./flux/bundle.mjs']);
+html=html.replace(/(href|src)="([^"]+)"/g,(match,attribute,url)=>versioned.has(url.split('?')[0])?`${attribute}="${url.split('?')[0]}"`:match);
+const hash=createHash('sha256').update(bundle).update(html);
+for(const name of modules)hash.update(await readFile(path.join(root,name+'.mjs')));
+hash.update(await readFile(path.join(root,'../flux.css'))).update(await readFile(path.join(root,'folio.css')));
+const release=hash.digest('hex').slice(0,12);
+const imports=Object.fromEntries(modules.map(name=>[`./flux/${name}.mjs`,`./flux/${name}.mjs?v=${release}`]));
+html=html.replace('<script type="module" src="./flux/bundle.mjs">',`<script type="importmap" id="emberfall-imports">${JSON.stringify({imports})}</script>\n<script type="module" src="./flux/bundle.mjs">`);
+html=html.replace(/(href|src)="([^"]+)"/g,(match,attribute,url)=>versioned.has(url)?`${attribute}="${url}?v=${release}"`:match);
+await writeFile(indexPath,html);
 console.log(`Bundled ${sources.size} CommonJS modules without changing their gameplay rules.`);
