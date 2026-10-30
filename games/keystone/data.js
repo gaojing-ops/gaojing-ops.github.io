@@ -1,3 +1,4 @@
+import {RULES,combatProfile} from './rules.js';
 import {getMap} from './maps.js';
 import {RAIDER_REFERENCE} from './raider-reference.js';
 export {RAIDER_REFERENCE};
@@ -13,7 +14,7 @@ const BASE_DUNGEONS=[
  {id:'ruby',name:'红玉新生法池',theme:'熔火与龙焰',color:'#ef9a77',floor:'#35251f',hazard:'fire',bosses:['红玉守卫','熔火统领','龙焰化身']}
 ];
 const RIO_SLUGS={fangs:'altar-of-fangs',murder:'murder-row',nalorakk:'den-of-nalorakk',vale:'the-blinding-vale',arena:'voidscar-arena',kings:'kings-rest',temple:'temple-of-sethraliss',ruby:'ruby-life-pools'};
-export const DUNGEONS=BASE_DUNGEONS.map(d=>{const reference=RAIDER_REFERENCE.dungeons.find(r=>r.slug===RIO_SLUGS[d.id]);return {...d,bosses:getMap(d.id).bosses,rioSlug:reference.slug,referenceTimer:reference.keystone_timer_seconds,gameTimer:Math.round(reference.keystone_timer_seconds/10)};});
+export const DUNGEONS=BASE_DUNGEONS.map(d=>{const reference=RAIDER_REFERENCE.dungeons.find(r=>r.slug===RIO_SLUGS[d.id]);return {...d,bosses:getMap(d.id).bosses,rioSlug:reference.slug,referenceTimer:reference.keystone_timer_seconds,gameTimer:RULES.limit};});
 // Atlas and boss positions follow the retained game-map reference; combat numbers remain compact adaptations.
 export const SPECS=[
  {id:'paladin-holy',job:'圣骑士',name:'神圣',role:'heal',color:'#eea5ca',mark:'圣',hp:330,power:36,armor:.23,skill:'圣光震击',kind:'burstheal'},
@@ -38,17 +39,20 @@ export const SPECS=[
 ];
 export const DEFAULT_TEAM=['paladin-prot','priest-holy','mage-frost','hunter-bm','rogue-outlaw'];
 export const ROLES={tank:'坦克',heal:'治疗',dps:'输出'};
-export const SLOTS={weapon:'武器',head:'头部',chest:'胸甲',boots:'鞋子',trinket:'饰品'};
-export const QUALITIES={uncommon:{name:'精良',color:'#83c58c',factor:1},rare:{name:'稀有',color:'#81b6ee',factor:1.2},epic:{name:'史诗',color:'#b69aee',factor:1.5}};
+export const SLOTS={weapon:'武器',armor:'护甲',trinket:'饰品'};
+export const QUALITIES={uncommon:{name:'精良',color:'#83c58c',factor:1},rare:{name:'稀有',color:'#81b6ee',factor:1.025},epic:{name:'史诗',color:'#b69aee',factor:1.05}};
 export function spec(id){return SPECS.find(s=>s.id===id);}
 export function validateTeam(ids){return Array.isArray(ids)&&ids.length===5&&new Set(ids).size===5&&ids.every(id=>spec(id))&&ids.filter(id=>spec(id).role==='tank').length===1&&ids.filter(id=>spec(id).role==='heal').length===1&&ids.filter(id=>spec(id).role==='dps').length===3;}
-export function affixes(level){return [level>=4?'强韧':null,level>=7?'暴君':null,level>=10?'涌动':null].filter(Boolean);}
+for(const s of SPECS)Object.assign(s,combatProfile(s));
+export function affixes(){return [];}
 export function stats(id,equipment={}){
- const s=spec(id);const result={maxHp:s.hp,power:s.power,armor:s.armor,haste:0,crit:.08,ilvl:0};let count=0;
- for(const item of Object.values(equipment)){if(!item)continue;result.maxHp+=item.stamina||0;result.power+=item.power||0;result.haste+=item.haste||0;result.crit+=item.crit||0;result.ilvl+=item.ilvl||0;count++;}
- result.ilvl=count?Math.round(result.ilvl/count):0;result.haste=Math.min(.55,result.haste);result.crit=Math.min(.6,result.crit);return result;
+ const s=spec(id),w=equipment.weapon,a=equipment.armor;
+ const power=s.power*(1+.06*(w?.tier||0)*(w?.multiplier||1));
+ const maxHp=s.hp*(1+.06*(a?.tier||0)*(a?.multiplier||1));
+ const items=Object.values(equipment).filter(Boolean);
+ return {maxHp,power,armor:s.armor,haste:Math.min(RULES.hasteCap,items.reduce((n,i)=>n+(i.haste||0),0)),crit:Math.min(RULES.critCap,.08+items.reduce((n,i)=>n+(i.crit||0),0)),ilvl:items.length?Math.round(items.reduce((n,i)=>n+i.ilvl,0)/items.length):0,trinket:equipment.trinket||null};
 }
-export function itemScore(item,id){if(!item||(item.role!=='all'&&item.role!==spec(id).role))return -1;return item.power*2+item.stamina*(spec(id).role==='tank'?.32:.08)+(item.haste+item.crit)*200;}
+export function itemScore(item,id){if(!item||(item.role!=='all'&&item.role!==spec(id).role))return -1;return (item.tier||0)*(item.multiplier||1)+1;}
 
 const RIO_SPECS={250:'dk-blood',65:'paladin-holy',262:'shaman-elemental',261:'rogue-subtlety',71:'warrior-arms'};
 export const REFERENCE_TEAM=RAIDER_REFERENCE.example.roster.slice().sort((a,b)=>({tank:0,healer:1,dps:2}[a.role]-{tank:0,healer:1,dps:2}[b.role])).map(r=>RIO_SPECS[r.specId]);

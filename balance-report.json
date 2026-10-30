@@ -1,0 +1,976 @@
+{
+  "starter": [
+    {
+      "dungeon": "fangs",
+      "wins": 100,
+      "median": 323,
+      "min": 311,
+      "max": 340
+    },
+    {
+      "dungeon": "nalorakk",
+      "wins": 100,
+      "median": 326,
+      "min": 315,
+      "max": 348
+    },
+    {
+      "dungeon": "vale",
+      "wins": 100,
+      "median": 375,
+      "min": 360,
+      "max": 398
+    },
+    {
+      "dungeon": "murder",
+      "wins": 100,
+      "median": 390,
+      "min": 375,
+      "max": 411
+    },
+    {
+      "dungeon": "arena",
+      "wins": 100,
+      "median": 327,
+      "min": 319,
+      "max": 352
+    },
+    {
+      "dungeon": "temple",
+      "wins": 100,
+      "median": 380,
+      "min": 365,
+      "max": 398
+    },
+    {
+      "dungeon": "kings",
+      "wins": 100,
+      "median": 394,
+      "min": 378,
+      "max": 420
+    },
+    {
+      "dungeon": "ruby",
+      "wins": 100,
+      "median": 406,
+      "min": 380,
+      "max": 433
+    }
+  ],
+  "levels": [
+    {
+      "dungeon": "fangs",
+      "level": 2,
+      "geared": false,
+      "win": true,
+      "time": 319,
+      "deaths": 0
+    },
+    {
+      "dungeon": "fangs",
+      "level": 2,
+      "geared": true,
+      "win": true,
+      "time": 307,
+      "deaths": 0
+    },
+    {
+      "dungeon": "fangs",
+      "level": 5,
+      "geared": false,
+      "win": true,
+      "time": 414,
+      "deaths": 0
+    },
+    {
+      "dungeon": "fangs",
+      "level": 5,
+      "geared": true,
+      "win": true,
+      "time": 328,
+      "deaths": 0
+    },
+    {
+      "dungeon": "fangs",
+      "level": 10,
+      "geared": false,
+      "win": true,
+      "time": 584,
+      "deaths": 0
+    },
+    {
+      "dungeon": "fangs",
+      "level": 10,
+      "geared": true,
+      "win": true,
+      "time": 389,
+      "deaths": 0
+    },
+    {
+      "dungeon": "fangs",
+      "level": 15,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "fangs",
+      "level": 15,
+      "geared": true,
+      "win": true,
+      "time": 467,
+      "deaths": 0
+    },
+    {
+      "dungeon": "fangs",
+      "level": 20,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "fangs",
+      "level": 20,
+      "geared": true,
+      "win": true,
+      "time": 593,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 2,
+      "geared": false,
+      "win": true,
+      "time": 322,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 2,
+      "geared": true,
+      "win": true,
+      "time": 309,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 5,
+      "geared": false,
+      "win": true,
+      "time": 423,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 5,
+      "geared": true,
+      "win": true,
+      "time": 336,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 10,
+      "geared": false,
+      "win": true,
+      "time": 615,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 10,
+      "geared": true,
+      "win": true,
+      "time": 388,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 15,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 15,
+      "geared": true,
+      "win": true,
+      "time": 468,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 20,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "nalorakk",
+      "level": 20,
+      "geared": true,
+      "win": true,
+      "time": 597,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 2,
+      "geared": false,
+      "win": true,
+      "time": 381,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 2,
+      "geared": true,
+      "win": true,
+      "time": 357,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 5,
+      "geared": false,
+      "win": true,
+      "time": 469,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 5,
+      "geared": true,
+      "win": true,
+      "time": 381,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 10,
+      "geared": false,
+      "win": true,
+      "time": 671,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 10,
+      "geared": true,
+      "win": true,
+      "time": 458,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 15,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 15,
+      "geared": true,
+      "win": true,
+      "time": 549,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 20,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "vale",
+      "level": 20,
+      "geared": true,
+      "win": true,
+      "time": 683,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 2,
+      "geared": false,
+      "win": true,
+      "time": 386,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 2,
+      "geared": true,
+      "win": true,
+      "time": 388,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 5,
+      "geared": false,
+      "win": true,
+      "time": 484,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 5,
+      "geared": true,
+      "win": true,
+      "time": 403,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 10,
+      "geared": false,
+      "win": true,
+      "time": 692,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 10,
+      "geared": true,
+      "win": true,
+      "time": 461,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 15,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 15,
+      "geared": true,
+      "win": true,
+      "time": 575,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 20,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "murder",
+      "level": 20,
+      "geared": true,
+      "win": true,
+      "time": 687,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 2,
+      "geared": false,
+      "win": true,
+      "time": 338,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 2,
+      "geared": true,
+      "win": true,
+      "time": 310,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 5,
+      "geared": false,
+      "win": true,
+      "time": 406,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 5,
+      "geared": true,
+      "win": true,
+      "time": 337,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 10,
+      "geared": false,
+      "win": true,
+      "time": 593,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 10,
+      "geared": true,
+      "win": true,
+      "time": 385,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 15,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 15,
+      "geared": true,
+      "win": true,
+      "time": 469,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 20,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "arena",
+      "level": 20,
+      "geared": true,
+      "win": true,
+      "time": 579,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 2,
+      "geared": false,
+      "win": true,
+      "time": 381,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 2,
+      "geared": true,
+      "win": true,
+      "time": 354,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 5,
+      "geared": false,
+      "win": true,
+      "time": 484,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 5,
+      "geared": true,
+      "win": true,
+      "time": 395,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 10,
+      "geared": false,
+      "win": true,
+      "time": 699,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 10,
+      "geared": true,
+      "win": true,
+      "time": 444,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 15,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 15,
+      "geared": true,
+      "win": true,
+      "time": 561,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 20,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "temple",
+      "level": 20,
+      "geared": true,
+      "win": true,
+      "time": 683,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 2,
+      "geared": false,
+      "win": true,
+      "time": 394,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 2,
+      "geared": true,
+      "win": true,
+      "time": 368,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 5,
+      "geared": false,
+      "win": true,
+      "time": 508,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 5,
+      "geared": true,
+      "win": true,
+      "time": 412,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 10,
+      "geared": false,
+      "win": true,
+      "time": 709,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 10,
+      "geared": true,
+      "win": true,
+      "time": 458,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 15,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 15,
+      "geared": true,
+      "win": true,
+      "time": 572,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 20,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 0
+    },
+    {
+      "dungeon": "kings",
+      "level": 20,
+      "geared": true,
+      "win": true,
+      "time": 702,
+      "deaths": 0
+    },
+    {
+      "dungeon": "ruby",
+      "level": 2,
+      "geared": false,
+      "win": true,
+      "time": 406,
+      "deaths": 0
+    },
+    {
+      "dungeon": "ruby",
+      "level": 2,
+      "geared": true,
+      "win": true,
+      "time": 400,
+      "deaths": 0
+    },
+    {
+      "dungeon": "ruby",
+      "level": 5,
+      "geared": false,
+      "win": true,
+      "time": 478,
+      "deaths": 0
+    },
+    {
+      "dungeon": "ruby",
+      "level": 5,
+      "geared": true,
+      "win": true,
+      "time": 413,
+      "deaths": 0
+    },
+    {
+      "dungeon": "ruby",
+      "level": 10,
+      "geared": false,
+      "win": true,
+      "time": 658,
+      "deaths": 0
+    },
+    {
+      "dungeon": "ruby",
+      "level": 10,
+      "geared": true,
+      "win": true,
+      "time": 462,
+      "deaths": 0
+    },
+    {
+      "dungeon": "ruby",
+      "level": 15,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 5
+    },
+    {
+      "dungeon": "ruby",
+      "level": 15,
+      "geared": true,
+      "win": true,
+      "time": 586,
+      "deaths": 0
+    },
+    {
+      "dungeon": "ruby",
+      "level": 20,
+      "geared": false,
+      "win": false,
+      "time": 720,
+      "deaths": 5
+    },
+    {
+      "dungeon": "ruby",
+      "level": 20,
+      "geared": true,
+      "win": true,
+      "time": 679,
+      "deaths": 5
+    }
+  ],
+  "specs": [
+    {
+      "id": "paladin-holy",
+      "level": 2,
+      "win": true,
+      "time": 418,
+      "damage": 3812,
+      "deaths": 0
+    },
+    {
+      "id": "paladin-holy",
+      "level": 5,
+      "win": true,
+      "time": 403,
+      "damage": 4378,
+      "deaths": 0
+    },
+    {
+      "id": "warrior-arms",
+      "level": 2,
+      "win": true,
+      "time": 342,
+      "damage": 16733,
+      "deaths": 0
+    },
+    {
+      "id": "warrior-arms",
+      "level": 5,
+      "win": true,
+      "time": 353,
+      "damage": 20982,
+      "deaths": 0
+    },
+    {
+      "id": "shaman-elemental",
+      "level": 2,
+      "win": true,
+      "time": 397,
+      "damage": 12421,
+      "deaths": 0
+    },
+    {
+      "id": "shaman-elemental",
+      "level": 5,
+      "win": true,
+      "time": 407,
+      "damage": 15797,
+      "deaths": 0
+    },
+    {
+      "id": "rogue-subtlety",
+      "level": 2,
+      "win": true,
+      "time": 342,
+      "damage": 16841,
+      "deaths": 0
+    },
+    {
+      "id": "rogue-subtlety",
+      "level": 5,
+      "win": true,
+      "time": 377,
+      "damage": 21625,
+      "deaths": 0
+    },
+    {
+      "id": "paladin-prot",
+      "level": 2,
+      "win": true,
+      "time": 400,
+      "damage": 8916,
+      "deaths": 0
+    },
+    {
+      "id": "paladin-prot",
+      "level": 5,
+      "win": true,
+      "time": 413,
+      "damage": 10858,
+      "deaths": 0
+    },
+    {
+      "id": "warrior-prot",
+      "level": 2,
+      "win": true,
+      "time": 384,
+      "damage": 7936,
+      "deaths": 0
+    },
+    {
+      "id": "warrior-prot",
+      "level": 5,
+      "win": true,
+      "time": 406,
+      "damage": 9780,
+      "deaths": 0
+    },
+    {
+      "id": "dk-blood",
+      "level": 2,
+      "win": true,
+      "time": 370,
+      "damage": 11183,
+      "deaths": 0
+    },
+    {
+      "id": "dk-blood",
+      "level": 5,
+      "win": true,
+      "time": 400,
+      "damage": 14015,
+      "deaths": 0
+    },
+    {
+      "id": "druid-guardian",
+      "level": 2,
+      "win": true,
+      "time": 412,
+      "damage": 8181,
+      "deaths": 0
+    },
+    {
+      "id": "druid-guardian",
+      "level": 5,
+      "win": true,
+      "time": 429,
+      "damage": 10151,
+      "deaths": 0
+    },
+    {
+      "id": "priest-holy",
+      "level": 2,
+      "win": true,
+      "time": 400,
+      "damage": 3852,
+      "deaths": 0
+    },
+    {
+      "id": "priest-holy",
+      "level": 5,
+      "win": true,
+      "time": 413,
+      "damage": 4699,
+      "deaths": 0
+    },
+    {
+      "id": "shaman-resto",
+      "level": 2,
+      "win": true,
+      "time": 389,
+      "damage": 2071,
+      "deaths": 0
+    },
+    {
+      "id": "shaman-resto",
+      "level": 5,
+      "win": true,
+      "time": 427,
+      "damage": 2120,
+      "deaths": 0
+    },
+    {
+      "id": "monk-mist",
+      "level": 2,
+      "win": true,
+      "time": 398,
+      "damage": 3448,
+      "deaths": 0
+    },
+    {
+      "id": "monk-mist",
+      "level": 5,
+      "win": true,
+      "time": 411,
+      "damage": 4150,
+      "deaths": 0
+    },
+    {
+      "id": "druid-resto",
+      "level": 2,
+      "win": true,
+      "time": 398,
+      "damage": 3448,
+      "deaths": 0
+    },
+    {
+      "id": "druid-resto",
+      "level": 5,
+      "win": true,
+      "time": 411,
+      "damage": 4150,
+      "deaths": 0
+    },
+    {
+      "id": "mage-frost",
+      "level": 2,
+      "win": true,
+      "time": 400,
+      "damage": 12710,
+      "deaths": 0
+    },
+    {
+      "id": "mage-frost",
+      "level": 5,
+      "win": true,
+      "time": 413,
+      "damage": 16248,
+      "deaths": 0
+    },
+    {
+      "id": "warrior-fury",
+      "level": 2,
+      "win": true,
+      "time": 345,
+      "damage": 16359,
+      "deaths": 0
+    },
+    {
+      "id": "warrior-fury",
+      "level": 5,
+      "win": true,
+      "time": 360,
+      "damage": 20983,
+      "deaths": 0
+    },
+    {
+      "id": "warlock-demo",
+      "level": 2,
+      "win": true,
+      "time": 385,
+      "damage": 12000,
+      "deaths": 0
+    },
+    {
+      "id": "warlock-demo",
+      "level": 5,
+      "win": true,
+      "time": 403,
+      "damage": 15987,
+      "deaths": 0
+    },
+    {
+      "id": "dh-havoc",
+      "level": 2,
+      "win": true,
+      "time": 362,
+      "damage": 14736,
+      "deaths": 0
+    },
+    {
+      "id": "dh-havoc",
+      "level": 5,
+      "win": true,
+      "time": 372,
+      "damage": 18107,
+      "deaths": 0
+    },
+    {
+      "id": "evoker-dev",
+      "level": 2,
+      "win": true,
+      "time": 352,
+      "damage": 13944,
+      "deaths": 0
+    },
+    {
+      "id": "evoker-dev",
+      "level": 5,
+      "win": true,
+      "time": 390,
+      "damage": 19290,
+      "deaths": 0
+    }
+  ]
+}
