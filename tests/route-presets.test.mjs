@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {defaultPlan,validatePlan} from '../games/keystone/routes.js';
+import {presetPlan,ROUTE_STYLES} from '../games/keystone/route-presets.js';
+import {Run} from '../games/keystone/engine.js';
+import {DEFAULT_TEAM} from '../games/keystone/data.js';
+import {RouteEditor} from '../games/keystone/route-editor.js';
+const ids=p=>p.flatMap(w=>w.groups).sort();
+test('three simple styles retain all required packs and boss gates',()=>{const base=defaultPlan();const counts=[];for(const s of ROUTE_STYLES){const p=presetPlan(s.id);assert.ok(validatePlan(p).valid,s.id);assert.deepEqual(ids(p),ids(base));assert.deepEqual(p.filter(w=>w.boss!==undefined).map(w=>w.boss),[0,1,2]);counts.push(p.length);}assert.ok(counts[0]>counts[1]&&counts[1]>counts[2]);});
+test('switching style during a run protects the current wave and all completed waves',()=>{const base=presetPlan('aggressive');for(const locked of [0,4,base.length-2])for(const s of ROUTE_STYLES){const next=presetPlan(s.id,{plan:base,locked});assert.deepEqual(next.slice(0,locked+1),base.slice(0,locked+1));assert.deepEqual(ids(next),ids(base));assert.ok(validatePlan(next).valid);const run=new Run({team:DEFAULT_TEAM,dungeon:'ruby',plan:base});run.index=locked;assert.doesNotThrow(()=>run.replaceFuture(next));}});
+test('opening the simplified picker preserves a saved custom route',()=>{const custom=defaultPlan();custom[0].burst=!custom[0].burst;const editor=new RouteEditor(custom);assert.deepEqual(editor.plan,custom);assert.equal(editor.mode,'custom');assert.equal(editor.advanced,false);assert.ok(!editor.render().includes('优先打断'));editor.handle({dataset:{route:'advanced'}});assert.ok(editor.render().includes('优先打断'));});
+for(const s of ROUTE_STYLES)test(`${s.id} route completes a real starter run`,()=>{const r=new Run({team:DEFAULT_TEAM,dungeon:'ruby',seed:123,plan:presetPlan(s.id)});while(!r.result)r.update(.04);assert.equal(r.result.success,true);assert.equal(r.metrics.bosses,3);assert.equal(r.progress,100);});
