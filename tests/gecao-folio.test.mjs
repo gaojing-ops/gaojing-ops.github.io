@@ -39,6 +39,8 @@ test('new vocabulary covers every catalog and leaves all gameplay definitions in
  assert.equal(Object.keys(LORE.talents).length,48);assert.equal(Object.keys(LORE.skins).length,36);assert.equal(Object.keys(LORE.achievements).length,c.achievements.length);
  for(const [kind,rows] of Object.entries(LORE))for(const copy of Object.values(rows))assert.doesNotMatch(copy.name+copy.desc,/芯片|赛博|等离子|纳米|无人机|量子|FluxMusou|Cryomancer|Biohazard/,kind);
  assert.equal(JSON.stringify(c),before);assert.match(TRAITS.berserker,/20 个百分点/);assert.match(TRAITS.tracer,/2.5%/);
+ for(const boss of c.bosses)assert.equal(text(boss.name),boss.name,'achievement titles cannot rewrite a boss name');
+ assert.equal(text('林间强敌：熔心破坏者'),'林间强敌：熔心破坏者');
  assert.match(entry('skills','arcane').desc,/50 个百分点/);assert.match(text('数据强化 · 200 HP · 芯片'),/厚壳黑潮 · 200 生命 · 余烬/);
 });
 
@@ -149,4 +151,15 @@ test('stone notifications wrap long text without mutating timers, rewards or ran
  Math.random=()=>{throw Error('notification consumed combat RNG');};draws.length=0;
  try{for(const w of [390,1000]){g.achievements.draw(context,w,844);g.eventSystem.draw(context,w,844);g.eventEnhancer.draw(context,w,844);}}finally{Math.random=random;}
  assert.equal(fields(),before);assert.doesNotMatch(draws.join(''),/芯片|数据暴雨|🏆|HP|XP/);assert.ok(draws.some(line=>line.includes('血月临林')));
+});
+
+test('all nine real active skills render through native combat art without changing their effects',()=>{
+ const e=environment(true);
+ for(const id of Object.keys(e.catalogs.characters)){
+  e.game.startWithCharacter(id,[]);e.game._tutorialStep=-1;e.sm.switchTo('playing');
+  const p=e.game.player,target=e.game._createEnemy(p.x+70,p.y,'Bat');target.hp=1000;target.maxHp=1000;e.game.enemies=[target];
+  assert.equal(e.game.skillSystem.tryUse(),true,id);assert.ok(e.game.skillSystem.cooldown>0,id);
+  const snapshot=()=>JSON.stringify([p.hp,p.maxHp,p.bonusArmor,p.bonusMight,p.bonusSpeed,p.bonusCdr,p.thornDamage,p.x,p.y,e.game.playerInvincible,e.game.skillSystem.cooldown,target.hp,target.frozen,target.poisoned,target.poisonStacks,p.turrets]);
+  const before=snapshot();assert.doesNotThrow(()=>e.game.draw(),id);assert.equal(snapshot(),before,id);
+ }
 });

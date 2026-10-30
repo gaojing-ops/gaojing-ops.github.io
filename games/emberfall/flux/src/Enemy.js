@@ -1202,6 +1202,10 @@ class Enemy {
     }
 
     draw(ctx) {
+        if (Art.drawEnemyActor(ctx, this)) {
+            if (this.invincibleTimer > 0 && this._priestLinked) this._priestLinked = false;
+            return;
+        }
         // [NEW] Charger 预警红线 (画在最底层)
         if (this.behavior === 'charger' && this._chargeState === 'aiming') {
             ctx.save();

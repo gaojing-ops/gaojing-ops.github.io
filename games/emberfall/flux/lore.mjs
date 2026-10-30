@@ -381,6 +381,9 @@ export function registerLore(catalogs){
   const source=Array.isArray(collection)?collection.find(row=>row.id===id):collection?.[id];
   if(source){if((source.name||source.resultName)!=='默认'&&(source.name||source.resultName))replacements.set(source.name||source.resultName,entry.name);if(!['talents','meta','achievements'].includes(kind)&&(source.desc||source.resultDesc))replacements.set(source.desc||source.resultDesc,entry.desc);if(id.includes('_'))replacements.set(id,entry.name);}
  }
+ // Boss names are already Emberfall names. Match the whole name before a
+ // shorter achievement title can rewrite a substring such as “破坏者”.
+ for(const boss of catalogs.bosses||[])replacements.set(boss.name,boss.name);
  ordered=[...replacements].sort((a,b)=>b[0].length-a[0].length);pattern=null;cache.clear();
 }
 export function text(value=''){
