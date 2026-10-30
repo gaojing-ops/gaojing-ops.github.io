@@ -1,0 +1,10 @@
+{
+  "profiles": 2000,
+  "assumption": "All +20 clears succeed; actual loot/settle/autoEquip; start with tier18, fixed trinket effects; discard unused drops after each run",
+  "median": 15,
+  "p90": 21,
+  "p99": 26,
+  "max": 35,
+  "notFinishedAfter80": 0,
+  "maxNoUpgrade": 2
+}

@@ -27,9 +27,12 @@ export function autoEquip(p,ids=p.team){let changed=0;for(const id of ids){p.equ
 export function claimReserve(p,id){if(p.bag.length>=BAG_LIMIT)return false;const i=p.reserve.findIndex(i=>i.id===id);if(i<0)return false;p.bag.push(p.reserve.splice(i,1)[0]);return true;}
 export function settle(p,r){
  if(p.completed.includes(r.id)||p.bag.length+(r.loot?.length||0)>BAG_LIMIT)return false;
- if(r.success){const tier=tierForLevel(r.level),opportunities=p.team.flatMap(id=>['weapon','armor'].filter(slot=>(p.equipment[id]?.[slot]?.tier||0)<tier).map(slot=>({id,slot})));
-  const upgrades=r.loot.some(i=>i.slot!=='trinket'&&p.team.some(id=>itemScore(i,id)>itemScore(p.equipment[id]?.[i.slot],id)));
-  if(p.noUpgrade>=2&&!upgrades&&opportunities.length){const o=opportunities[0];r.loot[0]=makeItem({id:`${r.id}-guarantee`,slot:o.slot,role:spec(o.id).role,tier,from:'升级保底'});p.noUpgrade=0;}else p.noUpgrade=upgrades?0:p.noUpgrade+1;
+ if(r.success){const tier=tierForLevel(r.level),numeric=p.team.flatMap(id=>['weapon','armor'].filter(slot=>(p.equipment[id]?.[slot]?.tier||0)<tier).map(slot=>({id,slot})));
+  const opportunities=numeric.length?numeric:p.team.filter(id=>(p.equipment[id]?.trinket?.tier||0)<tier).map(id=>({id,slot:'trinket',effect:p.equipment[id]?.trinket?.effect}));
+  const upgrades=r.loot.some(i=>(i.slot!=='trinket'||!numeric.length)&&p.team.some(id=>{const old=p.equipment[id]?.[i.slot];return itemScore(i,id)>itemScore(old,id)&&(i.slot!=='trinket'||!old||(old.effect===i.effect&&i.tier>old.tier));}));
+  const stock=[...p.bag,...r.loot],empty=['weapon','armor'].flatMap(slot=>p.team.filter(id=>!p.equipment[id]?.[slot]).map(id=>({id,slot})));
+  const supply=(p.wins+1)%5===0?empty.find(o=>!stock.some(i=>i.slot===o.slot&&itemScore(i,o.id)>0)):null;
+  if(supply||(p.noUpgrade>=2&&!upgrades&&opportunities.length)){const o=supply||opportunities[0];r.loot[0]=makeItem({id:`${r.id}-guarantee`,slot:o.slot,role:spec(o.id).role,tier,effect:o.effect,from:supply?'空位补给':'升级保底'});p.noUpgrade=0;}else p.noUpgrade=upgrades?0:p.noUpgrade+1;
  }
  p.completed.push(r.id);p.completed=p.completed.slice(-200);p.runs++;if(r.success)p.wins++;if(r.success&&r.inTime)p.maxKey=Math.min(20,Math.max(p.maxKey,r.level+r.upgrade));p.bag.push(...(r.loot||[]));p.history.unshift(r);p.history=p.history.slice(0,12);p.checkpoint=null;return true;
 }
