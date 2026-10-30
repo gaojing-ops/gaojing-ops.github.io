@@ -18,7 +18,7 @@ python -m http.server 8000
 
 | 功能 | 电脑 | 手机 |
 | --- | --- | --- |
-| 移动 | WASD / 方向键 | 屏幕虚拟摇杆 |
+| 移动 | WASD / 方向键 | 按住画面空白处拖动，摇杆跟随落点 |
 | 攻击 | 自动瞄准与攻击 | 自动瞄准与攻击 |
 | 冲刺 | 空格 | 冲刺按钮 |
 | 暂停 / 继续 | P / Esc 或暂停按钮 | 暂停 / 继续按钮 |
@@ -37,8 +37,10 @@ python -m http.server 8000
 
 开发说明见 [DEVELOPMENT.md](../../docs/DEVELOPMENT.md)，包含状态流转、键盘事件、结算边界及回归测试方法。
 
-在仓库根目录运行 `node --test tests/game.test.mjs tests/blessings.mjs`（Node.js 22 或更新版本，无需安装依赖）。
+在仓库根目录运行 `node --test tests/game.test.mjs tests/blessings.mjs tests/touch-controls.test.mjs`（Node.js 22 或更新版本，无需安装依赖）。
 
 ## 神明赐福
 
 炎神强化伤害和灼烧，风神提升移速并缩短闪避冷却，雷神强化暴击，霜神减速敌人并增加护甲，森神提高生命和恢复。升级时选择一项赐福，可混合搭配；图鉴与本次构筑显示神明来源。人物脚下的闪避条显示剩余冷却和就绪状态。
+
+战斗区域上方常驻已获得的赐福名称和等级，横向滑动可查看更多；点击“详情”可暂停查看完整效果。无需再滚动到页面底部。

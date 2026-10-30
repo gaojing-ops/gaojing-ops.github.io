@@ -1,4 +1,5 @@
 import { createGame, DEITIES } from './game.js';
+import { bindFloatingJoystick } from './touch-controls.js';
 
 const $ = (id) => document.getElementById(id);
 const characters = {
@@ -33,8 +34,8 @@ const arena = $('arena');
 const canvas = $('game-canvas');
 const joystick = $('joystick');
 const knob = $('joystick-knob');
-let joystickPointer = null;
-let joystickCenter = { x: 0, y: 0 };
+const movementControl=bindFloatingJoystick({surface:$('game-stage'),joystick,knob,
+  isPlaying:()=>state==='playing'&&!dialog.open,onMove:(x,y)=>game?.setMovement(x,y)});
 
 try {
   const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
@@ -66,13 +67,7 @@ function toast(message) {
 }
 
 function clearJoystick() {
-  const capturedPointer = joystickPointer;
-  joystickPointer = null;
-  if (capturedPointer !== null) {
-    try { joystick.releasePointerCapture(capturedPointer); } catch { /* Capture may already have ended. */ }
-  }
-  knob.style.transform = '';
-  game?.setMovement(0,0);
+  movementControl.clear();
 }
 
 function setUIState(next) {
@@ -83,6 +78,7 @@ function setUIState(next) {
   $('upgrade-overlay').hidden = next !== 'upgrade';
   $('result-overlay').hidden = !['won','lost'].includes(next);
   $('run-hud').hidden = next === 'ready';
+  $('run-build').hidden = next === 'ready';
   $('xp-hud').hidden = next === 'ready';
   $('touch-controls').hidden = next !== 'playing';
   $('pause-button').disabled = !['playing','paused'].includes(next);
@@ -131,6 +127,8 @@ function updateStats(stats) {
   if (signature !== buildSignature) {
     buildSignature = signature;
     $('build-count').textContent = `${build.length} 项赐福`;
+    $('run-build-count').textContent=String(build.length);
+    $('run-build-items').innerHTML=build.length?build.map(item=>`<span class="run-build-chip" style="--item-color:${esc(item.color)}">${icon(item.icon)}${esc(item.name)} <b>Lv.${esc(item.level)}</b></span>`).join(''):'<span class="run-build-empty">升级后在这里查看已获得的加成</span>';
     $('build-list').innerHTML = build.length ? build.map(item => `<div class="build-item" style="--item-color:${esc(item.color)}" title="${esc(item.deity)} · ${esc(item.name)} · 等级 ${esc(item.level)} · 每层：${esc(item.description)}">${icon(item.icon)}<span><small>${esc(item.deity)}</small>${esc(item.name)}</span><b>${esc(item.level)}</b></div>`).join('') : `<div class="empty-build">${icon('rune')}<p>拾取余烬，迎接诸神的赐福</p></div>`;
   }
 }
@@ -242,7 +240,7 @@ function updateSoundButton() {
 }
 
 function renderHelp() {
-  return `<p class="guide-intro">你只需要移动与冲刺。守夜者会自动攻击附近的敌人，拾取他们留下的余烬，让每次升级成为新的可能。</p><div class="guide-steps"><div class="guide-card"><span>01 / MOVE</span><h3>保持移动，找准空隙</h3><p>用 WASD 或方向键移动。手机使用左下方摇杆。持续走位，避开密集怪群。</p></div><div class="guide-card"><span>02 / COLLECT</span><h3>拾取余烬，三选一强化</h3><p>靠近发光晶石即可收集经验。升级时战斗暂停，从三位神明的随机赐福中选择一项；不同神明侧重不同加成，可混合构筑。</p></div><div class="guide-card"><span>03 / DASH</span><h3>冲刺突围</h3><p>按空格或手机冲刺按钮，向移动方向冲刺。人物脚下的闪避条显示剩余冷却秒数，回满并显示“闪避就绪”后可再次使用。</p></div><div class="guide-card"><span>04 / SURVIVE</span><h3>击败噬光者，迎接黎明</h3><p>敌人会随时间变强。生存到 3 分钟后最终首领出现，击败它才算本次远征胜利。</p></div></div><div class="guide-controls"><span><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> 移动</span><span><kbd>SPACE</kbd> 冲刺</span><span><kbd>P</kbd> / <kbd>ESC</kbd> 暂停</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 选择强化</span></div><p class="codex-note">离开当前页面时，战斗会自动暂停。返回后点击“继续远征”。升级时必须完成选择；返回营地会结束当前远征。</p>`;
+  return `<p class="guide-intro">你只需要移动与冲刺。守夜者会自动攻击附近的敌人，拾取他们留下的余烬，让每次升级成为新的可能。</p><div class="guide-steps"><div class="guide-card"><span>01 / MOVE</span><h3>保持移动，找准空隙</h3><p>用 WASD 或方向键移动。手机按住战斗画面任意空白处，摇杆会在手指落点出现；拖动移动，松手停止。持续走位，避开密集怪群。</p></div><div class="guide-card"><span>02 / COLLECT</span><h3>拾取余烬，三选一强化</h3><p>靠近发光晶石即可收集经验。升级时战斗暂停，从三位神明的随机赐福中选择一项；不同神明侧重不同加成，可混合构筑。画面上方显示已获得的赐福，点击“详情”可查看等级与效果。</p></div><div class="guide-card"><span>03 / DASH</span><h3>冲刺突围</h3><p>按空格或手机冲刺按钮，向移动方向冲刺。人物脚下的闪避条显示剩余冷却秒数，回满并显示“闪避就绪”后可再次使用。</p></div><div class="guide-card"><span>04 / SURVIVE</span><h3>击败噬光者，迎接黎明</h3><p>敌人会随时间变强。生存到 3 分钟后最终首领出现，击败它才算本次远征胜利。</p></div></div><div class="guide-controls"><span><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> 移动</span><span><kbd>SPACE</kbd> 冲刺</span><span><kbd>P</kbd> / <kbd>ESC</kbd> 暂停</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 选择强化</span></div><p class="codex-note">离开当前页面时，战斗会自动暂停。返回后点击“继续远征”。升级时必须完成选择；返回营地会结束当前远征。</p>`;
 }
 
 function renderCodex() {
@@ -273,6 +271,13 @@ function renderRecords() {
   return `${summary}${history}<p class="records-note">展示最近 10 次完成的远征。${storageAvailable ? '战绩仅保存在当前浏览器；清除网站数据后会重置。' : '当前浏览器未允许持久保存；关闭页面后战绩可能丢失。'}</p>`;
 }
 
+function renderBuild() {
+  const stats=game.getSnapshot(),build=stats.build;
+  const intro=`<p class="guide-intro">本次远征已获得 ${build.length} 种持续赐福。卡片显示当前等级及每层效果，重复选择会叠加。</p>`;
+  const items=build.length?`<div class="owned-blessings">${build.map(item=>`<article class="owned-blessing" style="--item-color:${esc(item.color)}"><div class="owned-blessing-heading">${icon(item.icon)}<div><small>${esc(item.deity)}</small><h3>${esc(item.name)}</h3></div><b>Lv.${esc(item.level)}</b></div><p>每层：${esc(item.description)}</p></article>`).join('')}</div>`:'<div class="empty-build"><p>尚未获得赐福。拾取经验晶石，升级后选择一项加成。</p></div>';
+  return `${intro}<div class="build-vitals"><span>生命上限 <b>${Math.ceil(stats.maxHp)}</b></span><span>闪避冷却 <b>${stats.dashMax.toFixed(2)} 秒</b></span></div>${items}<p class="codex-note">灯下小憩是即时治疗，不计入持续赐福。查看时会暂停战斗；从战斗中打开时，关闭即可继续。</p>`;
+}
+
 function openModal(kind,opener) {
   if (dialog.open) return;
   modalOpener = opener || document.activeElement;
@@ -283,6 +288,7 @@ function openModal(kind,opener) {
     help:{title:'守夜者指南',eyebrow:'HOW TO SURVIVE',body:renderHelp},
     codex:{title:'余烬图鉴',eyebrow:'FIELD NOTES',body:renderCodex},
     records:{title:'远征手记',eyebrow:'YOUR JOURNEYS',body:renderRecords},
+    build:{title:'已获得的赐福',eyebrow:'YOUR BLESSINGS',body:renderBuild},
   };
   const content = types[kind] || types.help;
   $('dialog-title').textContent = content.title;
@@ -337,6 +343,7 @@ function interruptRun() {
 }
 document.addEventListener('visibilitychange',() => { if (document.hidden) interruptRun(); });
 window.addEventListener('blur',interruptRun);
+window.addEventListener('resize',clearJoystick);
 
 document.addEventListener('keydown',event => {
   if (dialog.open || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return;
@@ -364,29 +371,6 @@ document.addEventListener('keydown',event => {
   }
 });
 
-function updateJoystick(event) {
-  if (event.pointerId !== joystickPointer || state !== 'playing') return;
-  const dx = event.clientX - joystickCenter.x;
-  const dy = event.clientY - joystickCenter.y;
-  const distance = Math.hypot(dx,dy);
-  const maxDistance = 32;
-  const scale = distance > maxDistance ? maxDistance / distance : 1;
-  knob.style.transform = `translate(${dx*scale}px,${dy*scale}px)`;
-  const deadzone = 5;
-  if (distance <= deadzone) game.setMovement(0,0);
-  else game.setMovement(dx*scale/maxDistance,dy*scale/maxDistance);
-}
-joystick.addEventListener('pointerdown',event => {
-  if (state !== 'playing' || joystickPointer !== null) return;
-  event.preventDefault();
-  const rect = joystick.getBoundingClientRect();
-  joystickCenter={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
-  joystickPointer=event.pointerId;
-  joystick.setPointerCapture(event.pointerId);
-  updateJoystick(event);
-});
-joystick.addEventListener('pointermove',event => { if (event.pointerId === joystickPointer) { event.preventDefault(); updateJoystick(event); } });
-for (const name of ['pointerup','pointercancel','lostpointercapture']) joystick.addEventListener(name,event => { if (event.pointerId === joystickPointer) clearJoystick(); });
 $('dash-button').addEventListener('pointerdown',event => { event.preventDefault(); if (state === 'playing') game.dash(); });
 $('dash-button').addEventListener('click',event => { if (event.detail === 0 && state === 'playing') game.dash(); });
 
