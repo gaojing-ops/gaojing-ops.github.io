@@ -1,0 +1,4652 @@
+[
+  {
+    "label": "mixed",
+    "dungeon": "fangs",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 311,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 12,
+    "counts": {
+      "attack": 1248,
+      "heal": 72,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7003,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 680,
+          "y": 155
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3156,
+        "healing": 1786,
+        "rangeLost": 0,
+        "maxIdle": 1.9,
+        "maxAttackDistance": 27.1,
+        "maxHealDistance": 32.7,
+        "overlapPercent": 0.14,
+        "lastPosition": {
+          "x": 705,
+          "y": 180
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 17579,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.6,
+        "maxAttackDistance": 21.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 720,
+          "y": 124
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 17126,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.5,
+        "maxAttackDistance": 30.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 760,
+          "y": 174
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 16636,
+        "healing": 0,
+        "rangeLost": 24,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 658,
+          "y": 143
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "melee",
+    "dungeon": "murder",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 357,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1402,
+      "heal": 75,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8076,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 177,
+          "y": 21
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3719,
+        "healing": 1774,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 29,
+        "maxHealDistance": 38,
+        "overlapPercent": 0.36,
+        "lastPosition": {
+          "x": 237,
+          "y": 104
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-arms",
+        "damage": 23084,
+        "healing": 0,
+        "rangeLost": 12,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 182,
+          "y": 33
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 18162,
+        "healing": 0,
+        "rangeLost": 32,
+        "maxIdle": 2.9,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 190,
+          "y": 22
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "dh-havoc",
+        "damage": 17480,
+        "healing": 0,
+        "rangeLost": 36,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 208,
+          "y": 52
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "ranged",
+    "dungeon": "nalorakk",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 287,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 12,
+    "counts": {
+      "attack": 1112,
+      "heal": 58,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "warrior-prot",
+        "damage": 6042,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 654,
+          "y": 99
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-resto",
+        "damage": 2558,
+        "healing": 1534,
+        "rangeLost": 0,
+        "maxIdle": 3,
+        "maxAttackDistance": 29.1,
+        "maxHealDistance": 28.4,
+        "overlapPercent": 0.15,
+        "lastPosition": {
+          "x": 649,
+          "y": 157
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 17120,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 19.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 646,
+          "y": 124
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warlock-demo",
+        "damage": 17397,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.4,
+        "maxAttackDistance": 26.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 674,
+          "y": 151
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "evoker-dev",
+        "damage": 18383,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 20.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 652,
+          "y": 136
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "mixed",
+    "dungeon": "arena",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 310,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 12,
+    "counts": {
+      "attack": 1251,
+      "heal": 75,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 6962,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.6,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 638,
+          "y": 212
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3155,
+        "healing": 1693,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 33.4,
+        "maxHealDistance": 28.5,
+        "overlapPercent": 0.14,
+        "lastPosition": {
+          "x": 616,
+          "y": 232
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 17606,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3,
+        "maxAttackDistance": 27.5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.27,
+        "lastPosition": {
+          "x": 616,
+          "y": 215
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 17477,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 38.7,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.27,
+        "lastPosition": {
+          "x": 738,
+          "y": 270
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 16300,
+        "healing": 0,
+        "rangeLost": 26,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 673,
+          "y": 222
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "melee",
+    "dungeon": "kings",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 355,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1391,
+      "heal": 80,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7984,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 65,
+          "y": 277
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3582,
+        "healing": 1832,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 22.1,
+        "maxHealDistance": 31.5,
+        "overlapPercent": 0.97,
+        "lastPosition": {
+          "x": 132,
+          "y": 272
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-arms",
+        "damage": 23232,
+        "healing": 0,
+        "rangeLost": 14,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 78,
+          "y": 280
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 19349,
+        "healing": 0,
+        "rangeLost": 14,
+        "maxIdle": 3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 104,
+          "y": 318
+        },
+        "lastState": "超距 · 移动"
+      },
+      {
+        "id": "dh-havoc",
+        "damage": 16374,
+        "healing": 0,
+        "rangeLost": 41,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 93,
+          "y": 288
+        },
+        "lastState": "躲避"
+      }
+    ]
+  },
+  {
+    "label": "ranged",
+    "dungeon": "temple",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 345,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1282,
+      "heal": 62,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "warrior-prot",
+        "damage": 7163,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 78,
+          "y": 113
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-resto",
+        "damage": 2848,
+        "healing": 1691,
+        "rangeLost": 0,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 28.4,
+        "maxHealDistance": 31.8,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 94,
+          "y": 124
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 18989,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 29.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.37,
+        "lastPosition": {
+          "x": 109,
+          "y": 120
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warlock-demo",
+        "damage": 20746,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 30.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 125,
+          "y": 161
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "evoker-dev",
+        "damage": 20773,
+        "healing": 0,
+        "rangeLost": 3,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 24.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 90,
+          "y": 142
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "paladin-holy",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 386,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1334,
+      "heal": 84,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 10253,
+        "healing": 0,
+        "rangeLost": 3,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 272,
+          "y": 71
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "paladin-holy",
+        "damage": 4308,
+        "healing": 2728,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 26.5,
+        "maxHealDistance": 33.6,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 337,
+          "y": 45
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 18811,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 4.6,
+        "maxAttackDistance": 27.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 304,
+          "y": 50
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20747,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 39.5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.6,
+        "lastPosition": {
+          "x": 336,
+          "y": 110
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17886,
+        "healing": 0,
+        "rangeLost": 52,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 284,
+          "y": 64
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "paladin-prot",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 378,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1303,
+      "heal": 80,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 10032,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.6,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 272,
+          "y": 98
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4551,
+        "healing": 2578,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 26.5,
+        "maxHealDistance": 33.6,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 296,
+          "y": 53
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 18006,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 39.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 304,
+          "y": 98
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 19980,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 39.5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.62,
+        "lastPosition": {
+          "x": 307,
+          "y": 60
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17496,
+        "healing": 0,
+        "rangeLost": 52,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 282,
+          "y": 89
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "priest-holy",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 378,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1303,
+      "heal": 80,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 10032,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.6,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 272,
+          "y": 98
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4551,
+        "healing": 2578,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 26.5,
+        "maxHealDistance": 33.6,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 296,
+          "y": 53
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 18006,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 39.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 304,
+          "y": 98
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 19980,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 39.5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.62,
+        "lastPosition": {
+          "x": 307,
+          "y": 60
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17496,
+        "healing": 0,
+        "rangeLost": 52,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 282,
+          "y": 89
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "mage-frost",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 378,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1303,
+      "heal": 80,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 10032,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.6,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 272,
+          "y": 98
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4551,
+        "healing": 2578,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 26.5,
+        "maxHealDistance": 33.6,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 296,
+          "y": 53
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 18006,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 39.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 304,
+          "y": 98
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 19980,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 39.5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.62,
+        "lastPosition": {
+          "x": 307,
+          "y": 60
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17496,
+        "healing": 0,
+        "rangeLost": 52,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 282,
+          "y": 89
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "evoker-dev",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 379,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1283,
+      "heal": 85,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 9900,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 244,
+          "y": 89
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4404,
+        "healing": 2919,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 23.7,
+        "maxHealDistance": 22.7,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 267,
+          "y": 89
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "evoker-dev",
+        "damage": 19284,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.6,
+        "maxAttackDistance": 20.7,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 291,
+          "y": 30
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 21040,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 34.7,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.25,
+        "lastPosition": {
+          "x": 296,
+          "y": 43
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 18209,
+        "healing": 0,
+        "rangeLost": 49,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 253,
+          "y": 79
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "balanced",
+    "dungeon": "ruby",
+    "seed": 1,
+    "level": 2,
+    "success": true,
+    "time": 357,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 22,
+    "counts": {
+      "attack": 1268,
+      "heal": 79,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7460,
+        "healing": 0,
+        "rangeLost": 5,
+        "maxIdle": 1.9,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 286,
+          "y": 83
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3367,
+        "healing": 2142,
+        "rangeLost": 0,
+        "maxIdle": 1.9,
+        "maxAttackDistance": 30,
+        "maxHealDistance": 32.6,
+        "overlapPercent": 0.27,
+        "lastPosition": {
+          "x": 294,
+          "y": 54
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 15721,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 8.2,
+        "maxAttackDistance": 26.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.4,
+        "lastPosition": {
+          "x": 301,
+          "y": 75
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 16797,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.9,
+        "maxAttackDistance": 39.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.4,
+        "lastPosition": {
+          "x": 227,
+          "y": 16
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 14915,
+        "healing": 0,
+        "rangeLost": 46,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 283,
+          "y": 66
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "aggressive",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 2,
+    "success": true,
+    "time": 332,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 17,
+    "counts": {
+      "attack": 1175,
+      "heal": 83,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 6751,
+        "healing": 0,
+        "rangeLost": 19,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 272,
+          "y": 92
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 2903,
+        "healing": 2306,
+        "rangeLost": 2,
+        "maxIdle": 4.4,
+        "maxAttackDistance": 39.4,
+        "maxHealDistance": 28.6,
+        "overlapPercent": 0.28,
+        "lastPosition": {
+          "x": 273,
+          "y": 131
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 15326,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 6.3,
+        "maxAttackDistance": 39.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.56,
+        "lastPosition": {
+          "x": 331,
+          "y": 100
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 16274,
+        "healing": 0,
+        "rangeLost": 4,
+        "maxIdle": 6.1,
+        "maxAttackDistance": 40,
+        "maxHealDistance": 0,
+        "overlapPercent": 1.12,
+        "lastPosition": {
+          "x": 314,
+          "y": 17
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 15025,
+        "healing": 0,
+        "rangeLost": 46,
+        "maxIdle": 9.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 276,
+          "y": 52
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "melee",
+    "dungeon": "fangs",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 308,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 12,
+    "counts": {
+      "attack": 1207,
+      "heal": 72,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7024,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 4.7,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 658,
+          "y": 149
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3056,
+        "healing": 1585,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 30.8,
+        "maxHealDistance": 33.9,
+        "overlapPercent": 0.41,
+        "lastPosition": {
+          "x": 715,
+          "y": 156
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-arms",
+        "damage": 19605,
+        "healing": 0,
+        "rangeLost": 13,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 672,
+          "y": 136
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 16680,
+        "healing": 0,
+        "rangeLost": 17,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 677,
+          "y": 147
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "dh-havoc",
+        "damage": 15134,
+        "healing": 0,
+        "rangeLost": 29,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 661,
+          "y": 128
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "ranged",
+    "dungeon": "murder",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 345,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1290,
+      "heal": 63,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "warrior-prot",
+        "damage": 7266,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 217,
+          "y": 49
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-resto",
+        "damage": 2938,
+        "healing": 1681,
+        "rangeLost": 0,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 24.6,
+        "maxHealDistance": 26.2,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 259,
+          "y": 117
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 18608,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 30.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 240,
+          "y": 56
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warlock-demo",
+        "damage": 20075,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3,
+        "maxAttackDistance": 30.3,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 263,
+          "y": 90
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "evoker-dev",
+        "damage": 21634,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 24.3,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 235,
+          "y": 111
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "mixed",
+    "dungeon": "vale",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 361,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1423,
+      "heal": 84,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7979,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 270,
+          "y": 313
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3523,
+        "healing": 1892,
+        "rangeLost": 0,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 28.8,
+        "maxHealDistance": 28.8,
+        "overlapPercent": 0.36,
+        "lastPosition": {
+          "x": 328,
+          "y": 357
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 19956,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.9,
+        "maxAttackDistance": 28.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 263,
+          "y": 329
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20061,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 26.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 250,
+          "y": 351
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 19001,
+        "healing": 0,
+        "rangeLost": 27,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 245,
+          "y": 277
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "melee",
+    "dungeon": "arena",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 308,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 12,
+    "counts": {
+      "attack": 1205,
+      "heal": 70,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 6952,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 668,
+          "y": 206
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3142,
+        "healing": 1608,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 29.2,
+        "maxHealDistance": 31.4,
+        "overlapPercent": 0.28,
+        "lastPosition": {
+          "x": 619,
+          "y": 242
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-arms",
+        "damage": 20246,
+        "healing": 0,
+        "rangeLost": 22,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 671,
+          "y": 235
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 16180,
+        "healing": 0,
+        "rangeLost": 24,
+        "maxIdle": 2.9,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 665,
+          "y": 220
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "dh-havoc",
+        "damage": 14980,
+        "healing": 0,
+        "rangeLost": 31,
+        "maxIdle": 3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 678,
+          "y": 223
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "ranged",
+    "dungeon": "kings",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 343,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1284,
+      "heal": 61,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "warrior-prot",
+        "damage": 7191,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 41,
+          "y": 310
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-resto",
+        "damage": 2940,
+        "healing": 1669,
+        "rangeLost": 0,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 19.9,
+        "maxHealDistance": 29.2,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 129,
+          "y": 294
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 19170,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3,
+        "maxAttackDistance": 21.7,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 88,
+          "y": 260
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warlock-demo",
+        "damage": 19803,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 27.1,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 148,
+          "y": 286
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "evoker-dev",
+        "damage": 21416,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 21,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 120,
+          "y": 277
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "mixed",
+    "dungeon": "ruby",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 376,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1282,
+      "heal": 83,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8029,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 290,
+          "y": 77
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3532,
+        "healing": 2206,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 26.5,
+        "maxHealDistance": 28.7,
+        "overlapPercent": 0.5,
+        "lastPosition": {
+          "x": 351,
+          "y": 53
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 14656,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.9,
+        "maxAttackDistance": 20.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 287,
+          "y": 102
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 16016,
+        "healing": 0,
+        "rangeLost": 15,
+        "maxIdle": 16.6,
+        "maxAttackDistance": 39.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.25,
+        "lastPosition": {
+          "x": 310,
+          "y": 38
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 14048,
+        "healing": 0,
+        "rangeLost": 52,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 284,
+          "y": 47
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "warrior-arms",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 335,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1166,
+      "heal": 65,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8827,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 270,
+          "y": 120
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3951,
+        "healing": 1938,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 24.3,
+        "maxHealDistance": 33.7,
+        "overlapPercent": 0.57,
+        "lastPosition": {
+          "x": 234,
+          "y": 70
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-arms",
+        "damage": 19930,
+        "healing": 0,
+        "rangeLost": 43,
+        "maxIdle": 3.9,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 265,
+          "y": 94
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 18921,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 30.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.43,
+        "lastPosition": {
+          "x": 323,
+          "y": 71
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 15388,
+        "healing": 0,
+        "rangeLost": 56,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 283,
+          "y": 124
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "warrior-prot",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 383,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1318,
+      "heal": 84,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "warrior-prot",
+        "damage": 9463,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 226,
+          "y": 46
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4533,
+        "healing": 2545,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 27.1,
+        "maxHealDistance": 33.6,
+        "overlapPercent": 0.36,
+        "lastPosition": {
+          "x": 328,
+          "y": 51
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 17900,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 6.5,
+        "maxAttackDistance": 26.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 273,
+          "y": 43
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20438,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 27.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.36,
+        "lastPosition": {
+          "x": 277,
+          "y": 108
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 18562,
+        "healing": 0,
+        "rangeLost": 51,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 242,
+          "y": 71
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "shaman-resto",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 394,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1299,
+      "heal": 68,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 10442,
+        "healing": 0,
+        "rangeLost": 4,
+        "maxIdle": 1.7,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 316,
+          "y": 97
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-resto",
+        "damage": 2955,
+        "healing": 2725,
+        "rangeLost": 0,
+        "maxIdle": 5.1,
+        "maxAttackDistance": 29.1,
+        "maxHealDistance": 33.9,
+        "overlapPercent": 0.35,
+        "lastPosition": {
+          "x": 324,
+          "y": 38
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 19003,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 7.1,
+        "maxAttackDistance": 26.5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.35,
+        "lastPosition": {
+          "x": 292,
+          "y": 91
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 21649,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 27.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.23,
+        "lastPosition": {
+          "x": 285,
+          "y": 76
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 18787,
+        "healing": 0,
+        "rangeLost": 54,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 330,
+          "y": 99
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "warrior-fury",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 329,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1155,
+      "heal": 62,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8625,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 281,
+          "y": 118
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3958,
+        "healing": 1824,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 21.5,
+        "maxHealDistance": 30.7,
+        "overlapPercent": 0.58,
+        "lastPosition": {
+          "x": 275,
+          "y": 47
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-fury",
+        "damage": 19094,
+        "healing": 0,
+        "rangeLost": 40,
+        "maxIdle": 3.6,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 268,
+          "y": 80
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 18743,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 31.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.29,
+        "lastPosition": {
+          "x": 233,
+          "y": 99
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 15765,
+        "healing": 0,
+        "rangeLost": 45,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 262,
+          "y": 92
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "steady",
+    "dungeon": "ruby",
+    "seed": 1,
+    "level": 2,
+    "success": true,
+    "time": 378,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1298,
+      "heal": 79,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8148,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 309,
+          "y": 108
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3660,
+        "healing": 2169,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 25.3,
+        "maxHealDistance": 33.7,
+        "overlapPercent": 0.49,
+        "lastPosition": {
+          "x": 273,
+          "y": 29
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 14885,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.3,
+        "maxAttackDistance": 20.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 272,
+          "y": 132
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 15885,
+        "healing": 0,
+        "rangeLost": 16,
+        "maxIdle": 13.9,
+        "maxAttackDistance": 31.1,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 340,
+          "y": 35
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 14362,
+        "healing": 0,
+        "rangeLost": 50,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 318,
+          "y": 98
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "balanced",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 2,
+    "success": true,
+    "time": 348,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 22,
+    "counts": {
+      "attack": 1258,
+      "heal": 71,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7245,
+        "healing": 0,
+        "rangeLost": 4,
+        "maxIdle": 1.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 280,
+          "y": 122
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3453,
+        "healing": 2021,
+        "rangeLost": 0,
+        "maxIdle": 1.9,
+        "maxAttackDistance": 31.5,
+        "maxHealDistance": 31.9,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 361,
+          "y": 67
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 16106,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.8,
+        "maxAttackDistance": 30.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.27,
+        "lastPosition": {
+          "x": 292,
+          "y": 67
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 16980,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.9,
+        "maxAttackDistance": 31.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.41,
+        "lastPosition": {
+          "x": 306,
+          "y": 131
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 15135,
+        "healing": 0,
+        "rangeLost": 47,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 274,
+          "y": 83
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "aggressive",
+    "dungeon": "ruby",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 333,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 17,
+    "counts": {
+      "attack": 1186,
+      "heal": 78,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 6795,
+        "healing": 0,
+        "rangeLost": 17,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 298,
+          "y": 54
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 2941,
+        "healing": 2231,
+        "rangeLost": 2,
+        "maxIdle": 4.4,
+        "maxAttackDistance": 39.6,
+        "maxHealDistance": 28.6,
+        "overlapPercent": 0.56,
+        "lastPosition": {
+          "x": 282,
+          "y": 109
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 15036,
+        "healing": 0,
+        "rangeLost": 3,
+        "maxIdle": 7.8,
+        "maxAttackDistance": 39.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.28,
+        "lastPosition": {
+          "x": 261,
+          "y": 80
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 15696,
+        "healing": 0,
+        "rangeLost": 5,
+        "maxIdle": 6,
+        "maxAttackDistance": 39.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.28,
+        "lastPosition": {
+          "x": 308,
+          "y": 66
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 14932,
+        "healing": 0,
+        "rangeLost": 45,
+        "maxIdle": 9.6,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 286,
+          "y": 69
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "ranged",
+    "dungeon": "fangs",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 298,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 12,
+    "counts": {
+      "attack": 1124,
+      "heal": 51,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "warrior-prot",
+        "damage": 6072,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.7,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 669,
+          "y": 117
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-resto",
+        "damage": 2553,
+        "healing": 1397,
+        "rangeLost": 0,
+        "maxIdle": 3.5,
+        "maxAttackDistance": 31.2,
+        "maxHealDistance": 33.9,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 634,
+          "y": 161
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 16904,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 33.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.14,
+        "lastPosition": {
+          "x": 744,
+          "y": 176
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warlock-demo",
+        "damage": 17586,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.7,
+        "maxAttackDistance": 31.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 730,
+          "y": 133
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "evoker-dev",
+        "damage": 18386,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 24.5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 713,
+          "y": 118
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "mixed",
+    "dungeon": "nalorakk",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 310,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 12,
+    "counts": {
+      "attack": 1256,
+      "heal": 76,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7136,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 673,
+          "y": 93
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3103,
+        "healing": 1708,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 26.8,
+        "maxHealDistance": 26.7,
+        "overlapPercent": 0.27,
+        "lastPosition": {
+          "x": 677,
+          "y": 124
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 17888,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 29,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.27,
+        "lastPosition": {
+          "x": 621,
+          "y": 95
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 17267,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 35.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.27,
+        "lastPosition": {
+          "x": 625,
+          "y": 181
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 16105,
+        "healing": 0,
+        "rangeLost": 25,
+        "maxIdle": 3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 668,
+          "y": 105
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "melee",
+    "dungeon": "vale",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 361,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1373,
+      "heal": 84,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7865,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 301,
+          "y": 346
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3484,
+        "healing": 1879,
+        "rangeLost": 0,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 31.2,
+        "maxHealDistance": 36.2,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 225,
+          "y": 315
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-arms",
+        "damage": 23109,
+        "healing": 0,
+        "rangeLost": 23,
+        "maxIdle": 3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 263,
+          "y": 293
+        },
+        "lastState": "超距 · 移动"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 18047,
+        "healing": 0,
+        "rangeLost": 33,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 281,
+          "y": 351
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "dh-havoc",
+        "damage": 18015,
+        "healing": 0,
+        "rangeLost": 35,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 295,
+          "y": 334
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "ranged",
+    "dungeon": "arena",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 298,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 12,
+    "counts": {
+      "attack": 1134,
+      "heal": 53,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "warrior-prot",
+        "damage": 6209,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 4.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 641,
+          "y": 221
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-resto",
+        "damage": 2709,
+        "healing": 1504,
+        "rangeLost": 0,
+        "maxIdle": 2.6,
+        "maxAttackDistance": 30.9,
+        "maxHealDistance": 31.4,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 714,
+          "y": 284
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 16475,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 31.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 724,
+          "y": 293
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warlock-demo",
+        "damage": 17583,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.3,
+        "maxAttackDistance": 28.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 668,
+          "y": 252
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "evoker-dev",
+        "damage": 18524,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3,
+        "maxAttackDistance": 24.3,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.14,
+        "lastPosition": {
+          "x": 669,
+          "y": 282
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "mixed",
+    "dungeon": "temple",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 356,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1434,
+      "heal": 81,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7970,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 80,
+          "y": 104
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3638,
+        "healing": 1856,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 21.2,
+        "maxHealDistance": 22.1,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 61,
+          "y": 129
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 21107,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 28.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 113,
+          "y": 156
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20494,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 28.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.48,
+        "lastPosition": {
+          "x": 127,
+          "y": 160
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17311,
+        "healing": 0,
+        "rangeLost": 35,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 90,
+          "y": 89
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "melee",
+    "dungeon": "ruby",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 347,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1153,
+      "heal": 65,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7229,
+        "healing": 0,
+        "rangeLost": 3,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 319,
+          "y": 44
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3379,
+        "healing": 1578,
+        "rangeLost": 0,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 30.7,
+        "maxHealDistance": 33.5,
+        "overlapPercent": 0.81,
+        "lastPosition": {
+          "x": 237,
+          "y": 36
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-arms",
+        "damage": 16719,
+        "healing": 0,
+        "rangeLost": 55,
+        "maxIdle": 3.6,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 339,
+          "y": 55
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 13967,
+        "healing": 0,
+        "rangeLost": 58,
+        "maxIdle": 3.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 316,
+          "y": 57
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "dh-havoc",
+        "damage": 12345,
+        "healing": 0,
+        "rangeLost": 63,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 328,
+          "y": 62
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "shaman-elemental",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 372,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1283,
+      "heal": 81,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 9761,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 222,
+          "y": 57
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4418,
+        "healing": 2520,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 18,
+        "maxHealDistance": 21.5,
+        "overlapPercent": 0.38,
+        "lastPosition": {
+          "x": 227,
+          "y": 15
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-elemental",
+        "damage": 17413,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.7,
+        "maxAttackDistance": 24.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.38,
+        "lastPosition": {
+          "x": 293,
+          "y": 42
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20055,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 23.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.75,
+        "lastPosition": {
+          "x": 302,
+          "y": 92
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17309,
+        "healing": 0,
+        "rangeLost": 50,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 257,
+          "y": 55
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "dk-blood",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 364,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1233,
+      "heal": 153,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "dk-blood",
+        "damage": 13149,
+        "healing": 355,
+        "rangeLost": 3,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 227,
+          "y": 49
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 2904,
+        "healing": 4909,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 36.6,
+        "maxHealDistance": 24.4,
+        "overlapPercent": 0.39,
+        "lastPosition": {
+          "x": 262,
+          "y": 78
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 17778,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.2,
+        "maxAttackDistance": 31.1,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.13,
+        "lastPosition": {
+          "x": 305,
+          "y": 55
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 19710,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 37.1,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.26,
+        "lastPosition": {
+          "x": 323,
+          "y": 24
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17355,
+        "healing": 0,
+        "rangeLost": 46,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 237,
+          "y": 38
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "monk-mist",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 372,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1283,
+      "heal": 81,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 9775,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 222,
+          "y": 57
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "monk-mist",
+        "damage": 3961,
+        "healing": 2520,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 18,
+        "maxHealDistance": 21.5,
+        "overlapPercent": 0.38,
+        "lastPosition": {
+          "x": 227,
+          "y": 15
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 17789,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.7,
+        "maxAttackDistance": 24.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.38,
+        "lastPosition": {
+          "x": 293,
+          "y": 42
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20070,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 23.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.75,
+        "lastPosition": {
+          "x": 302,
+          "y": 92
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17363,
+        "healing": 0,
+        "rangeLost": 50,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 257,
+          "y": 55
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "warlock-demo",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 372,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1265,
+      "heal": 79,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 9831,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 236,
+          "y": 88
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4385,
+        "healing": 2556,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 24.2,
+        "maxHealDistance": 28.5,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 273,
+          "y": 34
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warlock-demo",
+        "damage": 19145,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 4.2,
+        "maxAttackDistance": 26.1,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 316,
+          "y": 80
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20286,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 29.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.38,
+        "lastPosition": {
+          "x": 340,
+          "y": 53
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17250,
+        "healing": 0,
+        "rangeLost": 46,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 301,
+          "y": 76
+        },
+        "lastState": "躲避"
+      }
+    ]
+  },
+  {
+    "label": "steady",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 2,
+    "success": true,
+    "time": 380,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1317,
+      "heal": 82,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8062,
+        "healing": 0,
+        "rangeLost": 5,
+        "maxIdle": 1.9,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 309,
+          "y": 57
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3799,
+        "healing": 2272,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 31.7,
+        "maxHealDistance": 34.3,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 238,
+          "y": 58
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 14617,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.5,
+        "maxAttackDistance": 26.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 264,
+          "y": 73
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 16942,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 30,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 232,
+          "y": 27
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 14400,
+        "healing": 0,
+        "rangeLost": 55,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 305,
+          "y": 48
+        },
+        "lastState": "接近目标"
+      }
+    ]
+  },
+  {
+    "label": "balanced",
+    "dungeon": "ruby",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 354,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 22,
+    "counts": {
+      "attack": 1277,
+      "heal": 71,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7484,
+        "healing": 0,
+        "rangeLost": 6,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 302,
+          "y": 134
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3426,
+        "healing": 1918,
+        "rangeLost": 0,
+        "maxIdle": 2,
+        "maxAttackDistance": 31.2,
+        "maxHealDistance": 32.8,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 275,
+          "y": 53
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 16298,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.7,
+        "maxAttackDistance": 29.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.13,
+        "lastPosition": {
+          "x": 284,
+          "y": 29
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 16914,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2,
+        "maxAttackDistance": 31.3,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.53,
+        "lastPosition": {
+          "x": 279,
+          "y": 41
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 15018,
+        "healing": 0,
+        "rangeLost": 49,
+        "maxIdle": 3.5,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 289,
+          "y": 130
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "mixed",
+    "dungeon": "murder",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 361,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1446,
+      "heal": 87,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8111,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 189,
+          "y": 50
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3668,
+        "healing": 1914,
+        "rangeLost": 0,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 30.3,
+        "maxHealDistance": 29.8,
+        "overlapPercent": 0.35,
+        "lastPosition": {
+          "x": 234,
+          "y": 67
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 19778,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.7,
+        "maxAttackDistance": 26.1,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 242,
+          "y": 79
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20815,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 30.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 244,
+          "y": 146
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 18148,
+        "healing": 0,
+        "rangeLost": 33,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 220,
+          "y": 60
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "melee",
+    "dungeon": "nalorakk",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 302,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 12,
+    "counts": {
+      "attack": 1209,
+      "heal": 68,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 6789,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 617,
+          "y": 91
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3104,
+        "healing": 1511,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 20.3,
+        "maxHealDistance": 27.3,
+        "overlapPercent": 0.28,
+        "lastPosition": {
+          "x": 678,
+          "y": 141
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-arms",
+        "damage": 19692,
+        "healing": 0,
+        "rangeLost": 12,
+        "maxIdle": 3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 649,
+          "y": 108
+        },
+        "lastState": "躲避"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 16640,
+        "healing": 0,
+        "rangeLost": 15,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 639,
+          "y": 88
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "dh-havoc",
+        "damage": 15275,
+        "healing": 0,
+        "rangeLost": 32,
+        "maxIdle": 3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 646,
+          "y": 99
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "ranged",
+    "dungeon": "vale",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 346,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1280,
+      "heal": 60,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "warrior-prot",
+        "damage": 7289,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 4.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 257,
+          "y": 281
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-resto",
+        "damage": 2804,
+        "healing": 1746,
+        "rangeLost": 0,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 28.8,
+        "maxHealDistance": 33.8,
+        "overlapPercent": 0.25,
+        "lastPosition": {
+          "x": 260,
+          "y": 378
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 18736,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 26.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 303,
+          "y": 355
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warlock-demo",
+        "damage": 20646,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.9,
+        "maxAttackDistance": 28.5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 298,
+          "y": 337
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "evoker-dev",
+        "damage": 21045,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 3.3,
+        "maxAttackDistance": 24.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 241,
+          "y": 323
+        },
+        "lastState": "接近目标"
+      }
+    ]
+  },
+  {
+    "label": "mixed",
+    "dungeon": "kings",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 354,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1427,
+      "heal": 83,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7864,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 66,
+          "y": 285
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3539,
+        "healing": 1835,
+        "rangeLost": 0,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 29.9,
+        "maxHealDistance": 29.5,
+        "overlapPercent": 0.36,
+        "lastPosition": {
+          "x": 41,
+          "y": 312
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 20744,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 2.7,
+        "maxAttackDistance": 21.3,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 135,
+          "y": 264
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20207,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 25.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.36,
+        "lastPosition": {
+          "x": 130,
+          "y": 304
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 18165,
+        "healing": 0,
+        "rangeLost": 28,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 87,
+          "y": 277
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "melee",
+    "dungeon": "temple",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 353,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 16,
+    "counts": {
+      "attack": 1387,
+      "heal": 79,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8120,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 2.6,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 85,
+          "y": 100
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3637,
+        "healing": 1818,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 25.6,
+        "maxHealDistance": 29.5,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 52,
+          "y": 128
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warrior-arms",
+        "damage": 23675,
+        "healing": 0,
+        "rangeLost": 12,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 69,
+          "y": 83
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 18554,
+        "healing": 0,
+        "rangeLost": 20,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 57,
+          "y": 79
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "dh-havoc",
+        "damage": 16533,
+        "healing": 0,
+        "rangeLost": 41,
+        "maxIdle": 5.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 72,
+          "y": 96
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "ranged",
+    "dungeon": "ruby",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 367,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1120,
+      "heal": 59,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "warrior-prot",
+        "damage": 7131,
+        "healing": 0,
+        "rangeLost": 4,
+        "maxIdle": 1.7,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 352,
+          "y": 74
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "shaman-resto",
+        "damage": 2456,
+        "healing": 1726,
+        "rangeLost": 0,
+        "maxIdle": 3.4,
+        "maxAttackDistance": 25.2,
+        "maxHealDistance": 29.2,
+        "overlapPercent": 0.13,
+        "lastPosition": {
+          "x": 271,
+          "y": 34
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 15285,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 4.2,
+        "maxAttackDistance": 31,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.13,
+        "lastPosition": {
+          "x": 268,
+          "y": 50
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "warlock-demo",
+        "damage": 15352,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 4.5,
+        "maxAttackDistance": 30.7,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.13,
+        "lastPosition": {
+          "x": 351,
+          "y": 31
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "evoker-dev",
+        "damage": 15396,
+        "healing": 0,
+        "rangeLost": 6,
+        "maxIdle": 4,
+        "maxAttackDistance": 24.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 378,
+          "y": 65
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "rogue-subtlety",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 340,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1178,
+      "heal": 66,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8960,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 305,
+          "y": 148
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4007,
+        "healing": 1938,
+        "rangeLost": 0,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 31,
+        "maxHealDistance": 28.3,
+        "overlapPercent": 0.56,
+        "lastPosition": {
+          "x": 261,
+          "y": 83
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-subtlety",
+        "damage": 20379,
+        "healing": 0,
+        "rangeLost": 48,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 306,
+          "y": 134
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 19281,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.5,
+        "maxAttackDistance": 31.1,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.42,
+        "lastPosition": {
+          "x": 285,
+          "y": 51
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 16328,
+        "healing": 0,
+        "rangeLost": 55,
+        "maxIdle": 3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 269,
+          "y": 127
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "druid-guardian",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 380,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1313,
+      "heal": 83,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "druid-guardian",
+        "damage": 8939,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 2.1,
+        "maxAttackDistance": 4.9,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 297,
+          "y": 107
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4516,
+        "healing": 2820,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 31.3,
+        "maxHealDistance": 27.3,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 219,
+          "y": 84
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 17467,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.7,
+        "maxAttackDistance": 21.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.24,
+        "lastPosition": {
+          "x": 318,
+          "y": 63
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20204,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 34.7,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 318,
+          "y": 84
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 18662,
+        "healing": 0,
+        "rangeLost": 45,
+        "maxIdle": 3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 304,
+          "y": 96
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "druid-resto",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 372,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1283,
+      "heal": 81,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 9775,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.3,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 222,
+          "y": 57
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "druid-resto",
+        "damage": 3961,
+        "healing": 2520,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 18,
+        "maxHealDistance": 21.5,
+        "overlapPercent": 0.38,
+        "lastPosition": {
+          "x": 227,
+          "y": 15
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 17789,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.7,
+        "maxAttackDistance": 24.2,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.38,
+        "lastPosition": {
+          "x": 293,
+          "y": 42
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 20070,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 23.6,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.75,
+        "lastPosition": {
+          "x": 302,
+          "y": 92
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 17363,
+        "healing": 0,
+        "rangeLost": 50,
+        "maxIdle": 3.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 257,
+          "y": 55
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "dh-havoc",
+    "dungeon": "ruby",
+    "seed": 42,
+    "level": 5,
+    "success": true,
+    "time": 339,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1202,
+      "heal": 62,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 9015,
+        "healing": 0,
+        "rangeLost": 1,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 255,
+          "y": 74
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 4177,
+        "healing": 1817,
+        "rangeLost": 0,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 27.2,
+        "maxHealDistance": 23,
+        "overlapPercent": 0.28,
+        "lastPosition": {
+          "x": 239,
+          "y": 86
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "dh-havoc",
+        "damage": 16709,
+        "healing": 0,
+        "rangeLost": 38,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 236,
+          "y": 69
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 19416,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 39.7,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.28,
+        "lastPosition": {
+          "x": 298,
+          "y": 88
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 15760,
+        "healing": 0,
+        "rangeLost": 53,
+        "maxIdle": 3.1,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 268,
+          "y": 69
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "steady",
+    "dungeon": "ruby",
+    "seed": 123,
+    "level": 2,
+    "success": true,
+    "time": 376,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 28,
+    "counts": {
+      "attack": 1282,
+      "heal": 83,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 8029,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 1.4,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 290,
+          "y": 77
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3532,
+        "healing": 2206,
+        "rangeLost": 0,
+        "maxIdle": 1.2,
+        "maxAttackDistance": 26.5,
+        "maxHealDistance": 28.7,
+        "overlapPercent": 0.5,
+        "lastPosition": {
+          "x": 351,
+          "y": 53
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 14656,
+        "healing": 0,
+        "rangeLost": 0,
+        "maxIdle": 5.9,
+        "maxAttackDistance": 20.8,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.12,
+        "lastPosition": {
+          "x": 287,
+          "y": 102
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 16016,
+        "healing": 0,
+        "rangeLost": 15,
+        "maxIdle": 16.6,
+        "maxAttackDistance": 39.4,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.25,
+        "lastPosition": {
+          "x": 310,
+          "y": 38
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 14048,
+        "healing": 0,
+        "rangeLost": 52,
+        "maxIdle": 2.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 284,
+          "y": 47
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  },
+  {
+    "label": "aggressive",
+    "dungeon": "ruby",
+    "seed": 1,
+    "level": 2,
+    "success": true,
+    "time": 345,
+    "deaths": 0,
+    "phase": "complete",
+    "index": 17,
+    "counts": {
+      "attack": 1222,
+      "heal": 86,
+      "violations": 0
+    },
+    "heroes": [
+      {
+        "id": "paladin-prot",
+        "damage": 7139,
+        "healing": 0,
+        "rangeLost": 21,
+        "maxIdle": 3.8,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 274,
+          "y": 109
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "priest-holy",
+        "damage": 3001,
+        "healing": 2409,
+        "rangeLost": 2,
+        "maxIdle": 4.4,
+        "maxAttackDistance": 39.4,
+        "maxHealDistance": 28.4,
+        "overlapPercent": 0.67,
+        "lastPosition": {
+          "x": 259,
+          "y": 111
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "mage-frost",
+        "damage": 15094,
+        "healing": 0,
+        "rangeLost": 2,
+        "maxIdle": 10.7,
+        "maxAttackDistance": 36.7,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.13,
+        "lastPosition": {
+          "x": 270,
+          "y": 124
+        },
+        "lastState": "接近目标"
+      },
+      {
+        "id": "hunter-bm",
+        "damage": 16310,
+        "healing": 0,
+        "rangeLost": 4,
+        "maxIdle": 6.2,
+        "maxAttackDistance": 40,
+        "maxHealDistance": 0,
+        "overlapPercent": 0.27,
+        "lastPosition": {
+          "x": 309,
+          "y": 41
+        },
+        "lastState": "站定施法"
+      },
+      {
+        "id": "rogue-outlaw",
+        "damage": 15396,
+        "healing": 0,
+        "rangeLost": 49,
+        "maxIdle": 9.1,
+        "maxAttackDistance": 5,
+        "maxHealDistance": 0,
+        "overlapPercent": 0,
+        "lastPosition": {
+          "x": 285,
+          "y": 117
+        },
+        "lastState": "站定施法"
+      }
+    ]
+  }
+]
