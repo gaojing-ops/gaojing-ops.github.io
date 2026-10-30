@@ -4,7 +4,7 @@
 
 当前导入源码包含 34 种武器、26 种被动、9 个角色及 10 种 Boss 定义，以及武器进化、元素协同、诅咒、事件、遗物、宠物、天赋、芯片成长、章节奖励、每日挑战、首领连战、速通与无尽模式。以实际代码为准，不沿用旧交接文档中的过期数量或数值。
 
-- 默认原玩法：`index.html`、`flux.css`、`flux/browser.mjs`、`flux/bundle.mjs`。
+- 默认原玩法：`index.html`、`flux.css`、`flux/browser.mjs`、`flux/camp.mjs`、`flux/bundle.mjs`。营地首页采用原暗林庭院和暖金网页样式，角色、旅程与附加试炼直接在首页选择；点击「踏入长夜」进入所选角色的一局。
 - 原三分钟试炼：`trial.html`、`app.js`、`game.js`、`styles.css`、`touch-controls.js`；保留原浏览器战绩。
 - 移植细节、原规则和验证范围：[开发说明](../../docs/GECAO_INTEGRATION.md)。
 

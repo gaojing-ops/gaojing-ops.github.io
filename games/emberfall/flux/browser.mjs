@@ -1,3 +1,4 @@
+import {createCamp} from './camp.mjs';
 const WIDTH=390,HEIGHT=844;
 const PREFIX='gaojing-emberfall-flux-v1:';
 const ASSET_BASE=new URL('./',import.meta.url);
@@ -22,12 +23,13 @@ export function createBrowserPlatform(canvas){
 export function mountFlux(runtime,platform){
  const {game,sm,SFX,canvas,ctx,info,dpr,CHARACTERS}=runtime;
  const status=document.getElementById('status'),controls=document.getElementById('scene-controls');
- const keys=new Set();let primary=null,last=0,raf=0,disposed=false,signature='',suspended=false;
+ const keys=new Set();let primary=null,last=0,raf=0,disposed=false,signature='',suspended=false,campVisible=false;
  let keyboardVector={x:0,y:0};const originalVector=game.input.getVector.bind(game.input);
  game.input.getVector=()=>keys.size?keyboardVector:originalVector();
  const position=event=>{const r=canvas.getBoundingClientRect();return {clientX:(event.clientX-r.left)*WIDTH/r.width,clientY:(event.clientY-r.top)*HEIGHT/r.height,identifier:event.pointerId};};
  const dispatch=(kind,touch)=>{const event={touches:kind==='end'||kind==='cancel'?[]:[touch],changedTouches:[touch]};for(const fn of platform.listeners[kind])fn(event);};
  function clearMovement(){keys.clear();keyboardVector={x:0,y:0};game.input._end();game.lastTouchState=false;if(primary!==null){try{canvas.releasePointerCapture(primary);}catch{}primary=null;}}
+ const camp=createCamp(runtime,platform,()=>{clearMovement();game.lastTime=null;last=0;signature='';syncControls();if(game.isRunning)canvas.focus({preventScroll:true});});
  function pause(){clearMovement();if(game.isRunning){game.isPaused=true;SFX.pauseBGM();}game.lastTime=null;last=0;}
  function togglePause(){if(!game.isRunning)return;if(game.isPaused){game.isPaused=false;SFX.resumeBGM();game.lastTime=null;last=0;}else pause();syncControls();}
  function actionAt(x,y){if(game.isRunning){game._handleTouchInput(x,y,game.input);game.lastTouchState=game.input.active;} }
@@ -68,6 +70,7 @@ export function mountFlux(runtime,platform){
   const stageReward=game.stageSystem?.state==='reward',bossReward=game.bossRushMode?.state==='reward';
   const next=JSON.stringify([name,game.isPaused,game.autoPlay,game.autoUpgrade,game._tutorialStep,scene?.selectedCharId,scene?.options?.map(o=>[o.id,o.name,o.desc]),game.stageSystem?.currentStage,stageReward,bossReward]);
   const pauseButton=document.getElementById('pause-web');pauseButton.disabled=!game.isRunning;pauseButton.textContent=game.isPaused?'继续':'暂停';
+  campVisible=camp.sync();if(campVisible){controls.replaceChildren();signature='';return;}
   if(next===signature)return;signature=next;controls.replaceChildren();
   if(name==='playing'&&game._tutorialStep>=0){button(game._tutorialStep<2?'继续引导':'开始战斗',()=>game._advanceTutorial());return;}
   if(stageReward){for(const [i,reward] of game.stageSystem.rewardOptions.entries())button(reward.name+' · '+reward.desc,()=>game.stageSystem.applyReward(i));return;}
@@ -102,16 +105,16 @@ export function mountFlux(runtime,platform){
     const y=Number(keys.has('s')||keys.has('arrowdown'))-Number(keys.has('w')||keys.has('arrowup'));const length=Math.hypot(x,y)||1;
     keyboardVector={x:x/length,y:y/length};game.time+=dt;game.frameDt=dt;game.update(dt);
    }
-   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,WIDTH,HEIGHT);ctx.save();
-   try{if(game.isRunning||game.stageSystem?.state==='reward'||game.bossRushMode&&sm.currentSceneName==='playing')game.draw();else sm.draw(ctx,WIDTH,HEIGHT);}finally{ctx.restore();}
+   if(!campVisible){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,WIDTH,HEIGHT);ctx.save();
+   try{if(game.isRunning||game.stageSystem?.state==='reward'||game.bossRushMode&&sm.currentSceneName==='playing')game.draw();else sm.draw(ctx,WIDTH,HEIGHT);}finally{ctx.restore();}}
    const minutes=String(Math.floor(game.time/60)).padStart(2,'0'),seconds=String(Math.floor(game.time%60)).padStart(2,'0');
    if(game.isRunning)status.textContent=`${game.isPaused?'已暂停':'远征中'} · ${minutes}:${seconds} / 20:00 · Lv.${game.player.level} · 击败 ${game.player.kills}`;
-   else status.textContent=({title:'20 分钟 · 五章远征 · 原版数值',charSelect:'选择角色，每位角色有独立武器与技能',curseSelect:'选择已解锁诅咒，或直接开始挑战',upgrade:'战斗已暂停，请选择强化',gameOver:'本次远征已结算'})[sm.currentSceneName]||'营地';
+   else status.textContent=({title:'远征待命 · 灰烬林地',charSelect:'远征待命 · 选择守夜者',curseSelect:'选择已解锁诅咒，或直接开始挑战',upgrade:'战斗已暂停，请选择强化',gameOver:'本次远征已结算'})[sm.currentSceneName]||'营地';
    syncControls();document.getElementById('loading').hidden=true;
   }catch(error){console.error('Emberfall browser runtime:',error);status.textContent='游戏遇到错误：'+error.message;document.getElementById('loading').textContent='游戏启动失败，请刷新重试。';}
   raf=requestAnimationFrame(frame);
  }
  canvas.focus({preventScroll:true});syncControls();raf=requestAnimationFrame(frame);
- window.addEventListener('pagehide',()=>{disposed=true;cancelAnimationFrame(raf);clearMovement();SFX.stopBGM();});
+ window.addEventListener('pagehide',()=>{disposed=true;cancelAnimationFrame(raf);clearMovement();camp.destroy();SFX.stopBGM();});
  window.addEventListener('pageshow',event=>{if(event.persisted){disposed=false;last=0;pause();raf=requestAnimationFrame(frame);}});
 }

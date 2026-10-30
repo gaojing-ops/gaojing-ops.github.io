@@ -26022,5 +26022,6 @@ module.exports = { PASSIVE_DEFS, Weapon, WEAPON_DEFS };
 const cache=new Map();
 function load(id){if(cache.has(id))return cache.get(id).exports;const record=factories[id];if(!record)throw Error('Missing module '+id);const module={exports:{}};cache.set(id,module);record[0](request=>load(record[1][request]),module,module.exports);return module.exports;}
 const runtime=load('entry.js');
-await load('src/Art.js').preload();
+runtime.art=load('src/Art.js');
+await runtime.art.preload();
 mountFlux(runtime,platform);
