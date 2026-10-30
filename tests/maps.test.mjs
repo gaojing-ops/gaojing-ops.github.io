@@ -7,21 +7,23 @@ import {DUNGEONS,DEFAULT_TEAM} from '../games/keystone/data.js';
 import {Run} from '../games/keystone/engine.js';
 const ref=JSON.parse(fs.readFileSync(new URL('../games/keystone/maps/source.json',import.meta.url),'utf8'));
 const root=new URL('../',import.meta.url);
-test('homepage keeps Keystone and both games have working navigation and assets',()=>{
+test('homepage opens Emberfall first and both games have working navigation and assets',()=>{
  const homepage=fs.readFileSync(new URL('index.html',root),'utf8');
- assert.equal(homepage,fs.readFileSync(new URL('games/keystone/index.html',root),'utf8'));
+ assert.match(homepage,/<meta http-equiv="refresh" content="0;url=\/games\/emberfall\/">/);
  for(const path of ['index.html','games/keystone/index.html','games/emberfall/index.html']){
   const html=fs.readFileSync(new URL(path,root),'utf8');
   assert.match(html,/aria-label="切换游戏"/);
   assert.match(html,/href="\/games\/keystone\/"/);
   assert.match(html,/href="\/games\/emberfall\/"/);
   assert.match(html,/href="\/games\/navigation\.css"/);
-  assert.match(html,new RegExp('href="/games/'+(path.includes('emberfall')?'emberfall':'keystone')+'/" aria-current="page"'));
+  assert.match(html,new RegExp('href="/games/'+(path.includes('keystone')?'keystone':'emberfall')+'/" aria-current="page"'));
+  const switcher=html.match(/<nav class="game-switcher"[^>]*>([\s\S]*?)<\/nav>/)[1];
+  assert.ok(switcher.indexOf('/games/emberfall/')<switcher.indexOf('/games/keystone/'));
   for(const [,asset] of html.matchAll(/(?:src|href)="([^"#]+\.(?:js|css))"/g)){
    assert.ok(fs.existsSync(asset.startsWith('/')?new URL('.'+asset,root):new URL(asset,new URL(path,root))),`Missing ${asset} in ${path}`);
   }
  }
- assert.match(homepage,/src="\/games\/keystone\/app\.js"/);
+ assert.match(fs.readFileSync(new URL('games/keystone/index.html',root),'utf8'),/src="\/games\/keystone\/app\.js"/);
  assert.match(fs.readFileSync(new URL('games/emberfall/index.html',root),'utf8'),/src="\.\/flux\/bundle\.mjs(?:\?v=[a-f0-9]+)?"/);
 });
 
