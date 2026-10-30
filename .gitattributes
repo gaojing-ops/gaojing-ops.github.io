@@ -1,0 +1,5 @@
+# Preserve the imported source snapshot exactly, including its original line endings.
+games/emberfall/flux/src/** -text -whitespace
+# This generated file embeds the source snapshot verbatim.
+games/emberfall/flux/bundle.mjs -text -whitespace
+games/emberfall/flux/entry.js text eol=lf
