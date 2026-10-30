@@ -15,7 +15,7 @@ function engine() {
     window: {addEventListener: (key, fn) => listeners.set(key,fn), removeEventListener() {}},
     requestAnimationFrame: () => 1, cancelAnimationFrame() {} };
   vm.createContext(sandbox);
-  const instrumented = source.replace('export function createGame', 'function createGame')
+  const instrumented = source.replace(/^export /gm, '')
     .replace('return {start,pause,resume,restart:', `return {test:{
       update, checkLevel, hurtEnemy, castLightning,
       player:()=>p, keys:()=>keys, choices:()=>choices,

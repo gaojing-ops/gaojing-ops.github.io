@@ -37,4 +37,8 @@ python -m http.server 8000
 
 开发说明见 [DEVELOPMENT.md](../../docs/DEVELOPMENT.md)，包含状态流转、键盘事件、结算边界及回归测试方法。
 
-在仓库根目录运行 `node --test tests/game.test.mjs`（Node.js 22 或更新版本，无需安装依赖）。
+在仓库根目录运行 `node --test tests/game.test.mjs tests/blessings.mjs`（Node.js 22 或更新版本，无需安装依赖）。
+
+## 神明赐福
+
+炎神强化伤害和灼烧，风神提升移速并缩短闪避冷却，雷神强化暴击，霜神减速敌人并增加护甲，森神提高生命和恢复。升级时选择一项赐福，可混合搭配；图鉴与本次构筑显示神明来源。人物脚下的闪避条显示剩余冷却和就绪状态。

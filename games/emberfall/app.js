@@ -1,4 +1,4 @@
-import { createGame } from './game.js';
+import { createGame, DEITIES } from './game.js';
 
 const $ = (id) => document.getElementById(id);
 const characters = {
@@ -118,9 +118,9 @@ function updateStats(stats) {
   $('wave-label').textContent = stats.boss ? '终局 · 噬光者' : `第 ${String(stats.wave || 1).padStart(2,'0')} 波`;
   $('level-text').textContent = `LV. ${stats.level}`;
   $('xp-fill').style.width = `${clamp(stats.xp / Math.max(1,stats.xpNext) * 100,0,100)}%`;
-  const cooling = stats.dashCooldown > .05;
+  const cooling = stats.dashCooldown > 0;
   $('dash-button').disabled = cooling || state !== 'playing';
-  $('dash-text').textContent = cooling ? `${stats.dashCooldown.toFixed(1)}s` : '冲刺';
+  $('dash-text').textContent = cooling ? `${(Math.ceil(stats.dashCooldown*10)/10).toFixed(1)}s` : '闪避';
   $('boss-hud').hidden = !stats.boss || stats.state === 'ready' || stats.state === 'won' || stats.state === 'lost';
   if (stats.boss) {
     $('boss-name').textContent = stats.boss.name;
@@ -130,8 +130,8 @@ function updateStats(stats) {
   const signature = build.map(item => `${item.id}:${item.level}`).join('|');
   if (signature !== buildSignature) {
     buildSignature = signature;
-    $('build-count').textContent = `${build.length} 项强化`;
-    $('build-list').innerHTML = build.length ? build.map(item => `<div class="build-item" title="${esc(item.name)} · 等级 ${esc(item.level)}">${icon(item.icon)}<span>${esc(item.name)}</span><b>${esc(item.level)}</b></div>`).join('') : `<div class="empty-build">${icon('rune')}<p>拾取余烬，唤醒你的力量</p></div>`;
+    $('build-count').textContent = `${build.length} 项赐福`;
+    $('build-list').innerHTML = build.length ? build.map(item => `<div class="build-item" style="--item-color:${esc(item.color)}" title="${esc(item.deity)} · ${esc(item.name)} · 等级 ${esc(item.level)} · 每层：${esc(item.description)}">${icon(item.icon)}<span><small>${esc(item.deity)}</small>${esc(item.name)}</span><b>${esc(item.level)}</b></div>`).join('') : `<div class="empty-build">${icon('rune')}<p>拾取余烬，迎接诸神的赐福</p></div>`;
   }
 }
 
@@ -146,8 +146,8 @@ function showUpgrade(options, level) {
     const [rarity,color] = rarities[option.rarity] || rarities.common;
     const button = document.createElement('button');
     button.className = 'upgrade-card';
-    button.style.setProperty('--card-color',color);
-    button.innerHTML = `<span class="upgrade-rarity">${rarity}强化</span><span class="upgrade-icon">${icon(option.icon)}</span><strong>${esc(option.name)}</strong><p>${esc(option.description)}</p><span class="upgrade-number">${index+1}</span>`;
+    button.style.setProperty('--card-color',option.color || color);
+    button.innerHTML = `<span class="upgrade-rarity">${rarity}赐福</span><span class="upgrade-icon">${icon(option.icon)}</span><span class="upgrade-deity">${esc(option.deity)}</span><strong>${esc(option.name)}</strong><p>${esc(option.description)}</p><span class="upgrade-number">${index+1}</span>`;
     button.addEventListener('click', () => selectUpgrade(index,epoch));
     $('upgrade-choices').append(button);
   });
@@ -242,11 +242,17 @@ function updateSoundButton() {
 }
 
 function renderHelp() {
-  return `<p class="guide-intro">你只需要移动与冲刺。守夜者会自动攻击附近的敌人，拾取他们留下的余烬，让每次升级成为新的可能。</p><div class="guide-steps"><div class="guide-card"><span>01 / MOVE</span><h3>保持移动，找准空隙</h3><p>用 WASD 或方向键移动。手机使用左下方摇杆。持续走位，避开密集怪群。</p></div><div class="guide-card"><span>02 / COLLECT</span><h3>拾取余烬，三选一强化</h3><p>靠近发光晶石即可收集经验。升级时战斗暂停，从三项随机强化中选择一项。</p></div><div class="guide-card"><span>03 / DASH</span><h3>冲刺突围</h3><p>按空格或手机冲刺按钮，向移动方向冲刺。冷却结束后可再次使用，危险时留作退路。</p></div><div class="guide-card"><span>04 / SURVIVE</span><h3>击败噬光者，迎接黎明</h3><p>敌人会随时间变强。生存到 3 分钟后最终首领出现，击败它才算本次远征胜利。</p></div></div><div class="guide-controls"><span><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> 移动</span><span><kbd>SPACE</kbd> 冲刺</span><span><kbd>P</kbd> / <kbd>ESC</kbd> 暂停</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 选择强化</span></div><p class="codex-note">离开当前页面时，战斗会自动暂停。返回后点击“继续远征”。升级时必须完成选择；返回营地会结束当前远征。</p>`;
+  return `<p class="guide-intro">你只需要移动与冲刺。守夜者会自动攻击附近的敌人，拾取他们留下的余烬，让每次升级成为新的可能。</p><div class="guide-steps"><div class="guide-card"><span>01 / MOVE</span><h3>保持移动，找准空隙</h3><p>用 WASD 或方向键移动。手机使用左下方摇杆。持续走位，避开密集怪群。</p></div><div class="guide-card"><span>02 / COLLECT</span><h3>拾取余烬，三选一强化</h3><p>靠近发光晶石即可收集经验。升级时战斗暂停，从三位神明的随机赐福中选择一项；不同神明侧重不同加成，可混合构筑。</p></div><div class="guide-card"><span>03 / DASH</span><h3>冲刺突围</h3><p>按空格或手机冲刺按钮，向移动方向冲刺。人物脚下的闪避条显示剩余冷却秒数，回满并显示“闪避就绪”后可再次使用。</p></div><div class="guide-card"><span>04 / SURVIVE</span><h3>击败噬光者，迎接黎明</h3><p>敌人会随时间变强。生存到 3 分钟后最终首领出现，击败它才算本次远征胜利。</p></div></div><div class="guide-controls"><span><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> 移动</span><span><kbd>SPACE</kbd> 冲刺</span><span><kbd>P</kbd> / <kbd>ESC</kbd> 暂停</span><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 选择强化</span></div><p class="codex-note">离开当前页面时，战斗会自动暂停。返回后点击“继续远征”。升级时必须完成选择；返回营地会结束当前远征。</p>`;
 }
 
 function renderCodex() {
+  const patrons = Object.values(DEITIES).map(god => `<div class="codex-item deity-codex" style="--deity-color:${esc(god.color)}">${icon(god.icon)}<div><h3>${esc(god.name)} · ${esc(god.title)}</h3><p>${esc(god.description)}</p></div></div>`).join('');
   const items = [
+    ['flame','灼日神火','炎神赐福：每层主武器伤害 +18%，灼烧每秒 +4 伤害，持续 2.6 秒。'],
+    ['wind','流风神行','风神赐福：每层移速 +8%，闪避冷却缩短 15%。'],
+    ['bolt','雷霆裁决','雷神赐福：每层暴击率 +10 个百分点，暴击伤害倍率 +0.25。'],
+    ['rune','寒月之触','霜神赐福：命中减速 57%，每层延长 0.6 秒，并增加 1 点护甲。'],
+    ['heart','森息复苏','森神赐福：每层生命上限 +20、恢复 20 生命，每秒恢复 +0.5。'],
     ['flame','燃心 / 余烬','提高伤害，或让攻击留下持续灼烧。适合直接增强火力。'],
     ['arrow','分光 / 破雾','增加射弹数量，或让射弹穿透更多敌人。应对密集怪群。'],
     ['orbit','环火','召唤围绕自身的火焰，对靠近的敌人造成伤害。'],
@@ -258,7 +264,7 @@ function renderCodex() {
     ['magnet','引星','扩大余烬拾取范围，更快形成自己的构筑。'],
     ['rune','明烛','提高暴击能力，让关键一击更有力量。'],
   ];
-  return `<p class="guide-intro">没有唯一的正确构筑。远程火力、近身环火、闪电霜环，尝试把不同强化组合起来。</p><div class="codex-grid">${items.map(([i,name,description]) => `<div class="codex-item">${icon(i)}<div><h3>${name}</h3><p>${description}</p></div></div>`).join('')}</div><p class="codex-note">升级选项随机出现，可重复强化至上限。每分钟留意更强的敌人，三分钟时准备迎战最终首领。</p>`;
+  return `<p class="guide-intro">五位神明，各有所长。升级时接受一项赐福，可混合不同神明的力量；所有加成仅在本次远征生效。</p><div class="codex-grid deity-grid">${patrons}</div><h3 class="codex-subtitle">赐福与强化</h3><div class="codex-grid">${items.map(([i,name,description]) => `<div class="codex-item">${icon(i)}<div><h3>${name}</h3><p>${description}</p></div></div>`).join('')}</div><p class="codex-note">升级选项随机出现，可重复强化至上限。每分钟留意更强的敌人，三分钟时准备迎战最终首领。</p>`;
 }
 
 function renderRecords() {
