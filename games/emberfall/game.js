@@ -10,7 +10,19 @@ const CHARACTERS = {
   ranger: { name:'逐风者', color:COLORS.cyan, hp:80, damage:15, speed:240, interval:.34, armor:0 },
   sentinel: { name:'铁卫', color:'#b7b8d9', hp:140, damage:27, speed:185, interval:.60, armor:3 }
 };
+export const DEITIES = {
+  flame: { name:'炎神 · 烛照', title:'烈焰与毁灭', color:'#efad76', icon:'flame', description:'强化主武器与灼烧，让火焰持续吞噬敌人。', upgrades:['power','orbit','fire','sun'] },
+  wind: { name:'风神 · 乘岚', title:'疾行与闪避', color:'#80d5c1', icon:'wind', description:'提高攻速与移速，缩短闪避冷却，穿过敌人的包围。', upgrades:['haste','speed','dash','gale'] },
+  thunder: { name:'雷神 · 震霄', title:'雷霆与暴击', color:'#c4aff2', icon:'bolt', description:'召来连锁闪电，提高暴击率与暴击伤害。', upgrades:['lightning','critical','multishot','storm'] },
+  frost: { name:'霜神 · 凝月', title:'寒霜与守护', color:'#96d5ef', icon:'rune', description:'以冰霜减缓敌人，用护甲与穿透守住战线。', upgrades:['nova','armor','pierce','frostbite'] },
+  forest: { name:'森神 · 青萝', title:'生长与复苏', color:'#abd18c', icon:'heart', description:'增加生命与持续恢复，更轻松地收集余烬。', upgrades:['vitality','regen','magnet','heal','verdure'] }
+};
 const UPGRADES = [
+  {id:'sun',name:'灼日神火',description:'主武器伤害 +18%；命中附加灼烧，每层每秒 4 点伤害，持续 2.6 秒。',rarity:'epic',icon:'flame',max:3},
+  {id:'gale',name:'流风神行',description:'移速 +8%，闪避冷却缩短 15%。',rarity:'rare',icon:'wind',max:3},
+  {id:'storm',name:'雷霆裁决',description:'暴击率 +10 个百分点，暴击伤害倍率 +0.25。',rarity:'epic',icon:'bolt',max:3},
+  {id:'frostbite',name:'寒月之触',description:'主武器命中使敌人减速 57%，每层持续 0.6 秒；护甲 +1。',rarity:'rare',icon:'rune',max:3},
+  {id:'verdure',name:'森息复苏',description:'生命上限 +20，立即恢复 20 生命；每秒恢复 +0.5。',rarity:'rare',icon:'heart',max:3},
   {id:'power',name:'燃心',description:'主武器伤害提高 25%。',rarity:'common',color:COLORS.amber,icon:'flame',max:5},
   {id:'haste',name:'急雨',description:'自动攻击间隔缩短 15%。',rarity:'common',color:COLORS.cyan,icon:'bolt',max:5},
   {id:'multishot',name:'分光',description:'每次攻击额外发射 1 枚弹道。',rarity:'rare',color:COLORS.amber,icon:'arrow',max:3},
@@ -24,10 +36,13 @@ const UPGRADES = [
   {id:'magnet',name:'引星',description:'经验拾取范围扩大 40。',rarity:'common',color:COLORS.cyan,icon:'magnet',max:3},
   {id:'armor',name:'石肤',description:'每次受击减少 2 点伤害。',rarity:'common',color:'#b8b5a9',icon:'shield',max:3},
   {id:'regen',name:'回春',description:'每秒自动恢复 0.8 点生命。',rarity:'rare',color:COLORS.cyan,icon:'heart',max:3},
-  {id:'critical',name:'明烛',description:'暴击率提高 14%；暴击造成双倍伤害。',rarity:'rare',color:COLORS.amber,icon:'flame',max:3},
+  {id:'critical',name:'明烛',description:'暴击率 +14 个百分点；基础暴击为双倍伤害，可由雷霆裁决提升。',rarity:'rare',color:COLORS.amber,icon:'flame',max:3},
   {id:'dash',name:'踏影',description:'闪避冷却缩短 20%。',rarity:'common',color:COLORS.purple,icon:'wind',max:2},
   {id:'heal',name:'灯下小憩',description:'立即恢复 50% 最大生命。',rarity:'common',color:COLORS.red,icon:'heart',max:99}
-];
+].map(upgrade => {
+  const deityId=Object.keys(DEITIES).find(id=>DEITIES[id].upgrades.includes(upgrade.id));
+  return {...upgrade,deityId,deity:DEITIES[deityId].name,color:DEITIES[deityId].color};
+});
 
 export function createGame(canvas, hooks = {}) {
   const ctx = canvas.getContext('2d', {alpha:false});
@@ -93,6 +108,7 @@ export function createGame(canvas, hooks = {}) {
   function resetPlayer() {
     const c=CHARACTERS[character];
     p={x:WORLD.w/2,y:WORLD.h/2,r:13,hp:c.hp,maxHp:c.hp,damage:c.damage,speed:c.speed,interval:c.interval,armor:c.armor,pickup:75,crit:.05,pierce:0,multishot:1,regen:0,inv:0,dashTimer:0,dashCooldown:0,dashMax:3,dashX:0,dashY:-1,face:-Math.PI/2,walk:0};
+    p.critMultiplier=2;p.chillDuration=0;
   }
   resetPlayer();
   function resize() {
@@ -121,7 +137,7 @@ export function createGame(canvas, hooks = {}) {
   function emitStats() {safeHook('onStats',getSnapshot());}
   function getSnapshot() {
     const boss=enemies.find(e=>e.type==='boss'&&e.hp>0);
-    return {state,time,kills,level,hp:Math.max(0,p.hp),maxHp:p.maxHp,xp,xpNext,wave,dashCooldown:p.dashCooldown,dashMax:p.dashMax,character,build:Object.entries(build).filter(([id,n])=>n>0&&id!=='heal').map(([id,n])=>{const u=UPGRADES.find(x=>x.id===id);return {id,name:u?.name||id,level:n,color:u?.color||COLORS.amber,icon:u?.icon||'flame'};}),boss:boss?{name:'噬光者 · 长夜之主',hp:boss.hp,maxHp:boss.maxHp}:null};
+    return {state,time,kills,level,hp:Math.max(0,p.hp),maxHp:p.maxHp,xp,xpNext,wave,dashCooldown:p.dashCooldown,dashMax:p.dashMax,character,build:Object.entries(build).filter(([id,n])=>n>0&&id!=='heal').map(([id,n])=>{const u=UPGRADES.find(x=>x.id===id);return {id,name:u?.name||id,deity:u?.deity,description:u?.description,level:n,color:u?.color||COLORS.amber,icon:u?.icon||'flame'};}),boss:boss?{name:'噬光者 · 长夜之主',hp:boss.hp,maxHp:boss.maxHp}:null};
   }
   function start(id='warden') {
     character=CHARACTERS[id]?id:'warden';time=0;kills=0;level=1;wave=1;xp=0;xpNext=6;
@@ -143,7 +159,17 @@ export function createGame(canvas, hooks = {}) {
     p.dashTimer=.19;p.inv=Math.max(p.inv,.25);p.dashCooldown=p.dashMax;
     addRing(p.x,p.y,55,CHARACTERS[character].color,.3);tone(180,.13,'triangle',.3,-120);return true;
   }
-  function handleKeyDown(e){const key=e.key.toLowerCase();if(e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;if(state!=='playing')return;if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){e.preventDefault();keys.add(key);if(key===' '&&!e.repeat)dash();}}
+  function handleKeyDown(e){
+    if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.isComposing)return;
+    if(e.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
+    if(state!=='playing')return;
+    const key=e.key.toLowerCase();
+    // Space activates a focused control; it only dashes from the play surface.
+    if(key===' '&&e.target?.closest?.('button,a[href],[role="button"]'))return;
+    if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){
+      e.preventDefault();keys.add(key);if(key===' '&&!e.repeat)dash();
+    }
+  }
   function handleKeyUp(e){keys.delete(e.key.toLowerCase());}
   function handleBlur(){clearInput();pause();}
   window.addEventListener('keydown',handleKeyDown);window.addEventListener('keyup',handleKeyUp);window.addEventListener('blur',handleBlur);
@@ -161,10 +187,11 @@ export function createGame(canvas, hooks = {}) {
   function addRing(x,y,r,color,life=.45){effects.push({type:'ring',x,y,r,color,life,max:life});if(effects.length>45)effects.shift();}
   function floating(x,y,text,color=COLORS.amber,size=14){if(texts.length<60)texts.push({x,y,text:String(text),color,life:.7,max:.7,size});}
   function hurtEnemy(e,amount,critical=false,source='shot') {
-    if(e.hp<=0)return;
+    if(state!=='playing'||e.hp<=0)return;
     e.hp-=amount;e.hit=.12;
     if(source!=='burn')floating(e.x+rand(-5,5),e.y-e.r-4,Math.round(amount),critical?COLORS.amber:'#d8e3ce',critical?18:12);
-    if(source==='shot'&&build.fire){e.burn=2.6;e.burnTick=Math.min(e.burnTick,.3);}
+    if(source==='shot'&&(build.fire||build.sun)){e.burn=2.6;e.burnTick=Math.min(e.burnTick,.3);}
+    if(source==='shot'&&p.chillDuration)e.slow=Math.max(e.slow,p.chillDuration);
     if(e.hp<=0) {
       kills++;addParticles(e.x,e.y,e.type==='boss'?COLORS.purple:e.type==='spider'?'#cba57b':'#72a38c',e.type==='boss'?45:e.type==='elite'?22:8,90);
       if(e.type==='boss'){end(true);return;}
@@ -190,15 +217,26 @@ export function createGame(canvas, hooks = {}) {
     if(state!=='playing'||xp<xpNext)return;
     xp-=xpNext;level++;xpNext=Math.floor(6+level*3.2);p.hp=Math.min(p.maxHp,p.hp+Math.max(4,p.maxHp*.045));
     const eligible=UPGRADES.filter(u=>(build[u.id]||0)<u.max&&(u.id!=='heal'||p.hp<p.maxHp*.72));
+    // A fully developed build must never open an empty, inescapable picker.
+    if(!eligible.length)eligible.push(UPGRADES.find(u=>u.id==='heal'));
     // New abilities are gently favored early; every pick still changes the run.
     const weighted=eligible.map(u=>({u,key:Math.random()+(level<5&&['orbit','lightning','nova'].includes(u.id)?.18:0)})).sort((a,b)=>b.key-a.key);
-    choices=weighted.slice(0,3).map(({u})=>({...u,description:(build[u.id]&&u.id!=='heal'?`Lv.${build[u.id]} → ${build[u.id]+1} · `:'')+u.description}));
+    // Offer different patrons whenever possible; fall back only as their pools run out.
+    const offered=[];
+    for(const {u} of weighted)if(!offered.some(other=>other.deityId===u.deityId)&&offered.length<3)offered.push(u);
+    for(const {u} of weighted)if(offered.length<3&&!offered.includes(u))offered.push(u);
+    choices=offered.map(u=>({...u,description:(build[u.id]&&u.id!=='heal'?`Lv.${build[u.id]} → ${build[u.id]+1} · `:'')+u.description}));
     addRing(p.x,p.y,150,COLORS.amber,.7);tone(660,.22,'sine',.25,440);setState('upgrade');safeHook('onUpgrade',choices,level);
   }
   function chooseUpgrade(id) {
     if(state!=='upgrade'||!choices.some(c=>c.id===id))return false;
     const chosen=choices.find(c=>c.id===id);build[id]=(build[id]||0)+1;
     switch(id){
+      case'sun':p.damage*=1.18;break;
+      case'gale':p.speed*=1.08;p.dashMax*=.85;p.dashCooldown=Math.min(p.dashCooldown,p.dashMax);break;
+      case'storm':p.crit+=.1;p.critMultiplier+=.25;break;
+      case'frostbite':p.chillDuration+=.6;p.armor++;break;
+      case'verdure':p.maxHp+=20;p.hp=Math.min(p.maxHp,p.hp+20);p.regen+=.5;break;
       case'power':p.damage*=1.25;break;case'haste':p.interval*=.85;break;
       case'multishot':p.multishot++;break;case'pierce':p.pierce++;break;
       case'speed':p.speed*=1.12;break;case'vitality':p.maxHp+=25;p.hp=Math.min(p.maxHp,p.hp+25);break;
@@ -206,7 +244,7 @@ export function createGame(canvas, hooks = {}) {
       case'critical':p.crit+=.14;break;case'dash':p.dashMax*=.8;p.dashCooldown=Math.min(p.dashCooldown,p.dashMax);break;
       case'heal':p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.5);break;
     }
-    choices=[];soundInit();tone(523,.12,'sine',.24,260);setState('playing');safeHook('onToast',chosen.name+' · 力量已觉醒');checkLevel();return true;
+    choices=[];soundInit();tone(523,.12,'sine',.24,260);setState('playing');safeHook('onToast',chosen.deity+'赐福 · '+chosen.name);checkLevel();return true;
   }
   function autoAttack() {
     let target=null,best=440;
@@ -215,7 +253,7 @@ export function createGame(canvas, hooks = {}) {
     const a=Math.atan2(target.y-p.y,target.x-p.x);p.face=a;
     for(let i=0;i<p.multishot;i++) {
       const angle=a+(i-(p.multishot-1)/2)*.15,crit=Math.random()<p.crit;
-      if(shots.length<170)shots.push({x:p.x+Math.cos(angle)*14,y:p.y-5+Math.sin(angle)*14,vx:Math.cos(angle)*540,vy:Math.sin(angle)*540,r:character==='sentinel'?5:4,damage:p.damage*(crit?2:1),crit,pierce:p.pierce,hit:new Set(),life:1.3,angle});
+      if(shots.length<170)shots.push({x:p.x+Math.cos(angle)*14,y:p.y-5+Math.sin(angle)*14,vx:Math.cos(angle)*540,vy:Math.sin(angle)*540,r:character==='sentinel'?5:4,damage:p.damage*(crit?p.critMultiplier:1),crit,pierce:p.pierce,hit:new Set(),life:1.3,angle});
     }
     if(Math.random()<.6)tone(character==='ranger'?480:320,.05,'triangle',.13,-160);return true;
   }
@@ -262,10 +300,11 @@ export function createGame(canvas, hooks = {}) {
     if(!bossSpawned&&time>=180){bossSpawned=true;spawnEnemy('boss');safeHook('onToast','长夜之主已现身 · 击败它，迎接黎明');shake=5;tone(80,.6,'sawtooth',.3,-30);}
     if(build.lightning){lightningTimer-=dt;if(lightningTimer<=0){castLightning();lightningTimer=4.5;}}
     if(build.nova){novaTimer-=dt;if(novaTimer<=0){castNova();novaTimer=5.8;}}
+    if(state!=='playing')return;
     // Enemy movement and contact. A gentle separation keeps crowds readable.
     for(const e of enemies){
       if(e.hp<=0)continue;e.hit=Math.max(0,e.hit-dt);e.slow=Math.max(0,e.slow-dt);e.orbCd=Math.max(0,e.orbCd-dt);e.phase+=dt*3;
-      if(e.burn>0){e.burn-=dt;e.burnTick-=dt;if(e.burnTick<=0){hurtEnemy(e,4+build.fire*4,false,'burn');e.burnTick=.5;}if(e.hp<=0)continue;}
+      if(e.burn>0){e.burn-=dt;e.burnTick-=dt;if(e.burnTick<=0){hurtEnemy(e,(build.fire?4+build.fire*4:0)+(build.sun||0)*2,false,'burn');e.burnTick=.5;}if(e.hp<=0)continue;}
       let ex=p.x-e.x,ey=p.y-e.y,d=Math.hypot(ex,ey)||1;e.face=Math.atan2(ey,ex);
       const speed=e.speed*(e.slow>0?.43:1),keep=e.type==='moth'?180:0;
       if(d>keep){e.x+=ex/d*speed*dt;e.y+=ey/d*speed*dt;}else if(e.type==='moth'&&d<140){e.x-=ex/d*speed*dt*.4;e.y-=ey/d*speed*dt*.4;}
@@ -282,9 +321,12 @@ export function createGame(canvas, hooks = {}) {
       s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;
       if(s.life<=0)continue;
       for(const e of enemies){if(e.hp<=0||s.hit.has(e.id))continue;if(Math.hypot(s.x-e.x,s.y-e.y)<e.r+s.r+2){s.hit.add(e.id);hurtEnemy(e,s.damage,s.crit);addParticles(s.x,s.y,CHARACTERS[character].color,3,35);if(s.pierce--<=0){s.life=0;break;}}}
+      if(state!=='playing')return;
     }
     for(const s of hostile){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(Math.hypot(s.x-p.x,s.y-p.y)<p.r+s.r&&p.dashTimer<=0){hurtPlayer(s.damage);s.life=0;}}
+    if(state!=='playing')return;
     for(const w of warnings){w.life-=dt;if(w.life<=0){addRing(w.x,w.y,w.r,COLORS.purple,.4);addParticles(w.x,w.y,COLORS.purple,18,150);if(Math.hypot(w.x-p.x,w.y-p.y)<w.r+p.r)hurtPlayer(w.damage);}}
+    if(state!=='playing')return;
     warnings=warnings.filter(w=>w.life>0);
     for(const g of gems){
       let d=dist(g,p);if(d<p.pickup)g.pull=true;
@@ -376,6 +418,19 @@ export function createGame(canvas, hooks = {}) {
     if((e.hp<e.maxHp||e.type==='elite')&&e.type!=='boss'&&!demo){const w=Math.max(20,e.r*2);ctx.fillStyle='#0b1713';ctx.fillRect(e.x-w/2,e.y-e.r-18,w,3);ctx.fillStyle=e.type==='elite'?COLORS.amber:'#9b9686';ctx.fillRect(e.x-w/2,e.y-e.r-18,w*Math.max(0,e.hp/e.maxHp),3);}
   }
   function visible(o,margin=100){return Math.abs(o.x-camera.x)<view.w/view.scale/2+margin&&Math.abs(o.y-camera.y)<view.h/view.scale/2+margin;}
+  function drawDashBar() {
+    if(!['playing','paused','upgrade'].includes(state))return;
+    const ready=p.dashCooldown<=0,progress=clamp(1-p.dashCooldown/p.dashMax,0,1);
+    // Screen-space sizing keeps the bar readable on phones and independent of sprite blinking.
+    ctx.save();ctx.translate(p.x,p.y+22);ctx.scale(1/view.scale,1/view.scale);
+    ctx.fillStyle='#081710ed';ctx.fillRect(-33,-2,66,10);
+    ctx.fillStyle='#31473e';ctx.fillRect(-30,1,60,4);
+    ctx.fillStyle=ready?COLORS.cyan:COLORS.purple;ctx.fillRect(-30,1,60*progress,4);
+    ctx.font='600 10px system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='top';
+    const label=ready?'闪避就绪':`闪避 ${(Math.ceil(p.dashCooldown*10)/10).toFixed(1)}s`;
+    ctx.lineWidth=3;ctx.strokeStyle='#081710';ctx.strokeText(label,0,11);
+    ctx.fillStyle=ready?'#b8efda':'#e0d5fa';ctx.fillText(label,0,11);ctx.restore();
+  }
   function render() {
     ctx.setTransform(view.dpr,0,0,view.dpr,0,0);ctx.fillStyle='#0c1815';ctx.fillRect(0,0,view.w,view.h);
     let sx=shake?rand(-shake,shake):0,sy=shake?rand(-shake,shake):0;
@@ -404,7 +459,7 @@ export function createGame(canvas, hooks = {}) {
     // Directional off-screen boss hint prevents a lost final encounter.
     const boss=enemies.find(e=>e.type==='boss'&&e.hp>0);
     if(boss&&!visible(boss,-45)){const a=Math.atan2(boss.y-p.y,boss.x-p.x),r=Math.min(view.w,view.h)/view.scale*.36,x=p.x+Math.cos(a)*r,y=p.y+Math.sin(a)*r;ctx.save();ctx.translate(x,y);ctx.rotate(a);poly([[12,0],[-5,-7],[-2,0],[-5,7]],COLORS.purple);ctx.restore();}
-    ctx.restore();
+    drawDashBar();ctx.restore();
     // Quiet vignette sits below all DOM game controls.
     const v=ctx.createRadialGradient(view.w*.5,view.h*.45,Math.min(view.w,view.h)*.2,view.w*.5,view.h*.5,Math.max(view.w,view.h)*.7);v.addColorStop(0,'#06110d00');v.addColorStop(1,'#06110d99');ctx.fillStyle=v;ctx.fillRect(0,0,view.w,view.h);
     if(p.hp/p.maxHp<.25&&state==='playing'){ctx.strokeStyle=`rgba(204,92,84,${.18+Math.sin(ambient*5)*.08})`;ctx.lineWidth=12;ctx.strokeRect(0,0,view.w,view.h);}
