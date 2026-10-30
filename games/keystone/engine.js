@@ -100,6 +100,18 @@ export class Run {
   if(dist(leader,n)<5&&!this.travel.length&&this.alive().every(h=>dist(h,leader)<120)){this.recoverPoint={x:n.x,y:n.y};this.spawn();}
  }
  chooseTarget(h){const s=spec(h.id),tank=this.heroes[0],targets=this.targets().filter(e=>dist(e,tank)<RULES.leash);const priority=this.route[this.index].priority;return targets.sort((a,b)=>(b.npcId===Number(priority)?1:0)-(a.npcId===Number(priority)?1:0)||(b.cast?1:0)-(a.cast?1:0)||a.hp-b.hp)[0];}
+ rangedPosition(h,target,tank){
+  const s=spec(h.id),preferred=s.attackRange*RULES.unitsPerYard*.6;
+  const angle=Math.atan2(h.y-target.y,h.x-target.x),candidates=[];
+  for(const radius of [preferred,Math.max(36,preferred*.75),36])for(let i=0;i<24;i++){
+   const a=angle+i*Math.PI/12,p={x:target.x+Math.cos(a)*radius,y:target.y+Math.sin(a)*radius};
+   if(!navigable(this.dungeon,p,35)||dist(p,tank)>Math.min(RULES.leash,s.healRange*RULES.unitsPerYard*.9))continue;
+   const crowd=this.alive().filter(other=>other!==h).reduce((n,other)=>n+Math.max(0,RULES.separation-dist(p,other))*3,0);
+   const danger=this.targets().reduce((n,e)=>n+Math.max(0,28-dist(p,e))*5,0);
+   candidates.push({p,score:dist(h,p)+Math.abs(radius-preferred)*.25+crowd+danger});
+  }
+  candidates.sort((a,b)=>a.score-b.score);return candidates[0]?.p||null;
+ }
  combat(dt){
   this.battleClock+=dt;this.engageClock+=dt;const n=this.route[this.index],tank=this.heroes[0];
   let pullDest=null;
@@ -118,7 +130,8 @@ export class Run {
     const angle=Math.atan2(target.y-tank.y,target.x-tank.x),r=s.melee?(s.role==='tank'?12:13):s.attackRange*RULES.unitsPerYard*.6;
     const offset=s.role==='tank'?Math.PI:s.melee?(i%2?1:-1)*1.5:Math.PI+(i-2)*.28;
     const p={x:target.x+Math.cos(angle+offset)*r,y:target.y+Math.sin(angle+offset)*r};
-    if(s.melee&&!this.range(h,target,s.attackRange)||!s.melee&&(dist(h,target)>s.attackRange*RULES.unitsPerYard*.85||dist(h,target)<35))destination=navigable(this.dungeon,p,35)?p:target;
+    if(s.melee&&!this.range(h,target,s.attackRange))destination=navigable(this.dungeon,p,35)?p:target;
+    else if(!s.melee&&(dist(h,target)>s.attackRange*RULES.unitsPerYard*.85||dist(h,target)<35))destination=this.rangedPosition(h,target,tank);
     h.state=destination?'接近目标':'站定施法';
    }
    if(destination){let step=destination;if(!hazard&&dist(h,destination)>55){if(!h.approach?.length||!h.approachGoal||dist(h.approachGoal,destination)>35){h.approach=pathTo(this.dungeon,h,destination)||[destination];h.approachGoal={x:destination.x,y:destination.y};}while(h.approach.length>1&&dist(h,h.approach[0])<5)h.approach.shift();step=h.approach[0]||destination;}else h.approach=[];h.moving=this.move(h,step,hazard?100:RULES.moveSpeed,dt);if(!h.moving)h.approach=[];}
@@ -130,6 +143,7 @@ export class Run {
    if(s.role==='tank'&&h.tauntCd===0){const loose=this.targets().find(e=>e.target!==h.id&&this.range(h,e,s.tauntRange));if(loose){loose.threat[h.id]=Math.max(0,...Object.values(loose.threat))+500;h.tauntCd=5;}}
    this.trinket(h,target);if(h.skillCd===0&&(s.role!=='dps'||this.burstAllowed()))this.skill(h,target);
    const healTarget=s.role==='heal'&&urgent?.hp<urgent?.maxHp*.98?urgent:null,actionTarget=healTarget||target;
+   if(healTarget)h.target=healTarget.id;
    const range=healTarget?s.healRange:s.attackRange;
    if(!actionTarget)continue;
    if(!this.range(h,actionTarget,range)){h.rangeLost+=dt;h.state='超距 · 移动';continue;}
