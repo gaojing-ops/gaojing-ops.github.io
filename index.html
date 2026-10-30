@@ -2,69 +2,108 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex, nofollow">
-  <title>网站准备中</title>
-  <style>
-    :root {
-      color-scheme: light;
-      font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      min-height: 100vh;
-      margin: 0;
-      display: grid;
-      place-items: center;
-      color: #25324a;
-      background: #f7f8fb;
-    }
-
-    main {
-      padding: 32px;
-      text-align: center;
-    }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: clamp(28px, 5vw, 42px);
-      font-weight: 700;
-    }
-
-    p {
-      margin: 0;
-      color: #667085;
-      font-size: 16px;
-    }
-    .game-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 28px;
-      padding: 14px 24px;
-      border-radius: 10px;
-      color: #fff7e9;
-      background: #243d39;
-      text-decoration: none;
-      font-weight: 600;
-      transition: background .2s, transform .2s;
-    }
-    .game-link:hover { background: #34554d; transform: translateY(-2px); }
-    .game-link:focus-visible { outline: 3px solid #c39049; outline-offset: 4px; }
-    .game-note { margin-top: 12px; font-size: 13px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101918">
+  <meta name="description" content="长夜余烬，一款打开即玩的独立肉鸽生存小游戏。选择守夜者，收集余烬，组合强化，击败长夜中的梦魇。">
+  <title>长夜余烬 · EMBERFALL</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23101918'/%3E%3Cpath d='M26 5c3 12-8 12-4 21 3-3 6-5 5-10 15 14 8 26-3 26S8 30 14 21c0 7 4 6 4 6-3-9 7-13 8-22Z' fill='%23e9b66c'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/games/emberfall/styles.css">
 </head>
 <body>
-  <main>
-    <h1>网站准备中</h1>
-    <p>新内容即将上线</p>
-    <a class="game-link" href="./games/emberfall/">试玩《长夜余烬》 <span aria-hidden="true">→</span></a>
-    <p class="game-note">网页肉鸽小游戏 · 电脑 / 手机均可玩</p>
+  <svg xmlns="http://www.w3.org/2000/svg" class="svg-defs" aria-hidden="true"><defs>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M13.5 2c1.2 5.5-4.7 6.5-3 11 2-1.5 3.2-3.2 3-5.5 7 6.2 5.3 13-1.5 13S3 15.5 6.2 10.3C6 13 8.3 14 8.3 14 6.7 8.5 12.2 7 13.5 2Z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m6 18 12-12m-6 0h6v6M4 14l6 6m-7-3 4 4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6l-8-3Z"/><path d="M12 7v9m-4-5h8"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.5 5.5a5 5 0 0 0-7 0L12 7l-1.5-1.5a5 5 0 0 0-7 7L12 21l8.5-8.5a5 5 0 0 0 0-7Z"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm5 5 6 6m0-6-6 6"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m6 0h6v-6"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8V4Z"/></symbol>
+    <symbol id="i-cross" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-skull" viewBox="0 0 24 24"><path d="M7 18H5v-6a7 7 0 0 1 14 0v6h-2v3H7v-3Z"/><path d="M9 21v-3m6 3v-3m-7-5h1m6 0h1m-5 3h2"/></symbol>
+    <symbol id="i-rune" viewBox="0 0 24 24"><path d="m12 2 8 10-8 10-8-10 8-10Z"/><path d="m12 7 4 5-4 5-4-5 4-5Z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="m14 2-10 12h7l-1 8 10-12h-7l1-8Z"/></symbol>
+    <symbol id="i-orbit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="5" transform="rotate(-35 12 12)"/></symbol>
+    <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h12a3 3 0 1 0-3-3M2 12h17a3 3 0 1 1-3 3M5 16h5"/></symbol>
+    <symbol id="i-magnet" viewBox="0 0 24 24"><path d="M5 3v9a7 7 0 0 0 14 0V3h-4v9a3 3 0 0 1-6 0V3H5ZM5 7h4m6 0h4"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M3 4h7l2 2 2-2h7v15h-7l-2 2-2-2H3V4Zm9 2v15"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 3h10v7a5 5 0 0 1-10 0V3Zm0 2H3v3a4 4 0 0 0 4 4m10-7h4v3a4 4 0 0 1-4 4m-5 3v6m-4 0h8"/></symbol>
+  </defs></svg>
+
+  <header class="site-header">
+    <a href="/" class="brand" aria-label="长夜余烬，返回个人首页"><span class="brand-emblem"><svg><use href="#i-flame"/></svg></span><span class="brand-words">长夜余烬<small>EMBERFALL</small></span></a>
+    <nav class="header-nav" aria-label="游戏导航">
+      <span class="nav-current"><span></span>荒野试炼</span>
+      <button type="button" data-modal="codex"><svg><use href="#i-book"/></svg>图鉴</button>
+      <button type="button" data-modal="records"><svg><use href="#i-trophy"/></svg>战绩</button>
+      <button type="button" data-modal="help">玩法<span class="help-question">?</span></button>
+    </nav>
+    <div class="header-right"><span class="edition-label">独立肉鸽 · 生存试炼</span><button id="sound-button" class="icon-button" title="开启音效" aria-label="开启音效" aria-pressed="false"><svg><use href="#i-mute"/></svg></button></div>
+  </header>
+
+  <main class="page-shell">
+    <section class="page-heading" aria-labelledby="page-title">
+      <div><div class="eyebrow"><span class="tiny-line"></span>THE LONG NIGHT AWAITS</div><h1 id="page-title">守住火光，穿过长夜。</h1></div>
+      <div class="chapter-mark"><span>CHAPTER 01</span><strong>灰烬林地</strong><span class="chapter-diamond">◇</span></div>
+    </section>
+
+    <div class="game-layout">
+      <section class="game-panel" aria-label="游戏区域">
+        <div id="arena" class="arena">
+          <div class="arena-topbar">
+            <div class="location"><span class="live-dot"></span><span id="phase-label">远征待命</span><span class="location-divider">/</span><span id="wave-label">第 01 波</span></div>
+            <div class="arena-actions"><button id="pause-button" class="icon-button" aria-label="暂停游戏" title="暂停 · P" disabled><svg><use href="#i-pause"/></svg></button><button id="fullscreen-button" class="icon-button" aria-label="全屏游戏" title="全屏游戏"><svg><use href="#i-expand"/></svg></button></div>
+          </div>
+          <div class="game-stage" id="game-stage">
+            <canvas id="game-canvas" aria-label="长夜余烬游戏画面，使用 WASD 或方向键移动，空格冲刺" tabindex="0"></canvas>
+            <div id="run-hud" class="run-hud" hidden>
+              <div class="health-hud"><div class="health-top"><svg><use href="#i-heart"/></svg><span id="hp-text">100 / 100</span><small>生命</small></div><div class="health-track"><i id="hp-fill"></i></div></div>
+              <div class="timer-hud"><svg><use href="#i-clock"/></svg><strong id="time-text">00:00</strong><span id="timer-goal">/ 03:00</span></div>
+              <div class="kills-hud"><svg><use href="#i-skull"/></svg><strong id="kills-text">0</strong><span>击败</span></div>
+            </div>
+            <div id="boss-hud" class="boss-hud" hidden><div><svg><use href="#i-skull"/></svg><span id="boss-name">长夜梦魇</span></div><div class="boss-track"><i id="boss-fill"></i></div></div>
+            <div id="start-overlay" class="stage-overlay start-overlay">
+              <div class="start-content">
+                <div class="start-ornament"><span></span><svg><use href="#i-rune"/></svg><span></span></div>
+                <p class="start-eyebrow">当世界沉入黑暗</p>
+                <h2>你，是最后的火光。</h2>
+                <p class="start-description">在围猎中生存，在余烬中成长。<br>守过三分钟，迎战长夜梦魇。</p>
+                <button id="start-button" class="primary-button"><svg><use href="#i-flame"/></svg><span>踏入长夜</span><span class="button-arrow">↗</span></button>
+                <p class="start-note"><span></span>自动攻击 · 随机强化 · 每次都是新旅程</p>
+              </div>
+              <div class="stage-coordinate"><span>黑潮正从林地深处逼近</span><span>ASHEN WOODS · 01</span></div>
+            </div>
+            <div id="pause-overlay" class="stage-overlay veil-overlay" hidden><div class="pause-content"><div class="modal-rune"><svg><use href="#i-pause"/></svg></div><p class="eyebrow">TAKE A BREATH</p><h2>火光仍在等你</h2><p>长夜暂停，准备好再出发。</p><button id="resume-button" class="primary-button"><svg><use href="#i-play"/></svg>继续远征</button><button id="pause-camp-button" class="text-button">返回营地</button></div></div>
+            <div id="upgrade-overlay" class="stage-overlay veil-overlay upgrade-overlay" hidden aria-label="选择升级强化" role="dialog" aria-modal="true" aria-labelledby="upgrade-title"><div class="upgrade-content"><div class="eyebrow">A SPARK BECOMES A FLAME</div><h2 id="upgrade-title">余烬，回应了你。</h2><p>等级 <span id="upgrade-level">2</span> · 选择一项强化，塑造你的战斗方式</p><div id="upgrade-choices" class="upgrade-choices"></div><div class="upgrade-hint">按 <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 选择 · 战斗已暂停</div></div></div>
+            <div id="result-overlay" class="stage-overlay veil-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="result-title"><div class="result-content"><div class="result-symbol"><svg><use id="result-icon" href="#i-flame"/></svg></div><p class="eyebrow" id="result-eyebrow">THE EMBERS REMAIN</p><h2 id="result-title">长夜漫漫，火种不灭。</h2><p id="result-description">每一次倒下，都离黎明更近一步。</p><div class="result-stats"><div><strong id="result-time">00:00</strong><span>生存时间</span></div><div><strong id="result-kills">0</strong><span>击败敌人</span></div><div><strong id="result-level">1</strong><span>最终等级</span></div></div><div class="result-score">本次远征 <strong id="result-score">0</strong> 分</div><button id="replay-button" class="primary-button"><svg><use href="#i-flame"/></svg>再赴长夜</button><button id="result-camp-button" class="text-button">返回营地 · 更换角色</button></div></div>
+            <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+            <div id="touch-controls" class="touch-controls" hidden><div id="joystick" class="joystick" aria-label="拖动摇杆移动" role="application"><div class="joystick-cross"></div><div id="joystick-knob" class="joystick-knob"></div></div><button id="dash-button" class="dash-button" aria-label="冲刺"><svg><use href="#i-wind"/></svg><span id="dash-text">冲刺</span></button></div>
+            <div id="xp-hud" class="xp-hud" hidden><span id="level-text">LV. 1</span><div class="xp-track"><i id="xp-fill"></i></div><span class="xp-caption">余烬</span></div>
+          </div>
+          <div class="controls-bar"><span class="control-key-group"><kbd>W</kbd><span class="wasd-lower"><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span class="control-caption">移动<span class="desktop-detail"> / 方向键</span></span></span><span><kbd class="wide-key">SPACE</kbd><span>冲刺</span></span><span><kbd>P</kbd><span>暂停</span></span><div class="controls-separator"></div><span class="auto-attack"><span></span>自动锁定攻击</span><span class="mobile-control-note">左侧摇杆移动 · 右侧按钮冲刺</span></div>
+        </div>
+      </section>
+
+      <aside class="expedition-panel" aria-label="远征配置">
+        <div class="panel-top"><div><span class="section-index">01 /</span><h2 id="side-title">选择守夜者</h2></div><span class="small-caps" id="side-mode">YOUR HERO</span></div>
+        <div class="character-list" role="group" aria-label="选择角色">
+          <button class="character-card selected" data-character="warden" aria-pressed="true"><span class="character-portrait portrait-warden"><svg viewBox="0 0 64 72" aria-hidden="true"><path class="hero-shadow" d="M14 68 20 36 18 23 31 8 45 23 44 38 52 68Z"/><path fill="#a97b45" d="m20 30 11-18 14 17-7 8H26Z"/><path fill="#182523" d="m25 29 6-9 8 10-3 9H27Z"/><path fill="#c8b694" d="M28 30h8l-1 7h-6Z"/><path fill="#53615a" d="m24 37 14 1 6 25H18Z"/><path fill="#8f713f" d="m19 39 8-4 7 29H14Zm19-3 7 5 7 23H35Z"/><path fill="#171f1e" d="M22 62h8v9h-9Zm12 0h8l2 9h-9Z"/><path stroke="#d0a356" stroke-width="3" d="m43 37 4 15"/><path fill="#e9b96b" d="M42 50h10v14H42Z"/><path fill="#ffe8a1" d="M45 53h4v8h-4Z"/></svg></span><span class="character-info"><strong>守灯人 <span class="selected-indicator">已选择</span></strong><span>以火为刃，守住最后的光</span><small><svg><use href="#i-flame"/></svg>余烬法杖 <i>·</i> 100 生命</small></span><span class="select-dot"></span></button>
+          <button class="character-card" data-character="ranger" aria-pressed="false"><span class="character-portrait portrait-ranger"><svg viewBox="0 0 64 72" aria-hidden="true"><path fill="#284c46" d="m14 67 7-30-2-12L32 8l12 19-4 12 8 29Z"/><path fill="#688a70" d="m20 28 12-15 12 15-13 12Z"/><path fill="#142f2b" d="m25 29 7-10 7 10-4 11h-8Z"/><path fill="#c1b295" d="M28 30h8v7h-8Z"/><path fill="#5d7868" d="m24 38 13-1 6 27H17Z"/><path fill="#ac9660" d="m20 42 20 7-1 4-20-7Z"/><path stroke="#bcad7b" stroke-width="2" fill="none" d="M46 28q19 20 1 39l-1-39Z"/><path fill="#1c2e2c" d="M23 62h7v9h-8Zm12 0h7l2 9h-9Z"/></svg></span><span class="character-info"><strong>逐风者 <span class="selected-indicator">已选择</span></strong><span>穿行暗林，箭随风至</span><small><svg><use href="#i-arrow"/></svg>疾风长弓 <i>·</i> 80 生命</small></span><span class="select-dot"></span></button>
+          <button class="character-card" data-character="sentinel" aria-pressed="false"><span class="character-portrait portrait-sentinel"><svg viewBox="0 0 64 72" aria-hidden="true"><path fill="#555d64" d="m21 34-4-12 6-12h18l7 12-5 13 8 29H13Z"/><path fill="#8b9497" d="m22 24 2-10h15l5 10-3 9H23Z"/><path fill="#24343a" d="M24 23h16v5H24Z"/><path fill="#c5ad77" d="M30 12h4v19h-4Z"/><path fill="#707a7d" d="m23 36 16-1 8 28H16Z"/><path fill="#9da6a2" d="m21 36 11 8 9-8-4 16H25Z"/><path fill="#303b3e" d="M22 62h8v9h-9Zm12 0h8l2 9h-9Z"/><path fill="#7a8380" stroke="#bbb18b" stroke-width="2" d="M10 38 27 42l-2 20-10 5-8-15Z"/><path stroke="#ddd6ae" stroke-width="3" d="m49 30-3 27m-4-7h9"/></svg></span><span class="character-info"><strong>铁卫 <span class="selected-indicator">已选择</span></strong><span>不退半步，便是黎明</span><small><svg><use href="#i-shield"/></svg>破晓飞刃 <i>·</i> 140 生命</small></span><span class="select-dot"></span></button>
+        </div>
+        <div id="hero-summary" class="hero-summary"><span><svg><use href="#i-flame"/></svg>余烬之力</span><p id="hero-description">均衡的火焰射手。适合第一次远征，让每一颗余烬燃起希望。</p><div class="hero-attributes"><div><span>生存</span><i><b id="attr-hp" style="width:70%"></b></i></div><div><span>机动</span><i><b id="attr-speed" style="width:64%"></b></i></div><div><span>火力</span><i><b id="attr-power" style="width:80%"></b></i></div></div></div>
+        <div id="build-section" class="build-section" hidden><div class="section-label"><span>本次构筑</span><span id="build-count">0 项强化</span></div><div id="build-list" class="build-list"><div class="empty-build"><svg><use href="#i-rune"/></svg><p>拾取余烬，唤醒你的力量</p></div></div></div>
+        <div class="expedition-goal"><div class="goal-icon"><svg><use href="#i-clock"/></svg></div><div><strong>活过长夜，击败梦魇</strong><p>生存 3 分钟后，最终首领降临。</p></div></div>
+        <div class="best-record"><span>你的最高纪录</span><strong id="best-record">等待第一位守夜者</strong></div>
+      </aside>
+    </div>
+    <footer class="page-footer"><span><i></i>每一局，都是一场新的远征。</span><span>拾取余烬 <b>→</b> 选择强化 <b>→</b> 突破重围</span><a href="/">高京的游戏小站 <span>↗</span></a></footer>
   </main>
+
+  <dialog id="info-dialog" class="info-dialog" aria-labelledby="dialog-title"><div class="dialog-header"><div><p class="eyebrow" id="dialog-eyebrow">FIELD NOTES</p><h2 id="dialog-title">林地手记</h2></div><button id="dialog-close" class="icon-button" aria-label="关闭对话框"><svg><use href="#i-cross"/></svg></button></div><div id="dialog-body" class="dialog-body"></div></dialog>
+  <noscript><div class="noscript">请启用浏览器 JavaScript 以开始游戏。</div></noscript>
+  <script type="module" src="/games/emberfall/app.js"></script>
 </body>
 </html>
