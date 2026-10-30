@@ -1,0 +1,381 @@
+const { fastSin, fastCos } = require('./MathLUT');
+const { now: perfNow } = require('./platform');
+// ─── 角色专属技能系统 ──────────────────────────
+// 每个角色1个主动技能，触摸右侧按钮触发，冷却管理
+
+// ─── 技能定义（通过 Character.js 中 skill 字段扩展）───
+const SKILL_DEFS = {
+	// 赛博猎手：超速冲刺
+	tracer: {
+		name: '超速冲刺',
+		icon: '⚡',
+		cooldown: 12,
+		desc: '1.5秒内移速×3，无敌',
+		color: '#00ffcc',
+		use: (game) => {
+			const p = game.player;
+			const duration = 1.5;
+			game.playerInvincible = (game.playerInvincible || 0) + duration;
+			const origSpeed = p.bonusSpeed;
+			p.bonusSpeed += 2.0; // 移速×3 (基础+200%)
+			if (game.particles) {
+game.particles.emit(p.x, p.y, { count: 20, speed: 150, life: 0.4, color: '#00ffcc', size: 3 });
+			}
+			game.spawnDamageNumber(p.x, p.y - 40, '超速冲刺!', '#00ffcc');
+			game.skillSystem.addTimedEffect(() => { game.player.bonusSpeed -= 2.0; }, duration);
+		},
+	},
+
+	// 重装卫士：铁壁堡垒
+	walker: {
+		name: '铁壁堡垒',
+		icon: '🛡',
+		cooldown: 20,
+		desc: '5秒内护甲+15，反弹+50%',
+		color: '#aa44ff',
+		use: (game) => {
+			const p = game.player;
+			const duration = 5;
+			p.bonusArmor += 15;
+			const origThorn = p.thornDamage;
+			p.thornDamage = (p.thornDamage || 0) + 0.50;
+			game.spawnDamageNumber(p.x, p.y - 40, '铁壁堡垒!', '#aa44ff');
+			if (game.particles) {
+game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff', size: 4 });
+			}
+			game.skillSystem.addTimedEffect(() => { game.player.bonusArmor -= 15; game.player.thornDamage = Math.max(0, game.player.thornDamage - 0.50); }, duration);
+		},
+	},
+
+	// 精准射手：聚焦射击
+	gunner: {
+		name: '聚焦射击',
+		icon: '🎯',
+		cooldown: 15,
+		desc: '6秒内伤害×2',
+		color: '#ff6600',
+		use: (game) => {
+			const p = game.player;
+			const duration = 6;
+			p.bonusMight += 1.0;
+			game.spawnDamageNumber(p.x, p.y - 40, '聚焦射击!', '#ff6600');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#ff660033', 0.3);
+			game.skillSystem.addTimedEffect(() => { game.player.bonusMight -= 1.0; }, duration);
+		},
+	},
+
+	// 冰霜术士：冰封风暴
+	cryomancer: {
+		name: '冰封风暴',
+		icon: '❄',
+		cooldown: 25,
+		desc: '冻结屏幕内所有敌人4秒',
+		color: '#66ccff',
+		use: (game) => {
+			const freezeDur = 4;
+			let count = 0;
+			for (const e of game.enemies) {
+				if (!e.active) continue;
+				e.frozen = Math.max(e.frozen || 0, freezeDur);
+				e.slowed = Math.max(e.slowed || 0, freezeDur);
+				e.slowAmount = 0.3;
+				count++;
+			}
+			game.spawnDamageNumber(game.player.x, game.player.y - 40, `冰封风暴! ×${count}`, '#66ccff');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#66ccff22', 0.6);
+			if (game.particles) {
+game.particles.emit(game.player.x, game.player.y, { count: 30, speed: 200, life: 0.6, color: '#66ccff', size: 4 });
+			}
+		},
+	},
+
+	// 瘟疫使者：病毒风暴
+	biohazard: {
+		name: '病毒风暴',
+		icon: '☣',
+		cooldown: 20,
+		desc: '对附近所有敌人施加强力毒素',
+		color: '#88ff00',
+		use: (game) => {
+			const p = game.player;
+			const radius = 300;
+			const radiusSq = radius * radius;
+			let count = 0;
+			for (const e of game.enemies) {
+				if (!e.active) continue;
+				const dx = e.x - p.x, dy = e.y - p.y;
+				if (dx * dx + dy * dy < radiusSq) {
+					e.poisoned = (e.poisoned || 0) + 8; // 强力毒素
+					e.poisonStacks = Math.min(50, (e.poisonStacks || 0) + 10); // 技能给10层
+					e.poisonTickTimer = 0; // 立即开始跳毒
+					count++;
+				}
+			}
+			game.spawnDamageNumber(p.x, p.y - 40, `病毒风暴! ×${count}`, '#88ff00');
+			if (game.particles) {
+game.particles.emit(p.x, p.y, { count: 25, speed: 160, life: 0.5, color: '#88ff00', size: 3 });
+			}
+		},
+	},
+
+	// 狂战士：血怒爆发
+	berserker: {
+		name: '血怒爆发',
+		icon: '🔥',
+		cooldown: 18,
+		desc: '8秒内移速+30%，伤害+60%',
+		color: '#ff0044',
+		use: (game) => {
+			const p = game.player;
+			const duration = 8;
+			p.bonusSpeed += 0.30;
+			p.bonusMight += 0.60;
+			game.spawnDamageNumber(p.x, p.y - 40, '血怒爆发!', '#ff0044');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#ff004422', 0.4);
+			if (game.particles) {
+game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff0044', size: 3 });
+			}
+			game.skillSystem.addTimedEffect(() => { game.player.bonusSpeed -= 0.30; game.player.bonusMight -= 0.60; }, duration);
+		},
+	},
+
+	// 奥术师：魔力潮汐
+	arcane: {
+		name: '魔力潮汐',
+		icon: '✨',
+		cooldown: 22,
+		desc: '6秒内冷却-50%',
+		color: '#ff44ff',
+		use: (game) => {
+			const p = game.player;
+			const duration = 6;
+			// 所有武器CD清零
+			for (const w of p.weapons) {
+				if (w.cooldown !== undefined) w.cooldown = 0;
+			}
+			p.bonusCdr += 0.50;
+			game.spawnDamageNumber(p.x, p.y - 40, '魔力潮汐!', '#ff44ff');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#ff44ff22', 0.5);
+			game.skillSystem.addTimedEffect(() => { game.player.bonusCdr -= 0.50; }, duration);
+		},
+	},
+
+	// 工程师：紧急部署
+	engineer: {
+		name: '紧急部署',
+		icon: '⚙',
+		cooldown: 25,
+		desc: '立即部署3座强化炮台',
+		color: '#ffcc00',
+		use: (game) => {
+			const p = game.player;
+			p.turrets = p.turrets || [];
+			// 清除旧炮台，部署3座强化炮台
+			p.turrets = [];
+			for (let i = 0; i < 3; i++) {
+				const angle = (i / 3) * Math.PI * 2;
+				const dist = 60;
+				const turret = {
+					x: p.x + fastCos(angle) * dist,
+					y: p.y + fastSin(angle) * dist,
+					hp: 60, maxHp: 60,
+					lifetime: 20, // 强化：20秒
+					shootTimer: 0,
+					shootInterval: 0.5, // 强化：更快射击
+					baseDamage: 15,
+					range: 250,
+					active: true,
+					lastTarget: null,
+					lastShootTime: 0,
+				};
+				p.turrets.push(turret);
+			}
+			game.spawnDamageNumber(p.x, p.y - 40, '紧急部署! ×3炮台', '#ffcc00');
+		},
+	},
+
+	// 暗影刺客：影袭
+	assassin: {
+		name: '影袭',
+		icon: '🌑',
+		cooldown: 15,
+		desc: '瞬移至最近敌人，AOE爆发伤害',
+		color: '#8800ff',
+		use: (game) => {
+			const p = game.player;
+			// 找最近敌人
+			let closest = null, closestDist = Infinity;
+			for (const e of game.enemies) {
+				if (!e.active) continue;
+				const dx = e.x - p.x, dy = e.y - p.y;
+				const d = dx * dx + dy * dy;
+				if (d < closestDist) { closestDist = d; closest = e; }
+			}
+			if (!closest) {
+				game.spawnDamageNumber(p.x, p.y - 40, '无目标', '#8800ff');
+				return;
+			}
+			// 瞬移（保持安全距离）
+			const angle = Math.atan2(p.y - closest.y, p.x - closest.x);
+			p.x = closest.x + fastCos(angle) * 50;
+			p.y = closest.y + fastSin(angle) * 50;
+			// AOE爆发
+			const dmg = p.might * 80;
+			const burstR = 100;
+			const burstRSq = burstR * burstR;
+			let hits = 0;
+			for (const e of game.enemies) {
+				if (!e.active) continue;
+				const dx = e.x - p.x, dy = e.y - p.y;
+				if (dx * dx + dy * dy < burstRSq) {
+					e.takeDamage(dmg);
+					hits++;
+				}
+			}
+			game.spawnDamageNumber(p.x, p.y - 40, `影袭! ×${hits}`, '#8800ff');
+			if (game.particles) {
+game.particles.emit(p.x, p.y, { count: 25, speed: 180, life: 0.4, color: '#8800ff', size: 4 });
+			}
+		},
+	},
+};
+
+// ─── 技能系统核心 ───
+class SkillSystem {
+	constructor(game) {
+		this.game = game;
+		this.cooldown = 0;
+		this.maxCooldown = 0;
+		this.skillDef = null;
+		this.btnRect = null; // 屏幕按钮区域
+		this._activeEffects = []; // 帧计时器替代setTimeout
+	}
+
+	init() {
+		const charId = this.game.player && this.game.player.characterId;
+		this.skillDef = charId ? (SKILL_DEFS[charId] || null) : null;
+		if (this.skillDef) {
+			this.maxCooldown = this.skillDef.cooldown;
+		}
+		this.cooldown = 0;
+		this._activeEffects = []; // 清除上局残留效果
+	}
+
+	update(dt) {
+		if (!this.skillDef) return;
+		if (this.cooldown > 0) {
+			this.cooldown = Math.max(0, this.cooldown - dt);
+		}
+		// 帧计时器：处理技能临时增益
+		for (let i = this._activeEffects.length - 1; i >= 0; i--) {
+			const eff = this._activeEffects[i];
+			eff.timer -= dt;
+			if (eff.timer <= 0) {
+				eff.restore();
+				this._activeEffects.splice(i, 1);
+			}
+		}
+	}
+
+	addTimedEffect(restoreFn, duration) {
+		this._activeEffects.push({ timer: duration, restore: restoreFn });
+	}
+
+	tryUse() {
+		if (!this.skillDef) return false;
+		if (this.cooldown > 0) return false;
+		try {
+			this.skillDef.use(this.game);
+		} catch (e) {
+			console.error('[SkillSystem] skill error:', e);
+		}
+		// 技能冷却受玩家 CDR 影响（上限 70%）
+		const p = this.game.player;
+		const cdr = p ? Math.min(0.7, (p.bonusCdr || 0)) : 0;
+		this.maxCooldown = this.skillDef.cooldown * (1 - cdr);
+		this.cooldown = this.maxCooldown;
+		this.game.skillUseCount = (this.game.skillUseCount || 0) + 1;
+		return true;
+	}
+
+	// ─── 绘制技能按钮（屏幕坐标）───
+	draw(ctx, w, h) {
+		if (!this.skillDef) return;
+
+		// 右下角，与摇杆对称（摇杆在左）
+		const btnR = 34;
+		const btnX = w - 60;
+		const btnY = h - 90;
+		this.btnRect = { x: btnX - btnR, y: btnY - btnR, w: btnR * 2, h: btnR * 2 };
+
+		const ready = this.cooldown <= 0;
+		const color = this.skillDef.color;
+
+		ctx.save();
+
+		// 背景圆
+		ctx.beginPath();
+		ctx.arc(btnX, btnY, btnR, 0, Math.PI * 2);
+		ctx.fillStyle = ready ? color + '33' : 'rgba(0,0,0,0.5)';
+		ctx.fill();
+
+		// 边框
+		ctx.strokeStyle = ready ? color : '#444';
+		ctx.lineWidth = 2.5;
+		ctx.stroke();
+
+		// 冷却遮罩（扇形）
+		if (!ready && this.maxCooldown > 0) {
+			const progress = this.cooldown / this.maxCooldown;
+			ctx.beginPath();
+			ctx.moveTo(btnX, btnY);
+			ctx.arc(btnX, btnY, btnR - 1, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2, false);
+			ctx.closePath();
+			ctx.fillStyle = 'rgba(0,0,0,0.6)';
+			ctx.fill();
+		}
+
+		// 图标
+		ctx.font = `${Math.floor(btnR * 0.8)}px sans-serif`;
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = ready ? '#fff' : '#666';
+		ctx.globalAlpha = ready ? 1 : 0.6;
+		ctx.fillText(this.skillDef.icon, btnX, btnY + 1);
+
+		// 冷却剩余时间
+		if (!ready) {
+			ctx.font = 'bold 11px sans-serif';
+			ctx.fillStyle = '#fff';
+			ctx.globalAlpha = 0.9;
+			ctx.fillText(Math.ceil(this.cooldown) + 's', btnX, btnY + btnR + 12);
+		} else {
+			// "准备" 提示脉冲
+			ctx.font = '9px sans-serif';
+			ctx.fillStyle = color;
+			ctx.globalAlpha = 0.5 + 0.5 * fastSin(perfNow() / 300);
+			ctx.fillText('准备', btnX, btnY + btnR + 12);
+		}
+
+		ctx.globalAlpha = 1;
+		ctx.textBaseline = 'alphabetic';
+		ctx.restore();
+	}
+
+	onTouchEnd(x, y) {
+		if (!this.btnRect) return false;
+		const b = this.btnRect;
+		// 圆形点击检测
+		const cx = b.x + b.w / 2;
+		const cy = b.y + b.h / 2;
+		const r = b.w / 2;
+		const dx = x - cx, dy = y - cy;
+		if (dx * dx + dy * dy < r * r) {
+			this.tryUse();
+			return true;
+		}
+		return false;
+	}
+}
+
+module.exports = { SkillSystem, SKILL_DEFS };

@@ -1,0 +1,405 @@
+{
+  "Enemy": {
+    "reset": "977d9d48fe7384d3735c35437092cc45fdbb696d3dbd0291468a9c269e17a7bd",
+    "applyEliteAffixes": "0c8c2ef8a5100afe9c41218ee837da12d377dd89fe21b1ff7e442fe5b5654054",
+    "update": "cafe7494487e4c5027e0030534b8af92e88b484083e86319d1e5e421a687880c",
+    "applyKnockback": "3285fc3614efc829df4e6408cc154f70589d7bfe15e7d0e23729a935817a1613",
+    "takeDamage": "eef67fc0cefdf8b9747282e312311a2572b8ee1df6a5d209f28b059b7cb76de9",
+    "die": "77d47bc04c2d1e7ed1b86522b1b149a450aaad027bdd6cf237db4639313ee0a8"
+  },
+  "Boss": {
+    "update": "72df1bb987516eddc27b13a3e1e48da2f4d9fb4929fa47c0b84f9644e259c5be",
+    "takeDamage": "fa47f95c9fe46ea1294c9a87667396732602c9b5eef439de328a4ed7e584c61f",
+    "_onDeath": "c4e9d531d4c6efb148ed9f5190c324e3e58f40e1a7d364de48e32c81d7fef2f2",
+    "_startSkill": "65d3ec5b401d9d14c337935248f26068dfacc2aa772ceb267af84a5d9c6cf9cd",
+    "_executeSkill": "f091e34bfff8bd6b6a1c01fcd04db1901dca95621ff6e1baa20794eda61064bd",
+    "_checkPhaseTransition": "9c9d0218b688ffda57dc84c66f853a45687626b91c1cbcb8c02d13f29c7bab56",
+    "_onPhaseChange": "4fcfe1b13364c7ec3dd1e0676521c129fc638135863d2ae8d4902e4d2b7f45cb",
+    "_drawHealthBar": "e15c09b60a6a3687cb93a59a3a96f237b56cc56131e0fde0c84dd34cb2adda0e",
+    "_updateSustainedEffect": "fc7270d48193b6b758d984327fe3e3d7c9f9ca133c2fe0659501a0e31e69d9c4",
+    "_onSustainedEffectEnd": "4fe40503179e6af13184c07e27459fc7611b7478048f27619d607422a07ced66",
+    "_drawSustainedEffect": "44c2b53e979dba3006d9b989cff92596aa0cd01b23a0f562d10f0e50403d75ef",
+    "_drawTelegraph": "f2e3d3f84c149d002a972db7d313c709f22ae66b28a88e108aace9a768f930ac"
+  },
+  "StageSystem": {
+    "update": "d5e654f06f8a0f7eb397bf554c74a822474e074ee0eae2c432dfbc943c9d5619",
+    "_completeStage": "5ef842569ac08f371d47d3d832d6ce1ba5a8af240084ed09198c1886e13505e3",
+    "_generateRewards": "0d1dea79d93491cfdfaa01c3acfef6e7668a0cd47c3da295953c66067ef10b53",
+    "applyReward": "775dad4ea4369d58f8222692e805b4509b70550b1d3e5467bc290b647add7f3f",
+    "_setInterceptor": "c161d75a7def73ef845aaec17eeaa8673a2debac021ddbb2f48e949bdbbd03de",
+    "_onTouchEnd": "ff3aec28f499257749817df2d27ae602edb90e0efa9bb4d9a829fa41ff268421",
+    "_drawStageHUD": "1751b7d34429ffb51918721cd9bc8900bf0069ae6ca227c359142e7e256e6d07",
+    "_drawRewardPanel": "42214b12c9c26540e5a2ce8b22d6c245a0439ec5c5365dc19fecd1ccb8eccfd5"
+  },
+  "characters": {
+    "tracer": {
+      "id": "tracer",
+      "desc": "高速机动 · 连击叠加",
+      "color": "#00ffcc",
+      "element": "flux",
+      "startWeapon": "flux_bolt",
+      "stats": {
+        "maxHp": 80,
+        "speed": 250,
+        "might": 1,
+        "pickup": 80
+      },
+      "passive": "移速+25% / 连续移动每秒伤害+5%(最高+50%)",
+      "passiveApply": "(player) => {\r\n\t\t\tplayer.bonusSpeed += 0.25;\r\n\t\t\tplayer.characterTrait = 'momentum';\r\n\t\t}",
+      "onUpdate": "(player, dt) => {\r\n\t\t\tconst v = player.game.input.getVector();\r\n\t\t\tif (v.x !== 0 || v.y !== 0) {\r\n\t\t\t\tplayer.momentumStacks = Math.min(10, (player.momentumStacks || 0) + dt * 0.5);\r\n\t\t\t} else {\r\n\t\t\t\tplayer.momentumStacks = Math.max(0, (player.momentumStacks || 0) - dt * 2);\r\n\t\t\t}\r\n\t\t}",
+      "getExtraMight": "(player) => {\r\n\t\t\treturn (player.momentumStacks || 0) * 0.05;\r\n\t\t}"
+    },
+    "walker": {
+      "id": "walker",
+      "desc": "坚实护甲 · 伤害反弹",
+      "color": "#aa44ff",
+      "element": "void",
+      "startWeapon": "radiation_field",
+      "stats": {
+        "maxHp": 150,
+        "speed": 160,
+        "might": 0.85,
+        "pickup": 100
+      },
+      "passive": "HP+50% / 护甲+3 / 受伤反弹25%伤害",
+      "passiveApply": "(player) => {\r\n\t\t\tplayer.bonusArmor += 3;\r\n\t\t\tplayer.thornDamage = 0.25; // 反弹伤害比例\r\n\t\t}"
+    },
+    "gunner": {
+      "id": "gunner",
+      "desc": "远程打击 · 静止瞄准",
+      "color": "#ff6600",
+      "element": "plasma",
+      "startWeapon": "plasma_arc",
+      "stats": {
+        "maxHp": 100,
+        "speed": 190,
+        "might": 1.2,
+        "pickup": 70
+      },
+      "passive": "攻击范围+40% / 站定1秒后伤害+35%",
+      "passiveApply": "(player) => {\r\n\t\t\tplayer.bonusArea += 0.4;\r\n\t\t\tplayer.characterTrait = 'sharpshooter';\r\n\t\t}",
+      "onUpdate": "(player, dt) => {\r\n\t\t\tconst v = player.game.input.getVector();\r\n\t\t\tif (v.x === 0 && v.y === 0) {\r\n\t\t\t\tplayer.stillTime = (player.stillTime || 0) + dt;\r\n\t\t\t} else {\r\n\t\t\t\tplayer.stillTime = 0;\r\n\t\t\t}\r\n\t\t}",
+      "getExtraMight": "(player) => {\r\n\t\t\treturn (player.stillTime || 0) >= 1 ? 0.35 : 0;\r\n\t\t}"
+    },
+    "cryomancer": {
+      "id": "cryomancer",
+      "desc": "绝对零度 · 冻结引爆",
+      "color": "#66ccff",
+      "element": "cryo",
+      "startWeapon": "ice_shard",
+      "stats": {
+        "maxHp": 85,
+        "speed": 180,
+        "might": 1,
+        "pickup": 80
+      },
+      "passive": "冰冻效果+60% / 冻结敌人死亡时爆炸造成范围伤害",
+      "passiveApply": "(player) => {\r\n\t\t\tplayer.bonusFreezeDur += 0.6;\r\n\t\t\tplayer.freezeExplosion = true; // 冻结爆炸特性\r\n\t\t}"
+    },
+    "biohazard": {
+      "id": "biohazard",
+      "desc": "剧毒扩散 · 病毒收割",
+      "color": "#88ff00",
+      "element": "toxic",
+      "startWeapon": "toxin_spray",
+      "stats": {
+        "maxHp": 95,
+        "speed": 185,
+        "might": 0.9,
+        "pickup": 90
+      },
+      "passive": "毒素伤害+80% / 击杀中毒敌人回复3HP",
+      "passiveApply": "(player) => {\r\n\t\t\tplayer.bonusToxicDmg += 0.8;\r\n\t\t\tplayer.poisonLeech = true; // 毒素吸血特性\r\n\t\t}"
+    },
+    "berserker": {
+      "id": "berserker",
+      "desc": "血怒战意 · 越战越勇",
+      "color": "#ff0044",
+      "element": "plasma",
+      "startWeapon": "plasma_arc",
+      "stats": {
+        "maxHp": 120,
+        "speed": 200,
+        "might": 1.3,
+        "pickup": 70
+      },
+      "passive": "HP越低伤害越高 / 生命低于30%时攻击速度+50%",
+      "passiveApply": "(player) => {\r\n\t\t\tplayer.berserkerMode = true;\r\n\t\t\tplayer._berserkerCdrActive = false;\r\n\t\t\tplayer._berserkerCdrAmount = 0.20; // [BALANCE] 原CDR+50%轻松突破上限，降为+20%\r\n\t\t}",
+      "onUpdate": "(player, dt) => {\r\n\t\t\tconst hpRatio = player.hp / player.maxHp;\r\n\t\t\tconst shouldActivate = hpRatio <= 0.3;\r\n\t\t\tif (shouldActivate && !player._berserkerCdrActive) {\r\n\t\t\t\tplayer._berserkerCdrActive = true;\r\n\t\t\t\tplayer.bonusCdr += player._berserkerCdrAmount;\r\n\t\t\t} else if (!shouldActivate && player._berserkerCdrActive) {\r\n\t\t\t\tplayer._berserkerCdrActive = false;\r\n\t\t\t\tplayer.bonusCdr -= player._berserkerCdrAmount;\r\n\t\t\t}\r\n\t\t}",
+      "getExtraMight": "(player) => {\r\n\t\t\tconst hpRatio = player.hp / player.maxHp;\r\n\t\t\tif (hpRatio <= 0.3) return 0.5; // 血量低于30%时额外伤害\r\n\t\t\treturn (1 - hpRatio) * 0.4; // 血量越低伤害越高\r\n\t\t}"
+    },
+    "arcane": {
+      "id": "arcane",
+      "desc": "元素调和 · 魔力共鸣",
+      "color": "#ff44ff",
+      "element": "void",
+      "startWeapon": "soul_drain",
+      "stats": {
+        "maxHp": 70,
+        "speed": 170,
+        "might": 1.1,
+        "pickup": 85
+      },
+      "passive": "所有元素伤害+15% / 协同效果伤害+50%",
+      "passiveApply": "(player) => {\r\n\t\t\tplayer.bonusMight += 0.15;\r\n\t\t\tplayer.synergyBonus = 0.5; // 协同伤害加成\r\n\t\t}"
+    },
+    "engineer": {
+      "id": "engineer",
+      "desc": "炮台部署 · 智能支援",
+      "color": "#ffcc00",
+      "element": "flux",
+      "startWeapon": "chain_spark",
+      "stats": {
+        "maxHp": 90,
+        "speed": 175,
+        "might": 0.95,
+        "pickup": 100
+      },
+      "passive": "投射物+2 / 冷却-15% / 每15秒部署一座炮台",
+      "passiveApply": "(player) => {\r\n\t\t\tplayer.bonusProjectile += 2;\r\n\t\t\tplayer.bonusCdr += 0.15;\r\n\t\t\tplayer.turretTimer = 0;\r\n\t\t\tplayer.turrets = [];\r\n\t\t}",
+      "onUpdate": "(player, dt) => {\r\n\t\t\tplayer.turretTimer = (player.turretTimer || 0) + dt;\r\n\t\t\t// 每15秒部署一座炮台\r\n\t\t\tif (player.turretTimer >= 15) {\r\n\t\t\t\tplayer.turretTimer = 0;\r\n\t\t\t\tconst turret = {\r\n\t\t\t\t\tx: player.x,\r\n\t\t\t\t\ty: player.y,\r\n\t\t\t\t\thp: 30,\r\n\t\t\t\t\tmaxHp: 30,\r\n\t\t\t\t\tlifetime: 10, // 持续10秒\r\n\t\t\t\t\tshootTimer: 0,\r\n\t\t\t\t\tshootInterval: 0.8,\r\n\t\t\t\t\tbaseDamage: 8, // 基础倍率，实际伤害 = player.might * baseDamage\r\n\t\t\t\t\trange: 200,\r\n\t\t\t\t\tactive: true,\r\n\t\t\t\t\tlastTarget: null, // 用于射击连线特效\r\n\t\t\t\t\tlastShootTime: 0,\r\n\t\t\t\t};\r\n\t\t\t\tplayer.turrets = player.turrets || [];\r\n\t\t\t\t// 最多3座\r\n\t\t\t\tif (player.turrets.length >= 3) {\r\n\t\t\t\t\tplayer.turrets.shift();\r\n\t\t\t\t}\r\n\t\t\t\tplayer.turrets.push(turret);\r\n\t\t\t\tplayer.game.spawnDamageNumber(turret.x, turret.y - 30, '⚙ 炮台部署!', '#ffcc00');\r\n\t\t\t}\r\n\t\t\t// 更新现有炮台（使用空间网格优化，避免 O(n) 全量敌人遍历）\r\n\t\t\tif (player.turrets) {\r\n\t\t\t\tconst gameTime = player.game.time;\r\n\t\t\t\tconst g = player.game;\r\n\t\t\t\tfor (const t of player.turrets) {\r\n\t\t\t\t\tif (!t.active) continue;\r\n\t\t\t\t\tt.lifetime -= dt;\r\n\t\t\t\t\tif (t.lifetime <= 0) { t.active = false; continue; }\r\n\r\n\t\t\t\t\t// 炮台可被敌人踩踏损坏（空间网格：只查附近30px内的敌人）\r\n\t\t\t\t\tconst trampleRadius = 30;\r\n\t\t\t\t\tconst nearbyTrample = g._getNearbyEnemies ? g._getNearbyEnemies(t.x, t.y, trampleRadius) : g.enemies;\r\n\t\t\t\t\tfor (const e of nearbyTrample) {\r\n\t\t\t\t\t\tif (!e.active) continue;\r\n\t\t\t\t\t\tconst edx = e.x - t.x, edy = e.y - t.y;\r\n\t\t\t\t\t\tif (edx * edx + edy * edy < (e.radius + 12) * (e.radius + 12)) {\r\n\t\t\t\t\t\t\tt.hp -= e.damage * dt * 0.5;\r\n\t\t\t\t\t\t\tif (t.hp <= 0) { t.active = false; break; }\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\tif (!t.active) continue;\r\n\r\n\t\t\t\t\tt.shootTimer -= dt;\r\n\t\t\t\t\tif (t.shootTimer <= 0) {\r\n\t\t\t\t\t\tt.shootTimer = t.shootInterval;\r\n\t\t\t\t\t\t// 找最近敌人（空间网格：只查射程范围内的敌人）\r\n\t\t\t\t\t\tlet best = null, bestDist = t.range * t.range;\r\n\t\t\t\t\t\tconst nearbyShoot = g._getNearbyEnemies ? g._getNearbyEnemies(t.x, t.y, t.range) : g.enemies;\r\n\t\t\t\t\t\tfor (const e of nearbyShoot) {\r\n\t\t\t\t\t\t\tif (!e.active) continue;\r\n\t\t\t\t\t\t\tconst dx = e.x - t.x, dy = e.y - t.y;\r\n\t\t\t\t\t\t\tconst d2 = dx * dx + dy * dy;\r\n\t\t\t\t\t\t\tif (d2 < bestDist) { bestDist = d2; best = e; }\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tif (best && best.active) {\r\n\t\t\t\t\t\t\t// 动态继承玩家 might\r\n\t\t\t\t\t\t\tconst actualDamage = player.might * t.baseDamage;\r\n\t\t\t\t\t\t\tbest.takeDamage(actualDamage);\r\n\t\t\t\t\t\t\tt.lastTarget = { x: best.x, y: best.y };\r\n\t\t\t\t\t\t\tt.lastShootTime = gameTime;\r\n\t\t\t\t\t\t\t// 节流音效：隔一次播放（避免 3~6 炮台同帧连射音效爆炸）\r\n\t\t\t\t\t\t\tt._sfxToggle = !t._sfxToggle;\r\n\t\t\t\t\t\t\tif (t._sfxToggle) SFX.sfxTurretShoot();\r\n\t\t\t\t\t\t\t// 射击视觉效果（降低粒子数量）\r\n\t\t\t\t\t\t\tif (player.game.particles && g.qualityLevel > 0) {\r\n\t\t\t\t\t\t\t\tplayer.game.particles.emit(best.x, best.y, { count: 2, speed: 30, life: 0.15, color: '#ffcc00', size: 2 });\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\tlet w = 0;\r\n\t\t\t\tfor (let i = 0; i < player.turrets.length; i++) {\r\n\t\t\t\t\tif (player.turrets[i].active) player.turrets[w++] = player.turrets[i];\r\n\t\t\t\t}\r\n\t\t\t\tplayer.turrets.length = w;\r\n\t\t\t}\r\n\t\t}"
+    },
+    "assassin": {
+      "id": "assassin",
+      "desc": "瞬步杀机 · 背刺暴击",
+      "color": "#8800ff",
+      "element": "void",
+      "startWeapon": "shadow_clone",
+      "stats": {
+        "maxHp": 65,
+        "speed": 280,
+        "might": 1.15,
+        "pickup": 75
+      },
+      "passive": "移速+40% / 暴击伤害+100%",
+      "passiveApply": "(player) => {\r\n\t\t\tplayer.bonusSpeed += 0.4;\r\n\t\t\tplayer.criticalDamage = (player.criticalDamage || 0) + 1.0;\r\n\t\t\tplayer.luckyChance = (player.luckyChance || 0) + 0.1; // 10%暴击率\r\n\t\t}"
+    }
+  },
+  "stages": [
+    {
+      "id": 1,
+      "subtitle": "第一章",
+      "duration": 240,
+      "mapStyle": "CyberGrid",
+      "color": "#00ffcc"
+    },
+    {
+      "id": 2,
+      "subtitle": "第二章",
+      "duration": 240,
+      "mapStyle": "ToxicSwamp",
+      "color": "#88ff44"
+    },
+    {
+      "id": 3,
+      "subtitle": "第三章",
+      "duration": 240,
+      "mapStyle": "CryoRealm",
+      "color": "#44ccff"
+    },
+    {
+      "id": 4,
+      "subtitle": "第四章",
+      "duration": 240,
+      "mapStyle": "VoidNebula",
+      "color": "#aa44ff"
+    },
+    {
+      "id": 5,
+      "subtitle": "第五章 · 最终章",
+      "duration": 240,
+      "mapStyle": "Matrix",
+      "color": "#ffcc00"
+    }
+  ],
+  "bosses": [
+    {
+      "baseHp": 2000,
+      "hpPerWave": 500,
+      "radius": 30,
+      "speed": 28,
+      "damage": 30,
+      "color": "#ff0055",
+      "glowColor": "#ff4488",
+      "skills": [
+        "charge",
+        "nova",
+        "bulletHell",
+        "gravitySuck",
+        "dash",
+        "shockwave",
+        "crescentBlast",
+        "mineField",
+        "deathRay"
+      ]
+    },
+    {
+      "baseHp": 3200,
+      "hpPerWave": 750,
+      "radius": 40,
+      "speed": 20,
+      "damage": 38,
+      "color": "#aa44ff",
+      "glowColor": "#cc88ff",
+      "skills": [
+        "summon",
+        "slam",
+        "spiralBurst",
+        "darkPulse",
+        "deathMark",
+        "poisonOrbs",
+        "tripleChase"
+      ]
+    },
+    {
+      "baseHp": 4200,
+      "hpPerWave": 950,
+      "radius": 35,
+      "speed": 25,
+      "damage": 34,
+      "color": "#ff6600",
+      "glowColor": "#ff9944",
+      "skills": [
+        "flameColumn",
+        "nova",
+        "bulletHell",
+        "electricField",
+        "laserSweep",
+        "scatter",
+        "mineField"
+      ]
+    },
+    {
+      "baseHp": 5500,
+      "hpPerWave": 1200,
+      "radius": 50,
+      "speed": 18,
+      "damage": 42,
+      "color": "#66ccff",
+      "glowColor": "#88ddff",
+      "skills": [
+        "iceWave",
+        "shatter",
+        "blizzard",
+        "instantFreeze",
+        "gravitySuck",
+        "shockwave",
+        "tripleChase"
+      ],
+      "drawFuncName": "drawFrostTitan",
+      "drawFunc": "function drawFrostTitan(ctx, x, y, size, flashTimer, time) {\r\n    const s = size;\r\n    ctx.save();\r\n    ctx.translate(x, y);\r\n\r\n    ctx.shadowBlur = 0;\r\n    ctx.shadowColor = '#44ccff';\r\n\r\n    ctx.fillStyle = flashTimer > 0 ? '#fff' : 'rgba(68, 204, 255, 0.25)';\r\n    ctx.strokeStyle = '#44ccff';\r\n    ctx.lineWidth = 3;\r\n\r\n    // 晶体巨人\r\n    ctx.beginPath();\r\n    ctx.moveTo(0, -s);\r\n    ctx.lineTo(s * 0.7, -s * 0.2);\r\n    ctx.lineTo(s * 0.5, s * 0.7);\r\n    ctx.lineTo(0, s);\r\n    ctx.lineTo(-s * 0.5, s * 0.7);\r\n    ctx.lineTo(-s * 0.7, -s * 0.2);\r\n    ctx.closePath();\r\n    ctx.fill();\r\n    ctx.stroke();\r\n\r\n    // 核心\r\n    ctx.fillStyle = '#fff';\r\n    ctx.beginPath();\r\n    ctx.arc(0, 0, s * 0.25, 0, Math.PI * 2);\r\n    ctx.fill();\r\n\r\n    ctx.restore();\r\n}"
+    },
+    {
+      "baseHp": 4800,
+      "hpPerWave": 950,
+      "radius": 45,
+      "speed": 20,
+      "damage": 36,
+      "color": "#88ff00",
+      "glowColor": "#aaff44",
+      "skills": [
+        "poisonRain",
+        "plagueCloud",
+        "mutation",
+        "decay",
+        "poisonOrbs",
+        "mineField"
+      ],
+      "drawFuncName": "drawPlagueSource",
+      "drawFunc": "function drawPlagueSource(ctx, x, y, size, flashTimer, time) {\r\n    const s = size;\r\n    ctx.save();\r\n    ctx.translate(x, y);\r\n\r\n    ctx.shadowBlur = 0;\r\n    ctx.shadowColor = '#88ff00';\r\n\r\n    const pulse = 1 + fastSin(time * 3) * 0.08;\r\n    ctx.fillStyle = flashTimer > 0 ? '#fff' : 'rgba(100, 200, 0, 0.2)';\r\n    ctx.strokeStyle = '#88ff00';\r\n    ctx.lineWidth = 3;\r\n\r\n    // 鏈夋満浣?\r\n    ctx.beginPath();\r\n    for (let i = 0; i < 12; i++) {\r\n        const a = (i / 12) * Math.PI * 2;\r\n        const r = s * pulse * (0.7 + fastSin(a * 3 + time * 4) * 0.15);\r\n        const px = fastCos(a) * r;\r\n        const py = fastSin(a) * r;\r\n        if (i === 0) ctx.moveTo(px, py);\r\n        else ctx.lineTo(px, py);\r\n    }\r\n    ctx.closePath();\r\n    ctx.fill();\r\n    ctx.stroke();\r\n\r\n    // 鐪?\r\n    ctx.fillStyle = '#0a1505';\r\n    ctx.beginPath();\r\n    ctx.arc(0, 0, s * 0.2, 0, Math.PI * 2);\r\n    ctx.fill();\r\n    ctx.fillStyle = '#88ff00';\r\n    ctx.beginPath();\r\n    ctx.arc(0, 0, s * 0.1, 0, Math.PI * 2);\r\n    ctx.fill();\r\n\r\n    ctx.restore();\r\n}"
+    },
+    {
+      "baseHp": 3500,
+      "hpPerWave": 700,
+      "radius": 35,
+      "speed": 35,
+      "damage": 30,
+      "color": "#ff00ff",
+      "glowColor": "#ff88ff",
+      "skills": [
+        "timeWarp",
+        "teleportStorm",
+        "voidRift",
+        "cloneArmy",
+        "spiralBurst",
+        "dash",
+        "deathMark",
+        "laserSweep"
+      ]
+    },
+    {
+      "baseHp": 7500,
+      "hpPerWave": 1500,
+      "radius": 55,
+      "speed": 14,
+      "damage": 50,
+      "color": "#ffcc00",
+      "glowColor": "#ffdd44",
+      "skills": [
+        "laserGrid",
+        "missileBarrage",
+        "shieldWall",
+        "overcharge",
+        "bulletHell",
+        "darkPulse",
+        "laserSweep",
+        "scatter",
+        "carpetBombing"
+      ]
+    },
+    {
+      "baseHp": 6000,
+      "hpPerWave": 1100,
+      "radius": 38,
+      "speed": 32,
+      "damage": 40,
+      "color": "#4488ff",
+      "glowColor": "#6699ff",
+      "skills": [
+        "charge",
+        "nova",
+        "iceWave",
+        "teleportStorm",
+        "electricField",
+        "darkPulse",
+        "dash",
+        "crescentBlast",
+        "deathMark"
+      ]
+    },
+    {
+      "baseHp": 5000,
+      "hpPerWave": 900,
+      "radius": 30,
+      "speed": 45,
+      "damage": 55,
+      "color": "#222222",
+      "glowColor": "#ff2222",
+      "skills": [
+        "shadowStrike",
+        "shurikenSprink",
+        "cloneArmy",
+        "dash",
+        "teleportStorm",
+        "deathMark"
+      ]
+    },
+    {
+      "baseHp": 6500,
+      "hpPerWave": 1300,
+      "radius": 42,
+      "speed": 28,
+      "damage": 45,
+      "color": "#ff0033",
+      "glowColor": "#880011",
+      "skills": [
+        "bloodPool",
+        "lifeDrain",
+        "bloodBeam",
+        "summonBats",
+        "darkPulse",
+        "spiralBurst"
+      ]
+    }
+  ]
+}

@@ -1,13 +1,15 @@
-# 长夜余烬开发说明
+# 三分钟试炼开发说明（保留版）
+
+默认入口已接入二十分钟原玩法，见 [gecao 融入说明](GECAO_INTEGRATION.md)。以下仅描述保留的旧试炼。
 
 ## 本地运行与入口
 
 在仓库根目录运行 `python -m http.server 8000`。
 
 - `/` 与 `/games/keystone/`：五人远征，使用 `/games/keystone/` 下的脚本和样式。
-- `/games/emberfall/`：游戏目录 `index.html`，使用相对路径加载同一套脚本和样式。
+- `/games/emberfall/trial.html`：旧试炼，使用相对路径加载原脚本与样式。
 
-三个页面均有游戏切换导航。长夜余烬的界面、脚本与样式仅在 `/games/emberfall/` 下维护；勿用旧肉鸽主页覆盖五人远征首页。使用 HTTP 打开，浏览器需要加载 ES 模块。GitHub Pages 直接托管静态文件，没有构建步骤。
+三个页面均有游戏切换导航。旧试炼的界面、脚本与样式在 `/games/emberfall/` 下维护；勿用旧肉鸽主页覆盖五人远征首页。使用 HTTP 打开，浏览器需要加载 ES 模块。GitHub Pages 直接托管静态文件，没有构建步骤。
 
 ## 模块与数据
 
