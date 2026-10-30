@@ -35,8 +35,8 @@ export function mountFlux(runtime,platform){
  const {game,sm,SFX,canvas,ctx,info,dpr,CHARACTERS}=runtime;
  if(runtime.catalogs){runtime.catalogs.curses=runtime.CURSE_DEFS;registerLore(runtime.catalogs);}
  const status=document.getElementById('status'),controls=document.getElementById('scene-controls');
- let viewW=info.screenWidth||WIDTH,viewH=info.screenHeight||HEIGHT;
- const keys=new Set();let primary=null,last=0,raf=0,disposed=false,signature='',suspended=false,campVisible=false;
+ let viewW=info.screenWidth||WIDTH,viewH=info.screenHeight||HEIGHT,backgroundTimer=null,pendingTime=0;
+ const keys=new Set();let primary=null,last=null,raf=0,disposed=false,signature='',suspended=false,campVisible=false;
  let keyboardVector={x:0,y:0};const originalVector=game.input.getVector.bind(game.input);
  game.input.getVector=()=>keys.size?keyboardVector:originalVector();
  const position=event=>{const r=canvas.getBoundingClientRect();return {clientX:(event.clientX-r.left)*viewW/r.width,clientY:(event.clientY-r.top)*viewH/r.height,identifier:event.pointerId};};
@@ -47,13 +47,16 @@ export function mountFlux(runtime,platform){
   clearMovement();viewW=width;viewH=height;canvas.width=width*dpr;canvas.height=height*dpr;
   info.screenWidth=width;info.screenHeight=height;game.resize?.(width,height);
   if(game.player&&game.camera){game.camera.x=game.player.x-width/2;game.camera.y=game.player.y-height/2;}
-  last=0;game.lastTime=null;
+  last=null;game.lastTime=null;
  }
  window.addEventListener('resize',resize);document.addEventListener('fullscreenchange',resize);
- const camp=createCamp(runtime,platform,()=>{clearMovement();game.lastTime=null;last=0;signature='';syncControls();if(game.isRunning){canvas.focus({preventScroll:true});canvas.parentElement?.scrollIntoView?.({block:'start',behavior:'instant'});}});
- const folio=createFolio(runtime,platform,{togglePause,afterAction(){clearMovement();game.lastTime=null;last=0;signature='';syncControls();}});
- function pause(){clearMovement();if(game.isRunning){game.isPaused=true;SFX.pauseBGM();}game.lastTime=null;last=0;}
- function togglePause(){if(!game.isRunning)return;if(game.isPaused){game.isPaused=false;SFX.resumeBGM();game.lastTime=null;last=0;}else pause();syncControls();}
+ const camp=createCamp(runtime,platform,()=>{clearMovement();game.lastTime=null;last=null;signature='';syncControls();if(game.isRunning){canvas.focus({preventScroll:true});canvas.parentElement?.scrollIntoView?.({block:'start',behavior:'instant'});}});
+ const folio=createFolio(runtime,platform,{togglePause,afterAction(){clearMovement();game.lastTime=null;last=null;signature='';syncControls();}});
+ const idleEnabled=()=>!!(game.autoPlay&&game.autoUpgrade);
+ const mayAdvance=()=>!suspended&&game.isRunning&&!game.isPaused&&game._tutorialStep<0&&sm.currentSceneName==='playing';
+ function stopBackground(){if(backgroundTimer!==null)clearTimeout(backgroundTimer);backgroundTimer=null;}
+ function pause(){clearMovement();stopBackground();pendingTime=0;if(game.isRunning){game.isPaused=true;SFX.pauseBGM();}game.lastTime=null;last=null;}
+ function togglePause(){if(!game.isRunning)return;if(game.isPaused){game.isPaused=false;SFX.resumeBGM();game.lastTime=null;last=null;}else pause();syncControls();}
  function actionAt(x,y){if(game.isRunning){game._handleTouchInput(x,y,game.input);game.lastTouchState=game.input.active;} }
  canvas.addEventListener('pointerdown',event=>{
   if(event.button!==0)return;event.preventDefault();canvas.focus({preventScroll:true});const touch=position(event);
@@ -68,7 +71,7 @@ export function mountFlux(runtime,platform){
  canvas.addEventListener('pointerup',event=>{if(event.pointerId!==primary)return;dispatch('end',position(event));try{canvas.releasePointerCapture(primary);}catch{}primary=null;game.lastTouchState=false;syncControls();});
  function cancel(event){if(event.pointerId!==primary)return;primary=null;game.input._end();game.lastTouchState=false;if(sm.currentScene)sm.currentScene.touchStartedHere=false;}
  canvas.addEventListener('pointercancel',cancel);canvas.addEventListener('lostpointercapture',cancel);
- const canPlay=()=>game.isRunning&&!game.isPaused&&sm.currentSceneName==='playing'&&!suspended;
+ const canPlay=()=>game.isRunning&&!game.isPaused&&sm.currentSceneName==='playing'&&!suspended&&!document.hidden;
  function keydown(event){
   if(event.ctrlKey||event.altKey||event.metaKey||event.isComposing||event.target.closest?.('input,select,textarea,[contenteditable="true"],dialog'))return;
   const key=event.key.toLowerCase();
@@ -78,8 +81,18 @@ export function mountFlux(runtime,platform){
   if(/^[1-5]$/.test(key)&&sm.currentSceneName==='upgrade'&&!event.repeat){event.preventDefault();const option=sm.currentScene.options[Number(key)-1];if(option)chooseUpgrade(sm.currentScene,option);}
  }
  window.addEventListener('keydown',keydown);window.addEventListener('keyup',event=>keys.delete(event.key.toLowerCase()));
- window.addEventListener('blur',pause);
- document.addEventListener('visibilitychange',()=>{if(document.hidden){suspended=true;pause();}else{suspended=false;last=0;game.lastTime=null;}});
+ window.addEventListener('blur',()=>{clearMovement();if(!idleEnabled())pause();});
+ document.addEventListener('visibilitychange',()=>{
+  clearMovement();
+  if(document.hidden){
+   if(idleEnabled()&&mayAdvance()){suspended=false;if(last===null)last=performance.now();startBackground();}
+   else{suspended=true;pause();}
+  }else{
+   const wasIdling=backgroundTimer!==null;stopBackground();suspended=false;
+   if(wasIdling)try{advance(performance.now(),true);}catch(error){runtimeError(error);}
+   last=null;game.lastTime=null;
+  }
+ });
  document.getElementById('pause-web').addEventListener('click',togglePause);
  document.getElementById('fullscreen-web').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.getElementById('game-shell').requestFullscreen();}catch{status.textContent='当前浏览器未提供全屏，可直接在页面中游玩。';}});
  document.getElementById('help-web').addEventListener('click',()=>{pause();document.getElementById('help-dialog').showModal();});
@@ -90,15 +103,40 @@ export function mountFlux(runtime,platform){
   campVisible=camp.sync();folio.sync(campVisible);
   if(controls.children.length)controls.replaceChildren();
  }
- function frame(timestamp){
-  if(disposed)return;
-  try{
-   const dt=last?Math.max(0,Math.min(.1,(timestamp-last)/1000)):0;last=timestamp;
-   if(!suspended&&!document.hidden&&game.isRunning&&!game.isPaused&&game._tutorialStep<0){
+ function step(dt){
     const x=Number(keys.has('d')||keys.has('arrowright'))-Number(keys.has('a')||keys.has('arrowleft'));
     const y=Number(keys.has('s')||keys.has('arrowdown'))-Number(keys.has('w')||keys.has('arrowup'));const length=Math.hypot(x,y)||1;
     keyboardVector={x:x/length,y:y/length};game.time+=dt;game.frameDt=dt;game.update(dt);
-   }
+ }
+ function advance(timestamp,catchUp=false){
+  const elapsed=last!==null?Math.max(0,(timestamp-last)/1000):0;last=timestamp;
+  if(!mayAdvance()){pendingTime=0;return;}
+  if(!catchUp&&pendingTime<=0){step(Math.min(.1,elapsed));return;}
+  // Background timers can be throttled. Use normal-sized simulation steps,
+  // retain unprocessed time, and yield between bounded batches.
+  pendingTime+=elapsed;
+  for(let count=0;pendingTime>1e-9&&count<120&&mayAdvance();count++){
+   const dt=Math.min(1/60,pendingTime);pendingTime-=dt;step(dt);
+  }
+  if(!mayAdvance())pendingTime=0;
+ }
+ function runtimeError(error){
+  pause();console.error('Emberfall browser runtime:',error);status.textContent='游戏遇到错误：'+error.message;document.getElementById('loading').textContent='游戏启动失败，请刷新重试。';
+ }
+ function startBackground(){
+  if(disposed||!document.hidden||backgroundTimer!==null||!idleEnabled()||!mayAdvance())return;
+  backgroundTimer=setTimeout(()=>{
+   backgroundTimer=null;if(disposed||!document.hidden)return;
+   if(!idleEnabled()){pause();return;}
+   try{advance(performance.now(),true);}catch(error){runtimeError(error);}
+   startBackground();
+  },100);
+ }
+ function frame(timestamp){
+  if(disposed)return;
+  if(document.hidden){raf=requestAnimationFrame(frame);return;}
+  try{
+   advance(timestamp);
    syncControls();
    if(!campVisible&&!folio.visible){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,viewW,viewH);ctx.save();
    try{if(game.isRunning||game.stageSystem?.state==='reward'||game.bossRushMode&&sm.currentSceneName==='playing')game.draw();else sm.draw(ctx,viewW,viewH);}finally{ctx.restore();}}
@@ -111,10 +149,10 @@ export function mountFlux(runtime,platform){
    const chapter=runtime.catalogs?.stages?.[game.stageSystem?.currentStage||0];
    const chapterName=document.querySelector?.('.chapter-mark strong');if(chapterName&&chapter)chapterName.textContent=chapter.name;
    syncControls();document.getElementById('loading').hidden=true;
-  }catch(error){console.error('Emberfall browser runtime:',error);status.textContent='游戏遇到错误：'+error.message;document.getElementById('loading').textContent='游戏启动失败，请刷新重试。';}
+  }catch(error){runtimeError(error);}
   raf=requestAnimationFrame(frame);
  }
  canvas.focus({preventScroll:true});syncControls();raf=requestAnimationFrame(frame);
- window.addEventListener('pagehide',()=>{disposed=true;cancelAnimationFrame(raf);clearMovement();camp.destroy();SFX.stopBGM();});
- window.addEventListener('pageshow',event=>{if(event.persisted){disposed=false;last=0;pause();raf=requestAnimationFrame(frame);}});
+ window.addEventListener('pagehide',()=>{disposed=true;cancelAnimationFrame(raf);stopBackground();pendingTime=0;clearMovement();camp.destroy();SFX.stopBGM();});
+ window.addEventListener('pageshow',event=>{if(event.persisted){disposed=false;last=null;pause();raf=requestAnimationFrame(frame);}});
 }

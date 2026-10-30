@@ -133,6 +133,7 @@ export function createFolio(runtime,platform,hooks={}){
    const rows=Object.entries(game._weaponDamageStats||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]),total=rows.reduce((n,[,v])=>n+v,0);
    body+=stats([['总伤害',fmt(total)],['每秒伤害',fmt(total/Math.max(1,game.time))]])+(rows.length?grid(rows.map(([id,value])=>card(entry('weapons',id,c.weapons[id]).name,`${fmt(value)} 伤害 · 占比 ${(value/total*100).toFixed(1)}%`,`<meter aria-label="${esc(entry('weapons',id,c.weapons[id]).name)}伤害占比" min="0" max="${total}" value="${value}"></meter>`,'','',icon(id))).join('')):'<p class="folio-empty">尚未留下伤敌的记录。</p>');
   }else body+=grid(card('营地之声','切换行旅中的音乐与音效。','',button(SFX.isMuted?'音效：关':'音效：开',()=>{SFX.toggleMute();game._saveSettings?.();}),'',icon('bell'))+card('林间光影','低画质会减少场景中的部分特效。','',button((game.qualityLevel||0)>=.8?'光影：精细':'光影：简约',()=>{game.qualityLevel=(game.qualityLevel||0)>=.8?0:1;game._saveSettings?.();}),'',icon('eye')));
+  if(tab==='journey')body+=note(game.autoPlay&&game.autoUpgrade?'挂机已就绪：继续守夜后，切换窗口或标签页将继续战斗。手动暂停仍然有效。':'同时开启随行走位与随缘强化，即可在切屏后继续战斗。');
   return body;
  }
  function achievements(){return header('MARKS OF THE LONG NIGHT','长夜铭记','每一次坚持，都在营地里留下一道刻痕。')+grid(c.achievements.map(def=>{const copy=entry('achievements',def.id,def),unlocked=game.achievements.isUnlocked(def.id);return card(copy.name,copy.desc,'','',badge(unlocked?'已铭记':'尚待完成'),icon('crown'),unlocked?'is-owned':'');}).join(''));}
