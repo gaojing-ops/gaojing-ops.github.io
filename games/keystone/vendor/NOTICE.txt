@@ -1,0 +1,6 @@
+Map atlases and placement reference: Mythic Dungeon Tools, 04e5b122918ebf1cf1c2459677a01f55c13c2f07
+https://github.com/Nnoggie/MythicDungeonTools
+MDT distributed under GPL-2.0; see MDT-LICENSE.txt.
+World of Warcraft game maps/artwork are copyright Blizzard Entertainment.
+Atlas tiles assembled and resized to WebP for this project on 2026-10-30.
+Original gameplay implementation is available in this public repository.

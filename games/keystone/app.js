@@ -1,10 +1,13 @@
 import {DUNGEONS,SPECS,DEFAULT_TEAM,ROLES,SLOTS,QUALITIES,SEASON,spec,stats,affixes,itemScore,validateTeam,RAIDER_REFERENCE,REFERENCE_TEAM} from './data.js';
-import {Run,ROUTE} from './engine.js';
+import {Run} from './engine.js';
+import {getMap} from './maps.js';
 import {load,save,equip,autoEquip,settle,BAG_LIMIT} from './storage.js';
 const $=id=>document.getElementById(id),esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=t=>`${String(Math.floor(Math.max(0,t)/60)).padStart(2,'0')}:${String(Math.floor(Math.max(0,t)%60)).padStart(2,'0')}`;
 const loaded=load(localStorage);let profile=loaded.profile,run=null,gearHero=profile.team[0],toastTimer=0,lastFrame=0,uiClock=0,saveClock=0,repeatCountdown=null,lastLog='',storageFailed=false;
 const canvas=$('battle'),ctx=canvas.getContext('2d');let view={w:900,h:395,dpr:1},camera={x:400,y:300},dialogKind='',modalPaused=false;
+let mapOverview=true;const mapImages=new Map();
+function atlas(id){if(!mapImages.has(id)){const img=new Image();img.src=getMap(id).image;mapImages.set(id,img);}return mapImages.get(id);}
 const active=()=>!!run&&!run.result;
 function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3600);}
 function persist(){profile.checkpoint=active()?run.serialize():null;if(!save(localStorage,profile)){if(!storageFailed)toast('浏览器未能保存进度，请检查存储空间。当前页面仍可游玩。');storageFailed=true;return false;}return true;}
@@ -13,12 +16,12 @@ function initSetup(){
  $('dungeon-select').innerHTML=DUNGEONS.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');if(!DUNGEONS.some(d=>d.id===profile.dungeon))profile.dungeon='fangs';$('dungeon-select').value=profile.dungeon;updateKeys();$('repeat').checked=profile.settings.repeat;$('speed').value=profile.settings.speed;
 }
 function updateKeys(){profile.key=Math.min(profile.key,profile.maxKey);$('key-select').innerHTML=Array.from({length:profile.maxKey-1},(_,i)=>`<option value="${i+2}">+${i+2} 层</option>`).join('');$('key-select').value=profile.key;$('unlocked-key').textContent=`已解锁至 +${profile.maxKey}`;updateDungeon();}
-function updateDungeon(){const d=DUNGEONS.find(d=>d.id===profile.dungeon);$('dungeon-theme').textContent=d.theme+' · 正式服时限 '+fmt(d.referenceTimer)+' → 本版 '+fmt(d.gameTimer);$('affixes').innerHTML=affixes(profile.key).map(a=>`<span class="affix">${a}</span>`).join('')||'<span class="muted">低层探索 · 熟悉队伍配合</span>';}
+function updateDungeon(){const d=DUNGEONS.find(d=>d.id===profile.dungeon);$('dungeon-theme').textContent=d.bosses.length+' 位首领 · 正式服时限 '+fmt(d.referenceTimer)+' → 本版 '+fmt(d.gameTimer);$('affixes').innerHTML=affixes(profile.key).map(a=>`<span class="affix">${a}</span>`).join('')||'<span class="muted">低层探索 · 熟悉队伍配合</span>';}
 function startRun(automatic=false){
  if(active()){toast('请先完成当前远征；刷新后也可继续进度。');return;}
  const team=Array.from(document.querySelectorAll('[data-team]')).map(e=>e.value);if(!validateTeam(team)){toast('请选择 1 坦克、1 治疗、3 位不同专精的输出。');return;}
  if(profile.bag.length>BAG_LIMIT-3){profile.settings.repeat=false;$('repeat').checked=false;toast('背包剩余空间不足 3 格，请先穿戴或分解装备。');persist();return;}
- profile.team=team;run=new Run({team,dungeon:profile.dungeon,level:profile.key,equipment:profile.equipment});repeatCountdown=null;lastLog='';$('result').hidden=true;modalPaused=false;persist();renderUI();
+ profile.team=team;mapOverview=false;run=new Run({team,dungeon:profile.dungeon,level:profile.key,equipment:profile.equipment});repeatCountdown=null;lastLog='';$('result').hidden=true;modalPaused=false;persist();renderUI();
  if(!automatic)$('battle').scrollIntoView({behavior:'smooth',block:'center'});
 }
 function completed(){
@@ -39,10 +42,13 @@ function renderUI(){
  $('start').disabled=running;$('resume').hidden=!running||!run.paused;$('resume').textContent='继续远征 · '+fmt(run?.elapsed||0);
  $('pause').disabled=!running;$('pause').textContent=run?.paused?'继续':'暂停';$('idle-note').hidden=!!run;$('pause-note').hidden=!running||!run.paused;
  $('reference-team').disabled=running;
+ $('map-view').textContent=mapOverview?'跟随队伍':'查看全图';
+ const legendMap=getMap(run?.dungeon||profile.dungeon);$('boss-legend').innerHTML=legendMap.bosses.map((name,i)=>`<span class="${run&&i<run.metrics.bosses?'cleared':''}"><b>${i+1}</b>${esc(name)}</span>`).join('');
+ if(!run){const map=getMap(profile.dungeon);$('encounter').textContent=`${map.route.length} 处遭遇 · ${map.bosses.length} 位首领`;$('boss-progress').textContent='0 / '+map.bosses.length;}
  $('bag-count').textContent=`${profile.bag.length}/${BAG_LIMIT}`;
  if(run){const d=DUNGEONS.find(d=>d.id===run.dungeon);$('dungeon-label').textContent=`${SEASON.name} · ${d.theme}`;$('run-title').textContent=`${d.name} · +${run.level}`;$('timer').textContent=fmt(run.clock);$('time-limit').textContent='/ '+fmt(run.limit);$('timer').style.color=run.clock>run.limit?'#e79b8b':'';$('penalty').textContent=run.penalty?`含死亡惩罚 +${run.penalty}s`:'';
  const phase=run.paused&&running?'暂停 · 随时继续':({walking:'自动行进中',combat:run.boss?'首领战':'小队交战中',recovering:`复活集结 · ${Math.ceil(run.reviveTimer)}s`,complete:run.result?.inTime?'限时通关':'超时完成',failed:'远征结束'})[run.phase];$('phase').textContent=phase;
- $('enemy-progress').textContent=run.progress+'%';$('progress-fill').style.width=run.progress+'%';$('boss-progress').textContent=run.metrics.bosses+' / 3';$('encounter').textContent=run.result?'远征已结算':`${run.index+1} / 12 · ${run.currentName}`;$('death-count').textContent=`死亡 ${run.metrics.deaths} · 团灭 ${run.wipes}`;
+ $('enemy-progress').textContent=run.progress+'%';$('progress-fill').style.width=run.progress+'%';$('boss-progress').textContent=run.metrics.bosses+' / '+getMap(run.dungeon).bosses.length;$('encounter').textContent=run.result?'远征已结算':`${run.index+1} / ${run.route.length} · ${run.route[run.index]?.area||run.currentName}`;$('death-count').textContent=`死亡 ${run.metrics.deaths} · 团灭 ${run.wipes}`;
  const signature=run.log[0]?.time+'-'+run.log[0]?.text;if(lastLog!==signature){lastLog=signature;$('log').innerHTML=run.log.slice(0,12).map(l=>`<p><time>${fmt(l.time)}</time>${esc(l.text)}</p>`).join('');}
  }
  renderParty();if(run?.result&&repeatCountdown!==null){const next=$('repeat-status');if(next)next.textContent=`${Math.ceil(repeatCountdown)} 秒后再次挑战同一副本与层数`;} }
@@ -62,14 +68,14 @@ function fillDialog(){
   $('dialog-body').innerHTML=`<div class="bag-toolbar"><label>分配给 <select id="gear-hero">${profile.team.map(id=>`<option value="${id}" ${id===gearHero?'selected':''}>${spec(id).job} · ${spec(id).name}</option>`).join('')}</select></label><button data-action="autoequip" ${active()?'disabled':''}>全队一键推荐穿戴</button><span class="muted">背包 ${profile.bag.length}/${BAG_LIMIT}</span></div><p class="subtle">${active()?'远征中可以查看装备，结束后可换装。':'按职业匹配后比较综合推荐分；一键穿戴会优先分配给队伍中靠前的成员。'}装备永久保存在当前浏览器。</p><p>生命 ${Math.round(values.maxHp)} · 强度 ${Math.round(values.power)} · 平均装等 ${values.ilvl}</p><div class="gear-grid">${Object.entries(SLOTS).map(([slot,name])=>`<div class="gear-slot"><small>${name}</small><strong style="color:${equipped[slot]?QUALITIES[equipped[slot].quality].color:'#62768d'}">${equipped[slot]?esc(equipped[slot].name):'尚未装备'}</strong><small>${equipped[slot]?'装等 '+equipped[slot].ilvl:'等待下一次掉落'}</small></div>`).join('')}</div><h3>收藏 ${profile.bag.length} 件装备</h3><div class="bag-grid">${profile.bag.length?profile.bag.map(i=>itemCard(i)).join(''):'<p class="empty">背包空空，去完成一场远征吧。</p>'}</div>`;
  }else if(dialogKind==='history'){
   $('dialog-body').innerHTML=`<p>完成 ${profile.runs} 场 · 通关 ${profile.wins} 场 · 最高解锁 +${profile.maxKey}</p>${profile.history.map(r=>`<article class="history-card"><h3>${esc(DUNGEONS.find(d=>d.id===r.dungeon)?.name||'秘境')} · +${r.level} · ${r.success?(r.inTime?'限时通关':'超时完成'):'未通关'}</h3><p>${fmt(r.time+(r.penalty||0))} · ${esc(new Date(r.date).toLocaleString('zh-CN'))} · 掉落 ${(r.loot||[]).length} 件</p><details><summary>查看队伍贡献与掉落</summary>${(r.heroes||[]).filter(h=>spec(h.id)).map(h=>`<p>${spec(h.id).job} · ${spec(h.id).name}：伤害 ${h.damage} / 治疗 ${h.healing}</p>`).join('')}<div class="loot-grid">${(r.loot||[]).filter(i=>QUALITIES[i.quality]).map(i=>itemCard(i,{actions:false})).join('')}</div></details></article>`).join('')||'<p class="empty">第一场远征，等待你的队伍。</p>'}`;
- }else $('dialog-body').innerHTML=`<div class="help-grid"><article><h3>01 / 组建小队</h3><p>选择一名坦克、一名治疗和三名不同专精的输出。坦克嘲讽与减伤，治疗自动优先救急，输出会打断、释放专属技能和躲开地面预警。</p></article><article><h3>02 / 自动推进</h3><p>队伍沿路线探索 12 处遭遇与 3 位首领。死亡增加 5 秒计时，团灭后复活重新拉怪，三次团灭或远征达到 6 分钟时撤离。在本版副本时限内通关提升钥石；超时通关仍掉装备。</p></article><article><h3>03 / 装备与成长</h3><p>限时通关掉落 3 件装备，超时通关掉 2 件。部位包括武器、头部、胸甲、鞋子和饰品；强度、生命、急速与暴击都会影响战斗。装备按坦克/治疗/输出匹配。选中队员可以手动换装，也可全队一键推荐。</p></article><article><h3>04 / 随时放下</h3><p>切走窗口自动暂停，每 3 秒保存进度，刷新后可继续。1×/2×/3×仅改变播放速度，计时同步推进。连续刷本只在当前页面运行，失败、背包将满或打开弹窗时停止自动续局。</p></article><article><h3>05 / 层数与词缀</h3><p>从 +2 开始，限时通关解锁更高层数，最多 +20。+4 强韧提高小怪生命，+7 暴君提高首领生命，+10 涌动增加首领地面预警。为短局游玩设计，属于自定义简化数值。</p></article><article><h3>06 / 本赛季地图</h3><p>${DUNGEONS.map(d=>d.name).join('、')}。地图池与原始时限参考 Raider.IO 国服第 2 赛季公开数据，时限缩短至十分之一；路线、首领名字和技能采用原创轻量改编，并非正式服攻略。公开数据快照核对日期 2026-10-30，阵容取自一条国服 +24 记录，不代表职业排名。</p></article></div>`;
+ }else $('dialog-body').innerHTML=`<div class="help-grid"><article><h3>01 / 组建小队</h3><p>选择一名坦克、一名治疗和三名不同专精的输出。坦克嘲讽与减伤，治疗自动优先救急，输出会打断、释放专属技能和躲开地面预警。</p></article><article><h3>02 / 自动推进</h3><p>队伍按各副本地图行进，探索 12—16 处遭遇与 3—4 位首领；密谋小径、夺目谷、诸王之眠与塞塔里斯神庙有四位首领。死亡增加 5 秒计时，团灭后复活重新拉怪，三次团灭或远征达到 6 分钟时撤离。在本版副本时限内通关提升钥石；超时通关仍掉装备。</p></article><article><h3>03 / 装备与成长</h3><p>限时通关掉落 3 件装备，超时通关掉 2 件。部位包括武器、头部、胸甲、鞋子和饰品；强度、生命、急速与暴击都会影响战斗。装备按坦克/治疗/输出匹配。选中队员可以手动换装，也可全队一键推荐。</p></article><article><h3>04 / 随时放下</h3><p>切走窗口自动暂停，每 3 秒保存进度，刷新后可继续。1×/2×/3×仅改变播放速度，计时同步推进。连续刷本只在当前页面运行，失败、背包将满或打开弹窗时停止自动续局。</p></article><article><h3>05 / 层数与词缀</h3><p>从 +2 开始，限时通关解锁更高层数，最多 +20。+4 强韧提高小怪生命，+7 暴君提高首领生命，+10 涌动增加首领地面预警。为短局游玩设计，属于自定义简化数值。</p></article><article><h3>06 / 本赛季地图</h3><p>${DUNGEONS.map(d=>d.name).join('、')}。地图池与原始时限参考 Raider.IO 国服第 2 赛季公开数据，时限缩短至十分之一；底图及敌人、首领位置参考游戏内地图与 Mythic Dungeon Tools；路线是为本作编排的轻量走法，战斗与掉落仍为简化规则。公开数据快照核对日期 2026-10-30，阵容取自一条国服 +24 记录，不代表职业排名。</p></article></div>`;
 }
 function performAction(event){const target=event.target.closest('button');if(!target||target.disabled)return;
  if(target.dataset.equip){if(equip(profile,gearHero,target.dataset.equip)){persist();fillDialog();renderUI();toast('装备已穿戴，下次远征生效。');}return;}
  if(target.dataset.salvage){const id=target.dataset.salvage;const index=profile.bag.findIndex(i=>i.id===id);if(index>=0){const item=profile.bag[index];profile.bag.splice(index,1);persist();fillDialog();renderUI();toast('已分解 '+item.name+'，释放 1 格背包。');}return;}
  const action=target.dataset.action;if(action==='bag')openDialog('bag');if(action==='autoequip'){const n=autoEquip(profile);persist();fillDialog();renderUI();toast(n?`已为小队更换 ${n} 件装备。`:'当前装备已是推荐搭配。');}
  if(action==='again'){profile.key=run.result.level;updateKeys();startRun();}if(action==='upgrade'){profile.key=Math.min(20,run.result.level+run.result.upgrade);updateKeys();startRun();}
- if(action==='camp'){repeatCountdown=null;run=null;lastLog='';$('result').hidden=true;$('run-title').textContent='小队正在等待出发';$('dungeon-label').textContent='选择下一场冒险';$('timer').textContent='00:00';$('penalty').textContent='';$('phase').textContent='营地 · 准备就绪';$('enemy-progress').textContent='0%';$('progress-fill').style.width='0%';$('boss-progress').textContent='0 / 3';$('encounter').textContent='路线共 12 处遭遇 · 3 位首领';$('death-count').textContent='死亡 0 · 团灭 0';$('log').innerHTML='<p class="log-empty">准备开始下一场远征。</p>';persist();renderUI();document.querySelector('.setup').scrollIntoView({behavior:'smooth'});}
+ if(action==='camp'){repeatCountdown=null;run=null;mapOverview=true;lastLog='';$('result').hidden=true;$('run-title').textContent='小队正在等待出发';$('dungeon-label').textContent='选择下一场冒险';$('timer').textContent='00:00';$('penalty').textContent='';$('phase').textContent='营地 · 准备就绪';$('enemy-progress').textContent='0%';$('progress-fill').style.width='0%';$('boss-progress').textContent='0 / 3';$('encounter').textContent='路线共 12 处遭遇 · 3 位首领';$('death-count').textContent='死亡 0 · 团灭 0';$('log').innerHTML='<p class="log-empty">准备开始下一场远征。</p>';persist();renderUI();document.querySelector('.setup').scrollIntoView({behavior:'smooth'});}
 }
 $('dialog-body').addEventListener('click',performAction);$('result').addEventListener('click',performAction);
 $('dialog-body').addEventListener('change',event=>{if(event.target.id==='gear-hero'){gearHero=event.target.value;fillDialog();}});
@@ -80,6 +86,7 @@ $('repeat').addEventListener('change',event=>{profile.settings.repeat=event.targ
 $('speed').addEventListener('change',event=>{profile.settings.speed=Number(event.target.value);persist();});
 $('start').addEventListener('click',()=>startRun());
 function togglePause(){if(!active())return;run.paused=!run.paused;persist();renderUI();}
+$('map-view').addEventListener('click',()=>{mapOverview=!mapOverview;renderUI();});
 $('pause').addEventListener('click',togglePause);$('resume').addEventListener('click',()=>{if(active()){run.paused=false;renderUI();persist();}});
 $('bag-open').addEventListener('click',()=>openDialog('bag'));$('history-open').addEventListener('click',()=>openDialog('history'));$('help-open').addEventListener('click',()=>openDialog('help'));$('dialog-close').addEventListener('click',()=>$('dialog').close());
 $('dialog').addEventListener('close',()=>{if(modalPaused&&active()&&!document.hidden)run.paused=false;modalPaused=false;persist();renderUI();});
@@ -92,28 +99,40 @@ new ResizeObserver(resize).observe(canvas);
 function circle(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
 function draw(){
  if(!ctx)return;ctx.setTransform(view.dpr,0,0,view.dpr,0,0);ctx.fillStyle='#111b26';ctx.fillRect(0,0,view.w,view.h);
- const dungeon=DUNGEONS.find(d=>d.id===(run?.dungeon||profile.dungeon));const center=run?run.heroes[0]:{x:260,y:230};camera.x+=(center.x-camera.x)*.035;camera.y+=(center.y-camera.y)*.035;
- const scale=view.w<500?.93:1.05;ctx.save();ctx.translate(view.w/2,view.h/2);ctx.scale(scale,scale);ctx.translate(-camera.x,-camera.y);
- ctx.fillStyle=dungeon.floor;ctx.fillRect(-500,-500,2000,1600);
- for(let x=-200;x<1100;x+=40)for(let y=-200;y<900;y+=40){ctx.strokeStyle='#b9c4c008';ctx.lineWidth=1;ctx.strokeRect(x+1,y+1,38,38);if((x+y)%120===0){ctx.fillStyle=dungeon.color+'07';ctx.fillRect(x+2,y+2,36,36);}}
- ctx.strokeStyle='#70868224';ctx.lineWidth=58;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();ROUTE.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();ctx.strokeStyle=dungeon.color+'22';ctx.lineWidth=1;ctx.setLineDash([3,12]);ctx.stroke();ctx.setLineDash([]);
- ROUTE.forEach((p,i)=>{ctx.strokeStyle=i<(run?.index||0)?'#82988777':dungeon.color+'44';ctx.lineWidth=1;ctx.beginPath();ctx.arc(p.x,p.y,i%4===3?57:47,0,Math.PI*2);ctx.stroke();for(let k=0;k<4;k++){const a=k/4*Math.PI*2;circle(p.x+Math.cos(a)*61,p.y+Math.sin(a)*61,5,'#090f18aa');circle(p.x+Math.cos(a)*61,p.y+Math.sin(a)*61,2,dungeon.color+'66');}});
+ const dungeon=DUNGEONS.find(d=>d.id===(run?.dungeon||profile.dungeon)),map=getMap(dungeon.id),route=map.route,img=atlas(dungeon.id);
+ const fit=Math.min((view.w-18)/map.width,(view.h-18)/map.height),scale=mapOverview?fit:(view.w<500?1.12:1.2);
+ const center=run?run.heroes[0]:map.entrance;const halfW=view.w/scale/2,halfH=view.h/scale/2;
+ const targetX=mapOverview?map.width/2:Math.max(halfW,Math.min(map.width-halfW,center.x));
+ const targetY=mapOverview?map.height/2:Math.max(halfH,Math.min(map.height-halfH,center.y));
+ if(mapOverview){camera.x=targetX;camera.y=targetY;}else{camera.x+=(targetX-camera.x)*.13;camera.y+=(targetY-camera.y)*.13;}
+ ctx.save();ctx.translate(view.w/2,view.h/2);ctx.scale(scale,scale);ctx.translate(-camera.x,-camera.y);
+ if(img.complete&&img.naturalWidth){ctx.drawImage(img,0,0,map.width,map.height);ctx.fillStyle='#0b14202a';ctx.fillRect(0,0,map.width,map.height);}else{ctx.fillStyle=dungeon.floor;ctx.fillRect(0,0,map.width,map.height);ctx.fillStyle='#d7c29f';ctx.font='18px system-ui';ctx.fillText('正在载入副本地图…',map.width/2,map.height/2);}
+ ctx.strokeStyle='#101622cc';ctx.lineWidth=5/scale;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();ctx.moveTo(map.entrance.x,map.entrance.y);
+ for(const node of route){if(node.transport)ctx.moveTo(node.transport.x,node.transport.y);for(const via of node.via)ctx.lineTo(via.x,via.y);ctx.lineTo(node.x,node.y);}ctx.stroke();
+ ctx.strokeStyle='#a3e5ecbb';ctx.lineWidth=1.5/scale;ctx.setLineDash([4/scale,6/scale]);ctx.stroke();ctx.setLineDash([]);
+ route.forEach((p,i)=>{const cleared=i<(run?.index||0),boss=p.kind==='boss';circle(p.x,p.y,(boss?6:3.5)/scale,cleared?'#91d3a3':boss?'#f2b36b':'#b9ebee');ctx.strokeStyle='#162332';ctx.lineWidth=1/scale;ctx.beginPath();ctx.arc(p.x,p.y,(boss?6:3.5)/scale,0,Math.PI*2);ctx.stroke();if(boss&&mapOverview){ctx.font=`600 ${11/scale}px system-ui`;ctx.textAlign='center';ctx.strokeStyle='#101926';ctx.lineWidth=3/scale;const text=view.w<500?String(p.bossIndex+1):`${p.bossIndex+1} · ${p.display.length>22?p.display.slice(0,20)+'…':p.display}`;ctx.strokeText(text,p.x,p.y-12/scale);ctx.fillStyle='#ffe5ad';ctx.fillText(text,p.x,p.y-12/scale);}});
+ circle(map.entrance.x,map.entrance.y,5/scale,'#a2de9f');
  for(const z of run?.hazards||[]){ctx.fillStyle='#dd765b33';ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#eea77b';ctx.lineWidth=2;ctx.beginPath();ctx.arc(z.x,z.y,z.r*(1-z.life/z.max),0,Math.PI*2);ctx.stroke();}
  for(const e of run?.enemies||[]){if(e.hp<=0)continue;const boss=e.kind==='boss',r=boss?22:12;circle(e.x,e.y+4,r+2,'#07101a77');ctx.save();ctx.translate(e.x,e.y);ctx.rotate(Math.PI/4);ctx.fillStyle=e.flash>0?'#f3dbb7':boss?dungeon.color:e.kind==='caster'?'#aa8dba':'#a17b68';ctx.fillRect(-r*.75,-r*.75,r*1.5,r*1.5);ctx.strokeStyle=boss?'#e8c899':'#d2b1a077';ctx.lineWidth=2;ctx.strokeRect(-r*.75,-r*.75,r*1.5,r*1.5);ctx.restore();circle(e.x-4,e.y-3,2,'#201d29');circle(e.x+4,e.y-3,2,'#201d29');if(boss){ctx.strokeStyle=dungeon.color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(e.x-17,e.y-16);ctx.lineTo(e.x-22,e.y-34);ctx.moveTo(e.x+17,e.y-16);ctx.lineTo(e.x+22,e.y-34);ctx.stroke();}
  ctx.fillStyle='#0d1521';ctx.fillRect(e.x-r,e.y-r-12,r*2,4);ctx.fillStyle=boss?'#e0b582':'#c18881';ctx.fillRect(e.x-r,e.y-r-12,r*2*Math.max(0,e.hp/e.maxHp),4);
  if(e.cast){ctx.fillStyle='#2c3444';ctx.fillRect(e.x-r,e.y+r+8,r*2,4);ctx.fillStyle=e.cast.interruptible?'#bba0df':'#e3a179';ctx.fillRect(e.x-r,e.y+r+8,r*2*(1-e.cast.remaining/e.cast.total),4);}
- if(boss){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle='#eadac4';ctx.fillText(e.name,e.x,e.y-r-22);}}
- const heroes=run?.heroes||profile.team.map((id,i)=>({id,x:190+i*27,y:210+(i%2)*28,hp:1,maxHp:1}));
- for(const h of heroes){const s=spec(h.id);if(h.dead){ctx.strokeStyle='#728399';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(h.x-5,h.y-5);ctx.lineTo(h.x+5,h.y+5);ctx.moveTo(h.x+5,h.y-5);ctx.lineTo(h.x-5,h.y+5);ctx.stroke();continue;}
+ if(boss){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle='#eadac4';ctx.fillText(e.name,e.x,e.y-r-22,180);}}
+ const heroes=run?.heroes||profile.team.map((id,i)=>({id,x:map.entrance.x+i*7,y:map.entrance.y+(i%2)*7,hp:1,maxHp:1}));
+ if(mapOverview){const h=heroes[0];circle(h.x,h.y,11/scale,'#172a3c');ctx.strokeStyle='#c3eff3';ctx.lineWidth=2/scale;ctx.beginPath();ctx.arc(h.x,h.y,11/scale,0,Math.PI*2);ctx.stroke();ctx.font=`600 ${10/scale}px system-ui`;ctx.textAlign='center';ctx.fillStyle='#eaf5ed';ctx.fillText('5',h.x,h.y+3/scale);}
+ for(const h of mapOverview?[]:heroes){const s=spec(h.id);if(h.dead){ctx.strokeStyle='#728399';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(h.x-5,h.y-5);ctx.lineTo(h.x+5,h.y+5);ctx.moveTo(h.x+5,h.y-5);ctx.lineTo(h.x-5,h.y+5);ctx.stroke();continue;}
  circle(h.x,h.y+7,13,'#07101a99');if(h.shield>0){ctx.strokeStyle=s.color+'aa';ctx.lineWidth=2;ctx.beginPath();ctx.arc(h.x,h.y-2,19,0,Math.PI*2);ctx.stroke();}ctx.fillStyle=h.flash>0?'#ece1c6':s.color;ctx.beginPath();ctx.moveTo(h.x,h.y-13);ctx.lineTo(h.x+11,h.y+8);ctx.lineTo(h.x-11,h.y+8);ctx.closePath();ctx.fill();circle(h.x,h.y-10,6,'#172333');ctx.fillStyle=s.color;ctx.fillRect(h.x-3,h.y-11,6,2);ctx.font='600 10px system-ui';ctx.textAlign='center';ctx.fillStyle='#e4e1d8';ctx.fillText(s.mark,h.x,h.y+25);ctx.fillStyle='#0a1521';ctx.fillRect(h.x-13,h.y-23,26,3);ctx.fillStyle=s.color;ctx.fillRect(h.x-13,h.y-23,26*Math.max(0,h.hp/h.maxHp),3);
  }
  for(const fx of run?.effects||[]){ctx.globalAlpha=Math.min(1,fx.life*2);ctx.font='600 11px system-ui';ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='#111a25';ctx.strokeText(fx.text,fx.x,fx.y-(1.1-fx.life)*20);ctx.fillStyle=fx.color;ctx.fillText(fx.text,fx.x,fx.y-(1.1-fx.life)*20);}ctx.globalAlpha=1;ctx.restore();
- const mw=98,mh=66,mx=view.w-mw-12,my=12;ctx.fillStyle='#0d1723cd';ctx.fillRect(mx,my,mw,mh);ctx.strokeStyle='#889ba144';ctx.strokeRect(mx,my,mw,mh);ctx.strokeStyle='#71899477';ctx.lineWidth=1;ctx.beginPath();ROUTE.forEach((p,i)=>{const x=mx+9+p.x/850*80,y=my+7+p.y/650*52;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();ROUTE.forEach((p,i)=>circle(mx+9+p.x/850*80,my+7+p.y/650*52,i%4===3?3:2,i<(run?.index||0)?'#85b49b':i===(run?.index||0)?'#edc782':'#586d84'));ctx.font='9px system-ui';ctx.fillStyle='#9aafbf';ctx.textAlign='left';ctx.fillText('自动路线',mx+9,my+mh-5);
+ const mw=120,mh=80,mx=view.w-mw-12,my=12;ctx.fillStyle='#0d1723e6';ctx.fillRect(mx-2,my-2,mw+4,mh+4);if(img.complete&&img.naturalWidth)ctx.drawImage(img,mx,my,mw,mh);ctx.fillStyle='#0d172344';ctx.fillRect(mx,my,mw,mh);ctx.strokeStyle='#f3d9a199';ctx.lineWidth=1;ctx.strokeRect(mx,my,mw,mh);
+ ctx.strokeStyle='#c1e8eecc';ctx.beginPath();ctx.moveTo(mx+map.entrance.x/map.width*mw,my+map.entrance.y/map.height*mh);for(const p of route){if(p.transport)ctx.moveTo(mx+p.transport.x/map.width*mw,my+p.transport.y/map.height*mh);for(const via of p.via)ctx.lineTo(mx+via.x/map.width*mw,my+via.y/map.height*mh);ctx.lineTo(mx+p.x/map.width*mw,my+p.y/map.height*mh);}ctx.stroke();
+ route.forEach((p,i)=>{if(p.kind==='boss')circle(mx+p.x/map.width*mw,my+p.y/map.height*mh,3,i<(run?.index||0)?'#99d4ab':'#ffcd85');});if(run)circle(mx+run.heroes[0].x/map.width*mw,my+run.heroes[0].y/map.height*mh,3,'#edfaff');
+ ctx.font='10px system-ui';ctx.textAlign='left';ctx.fillStyle='#c8ba9b';ctx.fillText(mapOverview?'游戏内副本地图':'地图全览 · 可切换查看',mx,my+mh+15);
+
 }
 function frame(ts){const dt=Math.min(.12,(ts-(lastFrame||ts))/1000);lastFrame=ts;
  if(active()&&!run.paused&&!$('dialog').open){let remaining=dt*profile.settings.speed;while(remaining>0&&!run.result){const step=Math.min(.04,remaining);run.update(step);remaining-=step;}if(run.result)completed();}
  if(repeatCountdown!==null&&!document.hidden&&!$('dialog').open){repeatCountdown-=dt;if(repeatCountdown<=0){repeatCountdown=null;startRun(true);}}
  uiClock+=dt;saveClock+=dt;if(uiClock>=.2){uiClock=0;renderUI();}if(saveClock>=3){saveClock=0;if(active())persist();}draw();requestAnimationFrame(frame);
 }
-initSetup();if(profile.checkpoint){try{run=Run.restore(profile.checkpoint);profile.team=run.heroes.map(h=>h.id);profile.dungeon=run.dungeon;profile.key=run.level;initSetup();toast('已恢复上次远征，点击继续。');}catch{profile.checkpoint=null;toast('上次远征存档损坏，已回到营地。');}}
+initSetup();if(profile.checkpoint){try{run=Run.restore(profile.checkpoint);profile.team=run.heroes.map(h=>h.id);profile.dungeon=run.dungeon;profile.key=run.level;mapOverview=false;initSetup();toast('已恢复上次远征，点击继续。');}catch{profile.checkpoint=null;toast('地图路线已更新或旧远征无法恢复，请重新出发；装备与记录已保留。');}}
 renderUI();resize();requestAnimationFrame(frame);if(loaded.error)toast(loaded.error);

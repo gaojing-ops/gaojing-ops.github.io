@@ -1,0 +1,3963 @@
+{
+  "source": "https://github.com/Nnoggie/MythicDungeonTools",
+  "commit": "04e5b122918ebf1cf1c2459677a01f55c13c2f07",
+  "atlasWidth": 1000,
+  "atlasHeight": 666.6667,
+  "dungeons": {
+    "fangs": {
+      "file": "AltarOfFangs",
+      "floors": [
+        1
+      ],
+      "entrance": {
+        "x": 134.9,
+        "y": 107.6
+      },
+      "bosses": [
+        {
+          "name": "Rav'i",
+          "x": 134.75193353313,
+          "y": 429.38832262285
+        },
+        {
+          "name": "The Writhing Coil",
+          "x": 500.89979783411,
+          "y": 389.52059070243
+        },
+        {
+          "name": "Zul'jan",
+          "x": 639.4782319986,
+          "y": 133.06647526484
+        }
+      ],
+      "packs": [
+        {
+          "group": 1,
+          "x": 181.955059105484,
+          "y": 122.66250089074,
+          "names": [
+            "Venom Leech"
+          ]
+        },
+        {
+          "group": 2,
+          "x": 88.548895647226,
+          "y": 120.99082466892601,
+          "names": [
+            "Venom Leech"
+          ]
+        },
+        {
+          "group": 3,
+          "x": 162.47736711538602,
+          "y": 181.210272519674,
+          "names": [
+            "Venom Leech"
+          ]
+        },
+        {
+          "group": 4,
+          "x": 104.43347074492249,
+          "y": 180.4287415666,
+          "names": [
+            "Primal Serpent"
+          ]
+        },
+        {
+          "group": 5,
+          "x": 63.825,
+          "y": 204.89999999999998,
+          "names": [
+            "Primal Serpent",
+            "Ritual Chieftain",
+            "Ravenous Descendant"
+          ]
+        },
+        {
+          "group": 6,
+          "x": 132.923181012308,
+          "y": 206.358430842904,
+          "names": [
+            "Twinfang Harrower",
+            "Primal Serpent",
+            "Ravenous Descendant"
+          ]
+        },
+        {
+          "group": 7,
+          "x": 202.7,
+          "y": 204.575,
+          "names": [
+            "Primal Serpent",
+            "Ritual Chieftain",
+            "Ravenous Descendant"
+          ]
+        },
+        {
+          "group": 8,
+          "x": 163.303124041958,
+          "y": 230.961587302536,
+          "names": [
+            "Primal Serpent",
+            "Venom Leech"
+          ]
+        },
+        {
+          "group": 9,
+          "x": 133.39604693627,
+          "y": 256.276863585735,
+          "names": [
+            "Ravenous Descendant"
+          ]
+        },
+        {
+          "group": 10,
+          "x": 108.00578924618151,
+          "y": 233.63502024234376,
+          "names": [
+            "Venom Leech",
+            "Ravenous Descendant"
+          ]
+        },
+        {
+          "group": 11,
+          "x": 164.24025346744,
+          "y": 262.07092404667003,
+          "names": [
+            "Venom Leech"
+          ]
+        },
+        {
+          "group": 12,
+          "x": 102.72292049455301,
+          "y": 263.3918850287567,
+          "names": [
+            "Venom Leech"
+          ]
+        },
+        {
+          "group": 13,
+          "x": 133.002111874435,
+          "y": 280.87003911537,
+          "names": [
+            "Ravenous Descendant"
+          ]
+        },
+        {
+          "group": 14,
+          "x": 161.969011232898,
+          "y": 297.014142946062,
+          "names": [
+            "Primal Serpent",
+            "Ritual Chieftain",
+            "Ravenous Descendant"
+          ]
+        },
+        {
+          "group": 15,
+          "x": 98.6333212225868,
+          "y": 298.677378624136,
+          "names": [
+            "Primal Serpent",
+            "Ritual Chieftain",
+            "Ravenous Descendant"
+          ]
+        },
+        {
+          "group": 18,
+          "x": 300.11011400524,
+          "y": 262.96401498700004,
+          "names": [
+            "High Evolutionist",
+            "Bloodletter"
+          ]
+        },
+        {
+          "group": 19,
+          "x": 329.107136876235,
+          "y": 255.52537526547002,
+          "names": [
+            "Rattling Writhe",
+            "High Evolutionist"
+          ]
+        },
+        {
+          "group": 20,
+          "x": 365.6727502171,
+          "y": 237.44109784179,
+          "names": [
+            "High Evolutionist",
+            "Bloodletter"
+          ]
+        },
+        {
+          "group": 21,
+          "x": 392.61954777523334,
+          "y": 259.05667466972335,
+          "names": [
+            "High Evolutionist",
+            "Bloodletter"
+          ]
+        },
+        {
+          "group": 22,
+          "x": 347.79551841530997,
+          "y": 274.17576297899495,
+          "names": [
+            "Bloodletter"
+          ]
+        },
+        {
+          "group": 24,
+          "x": 328.84532441316,
+          "y": 296.72878989837335,
+          "names": [
+            "High Evolutionist",
+            "Bloodletter"
+          ]
+        },
+        {
+          "group": 25,
+          "x": 381.71229906968665,
+          "y": 296.0656594169033,
+          "names": [
+            "Rattling Writhe",
+            "Bloodletter"
+          ]
+        },
+        {
+          "group": 26,
+          "x": 470.55070076550834,
+          "y": 367.9307762318233,
+          "names": [
+            "Rattling Writhe",
+            "High Evolutionist",
+            "Bloodletter"
+          ]
+        },
+        {
+          "group": 27,
+          "x": 758.57419625712,
+          "y": 402.98680290383,
+          "names": [
+            "Ascendant Serpent"
+          ]
+        },
+        {
+          "group": 28,
+          "x": 777.10729039514,
+          "y": 383.53105322871,
+          "names": [
+            "High Evolutionist"
+          ]
+        },
+        {
+          "group": 29,
+          "x": 785.49576071719,
+          "y": 404.01752364743504,
+          "names": [
+            "Blade of the Altar"
+          ]
+        },
+        {
+          "group": 30,
+          "x": 779.31440545545,
+          "y": 423.32064376191,
+          "names": [
+            "High Evolutionist"
+          ]
+        },
+        {
+          "group": 31,
+          "x": 738.83927949197,
+          "y": 421.86923635403,
+          "names": [
+            "High Evolutionist"
+          ]
+        },
+        {
+          "group": 32,
+          "x": 737.3880273012901,
+          "y": 387.79596432157996,
+          "names": [
+            "Blade of the Altar",
+            "High Evolutionist"
+          ]
+        },
+        {
+          "group": 33,
+          "x": 742.191599451735,
+          "y": 439.59240894922,
+          "names": [
+            "Blade of the Altar"
+          ]
+        },
+        {
+          "group": 34,
+          "x": 638.7130433942423,
+          "y": 440.4967038099078,
+          "names": [
+            "Living Venom",
+            "Ula'tek's Chosen"
+          ]
+        },
+        {
+          "group": 35,
+          "x": 638.0810469865925,
+          "y": 395.10184932579,
+          "names": [
+            "Blade of the Altar"
+          ]
+        },
+        {
+          "group": 36,
+          "x": 664.78899745903,
+          "y": 394.04131503806,
+          "names": [
+            "Blade of the Altar"
+          ]
+        },
+        {
+          "group": 37,
+          "x": 610.9471425578249,
+          "y": 393.439346146865,
+          "names": [
+            "Blade of the Altar"
+          ]
+        },
+        {
+          "group": 38,
+          "x": 659.9732362681672,
+          "y": 359.13009745534146,
+          "names": [
+            "Living Venom",
+            "Ula'tek's Chosen"
+          ]
+        },
+        {
+          "group": 39,
+          "x": 614.3668752931186,
+          "y": 360.3321459734943,
+          "names": [
+            "Living Venom",
+            "Ula'tek's Chosen"
+          ]
+        },
+        {
+          "group": 40,
+          "x": 612.5856040782651,
+          "y": 320.863466754055,
+          "names": [
+            "Blade of the Altar"
+          ]
+        },
+        {
+          "group": 41,
+          "x": 663.21586906223,
+          "y": 317.82465335179,
+          "names": [
+            "Blade of the Altar"
+          ]
+        },
+        {
+          "group": 42,
+          "x": 640.03775705561,
+          "y": 286.82390812916003,
+          "names": [
+            "Twinfang Harrower",
+            "Blade of the Altar",
+            "Primal Serpent"
+          ]
+        },
+        {
+          "group": 43,
+          "x": 641.34426998907,
+          "y": 174.64073228547,
+          "names": [
+            "Ula'tek's Chosen",
+            "Blade of the Altar",
+            "Ritual Chieftain"
+          ]
+        },
+        {
+          "group": 46,
+          "x": 511.281259683485,
+          "y": 397.0549027283225,
+          "names": [
+            "Uncoiled Writhe"
+          ]
+        },
+        {
+          "group": 47,
+          "x": 639.5977042714,
+          "y": 111.12021808952,
+          "names": [
+            "Ritual Snake"
+          ]
+        },
+        {
+          "group": 49,
+          "x": 298.1475567164467,
+          "y": 229.42549416619,
+          "names": [
+            "Bloodletter"
+          ]
+        },
+        {
+          "group": 50,
+          "x": 134.11552977181998,
+          "y": 335.424811455545,
+          "names": [
+            "Twinfang Harrower"
+          ]
+        }
+      ]
+    },
+    "murder": {
+      "file": "MurderRow",
+      "floors": [
+        1
+      ],
+      "entrance": {
+        "x": 779.77130254431,
+        "y": 509.595640162
+      },
+      "bosses": [
+        {
+          "name": "Xathuux the Annihilator",
+          "x": 286.17875695772,
+          "y": 544.02528306431
+        },
+        {
+          "name": "Kystia Manaheart",
+          "x": 668.61254871969,
+          "y": 268.09525824298
+        },
+        {
+          "name": "Zaen Bladesorrow",
+          "x": 427.16101670022,
+          "y": 245.90102136062
+        },
+        {
+          "name": "Nibbles",
+          "x": 633.44926763623,
+          "y": 268.42851038483
+        },
+        {
+          "name": "Lithiel Cinderfury",
+          "x": 193.22342294365,
+          "y": 54.688210601072
+        }
+      ],
+      "packs": [
+        {
+          "group": 1,
+          "x": 710.99297753734,
+          "y": 515.211050200465,
+          "names": [
+            "Row Hooligan"
+          ]
+        },
+        {
+          "group": 2,
+          "x": 697.686056716075,
+          "y": 471.43024152508497,
+          "names": [
+            "Felonious Mage",
+            "Felwyrm"
+          ]
+        },
+        {
+          "group": 3,
+          "x": 663.5460690106014,
+          "y": 500.2483885901343,
+          "names": [
+            "Felwyrm",
+            "Row Hooligan",
+            "Bribed Guard"
+          ]
+        },
+        {
+          "group": 4,
+          "x": 689.6789875977,
+          "y": 401.1426141957,
+          "names": [
+            "Bribed Captain"
+          ]
+        },
+        {
+          "group": 5,
+          "x": 700.9544853664725,
+          "y": 430.5224736041725,
+          "names": [
+            "Felonious Mage",
+            "Felwyrm"
+          ]
+        },
+        {
+          "group": 6,
+          "x": 657.3704312514825,
+          "y": 391.47329907029,
+          "names": [
+            "Felonious Mage",
+            "Felwyrm",
+            "Street Sneak"
+          ]
+        },
+        {
+          "group": 7,
+          "x": 617.3396808114751,
+          "y": 383.3923445671,
+          "names": [
+            "Street Sneak"
+          ]
+        },
+        {
+          "group": 8,
+          "x": 683.5982197232651,
+          "y": 368.9270848077075,
+          "names": [
+            "Street Sneak",
+            "Row Hooligan"
+          ]
+        },
+        {
+          "group": 9,
+          "x": 745.4479509223,
+          "y": 397.2561530261267,
+          "names": [
+            "Bribed Guard",
+            "Row Hooligan"
+          ]
+        },
+        {
+          "group": 10,
+          "x": 775.2618647947075,
+          "y": 370.26570500644,
+          "names": [
+            "Seductive Sayaad",
+            "Felonious Mage",
+            "Felwyrm"
+          ]
+        },
+        {
+          "group": 11,
+          "x": 550.9,
+          "y": 387.4,
+          "names": [
+            "Row Hooligan"
+          ]
+        },
+        {
+          "group": 12,
+          "x": 648.86762028685,
+          "y": 288.78127096502,
+          "names": [
+            "Kystia Manaheart"
+          ]
+        },
+        {
+          "group": 13,
+          "x": 649.21756721699,
+          "y": 221.93133496282,
+          "names": [
+            "Belath Dawnblade"
+          ]
+        },
+        {
+          "group": 14,
+          "x": 561.8947016853874,
+          "y": 420.22288920481253,
+          "names": [
+            "Felonious Mage",
+            "Felwyrm"
+          ]
+        },
+        {
+          "group": 15,
+          "x": 523.8042100224087,
+          "y": 388.25042364276,
+          "names": [
+            "Tiny Felwyrm",
+            "Massive Felwyrm",
+            "Felwyrm"
+          ]
+        },
+        {
+          "group": 16,
+          "x": 451.62814562811377,
+          "y": 89.29014932031838,
+          "names": [
+            "Warehouse Worker",
+            "Keen Taskmaster"
+          ]
+        },
+        {
+          "group": 17,
+          "x": 414.52833336530495,
+          "y": 197.50770146571668,
+          "names": [
+            "Crate Loader",
+            "Forbidden Freight"
+          ]
+        },
+        {
+          "group": 18,
+          "x": 126.98863171391,
+          "y": 233.43007473455,
+          "names": [
+            "Shivan Punisher"
+          ]
+        },
+        {
+          "group": 19,
+          "x": 137.858274416215,
+          "y": 257.742235239105,
+          "names": [
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 20,
+          "x": 163.33712014206,
+          "y": 257.45383460987,
+          "names": [
+            "Wrathguard Flayer",
+            "Fel Invoker"
+          ]
+        },
+        {
+          "group": 21,
+          "x": 159.70809602921,
+          "y": 221.02883630611666,
+          "names": [
+            "Fel Invoker",
+            "Trained Felhunter"
+          ]
+        },
+        {
+          "group": 22,
+          "x": 193.492136912518,
+          "y": 234.357186474922,
+          "names": [
+            "Wrathguard Flayer",
+            "Fel Invoker",
+            "Trained Felhunter",
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 23,
+          "x": 166.84327907618834,
+          "y": 275.779239177025,
+          "names": [
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 24,
+          "x": 145.59940667902833,
+          "y": 287.2065342084433,
+          "names": [
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 25,
+          "x": 178.15971735532858,
+          "y": 292.91639078000713,
+          "names": [
+            "Seductive Sayaad",
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 26,
+          "x": 163.32928604533666,
+          "y": 307.9495738852533,
+          "names": [
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 27,
+          "x": 190.7646580173425,
+          "y": 311.94300124588,
+          "names": [
+            "Demon Fly"
+          ]
+        },
+        {
+          "group": 28,
+          "x": 200.3835345858875,
+          "y": 282.699966710025,
+          "names": [
+            "Demon Fly"
+          ]
+        },
+        {
+          "group": 29,
+          "x": 176.07435114233667,
+          "y": 332.9617912372733,
+          "names": [
+            "Wrathguard Flayer",
+            "Corrupted Warlock"
+          ]
+        },
+        {
+          "group": 30,
+          "x": 131.39990254123668,
+          "y": 356.20309285766,
+          "names": [
+            "Fel Invoker",
+            "Corrupted Warlock",
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 31,
+          "x": 211.47750466105666,
+          "y": 329.2716663075267,
+          "names": [
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 32,
+          "x": 226.97048191231337,
+          "y": 385.90152872907,
+          "names": [
+            "Fel Invoker",
+            "Trained Felhunter"
+          ]
+        },
+        {
+          "group": 33,
+          "x": 204.58729887245,
+          "y": 409.66494401035334,
+          "names": [
+            "Shivan Punisher",
+            "Fel Invoker"
+          ]
+        },
+        {
+          "group": 34,
+          "x": 184.29877716912,
+          "y": 429.11004746829997,
+          "names": [
+            "Seductive Sayaad"
+          ]
+        },
+        {
+          "group": 35,
+          "x": 160.501918768925,
+          "y": 400.67605625319504,
+          "names": [
+            "Trained Felhunter"
+          ]
+        },
+        {
+          "group": 36,
+          "x": 227.7651606366775,
+          "y": 431.08362733925003,
+          "names": [
+            "Demon Fly"
+          ]
+        },
+        {
+          "group": 37,
+          "x": 245.01052266655,
+          "y": 455.54053305179,
+          "names": [
+            "Demon Fly"
+          ]
+        },
+        {
+          "group": 39,
+          "x": 247.86666666666667,
+          "y": 491.8333333333333,
+          "names": [
+            "Felmaster Lucsei",
+            "Trained Felhunter"
+          ]
+        },
+        {
+          "group": 40,
+          "x": 302.96870407896,
+          "y": 539.66752644744,
+          "names": [
+            "Legion Axe"
+          ]
+        },
+        {
+          "group": 41,
+          "x": 294.44627982004,
+          "y": 464.33778880155,
+          "names": [
+            "Wrathguard Flayer"
+          ]
+        },
+        {
+          "group": 42,
+          "x": 307.07495289187335,
+          "y": 439.93558968321,
+          "names": [
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 43,
+          "x": 278.19302729256,
+          "y": 423.30780106668,
+          "names": [
+            "Defiled Golem"
+          ]
+        },
+        {
+          "group": 44,
+          "x": 291.10328749026,
+          "y": 358.34519805079,
+          "names": [
+            "Defiled Golem"
+          ]
+        },
+        {
+          "group": 45,
+          "x": 257.71476563076163,
+          "y": 357.38315845003996,
+          "names": [
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 46,
+          "x": 285.96464421573,
+          "y": 315.5652976717167,
+          "names": [
+            "Wrathguard Flayer",
+            "Fel Invoker"
+          ]
+        },
+        {
+          "group": 47,
+          "x": 273.54250921104,
+          "y": 275.38866402378835,
+          "names": [
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 48,
+          "x": 232.1172325590725,
+          "y": 258.422357527545,
+          "names": [
+            "Trained Felhunter",
+            "Corrupted Warlock"
+          ]
+        },
+        {
+          "group": 49,
+          "x": 226.24293556515,
+          "y": 233.8865258404,
+          "names": [
+            "Shivan Punisher"
+          ]
+        },
+        {
+          "group": 50,
+          "x": 269.1968700323267,
+          "y": 233.96149228126833,
+          "names": [
+            "Unleashed Imp"
+          ]
+        },
+        {
+          "group": 51,
+          "x": 252.13271428657,
+          "y": 170.27450449494,
+          "names": [
+            "Defiled Golem"
+          ]
+        },
+        {
+          "group": 52,
+          "x": 183.54625325343,
+          "y": 181.95140633135,
+          "names": [
+            "Defiled Golem"
+          ]
+        },
+        {
+          "group": 53,
+          "x": 207.44577892287998,
+          "y": 124.11012905095599,
+          "names": [
+            "Defiled Golem",
+            "Fel Invoker",
+            "Trained Felhunter"
+          ]
+        },
+        {
+          "group": 54,
+          "x": 239.31791643147335,
+          "y": 105.57925897991667,
+          "names": [
+            "Shivan Punisher",
+            "Defiled Golem"
+          ]
+        },
+        {
+          "group": 55,
+          "x": 173.93042630211667,
+          "y": 119.21397215632334,
+          "names": [
+            "Shivan Punisher",
+            "Defiled Golem"
+          ]
+        },
+        {
+          "group": 56,
+          "x": 211.5356814462,
+          "y": 49.92837028402433,
+          "names": [
+            "Wild Imp",
+            "Furious Vilefiend",
+            "Infernal"
+          ]
+        },
+        {
+          "group": 57,
+          "x": 167.2,
+          "y": 352.15,
+          "names": [
+            "Demon Fly"
+          ]
+        },
+        {
+          "group": 58,
+          "x": 234.65,
+          "y": 357.5,
+          "names": [
+            "Wrathguard Flayer"
+          ]
+        }
+      ]
+    },
+    "nalorakk": {
+      "file": "DenOfNalorakk",
+      "floors": [
+        1
+      ],
+      "entrance": {
+        "x": 40.9,
+        "y": 313.6
+      },
+      "bosses": [
+        {
+          "name": "The Hoardmonger",
+          "x": 265.37714960025,
+          "y": 394.7958530418
+        },
+        {
+          "name": "Sentinel of Winter",
+          "x": 238.89633207524,
+          "y": 147.10129942261
+        },
+        {
+          "name": "Nalorakk",
+          "x": 646.76386914858,
+          "y": 86.32357728296
+        },
+        {
+          "name": "Echo of Nalorakk",
+          "x": 664.60355186848,
+          "y": 82.391938107883
+        }
+      ],
+      "packs": [
+        {
+          "group": 1,
+          "x": 90.67614969021551,
+          "y": 315.00145180083,
+          "names": [
+            "Thornclaw Gatherer"
+          ]
+        },
+        {
+          "group": 2,
+          "x": 123.45510302317001,
+          "y": 332.60911297621,
+          "names": [
+            "Thornclaw Gatherer",
+            "Keen-Eyed Striker"
+          ]
+        },
+        {
+          "group": 3,
+          "x": 100.5098737068815,
+          "y": 336.12834226861,
+          "names": [
+            "Starvation Effigy",
+            "Spirit of Hunger"
+          ]
+        },
+        {
+          "group": 4,
+          "x": 161.974667825706,
+          "y": 340.647605919976,
+          "names": [
+            "Keen-Eyed Striker",
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 5,
+          "x": 115.78833208017,
+          "y": 352.12444942005504,
+          "names": [
+            "Thornclaw Gatherer",
+            "Earthwhisper Tender"
+          ]
+        },
+        {
+          "group": 7,
+          "x": 202.76442445363332,
+          "y": 350.2935987211767,
+          "names": [
+            "Thornclaw Gatherer",
+            "Earthwhisper Tender"
+          ]
+        },
+        {
+          "group": 8,
+          "x": 45.2,
+          "y": 388.35,
+          "names": [
+            "Keen-Eyed Striker"
+          ]
+        },
+        {
+          "group": 9,
+          "x": 146.45529113081,
+          "y": 363.97307728158,
+          "names": [
+            "Keen-Eyed Striker"
+          ]
+        },
+        {
+          "group": 10,
+          "x": 84.280216757846,
+          "y": 381.66988449604,
+          "names": [
+            "Thornclaw Gatherer"
+          ]
+        },
+        {
+          "group": 11,
+          "x": 109.59298203013334,
+          "y": 385.96653961036003,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 12,
+          "x": 75.705743236568,
+          "y": 402.034435808175,
+          "names": [
+            "Starvation Effigy",
+            "Spirit of Hunger"
+          ]
+        },
+        {
+          "group": 13,
+          "x": 135.71980243841,
+          "y": 391.32373440696,
+          "names": [
+            "Starvation Effigy",
+            "Spirit of Hunger"
+          ]
+        },
+        {
+          "group": 14,
+          "x": 59.10282766770499,
+          "y": 427.53235189437663,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 15,
+          "x": 187.59484571394,
+          "y": 371.61963332012994,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 16,
+          "x": 88.7656370631465,
+          "y": 435.41838500115,
+          "names": [
+            "Starvation Effigy",
+            "Spirit of Hunger"
+          ]
+        },
+        {
+          "group": 17,
+          "x": 68.5859439550094,
+          "y": 450.182488932406,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 18,
+          "x": 134.24453697950997,
+          "y": 426.513447468926,
+          "names": [
+            "Thornclaw Gatherer",
+            "Curious Yearling",
+            "Earthwhisper Tender",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 19,
+          "x": 107.07609801462,
+          "y": 458.99250219999664,
+          "names": [
+            "Keen-Eyed Striker",
+            "Curious Yearling"
+          ]
+        },
+        {
+          "group": 20,
+          "x": 193.92603311481,
+          "y": 397.21622107726,
+          "names": [
+            "Starvation Effigy",
+            "Spirit of Hunger"
+          ]
+        },
+        {
+          "group": 21,
+          "x": 182.75295712948,
+          "y": 416.9396378389567,
+          "names": [
+            "Keen-Eyed Striker"
+          ]
+        },
+        {
+          "group": 22,
+          "x": 132.632522378135,
+          "y": 468.7232746916725,
+          "names": [
+            "Thornclaw Gatherer",
+            "Earthwhisper Tender"
+          ]
+        },
+        {
+          "group": 23,
+          "x": 165.161666971305,
+          "y": 451.607593492935,
+          "names": [
+            "Starvation Effigy",
+            "Spirit of Hunger"
+          ]
+        },
+        {
+          "group": 24,
+          "x": 169.082937157555,
+          "y": 489.2601189405725,
+          "names": [
+            "Thornclaw Gatherer",
+            "Starvation Effigy",
+            "Earthwhisper Tender",
+            "Spirit of Hunger"
+          ]
+        },
+        {
+          "group": 25,
+          "x": 195.987057533778,
+          "y": 456.43854395018195,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 26,
+          "x": 423.13517840896,
+          "y": 440.3581125500967,
+          "names": [
+            "Thornclaw Gatherer",
+            "Earthwhisper Tender"
+          ]
+        },
+        {
+          "group": 27,
+          "x": 400.98679553613,
+          "y": 425.64411980419,
+          "names": [
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 28,
+          "x": 435.15000000000003,
+          "y": 415.31666666666666,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 29,
+          "x": 368.46131378657,
+          "y": 399.62370447142,
+          "names": [
+            "Thornclaw Gatherer"
+          ]
+        },
+        {
+          "group": 30,
+          "x": 403.3100549229334,
+          "y": 393.58325002116,
+          "names": [
+            "Thornclaw Gatherer",
+            "Keen-Eyed Striker",
+            "Earthwhisper Tender"
+          ]
+        },
+        {
+          "group": 31,
+          "x": 535.2,
+          "y": 417.0,
+          "names": [
+            "Keen-Eyed Striker"
+          ]
+        },
+        {
+          "group": 32,
+          "x": 401.76118207271,
+          "y": 365.70421221238666,
+          "names": [
+            "Thornclaw Gatherer",
+            "Earthwhisper Tender"
+          ]
+        },
+        {
+          "group": 33,
+          "x": 545.7684229703533,
+          "y": 391.80620437012,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 34,
+          "x": 579.85,
+          "y": 395.79999999999995,
+          "names": [
+            "Terra Rumbler"
+          ]
+        },
+        {
+          "group": 35,
+          "x": 430.49214983764,
+          "y": 368.259790054585,
+          "names": [
+            "Keen-Eyed Striker",
+            "Earthwhisper Tender"
+          ]
+        },
+        {
+          "group": 36,
+          "x": 593.25,
+          "y": 382.55,
+          "names": [
+            "Keen-Eyed Striker"
+          ]
+        },
+        {
+          "group": 37,
+          "x": 536.8,
+          "y": 370.26,
+          "names": [
+            "Frostfang",
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 38,
+          "x": 584.1333333333333,
+          "y": 360.2,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 39,
+          "x": 557.25,
+          "y": 349.2,
+          "names": [
+            "Keen-Eyed Striker",
+            "Terra Rumbler"
+          ]
+        },
+        {
+          "group": 40,
+          "x": 526.5,
+          "y": 341.6333333333334,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 41,
+          "x": 585.4,
+          "y": 318.09999999999997,
+          "names": [
+            "Curious Yearling",
+            "Territorial Matriarch"
+          ]
+        },
+        {
+          "group": 42,
+          "x": 547.4333333333333,
+          "y": 323.2,
+          "names": [
+            "Frostfang"
+          ]
+        },
+        {
+          "group": 43,
+          "x": 504.53513052979997,
+          "y": 284.71067869365504,
+          "names": [
+            "Frostfang"
+          ]
+        },
+        {
+          "group": 44,
+          "x": 484.06167210214,
+          "y": 273.41480205753,
+          "names": [
+            "Frigid Mauler"
+          ]
+        },
+        {
+          "group": 45,
+          "x": 515.2553953920367,
+          "y": 258.8747151141567,
+          "names": [
+            "Terra Rumbler"
+          ]
+        },
+        {
+          "group": 46,
+          "x": 469.4756166151933,
+          "y": 251.97028451386004,
+          "names": [
+            "Frigid Mauler",
+            "Glacial Revenant",
+            "Terra Rumbler"
+          ]
+        },
+        {
+          "group": 47,
+          "x": 479.72575724060334,
+          "y": 226.7543058836633,
+          "names": [
+            "Frostfang"
+          ]
+        },
+        {
+          "group": 48,
+          "x": 430.87930984690337,
+          "y": 249.5415255741867,
+          "names": [
+            "Frostfang"
+          ]
+        },
+        {
+          "group": 49,
+          "x": 457.4,
+          "y": 231.0,
+          "names": [
+            "Avatar of Determination"
+          ]
+        },
+        {
+          "group": 50,
+          "x": 441.37269510910664,
+          "y": 202.16654854579,
+          "names": [
+            "Glacial Revenant",
+            "Terra Rumbler"
+          ]
+        },
+        {
+          "group": 51,
+          "x": 407.724267713265,
+          "y": 226.076642352455,
+          "names": [
+            "Glacial Revenant"
+          ]
+        },
+        {
+          "group": 52,
+          "x": 387.047264159615,
+          "y": 215.1573880896,
+          "names": [
+            "Frigid Mauler"
+          ]
+        },
+        {
+          "group": 53,
+          "x": 407.89844098956,
+          "y": 190.53091425413,
+          "names": [
+            "Terra Rumbler"
+          ]
+        },
+        {
+          "group": 54,
+          "x": 373.013019831155,
+          "y": 199.00162678555,
+          "names": [
+            "Glacial Revenant",
+            "Terra Rumbler"
+          ]
+        },
+        {
+          "group": 55,
+          "x": 398.13629343577,
+          "y": 168.06680160757,
+          "names": [
+            "Glacial Revenant"
+          ]
+        },
+        {
+          "group": 56,
+          "x": 347.08724261751,
+          "y": 215.157400561735,
+          "names": [
+            "Frostfang"
+          ]
+        },
+        {
+          "group": 57,
+          "x": 364.94274452324,
+          "y": 165.962509840654,
+          "names": [
+            "Frostfang",
+            "Frigid Mauler"
+          ]
+        },
+        {
+          "group": 58,
+          "x": 384.5,
+          "y": 109.2,
+          "names": [
+            "Magma Totem"
+          ]
+        },
+        {
+          "group": 59,
+          "x": 323.3687468332034,
+          "y": 200.67273762335333,
+          "names": [
+            "Avatar of Determination",
+            "Glacial Revenant",
+            "Terra Rumbler"
+          ]
+        },
+        {
+          "group": 60,
+          "x": 287.32083783265,
+          "y": 185.72188794948,
+          "names": [
+            "The Winter Squall"
+          ]
+        },
+        {
+          "group": 61,
+          "x": 252.1,
+          "y": 101.7,
+          "names": [
+            "Snow Orb Stalker"
+          ]
+        },
+        {
+          "group": 62,
+          "x": 245.717311413265,
+          "y": 152.98093993445,
+          "names": [
+            "Raging Squall",
+            "Fractured Shivercore"
+          ]
+        },
+        {
+          "group": 63,
+          "x": 169.1,
+          "y": 111.0,
+          "names": [
+            "Volatile Totem"
+          ]
+        },
+        {
+          "group": 65,
+          "x": 200.0,
+          "y": 200.0,
+          "names": [
+            "The Pale Eye"
+          ]
+        },
+        {
+          "group": 66,
+          "x": 209.12813139244335,
+          "y": 311.6432183312966,
+          "names": [
+            "Thornclaw Gatherer",
+            "Earthwhisper Tender"
+          ]
+        },
+        {
+          "group": 67,
+          "x": 683.9217798527167,
+          "y": 252.10952341472333,
+          "names": [
+            "Ruthless Totemcaller",
+            "Stormbound Mystic"
+          ]
+        },
+        {
+          "group": 68,
+          "x": 683.1502835245,
+          "y": 231.92802880242,
+          "names": [
+            "Grizzled Warbringer"
+          ]
+        },
+        {
+          "group": 69,
+          "x": 676.05,
+          "y": 200.275,
+          "names": [
+            "Ruthless Totemcaller",
+            "Bonded Beasttamer",
+            "Loyal Saberfang"
+          ]
+        },
+        {
+          "group": 70,
+          "x": 673.1600000000001,
+          "y": 178.34,
+          "names": [
+            "Bonded Beasttamer",
+            "Loyal Saberfang",
+            "Stormbound Mystic"
+          ]
+        },
+        {
+          "group": 71,
+          "x": 669.22,
+          "y": 154.1,
+          "names": [
+            "Ruthless Totemcaller",
+            "Bonded Beasttamer",
+            "Loyal Saberfang",
+            "Stormbound Mystic"
+          ]
+        },
+        {
+          "group": 72,
+          "x": 669.269612909076,
+          "y": 129.838368047054,
+          "names": [
+            "Grizzled Warbringer",
+            "Stormbound Mystic"
+          ]
+        },
+        {
+          "group": 73,
+          "x": 667.3,
+          "y": 103.4,
+          "names": [
+            "Loa Speaker Nanea"
+          ]
+        },
+        {
+          "group": 74,
+          "x": 654.8,
+          "y": 72.0,
+          "names": [
+            "Zul'jarra"
+          ]
+        },
+        {
+          "group": 75,
+          "x": 48.098555921767,
+          "y": 454.039072776,
+          "names": [
+            "Keen-Eyed Striker"
+          ]
+        },
+        {
+          "group": 76,
+          "x": 375.19863629808503,
+          "y": 380.340761315785,
+          "names": [
+            "Thornclaw Gatherer"
+          ]
+        },
+        {
+          "group": 77,
+          "x": 501.322276865345,
+          "y": 218.090491538285,
+          "names": [
+            "Frigid Mauler"
+          ]
+        }
+      ]
+    },
+    "vale": {
+      "file": "TheBlindingVale",
+      "floors": [
+        1
+      ],
+      "entrance": {
+        "x": 18.072239513564,
+        "y": 300.48592404747
+      },
+      "bosses": [
+        {
+          "name": "Meittik",
+          "x": 402.8,
+          "y": 97.5
+        },
+        {
+          "name": "Kezkitt",
+          "x": 410.8,
+          "y": 80.4
+        },
+        {
+          "name": "Lekshi",
+          "x": 390.2,
+          "y": 76.8
+        },
+        {
+          "name": "Lightwarden Ruia",
+          "x": 819.51913958546,
+          "y": 236.75643077352
+        },
+        {
+          "name": "Ziekket",
+          "x": 223.90000629452,
+          "y": 285.02443020651
+        },
+        {
+          "name": "Ikuzz the Light Hunter",
+          "x": 405.9,
+          "y": 355.6
+        }
+      ],
+      "packs": [
+        {
+          "group": 1,
+          "x": 74.642178141925,
+          "y": 324.5448574813675,
+          "names": [
+            "Leafy Grovecrawler",
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 2,
+          "x": 112.25095885406665,
+          "y": 331.29994058272666,
+          "names": [
+            "Spineshield Beetle"
+          ]
+        },
+        {
+          "group": 3,
+          "x": 90.849858624938,
+          "y": 356.53061732754,
+          "names": [
+            "Lightfeather Petalwing"
+          ]
+        },
+        {
+          "group": 4,
+          "x": 107.74187652892,
+          "y": 394.11259007654,
+          "names": [
+            "Overgrown Hydra"
+          ]
+        },
+        {
+          "group": 5,
+          "x": 105.74664742426667,
+          "y": 413.40026813162996,
+          "names": [
+            "Spineshield Beetle"
+          ]
+        },
+        {
+          "group": 6,
+          "x": 131.91013698835,
+          "y": 415.01287642218,
+          "names": [
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 7,
+          "x": 112.40586936347,
+          "y": 437.75061351304,
+          "names": [
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 8,
+          "x": 141.68846241698,
+          "y": 425.18904299475,
+          "names": [
+            "Lightfeather Petalwing"
+          ]
+        },
+        {
+          "group": 9,
+          "x": 114.98022176834,
+          "y": 462.6916316818125,
+          "names": [
+            "Lightfeather Petalwing",
+            "Spineshield Beetle"
+          ]
+        },
+        {
+          "group": 10,
+          "x": 150.73847208644,
+          "y": 463.25599017555,
+          "names": [
+            "Leafy Grovecrawler"
+          ]
+        },
+        {
+          "group": 11,
+          "x": 140.63977467139668,
+          "y": 512.3879387102301,
+          "names": [
+            "Lightfeather Petalwing",
+            "Sporeblight Belcher"
+          ]
+        },
+        {
+          "group": 12,
+          "x": 159.65551674442,
+          "y": 443.27087328678,
+          "names": [
+            "Sporeblight Belcher"
+          ]
+        },
+        {
+          "group": 13,
+          "x": 170.3445348395,
+          "y": 470.286860680615,
+          "names": [
+            "Spineshield Beetle"
+          ]
+        },
+        {
+          "group": 14,
+          "x": 198.17777888885,
+          "y": 468.31572634059,
+          "names": [
+            "Overgrown Hydra"
+          ]
+        },
+        {
+          "group": 15,
+          "x": 247.71819182366445,
+          "y": 514.9332646060067,
+          "names": [
+            "Spineshield Beetle",
+            "Lightfeather Petalwing",
+            "Leafy Grovecrawler",
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 16,
+          "x": 228.3561892459933,
+          "y": 464.7976191413033,
+          "names": [
+            "Leafy Grovecrawler",
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 17,
+          "x": 246.29891754535,
+          "y": 481.60810530488,
+          "names": [
+            "Lightfeather Petalwing"
+          ]
+        },
+        {
+          "group": 18,
+          "x": 268.08716263831667,
+          "y": 465.96190694980334,
+          "names": [
+            "Overgrown Hydra",
+            "Leafy Grovecrawler"
+          ]
+        },
+        {
+          "group": 19,
+          "x": 293.5,
+          "y": 419.075,
+          "names": [
+            "Spineshield Beetle"
+          ]
+        },
+        {
+          "group": 20,
+          "x": 352.019519411515,
+          "y": 427.8922468744617,
+          "names": [
+            "Spineshield Beetle",
+            "Lightfeather Petalwing",
+            "Sporeblight Belcher",
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 21,
+          "x": 69.03664152531539,
+          "y": 274.590446010938,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher",
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 22,
+          "x": 97.19061049349601,
+          "y": 241.31355271964165,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 23,
+          "x": 70.22905679760966,
+          "y": 229.24603045836668,
+          "names": [
+            "Lightgorged Lasher",
+            "Underbrush Stalker"
+          ]
+        },
+        {
+          "group": 24,
+          "x": 81.282198267367,
+          "y": 199.95397265299,
+          "names": [
+            "Virid Grovekeeper"
+          ]
+        },
+        {
+          "group": 25,
+          "x": 55.101039631361076,
+          "y": 169.35679483262845,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher",
+            "Underbrush Stalker",
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 26,
+          "x": 107.0,
+          "y": 144.6,
+          "names": [
+            "Sporeblight Belcher"
+          ]
+        },
+        {
+          "group": 27,
+          "x": 96.84,
+          "y": 187.24,
+          "names": [
+            "Lasher"
+          ]
+        },
+        {
+          "group": 28,
+          "x": 77.65,
+          "y": 148.75,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 29,
+          "x": 87.55000000000001,
+          "y": 164.45,
+          "names": [
+            "Underbrush Stalker"
+          ]
+        },
+        {
+          "group": 30,
+          "x": 150.0811998797,
+          "y": 166.92460415114,
+          "names": [
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 31,
+          "x": 84.840867502263,
+          "y": 84.988329649093,
+          "names": [
+            "Newborn Potadpole",
+            "Potadpole Egg"
+          ]
+        },
+        {
+          "group": 32,
+          "x": 140.238139776954,
+          "y": 129.052489938566,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher",
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 33,
+          "x": 190.95,
+          "y": 106.0,
+          "names": [
+            "Radiant Spellsower",
+            "Sporeblight Belcher"
+          ]
+        },
+        {
+          "group": 34,
+          "x": 220.36530272022833,
+          "y": 151.75778272769165,
+          "names": [
+            "Lasher"
+          ]
+        },
+        {
+          "group": 35,
+          "x": 208.4049623703443,
+          "y": 79.15221123721936,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher",
+            "Underbrush Stalker",
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 36,
+          "x": 253.4521551942575,
+          "y": 112.28951956170125,
+          "names": [
+            "Lasher",
+            "Underbrush Stalker",
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 37,
+          "x": 267.8,
+          "y": 129.0,
+          "names": [
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 38,
+          "x": 284.38571428571424,
+          "y": 77.65714285714286,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 39,
+          "x": 308.62,
+          "y": 106.34,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher",
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 40,
+          "x": 347.18,
+          "y": 80.17999999999999,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 41,
+          "x": 347.0,
+          "y": 93.3,
+          "names": [
+            "Virid Grovekeeper"
+          ]
+        },
+        {
+          "group": 42,
+          "x": 346.26666666666665,
+          "y": 115.23333333333333,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 43,
+          "x": 428.5,
+          "y": 97.5,
+          "names": [
+            "Lightblossom"
+          ]
+        },
+        {
+          "group": 44,
+          "x": 402.85,
+          "y": 181.15,
+          "names": [
+            "Lightgorged Lasher",
+            "Underbrush Stalker",
+            "Sporeblight Belcher"
+          ]
+        },
+        {
+          "group": 45,
+          "x": 416.93999999999994,
+          "y": 227.14000000000001,
+          "names": [
+            "Lasher"
+          ]
+        },
+        {
+          "group": 46,
+          "x": 422.09999999999997,
+          "y": 261.8333333333333,
+          "names": [
+            "Lightfeather Petalwing",
+            "Virid Grovekeeper",
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 47,
+          "x": 449.75115004416335,
+          "y": 209.58804473559,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 48,
+          "x": 436.2,
+          "y": 210.76666666666665,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 49,
+          "x": 438.26872206493,
+          "y": 230.14041023894,
+          "names": [
+            "Virid Grovekeeper"
+          ]
+        },
+        {
+          "group": 50,
+          "x": 396.45714285714286,
+          "y": 240.22857142857143,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher",
+            "Underbrush Stalker",
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 51,
+          "x": 477.449843859785,
+          "y": 230.039929707915,
+          "names": [
+            "Underbrush Stalker"
+          ]
+        },
+        {
+          "group": 53,
+          "x": 366.27972891721,
+          "y": 253.67195340632,
+          "names": [
+            "Overgrown Hydra"
+          ]
+        },
+        {
+          "group": 54,
+          "x": 450.22744262925335,
+          "y": 244.96677723757668,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 58,
+          "x": 623.14010144437,
+          "y": 246.18200098225,
+          "names": [
+            "Luminous Thornmaw"
+          ]
+        },
+        {
+          "group": 59,
+          "x": 657.0686031063566,
+          "y": 240.35348439108998,
+          "names": [
+            "Lightfeather Petalwing",
+            "Leafy Grovecrawler",
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 60,
+          "x": 624.798148064598,
+          "y": 225.725980416942,
+          "names": [
+            "Spineshield Beetle"
+          ]
+        },
+        {
+          "group": 61,
+          "x": 691.75770693407,
+          "y": 240.97647391247,
+          "names": [
+            "Luminous Thornmaw"
+          ]
+        },
+        {
+          "group": 62,
+          "x": 763.74167081797,
+          "y": 272.88184034258,
+          "names": [
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 63,
+          "x": 753.47155543545,
+          "y": 256.12023196085,
+          "names": [
+            "Luminous Thornmaw"
+          ]
+        },
+        {
+          "group": 64,
+          "x": 798.5833333333334,
+          "y": 259.9166666666667,
+          "names": [
+            "Leafy Grovecrawler",
+            "Spineshield Beetle"
+          ]
+        },
+        {
+          "group": 65,
+          "x": 801.33743409272,
+          "y": 207.72148250025,
+          "names": [
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 66,
+          "x": 771.8986449909,
+          "y": 237.36010845557,
+          "names": [
+            "Thorny Saptor"
+          ]
+        },
+        {
+          "group": 67,
+          "x": 751.384490375545,
+          "y": 225.54787923041,
+          "names": [
+            "Leafy Grovecrawler",
+            "Sporeblight Belcher"
+          ]
+        },
+        {
+          "group": 68,
+          "x": 830.34836434056,
+          "y": 236.60714742506002,
+          "names": [
+            "Spirit Moonkin",
+            "Spirit Bear"
+          ]
+        },
+        {
+          "group": 69,
+          "x": 776.02,
+          "y": 198.14,
+          "names": [
+            "Spineshield Beetle"
+          ]
+        },
+        {
+          "group": 70,
+          "x": 543.70006498097,
+          "y": 237.48331525586,
+          "names": [
+            "Potatoad Matriarch"
+          ]
+        },
+        {
+          "group": 71,
+          "x": 526.52076407505,
+          "y": 282.86718956647667,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 72,
+          "x": 483.55823029156664,
+          "y": 297.91343044628,
+          "names": [
+            "Lightfeather Petalwing"
+          ]
+        },
+        {
+          "group": 73,
+          "x": 434.6,
+          "y": 297.3,
+          "names": [
+            "Sporeblight Belcher"
+          ]
+        },
+        {
+          "group": 74,
+          "x": 392.77448530595,
+          "y": 264.07234363639,
+          "names": [
+            "Overgrown Hydra"
+          ]
+        },
+        {
+          "group": 75,
+          "x": 385.983379037855,
+          "y": 317.899862413425,
+          "names": [
+            "Overgrown Hydra",
+            "Underbrush Stalker"
+          ]
+        },
+        {
+          "group": 76,
+          "x": 370.26043221766,
+          "y": 291.27678252037,
+          "names": [
+            "Luminous Thornmaw"
+          ]
+        },
+        {
+          "group": 77,
+          "x": 353.4592573559343,
+          "y": 332.87989125846644,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher",
+            "Radiant Spellsower"
+          ]
+        },
+        {
+          "group": 78,
+          "x": 345.1366696739825,
+          "y": 250.04563873711749,
+          "names": [
+            "Lightgorged Lasher",
+            "Lasher"
+          ]
+        },
+        {
+          "group": 79,
+          "x": 321.048998343038,
+          "y": 274.39879371380005,
+          "names": [
+            "Radiant Spellsower",
+            "Underbrush Stalker",
+            "Virid Grovekeeper"
+          ]
+        },
+        {
+          "group": 80,
+          "x": 310.47448136754,
+          "y": 341.26640324908,
+          "names": [
+            "Sporeblight Belcher"
+          ]
+        },
+        {
+          "group": 81,
+          "x": 274.01385146082,
+          "y": 228.6433907588,
+          "names": [
+            "Overgrown Hydra"
+          ]
+        },
+        {
+          "group": 82,
+          "x": 244.259713536255,
+          "y": 282.91491985671496,
+          "names": [
+            "Bloodthorn Roots",
+            "Lightspawn Lasher"
+          ]
+        }
+      ]
+    },
+    "arena": {
+      "file": "VoidscarArena",
+      "floors": [
+        1
+      ],
+      "entrance": {
+        "x": 199.7,
+        "y": 539.6
+      },
+      "bosses": [
+        {
+          "name": "Taz'Rah",
+          "x": 199.41016094534,
+          "y": 243.58030626293
+        },
+        {
+          "name": "Atroxus",
+          "x": 642.79321596351,
+          "y": 488.73368118158
+        },
+        {
+          "name": "Charonus",
+          "x": 641.44059699316,
+          "y": 220.58768088802
+        }
+      ],
+      "packs": [
+        {
+          "group": 1,
+          "x": 235.833405661066,
+          "y": 482.923932261778,
+          "names": [
+            "Feral Saberon",
+            "Lost Sethrak",
+            "Longtooth Tuskarr",
+            "Dominated Brawler"
+          ]
+        },
+        {
+          "group": 2,
+          "x": 285.66940522778,
+          "y": 445.96457667293,
+          "names": [
+            "Enthralled Shaman"
+          ]
+        },
+        {
+          "group": 3,
+          "x": 310.77423042571,
+          "y": 426.74759449009,
+          "names": [
+            "Voidtouched Magi"
+          ]
+        },
+        {
+          "group": 4,
+          "x": 268.8512308625,
+          "y": 346.02148651696,
+          "names": [
+            "Raj'kess the Spellstorm"
+          ]
+        },
+        {
+          "group": 5,
+          "x": 173.87550729511,
+          "y": 493.99491657469,
+          "names": [
+            "Feral Saberon",
+            "Lost Sethrak",
+            "Enthralled Shaman"
+          ]
+        },
+        {
+          "group": 6,
+          "x": 153.7290564469825,
+          "y": 463.981378249195,
+          "names": [
+            "Feral Saberon",
+            "Lost Sethrak",
+            "Dominated Brawler"
+          ]
+        },
+        {
+          "group": 7,
+          "x": 113.80326832569,
+          "y": 447.773861476685,
+          "names": [
+            "Dominated Brawler"
+          ]
+        },
+        {
+          "group": 8,
+          "x": 88.580294150372,
+          "y": 427.24477243935,
+          "names": [
+            "Brutal Overseer"
+          ]
+        },
+        {
+          "group": 9,
+          "x": 130.08146835458,
+          "y": 345.26698138614,
+          "names": [
+            "Aegyra the Unyielding"
+          ]
+        },
+        {
+          "group": 10,
+          "x": 189.15070919214,
+          "y": 174.06010561849666,
+          "names": [
+            "Feral Saberon",
+            "Lost Sethrak",
+            "Sycophantic Tarasek",
+            "Longtooth Tuskarr"
+          ]
+        },
+        {
+          "group": 11,
+          "x": 211.91589279426668,
+          "y": 196.34653760566334,
+          "names": [
+            "Feral Saberon",
+            "Lost Sethrak",
+            "Sycophantic Tarasek",
+            "Longtooth Tuskarr"
+          ]
+        },
+        {
+          "group": 12,
+          "x": 201.20539300501,
+          "y": 132.23917975365,
+          "names": [
+            "Chitigoth"
+          ]
+        },
+        {
+          "group": 13,
+          "x": 243.63889270079335,
+          "y": 144.24711775990667,
+          "names": [
+            "Feral Saberon",
+            "Raging Raptor"
+          ]
+        },
+        {
+          "group": 14,
+          "x": 159.23233803794,
+          "y": 143.31574327772333,
+          "names": [
+            "Protective Turtle",
+            "Longtooth Tuskarr"
+          ]
+        },
+        {
+          "group": 15,
+          "x": 201.96847493286,
+          "y": 111.59047286644,
+          "names": [
+            "Brutok"
+          ]
+        },
+        {
+          "group": 16,
+          "x": 256.64369539750004,
+          "y": 196.56964044626667,
+          "names": [
+            "Abducted Drakonid",
+            "Sycophantic Tarasek"
+          ]
+        },
+        {
+          "group": 17,
+          "x": 147.45824635969666,
+          "y": 199.55356554239333,
+          "names": [
+            "Lost Sethrak",
+            "Angry Krolusk"
+          ]
+        },
+        {
+          "group": 18,
+          "x": 216.83274920899,
+          "y": 245.76368651358,
+          "names": [
+            "Ethereal Shade"
+          ]
+        },
+        {
+          "group": 19,
+          "x": 200.86313029164333,
+          "y": 295.46832341347,
+          "names": [
+            "Kilivore Screamer",
+            "Savage Shredclaw",
+            "Enthralled Shaman"
+          ]
+        },
+        {
+          "group": 20,
+          "x": 239.47512226051,
+          "y": 247.64789688398,
+          "names": [
+            "Agitated Voidscythe"
+          ]
+        },
+        {
+          "group": 21,
+          "x": 238.0564690674,
+          "y": 227.39575928733333,
+          "names": [
+            "Blistercreep"
+          ]
+        },
+        {
+          "group": 22,
+          "x": 266.04432006406,
+          "y": 231.852308951915,
+          "names": [
+            "Savage Shredclaw"
+          ]
+        },
+        {
+          "group": 23,
+          "x": 288.9884658742567,
+          "y": 214.74644141576334,
+          "names": [
+            "Blistercreep"
+          ]
+        },
+        {
+          "group": 24,
+          "x": 315.542854337015,
+          "y": 214.416084401075,
+          "names": [
+            "Kilivore Screamer"
+          ]
+        },
+        {
+          "group": 25,
+          "x": 290.23403557437496,
+          "y": 174.89294335641,
+          "names": [
+            "Agitated Voidscythe"
+          ]
+        },
+        {
+          "group": 26,
+          "x": 328.6427824514067,
+          "y": 177.39782272332332,
+          "names": [
+            "Blistercreep"
+          ]
+        },
+        {
+          "group": 27,
+          "x": 290.60463757357996,
+          "y": 142.8396190784,
+          "names": [
+            "Blistercreep"
+          ]
+        },
+        {
+          "group": 28,
+          "x": 306.581623426725,
+          "y": 110.77809198384,
+          "names": [
+            "Kilivore Screamer"
+          ]
+        },
+        {
+          "group": 29,
+          "x": 286.67593318279,
+          "y": 86.7981346274795,
+          "names": [
+            "Savage Shredclaw"
+          ]
+        },
+        {
+          "group": 30,
+          "x": 247.928604598935,
+          "y": 109.502389588645,
+          "names": [
+            "Agitated Voidscythe",
+            "Brutal Overseer"
+          ]
+        },
+        {
+          "group": 32,
+          "x": 118.94353337154,
+          "y": 108.75224810443,
+          "names": [
+            "Watchful Harrower"
+          ]
+        },
+        {
+          "group": 33,
+          "x": 103.58445699879566,
+          "y": 189.16340338595668,
+          "names": [
+            "Enthralled Shaman",
+            "Brutal Overseer",
+            "Dominated Brawler"
+          ]
+        },
+        {
+          "group": 34,
+          "x": 139.2574572823,
+          "y": 233.43052430205,
+          "names": [
+            "Watchful Harrower"
+          ]
+        },
+        {
+          "group": 35,
+          "x": 640.7700001653,
+          "y": 493.57426278626997,
+          "names": [
+            "Toxic Creeper"
+          ]
+        },
+        {
+          "group": 36,
+          "x": 613.7178790337733,
+          "y": 388.01029992009995,
+          "names": [
+            "Savage Shredclaw",
+            "Enthralled Shaman"
+          ]
+        },
+        {
+          "group": 37,
+          "x": 620.9032061520634,
+          "y": 351.30408380573664,
+          "names": [
+            "Kilivore Screamer",
+            "Lost Sethrak"
+          ]
+        },
+        {
+          "group": 38,
+          "x": 576.5976886367575,
+          "y": 406.199851096065,
+          "names": [
+            "Savage Shredclaw",
+            "Enthralled Shaman"
+          ]
+        },
+        {
+          "group": 39,
+          "x": 564.233887372425,
+          "y": 447.101734888454,
+          "names": [
+            "Scavenging Siphoid"
+          ]
+        },
+        {
+          "group": 40,
+          "x": 547.3071590419366,
+          "y": 383.2633152311533,
+          "names": [
+            "Kilivore Screamer",
+            "Savage Shredclaw",
+            "Enthralled Shaman"
+          ]
+        },
+        {
+          "group": 41,
+          "x": 516.861423720635,
+          "y": 367.165026650846,
+          "names": [
+            "Scavenging Siphoid"
+          ]
+        },
+        {
+          "group": 42,
+          "x": 516.62900102257,
+          "y": 331.65855104951504,
+          "names": [
+            "Agitated Voidscythe",
+            "Brutal Overseer"
+          ]
+        },
+        {
+          "group": 43,
+          "x": 545.1719147115325,
+          "y": 293.325403235765,
+          "names": [
+            "Voidtouched Magi",
+            "Savage Shredclaw"
+          ]
+        },
+        {
+          "group": 44,
+          "x": 562.43071962131,
+          "y": 250.63416157788203,
+          "names": [
+            "Scavenging Siphoid"
+          ]
+        },
+        {
+          "group": 45,
+          "x": 592.37506453924,
+          "y": 322.02310525853665,
+          "names": [
+            "Kilivore Screamer",
+            "Lost Sethrak",
+            "Brutal Overseer"
+          ]
+        },
+        {
+          "group": 46,
+          "x": 569.1897931238733,
+          "y": 354.20211766745,
+          "names": [
+            "Voidminder",
+            "Devouring Brutalizer"
+          ]
+        },
+        {
+          "group": 47,
+          "x": 587.57221825256,
+          "y": 291.8873032951,
+          "names": [
+            "Watchful Harrower"
+          ]
+        },
+        {
+          "group": 48,
+          "x": 639.222449990908,
+          "y": 297.625079999832,
+          "names": [
+            "Feral Saberon",
+            "Devouring Brutalizer",
+            "Voidminder"
+          ]
+        },
+        {
+          "group": 49,
+          "x": 686.2567735885033,
+          "y": 322.71605582601336,
+          "names": [
+            "Feral Saberon",
+            "Agitated Voidscythe"
+          ]
+        },
+        {
+          "group": 50,
+          "x": 662.585669703265,
+          "y": 349.711664585785,
+          "names": [
+            "Savage Shredclaw",
+            "Sycophantic Tarasek"
+          ]
+        },
+        {
+          "group": 51,
+          "x": 667.68570934864,
+          "y": 393.4054325719875,
+          "names": [
+            "Kilivore Screamer",
+            "Sycophantic Tarasek",
+            "Savage Shredclaw",
+            "Lost Sethrak"
+          ]
+        },
+        {
+          "group": 52,
+          "x": 708.5414842593333,
+          "y": 401.29436802990995,
+          "names": [
+            "Kilivore Screamer",
+            "Feral Saberon",
+            "Lost Sethrak"
+          ]
+        },
+        {
+          "group": 53,
+          "x": 741.9637199030534,
+          "y": 402.2780221782767,
+          "names": [
+            "Savage Shredclaw",
+            "Dominated Brawler"
+          ]
+        },
+        {
+          "group": 54,
+          "x": 739.9276398782935,
+          "y": 356.8978598745534,
+          "names": [
+            "Voidminder",
+            "Devouring Brutalizer"
+          ]
+        },
+        {
+          "group": 55,
+          "x": 703.8854455726625,
+          "y": 352.95201486796,
+          "names": [
+            "Enthralled Shaman",
+            "Kilivore Screamer",
+            "Savage Shredclaw",
+            "Dominated Brawler"
+          ]
+        },
+        {
+          "group": 57,
+          "x": 762.2769579205999,
+          "y": 333.06291564668504,
+          "names": [
+            "Voidtouched Magi",
+            "Kilivore Screamer"
+          ]
+        },
+        {
+          "group": 58,
+          "x": 794.6299860694266,
+          "y": 303.9524845916767,
+          "names": [
+            "Agitated Voidscythe",
+            "Brutal Overseer"
+          ]
+        },
+        {
+          "group": 59,
+          "x": 730.0475082153575,
+          "y": 300.2823574935125,
+          "names": [
+            "Kilivore Screamer",
+            "Brutal Overseer"
+          ]
+        },
+        {
+          "group": 60,
+          "x": 673.29572583239,
+          "y": 262.62116262997,
+          "names": [
+            "Watchful Harrower"
+          ]
+        },
+        {
+          "group": 61,
+          "x": 725.7713492666601,
+          "y": 448.09014307074904,
+          "names": [
+            "Scavenging Siphoid"
+          ]
+        },
+        {
+          "group": 62,
+          "x": 679.718536119703,
+          "y": 285.514895498837,
+          "names": [
+            "Scavenging Siphoid"
+          ]
+        },
+        {
+          "group": 63,
+          "x": 663.512520076265,
+          "y": 213.861588769835,
+          "names": [
+            "Targeting Stalker",
+            "Gravitic Orb"
+          ]
+        },
+        {
+          "group": 64,
+          "x": 769.56350796551,
+          "y": 370.163244119346,
+          "names": [
+            "Scavenging Siphoid"
+          ]
+        }
+      ]
+    },
+    "kings": {
+      "file": "KingsRest",
+      "floors": [
+        1
+      ],
+      "entrance": {
+        "x": 806.3,
+        "y": 288.3
+      },
+      "bosses": [
+        {
+          "name": "The Golden Serpent",
+          "x": 748.99864421287,
+          "y": 412.64366982418
+        },
+        {
+          "name": "Mchimba the Embalmer",
+          "x": 484.27581583624,
+          "y": 123.27039177586
+        },
+        {
+          "name": "King Dazar",
+          "x": 64.775005175943,
+          "y": 292.05149108059
+        },
+        {
+          "name": "T'zala",
+          "x": 87.293451679553,
+          "y": 280.80789532326
+        },
+        {
+          "name": "Aka'ali the Conqueror",
+          "x": 324.77239853842,
+          "y": 502.9189182066
+        },
+        {
+          "name": "Zanazal the Wise",
+          "x": 360.57824810358,
+          "y": 532.66758932985
+        },
+        {
+          "name": "Kula the Butcher",
+          "x": 396.39185979621,
+          "y": 502.45792927534
+        }
+      ],
+      "packs": [
+        {
+          "group": 2,
+          "x": 604.77313294824,
+          "y": 341.86885641835124,
+          "names": [
+            "Minion of Zul"
+          ]
+        },
+        {
+          "group": 3,
+          "x": 603.0376970672401,
+          "y": 377.216346631335,
+          "names": [
+            "Animated Guardian"
+          ]
+        },
+        {
+          "group": 4,
+          "x": 643.1492074035061,
+          "y": 418.60662322263397,
+          "names": [
+            "Minion of Zul"
+          ]
+        },
+        {
+          "group": 5,
+          "x": 690.66416712632,
+          "y": 403.66718116425,
+          "names": [
+            "Umbral Warrior",
+            "Shadow-Borne Champion"
+          ]
+        },
+        {
+          "group": 6,
+          "x": 699.2028203411534,
+          "y": 444.52929438860997,
+          "names": [
+            "Umbral Warrior",
+            "Risen Hexer"
+          ]
+        },
+        {
+          "group": 7,
+          "x": 656.8628828583534,
+          "y": 453.72681693142,
+          "names": [
+            "Umbral Warrior",
+            "Shadow-Borne Champion"
+          ]
+        },
+        {
+          "group": 8,
+          "x": 589.52706240855,
+          "y": 493.792196956935,
+          "names": [
+            "Queen Wasi",
+            "King Timalji"
+          ]
+        },
+        {
+          "group": 9,
+          "x": 563.8934373244459,
+          "y": 494.13250083961805,
+          "names": [
+            "King A'akul",
+            "Bloodsworn Assassin"
+          ]
+        },
+        {
+          "group": 10,
+          "x": 539.94406784694,
+          "y": 492.20343858359,
+          "names": [
+            "Guard Captain Atu",
+            "King Rahu'ai",
+            "Seneschal M'bara"
+          ]
+        },
+        {
+          "group": 11,
+          "x": 515.983577963925,
+          "y": 491.295038497645,
+          "names": [
+            "Skeletal Hunting Raptor",
+            "Queen Patlaa"
+          ]
+        },
+        {
+          "group": 12,
+          "x": 461.85011601852,
+          "y": 329.96179259849,
+          "names": [
+            "Purification Construct"
+          ]
+        },
+        {
+          "group": 13,
+          "x": 499.6055079607733,
+          "y": 174.67864092700333,
+          "names": [
+            "Half-Finished Mummy",
+            "Interment Construct"
+          ]
+        },
+        {
+          "group": 16,
+          "x": 445.69142160059886,
+          "y": 168.23835524559777,
+          "names": [
+            "Embalming Fluid"
+          ]
+        },
+        {
+          "group": 18,
+          "x": 432.85895087776623,
+          "y": 130.412930605575,
+          "names": [
+            "Embalming Fluid"
+          ]
+        },
+        {
+          "group": 20,
+          "x": 430.7025306328867,
+          "y": 105.88888526495667,
+          "names": [
+            "Half-Finished Mummy",
+            "Interment Construct"
+          ]
+        },
+        {
+          "group": 21,
+          "x": 503.95752963402,
+          "y": 121.68250642386,
+          "names": [
+            "Coffin"
+          ]
+        },
+        {
+          "group": 22,
+          "x": 359.348142904788,
+          "y": 132.894658693844,
+          "names": [
+            "Healing Tide Totem",
+            "Phantom Hex Priest",
+            "Spectral Shaman"
+          ]
+        },
+        {
+          "group": 24,
+          "x": 358.4617637530584,
+          "y": 228.94097893398668,
+          "names": [
+            "Honored Raptor",
+            "Healing Tide Totem",
+            "Phantom Hex Priest",
+            "Spectral Shaman"
+          ]
+        },
+        {
+          "group": 25,
+          "x": 357.94221117131,
+          "y": 288.40684786312,
+          "names": [
+            "Ghostly Brute"
+          ]
+        },
+        {
+          "group": 26,
+          "x": 358.73282615533,
+          "y": 363.47865700918993,
+          "names": [
+            "Royal Berserker",
+            "Honored Raptor"
+          ]
+        },
+        {
+          "group": 27,
+          "x": 358.9144981160933,
+          "y": 480.2899759862333,
+          "names": [
+            "Thundering Totem",
+            "Explosive Totem",
+            "Torrent Totem"
+          ]
+        },
+        {
+          "group": 28,
+          "x": 200.338290272085,
+          "y": 289.89655761891504,
+          "names": [
+            "Minion of Zul",
+            "Shadow of Zul"
+          ]
+        },
+        {
+          "group": 29,
+          "x": 86.849867196651,
+          "y": 306.83189482054,
+          "names": [
+            "Reban"
+          ]
+        },
+        {
+          "group": 30,
+          "x": 359.40058222264497,
+          "y": 166.36909063245,
+          "names": [
+            "Royal Berserker"
+          ]
+        }
+      ]
+    },
+    "temple": {
+      "file": "TempleOfSethraliss",
+      "floors": [
+        1
+      ],
+      "entrance": {
+        "x": 705.5,
+        "y": 542.3
+      },
+      "bosses": [
+        {
+          "name": "Merektha",
+          "x": 414.8547307341,
+          "y": 228.04592608441
+        },
+        {
+          "name": "Avatar of Sethraliss",
+          "x": 66.533480164117,
+          "y": 80.428720447878
+        },
+        {
+          "name": "Adderis",
+          "x": 644.7031081657,
+          "y": 429.24130790627
+        },
+        {
+          "name": "Aspix",
+          "x": 645.41878914688,
+          "y": 456.22803316419
+        },
+        {
+          "name": "Galvazzt",
+          "x": 438.34802463012,
+          "y": 149.49025339213
+        }
+      ],
+      "packs": [
+        {
+          "group": 1,
+          "x": 705.5444565535566,
+          "y": 523.2083659628133,
+          "names": [
+            "Barbed Krolusk",
+            "Storm Adept",
+            "Sandswept Hunter"
+          ]
+        },
+        {
+          "group": 2,
+          "x": 727.26367267587,
+          "y": 511.41143190215496,
+          "names": [
+            "Shrouded Fang"
+          ]
+        },
+        {
+          "group": 3,
+          "x": 732.70374877419,
+          "y": 488.38535761725,
+          "names": [
+            "Sandfury Stonefist"
+          ]
+        },
+        {
+          "group": 4,
+          "x": 731.273843587265,
+          "y": 460.13388098206997,
+          "names": [
+            "Barbed Krolusk",
+            "Shrouded Fang",
+            "Sandswept Hunter"
+          ]
+        },
+        {
+          "group": 5,
+          "x": 685.53497951274,
+          "y": 508.48375932308,
+          "names": [
+            "Shrouded Fang"
+          ]
+        },
+        {
+          "group": 6,
+          "x": 676.1752759173451,
+          "y": 488.816132289945,
+          "names": [
+            "Sandfury Stonefist",
+            "Sandswept Hunter"
+          ]
+        },
+        {
+          "group": 7,
+          "x": 681.9215710812,
+          "y": 462.1907241702225,
+          "names": [
+            "Barbed Krolusk",
+            "Storm Adept"
+          ]
+        },
+        {
+          "group": 8,
+          "x": 728.5481254283967,
+          "y": 423.13372174717,
+          "names": [
+            "Sandfury Stonefist",
+            "Shrouded Fang",
+            "Storm Adept"
+          ]
+        },
+        {
+          "group": 9,
+          "x": 706.1851011549575,
+          "y": 390.1418724815075,
+          "names": [
+            "Barbed Krolusk",
+            "Storm Adept",
+            "Shrouded Fang",
+            "Sandswept Hunter"
+          ]
+        },
+        {
+          "group": 10,
+          "x": 676.64583982855,
+          "y": 422.3485709167733,
+          "names": [
+            "Sandfury Stonefist",
+            "Shrouded Fang",
+            "Sandswept Hunter"
+          ]
+        },
+        {
+          "group": 12,
+          "x": 641.42158935529,
+          "y": 396.628936462055,
+          "names": [
+            "Swarming Krolusk",
+            "Sand-Sworn Rider"
+          ]
+        },
+        {
+          "group": 13,
+          "x": 539.7419751442825,
+          "y": 425.5407439027475,
+          "names": [
+            "Poisonous Viper",
+            "Lightning Serpent",
+            "Storm Adept",
+            "Sandswept Hunter"
+          ]
+        },
+        {
+          "group": 14,
+          "x": 500.6012904331425,
+          "y": 444.92220524075253,
+          "names": [
+            "Barbed Krolusk",
+            "Krolusk Matriarch",
+            "Dutiful Tamer"
+          ]
+        },
+        {
+          "group": 15,
+          "x": 473.459508925375,
+          "y": 412.87298068551,
+          "names": [
+            "Storm Adept"
+          ]
+        },
+        {
+          "group": 16,
+          "x": 496.01669610053665,
+          "y": 396.78373748038,
+          "names": [
+            "Poisonous Viper",
+            "Lightning Serpent",
+            "Sandswept Hunter"
+          ]
+        },
+        {
+          "group": 17,
+          "x": 494.833673768655,
+          "y": 352.874569788435,
+          "names": [
+            "Swarming Krolusk",
+            "Sand-Sworn Rider"
+          ]
+        },
+        {
+          "group": 18,
+          "x": 487.89579244092,
+          "y": 307.02379656976,
+          "names": [
+            "Brood Tender",
+            "Faithless Subjugator"
+          ]
+        },
+        {
+          "group": 19,
+          "x": 499.501194077635,
+          "y": 282.759954964795,
+          "names": [
+            "Swarming Krolusk",
+            "Sand-Sworn Rider"
+          ]
+        },
+        {
+          "group": 20,
+          "x": 512.30178661931,
+          "y": 260.8683943287575,
+          "names": [
+            "Brood Tender",
+            "Poisonous Viper",
+            "Lightning Serpent"
+          ]
+        },
+        {
+          "group": 22,
+          "x": 486.84186478022,
+          "y": 231.59498412917,
+          "names": [
+            "Poisonous Viper"
+          ]
+        },
+        {
+          "group": 23,
+          "x": 486.01859258416,
+          "y": 259.76424105840334,
+          "names": [
+            "Faithless Subjugator",
+            "Lightning Serpent",
+            "Sandswept Hunter"
+          ]
+        },
+        {
+          "group": 24,
+          "x": 460.58365935130996,
+          "y": 245.43392243636498,
+          "names": [
+            "Brood Tender",
+            "Lightning Serpent"
+          ]
+        },
+        {
+          "group": 25,
+          "x": 467.104130661715,
+          "y": 283.27241583283,
+          "names": [
+            "Swarming Krolusk",
+            "Sand-Sworn Rider"
+          ]
+        },
+        {
+          "group": 26,
+          "x": 446.00519252079,
+          "y": 273.32318084640997,
+          "names": [
+            "Poisonous Viper",
+            "Lightning Serpent"
+          ]
+        },
+        {
+          "group": 27,
+          "x": 541.58231125855,
+          "y": 251.40338891308,
+          "names": [
+            "Agitated Nimbus"
+          ]
+        },
+        {
+          "group": 28,
+          "x": 554.85421242662,
+          "y": 208.97051305872498,
+          "names": [
+            "Loose Spark",
+            "Spark Channeler"
+          ]
+        },
+        {
+          "group": 29,
+          "x": 548.09473761244,
+          "y": 158.514786320354,
+          "names": [
+            "Agitated Nimbus",
+            "Static Anomaly",
+            "Imbued Stormcaller"
+          ]
+        },
+        {
+          "group": 30,
+          "x": 510.59354673648335,
+          "y": 158.01381973427667,
+          "names": [
+            "Agitated Nimbus",
+            "Imbued Stormcaller"
+          ]
+        },
+        {
+          "group": 31,
+          "x": 476.3061046241475,
+          "y": 161.996733099155,
+          "names": [
+            "Static Anomaly"
+          ]
+        },
+        {
+          "group": 33,
+          "x": 458.00442554661004,
+          "y": 144.57906307307502,
+          "names": [
+            "Lightning Spire",
+            "Polarized Spire"
+          ]
+        },
+        {
+          "group": 34,
+          "x": 432.2615382807,
+          "y": 231.185752622115,
+          "names": [
+            "Merektha",
+            "Egg",
+            "A Knot of Snakes",
+            "Snake"
+          ]
+        },
+        {
+          "group": 35,
+          "x": 408.9961830547733,
+          "y": 267.06779565912666,
+          "names": [
+            "Storm Serpent",
+            "Toxic Viper"
+          ]
+        },
+        {
+          "group": 36,
+          "x": 250.56911673369,
+          "y": 366.86608017803496,
+          "names": [
+            "Loose Spark",
+            "Spark Channeler"
+          ]
+        },
+        {
+          "group": 37,
+          "x": 251.093677545095,
+          "y": 304.8894057674875,
+          "names": [
+            "Temple Disruptor",
+            "Eye of Sethraliss",
+            "Orb Watcher"
+          ]
+        },
+        {
+          "group": 38,
+          "x": 183.909791241445,
+          "y": 336.5394888909375,
+          "names": [
+            "Temple Disruptor",
+            "Eye of Sethraliss",
+            "Orb Watcher"
+          ]
+        },
+        {
+          "group": 39,
+          "x": 141.36383286264748,
+          "y": 200.910383455165,
+          "names": [
+            "Faithless Conscript"
+          ]
+        },
+        {
+          "group": 40,
+          "x": 121.19684548291,
+          "y": 169.4816891031625,
+          "names": [
+            "Faithless Conscript"
+          ]
+        },
+        {
+          "group": 41,
+          "x": 93.142719832103,
+          "y": 125.909552805362,
+          "names": [
+            "Faithless Tormentor",
+            "Twisted Hexxer"
+          ]
+        },
+        {
+          "group": 42,
+          "x": 143.13619574406,
+          "y": 95.95373005231875,
+          "names": [
+            "Essence Defiler",
+            "Twisted Hexxer",
+            "Corrupted Guardian"
+          ]
+        },
+        {
+          "group": 43,
+          "x": 145.49413651361,
+          "y": 73.46688615356851,
+          "names": [
+            "Faithless Tormentor"
+          ]
+        },
+        {
+          "group": 44,
+          "x": 86.4109283424385,
+          "y": 76.018199557073,
+          "names": [
+            "Lesser Lifeforce",
+            "Lifeforce"
+          ]
+        }
+      ]
+    },
+    "ruby": {
+      "file": "RubyLifePools",
+      "floors": [
+        1
+      ],
+      "entrance": {
+        "x": 119.9,
+        "y": 514.5
+      },
+      "bosses": [
+        {
+          "name": "Defier Draghar",
+          "x": 187.68156192431,
+          "y": 192.12062424592
+        },
+        {
+          "name": "Melidrussa Chillworn",
+          "x": 281.25653994104,
+          "y": 290.54103286633
+        },
+        {
+          "name": "Thunderhead",
+          "x": 479.31483155353,
+          "y": 312.22150758466
+        },
+        {
+          "name": "Flamegullet",
+          "x": 747.89039257338,
+          "y": 333.65643120583
+        },
+        {
+          "name": "Kokia Blazehoof",
+          "x": 479.87966686496,
+          "y": 232.88346577194
+        },
+        {
+          "name": "High Channeler Ryvati",
+          "x": 281.85447935368,
+          "y": 71.356965310323
+        },
+        {
+          "name": "Erkhart Stormvein",
+          "x": 255.0992522811,
+          "y": 21.384343906324
+        },
+        {
+          "name": "Kyrakka",
+          "x": 226.44679474865,
+          "y": 49.239741574134
+        }
+      ],
+      "packs": [
+        {
+          "group": 1,
+          "x": 129.0,
+          "y": 363.35,
+          "names": [
+            "Earthbound Guardian",
+            "Deepstone Earthshaper"
+          ]
+        },
+        {
+          "group": 2,
+          "x": 108.04555668600666,
+          "y": 339.9903196233033,
+          "names": [
+            "Flashfrost Chillweaver",
+            "Deepstone Earthshaper"
+          ]
+        },
+        {
+          "group": 4,
+          "x": 46.56555868469218,
+          "y": 316.71642499504173,
+          "names": [
+            "Infused Whelp"
+          ]
+        },
+        {
+          "group": 5,
+          "x": 120.86885815249667,
+          "y": 297.41127222718,
+          "names": [
+            "Infused Whelp"
+          ]
+        },
+        {
+          "group": 6,
+          "x": 55.2224510853965,
+          "y": 266.267680695815,
+          "names": [
+            "Earthbound Guardian",
+            "Deepstone Earthshaper"
+          ]
+        },
+        {
+          "group": 7,
+          "x": 108.13862662358,
+          "y": 262.84966013508995,
+          "names": [
+            "Earthbound Guardian",
+            "Flashfrost Chillweaver"
+          ]
+        },
+        {
+          "group": 8,
+          "x": 58.6572753207908,
+          "y": 226.944501581662,
+          "names": [
+            "Infused Whelp"
+          ]
+        },
+        {
+          "group": 10,
+          "x": 89.27644204175435,
+          "y": 180.9456335773114,
+          "names": [
+            "Infused Whelp"
+          ]
+        },
+        {
+          "group": 11,
+          "x": 150.35007025627002,
+          "y": 219.95275332307142,
+          "names": [
+            "Infused Whelp"
+          ]
+        },
+        {
+          "group": 12,
+          "x": 121.285928719415,
+          "y": 147.876053454665,
+          "names": [
+            "Flashfrost Chillweaver",
+            "Deepstone Earthshaper"
+          ]
+        },
+        {
+          "group": 13,
+          "x": 207.69414946819998,
+          "y": 167.58700395996334,
+          "names": [
+            "Infused Whelp"
+          ]
+        },
+        {
+          "group": 14,
+          "x": 481.58251326618,
+          "y": 383.546372516475,
+          "names": [
+            "Blazebound Destroyer",
+            "Primalist Cinderweaver"
+          ]
+        },
+        {
+          "group": 15,
+          "x": 502.84594825625663,
+          "y": 427.59559659895666,
+          "names": [
+            "Ashseer Flamelasher",
+            "Primalist Cinderweaver"
+          ]
+        },
+        {
+          "group": 16,
+          "x": 570.1037905162133,
+          "y": 465.5229752239067,
+          "names": [
+            "Ashseer Flamelasher",
+            "Blazebound Destroyer",
+            "Primalist Cinderweaver"
+          ]
+        },
+        {
+          "group": 17,
+          "x": 727.7157583838199,
+          "y": 281.0449665856167,
+          "names": [
+            "Ashseer Flamelasher",
+            "Blazebound Destroyer",
+            "Primalist Cinderweaver"
+          ]
+        },
+        {
+          "group": 19,
+          "x": 631.08423028757,
+          "y": 201.2116183606,
+          "names": [
+            "Blazebound Destroyer"
+          ]
+        },
+        {
+          "group": 20,
+          "x": 570.429873230385,
+          "y": 223.43265608579497,
+          "names": [
+            "Ashseer Flamelasher",
+            "Primalist Cinderweaver"
+          ]
+        },
+        {
+          "group": 21,
+          "x": 436.2909842755167,
+          "y": 200.58898715758332,
+          "names": [
+            "Primal Thundercloud",
+            "Storm Warrior"
+          ]
+        },
+        {
+          "group": 22,
+          "x": 407.109538249185,
+          "y": 177.40333054643003,
+          "names": [
+            "Primal Thundercloud"
+          ]
+        },
+        {
+          "group": 23,
+          "x": 389.3056720821325,
+          "y": 161.23199211932,
+          "names": [
+            "Tempest Channeler",
+            "Primal Thundercloud"
+          ]
+        },
+        {
+          "group": 24,
+          "x": 359.97939785337496,
+          "y": 137.34841200760502,
+          "names": [
+            "Storm Warrior"
+          ]
+        },
+        {
+          "group": 25,
+          "x": 328.455971987285,
+          "y": 85.39386375928476,
+          "names": [
+            "Primal Thundercloud",
+            "Primalist Cinderweaver",
+            "Tempest Channeler",
+            "Storm Warrior"
+          ]
+        },
+        {
+          "group": 26,
+          "x": 251.65914871613,
+          "y": 102.8979476329155,
+          "names": [
+            "Primal Thundercloud"
+          ]
+        },
+        {
+          "group": 27,
+          "x": 289.559904039275,
+          "y": 79.01561600825417,
+          "names": [
+            "Primal Thundercloud",
+            "Storm Warrior"
+          ]
+        },
+        {
+          "group": 28,
+          "x": 328.0383675542567,
+          "y": 46.967955645008,
+          "names": [
+            "Primal Thundercloud"
+          ]
+        },
+        {
+          "group": 29,
+          "x": 305.03490427133335,
+          "y": 120.31166452853334,
+          "names": [
+            "Ashseer Flamelasher",
+            "Storm Warrior"
+          ]
+        },
+        {
+          "group": 32,
+          "x": 101.34679005281033,
+          "y": 472.8386190964466,
+          "names": [
+            "Earthbound Guardian",
+            "Primal Juggernaut",
+            "Deepstone Earthshaper"
+          ]
+        },
+        {
+          "group": 33,
+          "x": 190.4,
+          "y": 133.1,
+          "names": [
+            "Deepstone Earthshaper"
+          ]
+        },
+        {
+          "group": 34,
+          "x": 152.81457394729,
+          "y": 125.45347949467,
+          "names": [
+            "Earthbound Guardian",
+            "Deepstone Earthshaper"
+          ]
+        },
+        {
+          "group": 35,
+          "x": 352.8147849120325,
+          "y": 67.69294168072425,
+          "names": [
+            "Primal Thundercloud"
+          ]
+        },
+        {
+          "group": 36,
+          "x": 690.751514723795,
+          "y": 225.095241048375,
+          "names": [
+            "Ashseer Flamelasher",
+            "Primalist Cinderweaver"
+          ]
+        },
+        {
+          "group": 38,
+          "x": 781.8222722538051,
+          "y": 383.23631826682,
+          "names": [
+            "Ashseer Flamelasher",
+            "Primalist Cinderweaver"
+          ]
+        },
+        {
+          "group": 39,
+          "x": 657.08936401341,
+          "y": 495.79053163171,
+          "names": [
+            "Ashseer Flamelasher",
+            "Primalist Cinderweaver"
+          ]
+        },
+        {
+          "group": 40,
+          "x": 133.97369032698998,
+          "y": 214.14334529346502,
+          "names": [
+            "Earthbound Guardian",
+            "Deepstone Earthshaper"
+          ]
+        }
+      ]
+    }
+  }
+}
