@@ -12,9 +12,9 @@ const storage=new Map();
 globalThis.wx={getStorageSync:k=>storage.get(k)||'',setStorageSync:(k,v)=>storage.set(k,v),createCanvas:()=>({getContext:()=>context}),createOffscreenCanvas:()=>({getContext:()=>context}),createImage:()=>({}),getSystemInfoSync:()=>({screenWidth:1000,screenHeight:620,pixelRatio:1,safeArea:{top:0,bottom:620}}),onTouchStart(){},onTouchMove(){},onTouchEnd(){},onTouchCancel(){}};
 function catalogs(){
  const get=(mod,key)=>require('./src/'+mod)[key];
- return {weapons:get('WeaponData','weapons'),passives:get('WeaponData','passives'),evolution:get('Evolution','EVOLUTION_RECIPES'),skills:get('SkillSystem','SKILL_DEFS'),characters:get('Character','CHARACTERS'),meta:get('MetaSystem','META_UPGRADES'),talents:require('./src/TalentTree'),skins:get('Skins','SKINS'),pets:get('Pet','PET_TYPES'),auras:get('Auras','AURA_TYPES'),relics:Object.fromEntries(get('Relic','RELIC_DEFS').map(row=>[row.id,row])),achievements:get('AchievementSystem','ACHIEVEMENT_DEFS'),builds:require('./src/BuildPreset'),bosses:require('./src/BossData'),enemies:get('Enemy','TYPES'),stages:get('StageSystem','STAGE_CONFIGS'),speed:require('./src/scenes/SpeedRunScene'),events:Object.fromEntries(get('EventSystem','EVENT_DEFS').map(row=>[row.id,row])),curses:get('CurseSystem','CURSE_DEFS')};
+ return {weaponType:get('Weapons','Weapon'),petType:get('Pet','Pet'),weapons:get('WeaponData','weapons'),passives:get('WeaponData','passives'),evolution:get('Evolution','EVOLUTION_RECIPES'),skills:get('SkillSystem','SKILL_DEFS'),characters:get('Character','CHARACTERS'),meta:get('MetaSystem','META_UPGRADES'),talents:require('./src/TalentTree'),skins:get('Skins','SKINS'),pets:get('Pet','PET_TYPES'),auras:get('Auras','AURA_TYPES'),relics:Object.fromEntries(get('Relic','RELIC_DEFS').map(row=>[row.id,row])),achievements:get('AchievementSystem','ACHIEVEMENT_DEFS'),builds:require('./src/BuildPreset'),bosses:require('./src/BossData'),enemies:get('Enemy','TYPES'),stages:get('StageSystem','STAGE_CONFIGS'),speed:require('./src/scenes/SpeedRunScene'),events:Object.fromEntries(get('EventSystem','EVENT_DEFS').map(row=>[row.id,row])),curses:get('CurseSystem','CURSE_DEFS')};
 }
-function environment(){
+function environment(fullArt=false){
  storage.clear();const nodes=new Map();let root;
  class Element{
   constructor(){this.dataset={};this.events={};this.hidden=false;this.scrollTop=0;this.classList={toggle(){}};this.children=[];}
@@ -26,7 +26,7 @@ function environment(){
  globalThis.document={activeElement:null,createElement:()=>new Element(),getElementById(id){if(!nodes.has(id))nodes.set(id,new Element());return nodes.get(id);}};
  const canvas={width:1000,height:620,parentElement:new Element(),getContext:()=>context};globalThis.browserCanvas=canvas;
  delete require.cache[require.resolve('./entry.js')];const runtime=require('./entry.js');
- runtime.catalogs=catalogs();runtime.art={drawHero(){return true;},drawPortrait(){return true;},drawMonster(){return true;},drawBoss(){return true;}};
+ runtime.catalogs=catalogs();runtime.art=fullArt?{...require('./src/Art')}:{drawHero(){return true;},drawPortrait(){return true;},drawMonster(){return true;},drawBoss(){return true;}};
  const folio=createFolio(runtime,{api:{shareAppMessage(){}}},{togglePause(){runtime.game.isPaused=!runtime.game.isPaused;}});
  const sync=()=>folio.sync();
  const click=label=>{const button=root.buttons.find(b=>b.label.includes(label));assert.ok(button,`button ${label}`);assert.equal(button.disabled,false,`enabled ${label}`);button.events.click();sync();return button;};
@@ -105,4 +105,13 @@ test('deployed entry, every web module and both stylesheets share one release ve
  }
  for(const name of ['./flux.css','flux/folio.css'])assert.ok(html.includes(`href="${name}?v=${version}"`));
  assert.ok(html.indexOf('type="importmap"')<html.indexOf('type="module"'));
+});
+
+test('the complete native art path renders skill areas and clones without altering their state',()=>{
+ const e=environment(true);e.game.startWithCharacter('engineer',[]);e.game._tutorialStep=-1;e.sm.switchTo('playing');
+ const w=e.game.player.weapons[0];w._firePools=[{x:20,y:30,radius:40}];w._acidPools=[{x:-10,y:20,radius:30,isHolyWater:true}];w._clones=[{angle:1,dist:30}];w._orbList=[{x:40,y:50,radius:8}];
+ const fields=()=>JSON.stringify([w._firePools,w._acidPools,w._clones,w._orbList]);const before=fields(),random=Math.random;
+ Math.random=()=>{throw Error('native effects consumed combat randomness');};
+ try{assert.doesNotThrow(()=>{w.drawEffects(context);w.drawGroundEffects(context);e.game.particles.draw(context);});}finally{Math.random=random;}
+ assert.equal(fields(),before);assert.doesNotThrow(()=>e.game.draw());
 });

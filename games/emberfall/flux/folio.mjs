@@ -28,9 +28,10 @@ export function createFolio(runtime,platform,hooks={}){
  function act(fn){const id=String(actions.length);actions.push(fn);return id;}
  function button(label,fn,disabled=false,style=''){return `<button type="button" class="folio-button ${style}" data-action="${act(fn)}" ${disabled?'disabled':''}>${esc(label)}</button>`;}
  const badge=label=>`<span class="folio-badge">${esc(label)}</span>`;
+ const icon=(id='rune')=>`<canvas class="folio-icon" width="96" height="96" data-icon="${esc(id)}" aria-hidden="true"></canvas>`;
  const note=label=>`<p class="folio-note">${esc(label)}</p>`;
  function card(title,description,extra='',action='',meta='',media=''){
-  return `<article class="folio-card">${media||'<span class="folio-sigil" aria-hidden="true">◇</span>'}<div class="folio-card-body">${meta?`<div class="folio-card-meta">${meta}</div>`:''}<h3>${esc(title)}</h3><p>${esc(description)}</p>${extra}</div>${action?`<div class="folio-card-action">${action}</div>`:''}</article>`;
+  return `<article class="folio-card">${media||icon('rune')}<div class="folio-card-body">${meta?`<div class="folio-card-meta">${meta}</div>`:''}<h3>${esc(title)}</h3><p>${esc(description)}</p>${extra}</div>${action?`<div class="folio-card-action">${action}</div>`:''}</article>`;
  }
  const grid=content=>`<div class="folio-grid">${content}</div>`;
  function stats(rows){return `<dl class="folio-stats">${rows.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>`;}
@@ -63,7 +64,7 @@ export function createFolio(runtime,platform,hooks={}){
     if(def.baseDamage!==undefined)extra+=`<p class="folio-values">基础伤害 ${def.baseDamage} · 基础间隔 ${def.baseCooldown} 秒</p>`;
     if(c.evolution[id]){const target=entry('evolution',id,c.evolution[id]);extra+=`<details><summary>觉醒之途 · ${esc(target.name)}</summary><p>武器满级，并持有「${esc(entry('passives',c.evolution[id].requirePassive,c.passives[c.evolution[id].requirePassive]).name)}」。${esc(condition(c.evolution[id].unlockCondition))}；拾取觉醒之石也可解锁。</p><p>${esc(target.desc)}</p></details>`;}
    }else if(tab==='evolution')extra=`<p class="folio-values">${esc(entry('weapons',id,c.weapons[id]).name)} ＋ ${esc(entry('passives',def.requirePassive,c.passives[def.requirePassive]).name)}</p>${note(condition(def.unlockCondition))}`;
-   rows+=card(copy.name,copy.desc,extra,'',meta);
+   rows+=card(copy.name,copy.desc,extra,'',meta,icon(id));
   }
   return body+grid(rows||'<p class="folio-empty">手札中暂未找到这段记载。</p>');
  }
@@ -73,7 +74,7 @@ export function createFolio(runtime,platform,hooks={}){
   body+=tabs([['oaths','誓印'],['talents','誓途'],['skins','灯色'],['pets','旅伴'],['auras','足下灯纹']]);let rows='';
   if(tab==='oaths')for(const def of c.meta){
    const copy=entry('meta',def.id,def),level=meta.getLevel(def.id),cost=meta.getCost(def),max=level>=def.maxLevel;
-   rows+=card(copy.name,copy.desc,'',button(max?'誓印已圆满':`铭刻 · ${fmt(cost)} 余烬`,()=>{meta.purchase(def);},max||meta.data.chips<cost),badge(`${level} / ${def.maxLevel} 阶`));
+   rows+=card(copy.name,copy.desc,'',button(max?'誓印已圆满':`铭刻 · ${fmt(cost)} 余烬`,()=>{meta.purchase(def);},max||meta.data.chips<cost),badge(`${level} / ${def.maxLevel} 阶`),icon(def.id));
   }
   else if(tab==='talents'){
    if(!sm.scenes.shop.talentTree)sm.scenes.shop.talentTree=new c.talents.TalentTree(meta);
@@ -81,7 +82,7 @@ export function createFolio(runtime,platform,hooks={}){
    for(const branch of c.talents.TALENT_BRANCHES){
     rows+=`<section class="folio-branch"><h3>${({power:'燃刃之途',skill:'流风之途',survival:'长生之途'})[branch.id]}</h3><div class="folio-talent-grid">`;
     for(const node of branch.nodes){const copy=entry('talents',node.id,node),allocated=tree.isAllocated(node.id),req=Array.isArray(node.req)?node.req:node.req?[node.req]:[];
-     rows+=card(copy.name,copy.desc,req.length?note('前誓：'+req.map(id=>entry('talents',id,c.talents.NODE_MAP[id]).name).join('、')):'',button(allocated?'已铭刻':`${node.cost} 余烬`,()=>tree.allocate(node.id),allocated||!tree.canAllocate(node.id)),badge(allocated?'誓印已成':'等待铭刻'));}
+     rows+=card(copy.name,copy.desc,req.length?note('前誓：'+req.map(id=>entry('talents',id,c.talents.NODE_MAP[id]).name).join('、')):'',button(allocated?'已铭刻':`${node.cost} 余烬`,()=>tree.allocate(node.id),allocated||!tree.canAllocate(node.id)),badge(allocated?'誓印已成':'等待铭刻'),icon(node.id));}
     rows+='</div></section>';
    }
    body+=note('重整誓途需 100 余烬，退还已花费余烬的 50%。')+button('重整誓途',()=>{tree.reset();},meta.data.chips<100,'quiet');
@@ -95,18 +96,18 @@ export function createFolio(runtime,platform,hooks={}){
    const all=Object.keys(c.pets).every(id=>meta.isPetUnlocked(id));
    body+=`<div class="folio-banner"><div><h3>林间相逢</h3><p>花费 1,000 余烬，遇见一位尚未结识的旅伴。最多携带两位同行。</p>${sm.scenes.shop.lastDrawnPet?note('新结识：'+text(sm.scenes.shop.lastDrawnPet.name)):''}</div>${button(all?'旅伴已全部结识':'寻访旅伴 · 1,000 余烬',()=>sm.scenes.shop._handleDrawPet(meta),all||meta.data.chips<1000)}</div>`;
    for(const [id,def] of Object.entries(c.pets)){const copy=entry('pets',id,def),owned=meta.isPetUnlocked(id),equipped=meta.isPetEquipped(id);
-    rows+=card(copy.name,copy.desc,'',button(equipped?'留在营地':owned?'邀请同行':'尚未相逢',()=>{if(equipped)meta.unequipPet(id);else if(!meta.equipPet(id))message='最多可带两位旅伴同行。';},!owned||!equipped&&(meta.data.equippedPets?.length||0)>=2),badge(equipped?'同行中':owned?'已结识':'林间寻访'));}
+    rows+=card(copy.name,copy.desc,'',button(equipped?'留在营地':owned?'邀请同行':'尚未相逢',()=>{if(equipped)meta.unequipPet(id);else if(!meta.equipPet(id))message='最多可带两位旅伴同行。';},!owned||!equipped&&(meta.data.equippedPets?.length||0)>=2),badge(equipped?'同行中':owned?'已结识':'林间寻访'),icon(id));}
   }
   else if(tab==='auras'){
    body+=note('灯纹只改变外观，不提供战斗加成。')+button('收起灯纹',()=>meta.selectAura(null),!meta.data.selectedAura,'quiet');
    for(const [id,def] of Object.entries(c.auras)){const copy=entry('auras',id,def),owned=meta.isAuraUnlocked(id),selected=meta.data.selectedAura===id;
-    rows+=card(copy.name,copy.desc,'',button(selected?'正在佩用':owned?'佩用灯纹':`${fmt(def.cost)} 余烬`,()=>{if(owned||meta.purchaseAura(id,def.cost))meta.selectAura(id);},selected||!owned&&meta.data.chips<def.cost),badge(owned?'已收藏':'待收藏'));}
+    rows+=card(copy.name,copy.desc,'',button(selected?'正在佩用':owned?'佩用灯纹':`${fmt(def.cost)} 余烬`,()=>{if(owned||meta.purchaseAura(id,def.cost))meta.selectAura(id);},selected||!owned&&meta.data.chips<def.cost),badge(owned?'已收藏':'待收藏'),icon('ring'));}
   }
   return body+grid(rows);
  }
  function upgrades(scene){
   let body=header(scene.chestMode?'A GIFT IN THE ASHES':'LET THE EMBER GROW',scene.chestMode?'余烬中的馈赠':scene.banishMode?'舍去一条命途':'让火光再盛一分',scene.banishMode?'选中的强化将不再出现在本次远征中。':'长夜暂歇。选一份力量，再踏入林间。',false);
-  body+=grid(scene.options.map((option,i)=>{const copy=optionCopy(option,c);return card(copy.name,copy.desc,copy.detail?note(copy.detail):'',button(scene.banishMode?'放逐此项':`选择 ${i+1} ↗`,()=>chooseUpgrade(scene,option)),badge(copy.tag)+badge(({rare:'稀有',epic:'史诗',legendary:'传说'})[option.rarity]||'') );}).join(''));
+  body+=grid(scene.options.map((option,i)=>{const copy=optionCopy(option,c);return card(copy.name,copy.desc,copy.detail?note(copy.detail):'',button(scene.banishMode?'放逐此项':`选择 ${i+1} ↗`,()=>chooseUpgrade(scene,option)),badge(copy.tag)+badge(({rare:'稀有',epic:'史诗',legendary:'传说'})[option.rarity]||''),icon(option.id) );}).join(''));
   if(scene.previews.length)body+=`<details class="folio-preview"><summary>前路可期 · ${scene.previews.length} 条觉醒之途</summary>${grid(scene.previews.map(o=>card(text(o.name),text(o.desc))).join(''))}</details>`;
   if(!scene.chestMode)body+=`<div class="folio-actions">${button(`重问命途 · ${scene.rerollCount}`,()=>scene.onReroll?.(),scene.rerollCount<=0)}${button(`暂辞馈赠 · ${scene.skipCount}`,()=>scene.onSkip?.(),scene.skipCount<=0)}${button(scene.banishMode?'取消放逐':`放逐命签 · ${scene.banishCount}`,()=>{scene.banishMode=!scene.banishMode;},scene.banishCount<=0&&!scene.banishMode)}${button(`随缘强化：${game.autoUpgrade?'开':'关'}`,()=>{game.autoUpgrade=!game.autoUpgrade;})}</div>`;
   return body;
@@ -118,7 +119,7 @@ export function createFolio(runtime,platform,hooks={}){
   if(tab==='journey')body+=stats([['守夜时长',time(game.time)],['击败敌人',fmt(p.kills)],['当前阶位',p.level],['生命',`${Math.ceil(p.hp)} / ${p.maxHp}`]])+`<div class="folio-actions">${button('继续守夜 ↗',()=>hooks.togglePause?.(),false,'primary')}${button(`随行走位：${game.autoPlay?'开':'关'}`,()=>{game.autoPlay=!game.autoPlay;game._aiTimer=0;game._aiVector=null;})}${button(`随缘强化：${game.autoUpgrade?'开':'关'}`,()=>{game.autoUpgrade=!game.autoUpgrade;})}${button('结束本次远征',()=>game.endGame(),false,'quiet')}</div>`;
   else if(tab==='equipment'){
    const skill=entry('skills',p.characterId,c.skills[p.characterId]);body+=card(skill.name,skill.desc,note('角色咏誓 · 冷却 '+c.skills[p.characterId].cooldown+' 秒'));
-   body+=grid(p.weapons.map(w=>{const copy=entry(w.evolved?'evolution':'weapons',w.id,w.def);return card(copy.name,copy.desc,note(`伤害 ${w.damage} · 间隔 ${Number(w.interval).toFixed(2)} 秒`),'',badge(`第 ${w.level} 级`)+badge(w.evolved?'已觉醒':'武器'));}).join('')+(p.passives||[]).map(p=>{const copy=entry('passives',p.id,c.passives[p.id]);return card(copy.name,copy.desc,'','',badge(`第 ${p.level} 级`)+badge('护符'));}).join('')+(p.relics||[]).map(r=>{const id=typeof r==='string'?r:r.id,copy=entry('relics',id,c.relics[id]);return card(copy.name,copy.desc,'','',badge('遗物'));}).join(''));
+   body+=grid(p.weapons.map(w=>{const copy=entry(w.evolved?'evolution':'weapons',w.id,w.def);return card(copy.name,copy.desc,note(`伤害 ${w.damage} · 间隔 ${Number(w.interval).toFixed(2)} 秒`),'',badge(`第 ${w.level} 级`)+badge(w.evolved?'已觉醒':'武器'),icon(w.id));}).join('')+(p.passives||[]).map(p=>{const copy=entry('passives',p.id,c.passives[p.id]);return card(copy.name,copy.desc,'','',badge(`第 ${p.level} 级`)+badge('护符'),icon(p.id));}).join('')+(p.relics||[]).map(r=>{const id=typeof r==='string'?r:r.id,copy=entry('relics',id,c.relics[id]);return card(copy.name,copy.desc,'','',badge('遗物'),icon(id));}).join(''));
    const slots=c.builds.PRESET_BUILDS.filter(b=>b.isCustom);body+=`<div class="folio-actions">${slots.map(slot=>button(`记下此套行装 · ${slot.id.replace('custom','')}`,()=>{c.builds.BuildPreset.saveCustomBuild(slot.id,p,game.meta);message='已记入行装手札，下次启程可沿用。';})).join('')}</div>`;
   }else if(tab==='damage'){
    const rows=Object.entries(game._weaponDamageStats||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]),total=rows.reduce((n,[,v])=>n+v,0);
@@ -147,10 +148,11 @@ export function createFolio(runtime,platform,hooks={}){
   if(name==='compendium')html=codex();else if(name==='shop')html=growth();else if(name==='upgrade')html=upgrades(scene);else if(name==='pause')html=pause();
   else if(name==='achievements')html=achievements();else if(name==='leaderboard')html=records();else if(name==='daily')html=daily(scene);else if(name==='speedRun')html=speed(scene);else if(name==='gameOver')html=result(scene);else if(name==='stageReward'||name==='bossReward')html=rewards(name==='stageReward'?'stage':'boss');else if(name==='bossResult')html=bossResult();else if(name==='buildSelect')html=builds(scene);
   else html=header('YOUR FIRST WATCH','带着火光，向前。','拖动屏幕或使用 WASD 移动。武器自动攻击，空格闪避，E 释放咏誓。',false)+button('我已准备好 ↗',()=>{for(let i=0;i<3&&game._tutorialStep>=0;i++)game._advanceTutorial();},false,'primary');
-  root.innerHTML=`<div class="folio-ornament" aria-hidden="true">◇</div>${html}${message?`<p class="folio-message" role="status">${esc(message)}</p>`:''}<footer class="folio-footer">火光未熄，归途仍在。<span>EMBERFALL</span></footer>`;
+  root.innerHTML=`<canvas class="folio-ornament" width="72" height="72" data-icon="lantern" aria-hidden="true"></canvas>${html}${message?`<p class="folio-message" role="status">${esc(message)}</p>`:''}<footer class="folio-footer">火光未熄，归途仍在。<span>EMBERFALL</span></footer>`;
   const generation=++renders,currentActions=actions;
   for(const b of root.querySelectorAll('[data-action]'))b.addEventListener('click',()=>{if(b.disabled||generation!==renders||root.hidden)return;message='';currentActions[Number(b.dataset.action)]?.();reset();});
   const input=root.querySelector('[data-search]');input?.addEventListener('input',()=>{query=input.value;key='';});
+  for(const image of root.querySelectorAll('[data-icon]'))art.drawIcon?.(image.getContext('2d'),image.dataset.icon,5,5,image.width-10);
   for(const image of root.querySelectorAll('[data-portrait]')){
    const ctx=image.getContext('2d'),id=image.dataset.portrait;ctx.globalAlpha=1;
    if(image.dataset.kind==='hero')art.drawPortrait(ctx,id,5,2,110,image.dataset.skin||undefined);

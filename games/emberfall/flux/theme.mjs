@@ -51,47 +51,76 @@ export function installWebHUD(runtime){
   if(!skin||skin===skins[0])return 'none';if(filters.has(skin.id))return filters.get(skin.id);
   const color=themeColor(skin.theme.main),rgb=color.slice(1,7).match(/../g).map(s=>parseInt(s,16)/255),[r,g,b]=rgb,max=Math.max(...rgb),min=Math.min(...rgb),d=max-min;
   const hue=d===0?40:max===r?60*((g-b)/d%6):max===g?60*((b-r)/d+2):60*((r-g)/d+4);
-  const base={tracer:40,walker:70,gunner:110,cryomancer:190,biohazard:100,berserker:15,arcane:260,engineer:40,assassin:280}[id]||40;
+  const base={tracer:38,walker:135,gunner:152,cryomancer:188,biohazard:83,berserker:15,arcane:260,engineer:40,assassin:250}[id]||40;
   const value=`hue-rotate(${Math.round(hue-base)}deg) saturate(.8)`;filters.set(skin.id,value);return value;
  };
  const heroDraw=art.drawHero,portraitDraw=art.drawPortrait;
  art.drawHero=function(ctx,id,...args){ctx.save();ctx.filter=filterFor(id,game.meta?.getSelectedSkin(id));const result=heroDraw(ctx,id,...args);ctx.restore();return result;};
  art.drawPortrait=function(ctx,id,x,y,size,skinId){ctx.save();ctx.filter=filterFor(id,skinId??game.meta?.getSelectedSkin(id));const result=portraitDraw(ctx,id,x,y,size);ctx.restore();return result;};
- // Only presentation methods are replaced; input still uses the source hit rectangles.
+ // All panels use the same chipped stone and brass as the courtyard props.
+ const stone=(ctx,x,y,w,h,active=false)=>{
+  const cut=5;ctx.beginPath();ctx.moveTo(x+cut,y);ctx.lineTo(x+w-cut,y);ctx.lineTo(x+w,y+cut);ctx.lineTo(x+w,y+h-cut);ctx.lineTo(x+w-cut,y+h);ctx.lineTo(x+cut,y+h);ctx.lineTo(x,y+h-cut);ctx.lineTo(x,y+cut);ctx.closePath();
+  ctx.fillStyle='#1c2e23ed';ctx.fill();ctx.strokeStyle=active?'#b9a36f':'#78865c88';ctx.lineWidth=1;ctx.stroke();
+  ctx.strokeStyle='#a2ae7c33';ctx.beginPath();ctx.moveTo(x+cut+2,y+2);ctx.lineTo(x+w-cut-2,y+2);ctx.stroke();
+ };
+ const control=(ctx,key,cx,cy,label,cooldown)=>{
+  ctx.save();stone(ctx,cx-28,cy-28,56,56,cooldown<=0);
+  if(cooldown>0)ctx.globalAlpha=.28;art.drawIcon?.(ctx,key,cx-20,cy-22,40);ctx.globalAlpha=1;
+  ctx.textAlign='center';ctx.font='10px "Microsoft YaHei"';ctx.fillStyle='#c6bc92';ctx.fillText(label,cx,cy+43);
+  if(cooldown>0){ctx.font='17px Georgia,serif';ctx.fillStyle='#e5d5a1';ctx.fillText(Math.ceil(cooldown),cx,cy+6);}
+  ctx.restore();
+ };
  game._drawHUD=function(){
-  const c=this.ctx,p=this.player,w=this.width,narrow=w<600,bw=narrow?132:220,x=20,y=24;
-  c.save();c.fillStyle='#102019d9';c.fillRect(10,10,bw+26,91);
-  c.font='12px "Microsoft YaHei"';c.textAlign='left';c.fillStyle='#ddd6b8';
-  c.fillText(catalogs.characters[p.characterId]?.name||'守夜者',x,y+2);
-  c.textAlign='right';c.fillStyle='#b7c6a4';c.fillText(`${Math.ceil(p.hp)} / ${p.maxHp}`,x+bw,y+2);
-  c.fillStyle='#29392d';c.fillRect(x,y+13,bw,6);c.fillStyle=p.hp/p.maxHp<.3?'#c37e67':'#a6bb88';c.fillRect(x,y+13,bw*Math.max(0,p.hp/p.maxHp),6);
-  c.fillStyle='#29392d';c.fillRect(x,y+25,bw,3);c.fillStyle='#d5b57a';c.fillRect(x,y+25,bw*Math.min(1,p.xp/p.maxXp),3);
-  c.textAlign='left';c.font='10px "Microsoft YaHei"';c.fillStyle='#99ad8b';c.fillText(`第 ${p.level} 阶  ·  击败 ${p.kills}  ·  余烬 ${this.meta?.data.chips||0}`,x,y+45);
-  c.fillText(`护甲 ${p.armor||0} · 武器 ${p.weapons.length}/6 · 护符 ${p.passives.length}`,x,y+62);
+  const ctx=this.ctx,p=this.player,w=this.width,narrow=w<600,bw=narrow?119:184,x=70,y=24;
+  ctx.save();stone(ctx,10,10,bw+78,96);
+  art.drawPortrait(ctx,p.characterId,9,18,55);
+  ctx.font='13px "SimSun",serif';ctx.textAlign='left';ctx.fillStyle='#e0d7b3';ctx.fillText(catalogs.characters[p.characterId]?.name||'守夜者',x,y+3);
+  ctx.textAlign='right';ctx.font='10px Georgia,serif';ctx.fillStyle='#b8c5a0';ctx.fillText(`${Math.ceil(p.hp)} / ${p.maxHp}`,x+bw,y+3);
+  ctx.fillStyle='#0d1c13';ctx.fillRect(x,y+14,bw,7);ctx.fillStyle=p.hp/p.maxHp<.3?'#bd8568':'#a8bb86';ctx.fillRect(x,y+14,bw*Math.max(0,p.hp/p.maxHp),7);
+  ctx.strokeStyle='#71825777';ctx.strokeRect(x,y+14,bw,7);
+  ctx.fillStyle='#0d1c13';ctx.fillRect(x,y+26,bw,3);ctx.fillStyle='#c2a36a';ctx.fillRect(x,y+26,bw*Math.min(1,p.xp/p.maxXp),3);
+  ctx.textAlign='left';ctx.font='10px "Microsoft YaHei"';ctx.fillStyle='#a5b596';ctx.fillText(`第 ${p.level} 阶 · 击败 ${p.kills}`,x,y+47);
+  ctx.fillStyle='#b8aa7b';ctx.fillText(`护甲 ${p.armor||0} · 余烬 ${this.meta?.data.chips||0}`,x,y+64);
+  for(let i=0;i<p.weapons.length;i++)art.drawIcon?.(ctx,p.weapons[i].id,17+i*25,this.height-39,23);
   const buffs=[['_weaponSurge','焰盛'],['_speedBurst','疾风'],['_xpSurge','悟道'],['_armorBoost','坚壁'],['_drainField','汲魂'],['timeRift','迟暮'],['_densitySurge','黑潮']].filter(([id])=>this[id]?.timer>0);
-  c.fillStyle='#b6ab7c';c.fillText(buffs.map(([id,label])=>`${label} ${Math.ceil(this[id].timer)}秒`).join(' · '),20,this.height-23);
-  if(this.endlessMode){c.textAlign='right';c.fillText(`无尽守夜 · 第 ${this.endlessWave||1} 潮`,w-24,53);}
-  if(!narrow){c.textAlign='right';c.fillText('WASD 移动   SPACE 闪避   E 咏誓   P 暂歇',w-24,this.height-18);}
-  c.restore();this._drawDashButton(c);
+  ctx.fillStyle='#b6b78d';ctx.fillText(buffs.map(([id,label])=>`${label} ${Math.ceil(this[id].timer)}秒`).join(' · '),20,123);
+  if(!narrow){ctx.textAlign='center';ctx.fillStyle='#83956e';ctx.font='10px "Microsoft YaHei"';ctx.fillText('WASD 移动    SPACE 闪避    E 咏誓    P 暂歇',this.width/2,this.height-20);}
+  ctx.restore();this._drawDashButton(ctx);
  };
  game._drawPauseButton=function(){
-  const c=this.ctx,x=this.width-56,y=66,size=34;this.pauseBtnRect={x,y,w:size,h:size};
-  c.save();c.fillStyle='#14251dda';c.fillRect(x,y,size,size);c.strokeStyle='#9ca88077';c.lineWidth=1;c.strokeRect(x,y,size,size);
-  c.fillStyle='#d6c795';c.fillRect(x+12,y+10,3,14);c.fillRect(x+20,y+10,3,14);c.restore();
+  const ctx=this.ctx,x=this.width-55,y=73,size=34;this.pauseBtnRect={x,y,w:size,h:size};
+  ctx.save();stone(ctx,x,y,size,size);ctx.fillStyle='#d5c18c';ctx.fillRect(x+11,y+10,3,14);ctx.fillRect(x+20,y+10,3,14);ctx.restore();
  };
  game._drawBossEntrance=function(){
   const be=this._bossEntrance;if(!be||be.timer<=0)return;
-  const c=this.ctx,alpha=Math.min(1,be.timer*2,(1.5-be.timer)*4);c.save();c.globalAlpha=Math.max(0,alpha);
-  const w=Math.min(440,this.width-40),x=(this.width-w)/2,y=this.height*.34;
-  c.fillStyle='#102019ed';c.fillRect(x,y,w,119);c.strokeStyle='#c7ad7188';c.lineWidth=1;c.strokeRect(x,y,w,119);
-  c.textAlign='center';c.fillStyle='#a69d76';c.font='11px "Microsoft YaHei"';c.fillText('林间的强敌，已循火而来。',this.width/2,y+31);
-  c.font='26px "SimSun",serif';c.fillStyle='#e0c38c';c.fillText(be.name,this.width/2,y+77);c.restore();
+  const ctx=this.ctx,alpha=Math.min(1,be.timer*2,(1.5-be.timer)*4);ctx.save();ctx.globalAlpha=Math.max(0,alpha);
+  const w=Math.min(440,this.width-40),x=(this.width-w)/2,y=this.height*.34;stone(ctx,x,y,w,124,true);
+  art.drawIcon?.(ctx,'crown',this.width/2-15,y+10,30);
+  ctx.textAlign='center';ctx.fillStyle='#a4ad86';ctx.font='11px "Microsoft YaHei"';ctx.fillText('林间的强敌，已循火而来。',this.width/2,y+57);
+  ctx.font='25px "SimSun",serif';ctx.fillStyle='#e1cca0';ctx.fillText(be.name,this.width/2,y+94);ctx.restore();
  };
- game._drawDashButton=function(c){
-  const cx=this.width-53,cy=this.height-68,r=28,p=this.player;
-  this.dashBtnRect={x:cx-r,y:cy-r,w:r*2,h:r*2,cx,cy,r};
-  c.save();c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fillStyle='#14251ddd';c.fill();c.strokeStyle=p.dashCooldown<=0?'#d5b57a':'#6f7e64';c.lineWidth=1;c.stroke();
-  c.fillStyle='#d5c69d';c.textAlign='center';c.font='13px "Microsoft YaHei"';c.fillText(p.dashCooldown>0?`${Math.ceil(p.dashCooldown)}秒`:'闪避',cx,cy+5);c.restore();
+ game._drawDashButton=function(ctx){
+  const cx=this.width-53,cy=this.height-64,r=28;this.dashBtnRect={x:cx-r,y:cy-r,w:r*2,h:r*2,cx,cy,r};
+  control(ctx,'feather',cx,cy,'闪避',this.player.dashCooldown);
+ };
+ if(catalogs.weaponType&&art.drawArea){
+  catalogs.weaponType.prototype.drawGroundEffects=function(ctx){
+   for(const pool of this._firePools)art.drawArea(ctx,pool.x,pool.y,pool.radius,'#ff6600',this.game.time);
+   for(const pool of this._acidPools)art.drawArea(ctx,pool.x,pool.y,pool.radius,pool.isHolyWater?'#88ddff':'#88ff00',this.game.time);
+  };
+  catalogs.weaponType.prototype.drawEffects=function(ctx){
+   const p=this.game.player;if(!p)return;
+   for(const clone of this._clones){const x=p.x+Math.cos(clone.angle)*clone.dist,y=p.y+Math.sin(clone.angle)*clone.dist;art.drawHero(ctx,p.characterId,x,y,13,clone.angle,true,this.game.time,.28);}
+   for(const orb of this._orbList)art.drawProjectile(ctx,orb.x,orb.y,orb.radius,'#88ddff','crystal',this.game.time*.4,this.evolved);
+  };
+ }
+ if(catalogs.petType&&art.drawCompanion)catalogs.petType.prototype.draw=function(ctx){art.drawCompanion(ctx,this);};
+ if(art.pigment&&game.particles)game.particles.draw=function(ctx){
+  ctx.save();ctx.globalCompositeOperation='source-over';
+  for(const p of this.particles){const t=Math.max(0,p.life/p.maxLife),size=p.sizeEnd+(p.size-p.sizeEnd)*t;ctx.globalAlpha=t*.85;ctx.fillStyle=art.pigment(p.color).main;
+   const angle=Math.atan2(p.vy,p.vx),dx=Math.cos(angle)*size,dy=Math.sin(angle)*size;
+   ctx.beginPath();ctx.moveTo(p.x+dx*2,p.y+dy*2);ctx.lineTo(p.x-dy*.6,p.y+dx*.6);ctx.lineTo(p.x-dx,p.y-dy);ctx.lineTo(p.x+dy*.6,p.y-dx*.6);ctx.closePath();ctx.fill();}
+  ctx.restore();
  };
  const damageText=game.spawnDamageNumber.bind(game);
  game.spawnDamageNumber=function(x,y,value,...args){return damageText(x,y,typeof value==='string'?text(value):value,...args);};
@@ -108,10 +137,18 @@ export function installWebHUD(runtime){
   }
   if(this.skillSystem&&!this.skillSystem._webThemed){
    this.skillSystem._webThemed=true;
-   this.skillSystem.draw=function(c,w,h){
-    if(!this.skillDef)return;const cx=w-53,cy=h-140,r=28;this.btnRect={x:cx-r,y:cy-r,w:r*2,h:r*2};
-    c.save();c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fillStyle='#14251ddd';c.fill();c.strokeStyle=this.cooldown<=0?'#d5b57a':'#6f7e64';c.lineWidth=1;c.stroke();
-    c.fillStyle='#d5c69d';c.textAlign='center';c.font='13px "Microsoft YaHei"';c.fillText(this.cooldown>0?`${Math.ceil(this.cooldown)}秒`:'咏誓',cx,cy+5);c.restore();
+   this.skillSystem.draw=function(ctx,w,h){
+    if(!this.skillDef)return;const cx=w-53,cy=h-146,r=28;this.btnRect={x:cx-r,y:cy-r,w:r*2,h:r*2};
+    control(ctx,game.player.characterId,cx,cy,'咏誓',this.cooldown);
+   };
+  }
+  if(this.stageSystem&&!this.stageSystem._webArt){
+   this.stageSystem._webArt=true;
+   this.stageSystem._drawStageHUD=function(ctx,w,h){
+    const cfg=catalogs.stages[this.currentStage];if(!cfg)return;const left=Math.max(0,cfg.duration-this.stageTime),bw=w<600?131:188,x=w-bw-12;
+    ctx.save();stone(ctx,x,10,bw,49);ctx.textAlign='left';ctx.fillStyle='#d7ca9e';ctx.font='12px "SimSun",serif';ctx.fillText(this.game.endlessMode?'无尽守夜':cfg.name,x+10,30);
+    ctx.textAlign='right';ctx.fillStyle='#a0b18e';ctx.font='10px Georgia,serif';ctx.fillText(this.game.endlessMode?`第 ${this.game.endlessWave||1} 潮`:`${Math.floor(left/60)}:${String(Math.floor(left%60)).padStart(2,'0')}`,x+bw-10,30);
+    ctx.fillStyle='#0e1e15';ctx.fillRect(x+10,41,bw-20,3);ctx.fillStyle='#a59763';ctx.fillRect(x+10,41,(bw-20)*Math.min(1,this.stageTime/cfg.duration),3);ctx.restore();
    };
   }
   return originalDraw();
