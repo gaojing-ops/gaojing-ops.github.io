@@ -1,3 +1,4 @@
+import {getMap} from './maps.js';
 import {RAIDER_REFERENCE} from './raider-reference.js';
 export {RAIDER_REFERENCE};
 export const SEASON={name:'至暗之夜 · 第 2 赛季',region:'国服正式服',asOf:'2026-10-30',source:'https://wow.blizzard.cn/news/24294369/index.html'};
@@ -12,8 +13,8 @@ const BASE_DUNGEONS=[
  {id:'ruby',name:'红玉新生法池',theme:'熔火与龙焰',color:'#ef9a77',floor:'#35251f',hazard:'fire',bosses:['红玉守卫','熔火统领','龙焰化身']}
 ];
 const RIO_SLUGS={fangs:'altar-of-fangs',murder:'murder-row',nalorakk:'den-of-nalorakk',vale:'the-blinding-vale',arena:'voidscar-arena',kings:'kings-rest',temple:'temple-of-sethraliss',ruby:'ruby-life-pools'};
-export const DUNGEONS=BASE_DUNGEONS.map(d=>{const reference=RAIDER_REFERENCE.dungeons.find(r=>r.slug===RIO_SLUGS[d.id]);return {...d,rioSlug:reference.slug,referenceTimer:reference.keystone_timer_seconds,gameTimer:Math.round(reference.keystone_timer_seconds/10)};});
-// Dungeon names follow the published rotation. Encounters, routes and numerical rules are original compact adaptations.
+export const DUNGEONS=BASE_DUNGEONS.map(d=>{const reference=RAIDER_REFERENCE.dungeons.find(r=>r.slug===RIO_SLUGS[d.id]);return {...d,bosses:getMap(d.id).bosses,rioSlug:reference.slug,referenceTimer:reference.keystone_timer_seconds,gameTimer:Math.round(reference.keystone_timer_seconds/10)};});
+// Atlas and boss positions follow the retained game-map reference; combat numbers remain compact adaptations.
 export const SPECS=[
  {id:'paladin-holy',job:'圣骑士',name:'神圣',role:'heal',color:'#eea5ca',mark:'圣',hp:330,power:36,armor:.23,skill:'圣光震击',kind:'burstheal'},
  {id:'warrior-arms',job:'战士',name:'武器',role:'dps',color:'#c4a078',mark:'战',hp:345,power:53,armor:.24,skill:'巨人打击',kind:'burst'},

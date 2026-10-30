@@ -1,5 +1,5 @@
+import {getMap} from './maps.js';
 import {DUNGEONS,SPECS,QUALITIES,SLOTS,affixes,stats,spec,validateTeam} from './data.js';
-export const ROUTE=[{x:120,y:140},{x:320,y:140},{x:520,y:140},{x:720,y:140},{x:720,y:340},{x:520,y:340},{x:320,y:340},{x:120,y:340},{x:120,y:540},{x:320,y:540},{x:520,y:540},{x:720,y:540}];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function move(a,b,speed,dt){const d=distance(a,b);if(d>1){const step=Math.min(d,speed*dt);a.x+=(b.x-a.x)/d*step;a.y+=(b.y-a.y)/d*step;}}
@@ -7,23 +7,24 @@ export class Run{
  constructor({team,dungeon,level=2,equipment={},seed=Date.now()>>>0,id}={}){
   if(!validateTeam(team))throw new Error('队伍需要 1 坦克、1 治疗、3 输出，专精不能重复');
   if(!DUNGEONS.some(d=>d.id===dungeon))throw new Error('请选择有效副本');
-  this.version=1;this.id=id||`run-${Date.now()}-${seed}`;this.seed=seed||1;this.dungeon=dungeon;this.level=clamp(Math.floor(level),2,20);this.elapsed=0;this.penalty=0;this.limit=DUNGEONS.find(d=>d.id===dungeon).gameTimer;this.phase='walking';this.paused=false;this.index=0;this.wipes=0;this.reviveTimer=0;this.enemies=[];this.hazards=[];this.effects=[];this.log=[];this.metrics={deaths:0,kills:0,bosses:0,interrupts:0,dodges:0};this.bossNames=DUNGEONS.find(d=>d.id===dungeon).bosses;this.result=null;this.saveClock=0;
-  this.heroes=team.map((id,i)=>{const values=stats(id,equipment[id]);return {id,...values,hp:values.maxHp,x:75-i*8,y:140+(i-2)*14,attackCd:i*.12,skillCd:i*.5,interruptCd:0,tauntCd:0,shield:0,shieldTime:0,dead:false,damage:0,healing:0,casts:0,flash:0};});
+  this.version=2;this.pathCursor=0;this.transportedIndex=-1;this.id=id||`run-${Date.now()}-${seed}`;this.seed=seed||1;this.dungeon=dungeon;this.level=clamp(Math.floor(level),2,20);this.elapsed=0;this.penalty=0;this.limit=DUNGEONS.find(d=>d.id===dungeon).gameTimer;this.phase='walking';this.paused=false;this.index=0;this.wipes=0;this.reviveTimer=0;this.enemies=[];this.hazards=[];this.effects=[];this.log=[];this.metrics={deaths:0,kills:0,bosses:0,interrupts:0,dodges:0};this.bossNames=DUNGEONS.find(d=>d.id===dungeon).bosses;this.result=null;this.saveClock=0;
+  this.heroes=team.map((id,i)=>{const values=stats(id,equipment[id]);return {id,...values,hp:values.maxHp,x:getMap(dungeon).entrance.x-i*8,y:getMap(dungeon).entrance.y+(i-2)*7,attackCd:i*.12,skillCd:i*.5,interruptCd:0,tauntCd:0,shield:0,shieldTime:0,dead:false,damage:0,healing:0,casts:0,flash:0};});
   this.addLog('小队集结，开始自动探索。');
  }
  random(){let x=this.seed|0;x^=x<<13;x^=x>>>17;x^=x<<5;this.seed=x>>>0;return this.seed/4294967296;}
  addLog(message){this.log.unshift({time:this.elapsed,text:message});this.log=this.log.slice(0,40);}
  effect(x,y,text,color='#e9c888'){this.effects.push({x,y,text,color,life:1.1});if(this.effects.length>60)this.effects.shift();}
- get boss(){return this.index%4===3;}
- get currentName(){return this.boss?this.bossNames[Math.floor(this.index/4)]:`巡逻队 ${this.index+1-Math.floor(this.index/4)}`;}
+ get route(){return getMap(this.dungeon).route;}
+ get boss(){return this.route[this.index]?.kind==='boss';}
+ get currentName(){return this.boss?this.route[this.index].display:this.route[this.index]?.area||'远征结束';}
  get clock(){return this.elapsed+this.penalty;}
- get progress(){return Math.min(100,Math.round((this.index+(this.phase==='combat'?.2:0))/12*100));}
+ get progress(){return Math.min(100,Math.round((this.index+(this.phase==='combat'?.2:0))/this.route.length*100));}
  spawn(){
-  const point=ROUTE[this.index],scale=Math.pow(1.13,this.level-2),fortified=this.level>=4?1.16:1,tyrannical=this.level>=7?1.2:1;
+  const point=this.route[this.index],scale=Math.pow(1.13,this.level-2),fortified=this.level>=4?1.16:1,tyrannical=this.level>=7?1.2:1;
   const count=this.boss?1:3+(this.index%2);this.enemies=[];
   for(let i=0;i<count;i++){
    const kind=this.boss?'boss':i===count-1?'caster':'melee';const hp=(this.boss?5000:430)*scale*(this.boss?tyrannical:fortified);
-   this.enemies.push({id:`${this.index}-${i}`,kind,name:this.boss?this.currentName:kind==='caster'?'秘法施术者':'巡逻卫士',maxHp:hp,hp,x:point.x+Math.cos(i*2)*36,y:point.y+Math.sin(i*2)*36,attackCd:.8+i*.25,castCd:this.boss?2:1+i*.25,cast:null,threat:{[this.heroes[0].id]:120},target:this.heroes[0].id,flash:0});
+   this.enemies.push({id:`${this.index}-${i}`,kind,name:this.boss?this.currentName:(point.enemies?.[i%point.enemies.length]||'巡逻卫士'),maxHp:hp,hp,x:point.x+Math.cos(i*2)*36,y:point.y+Math.sin(i*2)*36,attackCd:.8+i*.25,castCd:this.boss?2:1+i*.25,cast:null,threat:{[this.heroes[0].id]:120},target:this.heroes[0].id,flash:0});
   }
   this.phase='combat';this.addLog(this.boss?`首领战：${this.currentName}`:`遭遇 ${count} 个敌人。`);
  }
@@ -46,13 +47,17 @@ export class Run{
   if(this.paused||this.result)return;dt=clamp(dt,0,.1);this.elapsed+=dt;
   this.effects=this.effects.filter(e=>(e.life-=dt)>0);for(const h of this.heroes){h.flash=Math.max(0,h.flash-dt);h.attackCd-=dt;h.skillCd-=dt;h.interruptCd=Math.max(0,h.interruptCd-dt);h.tauntCd=Math.max(0,h.tauntCd-dt);h.shieldTime-=dt;if(h.shieldTime<=0)h.shield=0;}
   if(this.elapsed>360){this.finish(false,'远征超过 6 分钟，小队撤离。');return;}
-  if(this.phase==='recovering'){this.reviveTimer-=dt;if(this.reviveTimer<=0){for(const h of this.heroes){h.dead=false;h.hp=h.maxHp;h.shield=0;h.x=ROUTE[Math.max(0,this.index-1)].x-60;h.y=ROUTE[Math.max(0,this.index-1)].y;}this.phase='walking';this.addLog('小队复活，重新集结。');}return;}
+  if(this.phase==='recovering'){this.reviveTimer-=dt;if(this.reviveTimer<=0){for(const h of this.heroes){h.dead=false;h.hp=h.maxHp;h.shield=0;h.x=this.route[Math.max(0,this.index-1)].x-60;h.y=this.route[Math.max(0,this.index-1)].y;}this.pathCursor=0;this.transportedIndex=-1;this.phase='walking';this.addLog('小队复活，重新集结。');}return;}
   if(this.phase==='walking'){
-   const point=ROUTE[this.index];for(const [i,h] of this.heroes.entries()){if(h.dead){h.dead=false;h.hp=h.maxHp*.35;}h.hp=Math.min(h.maxHp,h.hp+h.maxHp*.07*dt);move(h,{x:point.x-55-(i===0?0:30),y:point.y+(i-2)*16},92,dt);}
-   if(distance(this.heroes[0],{x:point.x-55,y:point.y-32})<5)this.spawn();return;
+   const node=this.route[this.index];
+   if(node.transport&&this.transportedIndex!==this.index){this.transportedIndex=this.index;for(const [i,h] of this.heroes.entries()){h.x=node.transport.x-i*5;h.y=node.transport.y+(i-2)*5;}this.addLog(node.transport.label);}
+   const path=[...node.via,node],point=path[this.pathCursor]||node,leader=this.heroes[0];
+   const angle=Math.atan2(point.y-leader.y,point.x-leader.x);
+   for(const [i,h] of this.heroes.entries()){if(h.dead){h.dead=false;h.hp=h.maxHp*.35;}h.hp=Math.min(h.maxHp,h.hp+h.maxHp*.07*dt);const behind=i*7;move(h,{x:point.x-Math.cos(angle)*behind,y:point.y-Math.sin(angle)*behind+(i%2?4:-4)},112,dt);}
+   if(distance(leader,{x:point.x,y:point.y-4})<5){this.pathCursor++;if(this.pathCursor>=path.length){this.pathCursor=0;this.spawn();}}return;
   }
   for(const hero of this.heroes){
-   if(hero.dead)continue;const info=spec(hero.id),point=ROUTE[this.index];
+   if(hero.dead)continue;const info=spec(hero.id),point=this.route[this.index];
    const hazard=this.hazards.find(z=>z.life>0&&distance(hero,z)<z.r+12);
    const formation={x:point.x-(info.role==='tank'?35:info.role==='heal'?105:75),y:point.y+(this.heroes.indexOf(hero)-2)*24};
    if(hazard){const angle=Math.atan2(hero.y-hazard.y,hero.x-hazard.x);move(hero,{x:hazard.x+Math.cos(angle)*(hazard.r+30),y:hazard.y+Math.sin(angle)*(hazard.r+30)},155*(1+hero.haste),dt);}else move(hero,formation,75,dt);
@@ -78,7 +83,7 @@ export class Run{
   for(const hazard of this.hazards){hazard.life-=dt;if(hazard.life<=0&&!hazard.resolved){hazard.resolved=true;for(const h of this.heroes)if(!h.dead){if(distance(h,hazard)<hazard.r)this.hurt(h,hazard.damage*scale);else this.metrics.dodges++;}this.effect(hazard.x,hazard.y,hazard.label,'#ed9e83');}}
   this.hazards=this.hazards.filter(z=>z.life>0);
   if(this.heroes.every(h=>h.dead)){this.wipes++;this.hazards=[];if(this.wipes>=3)this.finish(false,'连续三次团灭，小队撤离。');else{this.phase='recovering';this.reviveTimer=6;this.addLog('团灭：6 秒后复活，重新挑战本组敌人。');}return;}
-  if(this.enemies.every(e=>e.hp<=0)){this.hazards=[];this.enemies=[];this.addLog(this.boss?'首领已击败。':'战斗结束，继续前进。');this.index++;if(this.index>=ROUTE.length)this.finish(true,'所有首领已击败。');else this.phase='walking';}
+  if(this.enemies.every(e=>e.hp<=0)){this.hazards=[];this.enemies=[];this.addLog(this.boss?'首领已击败。':'战斗结束，继续前进。');this.index++;this.pathCursor=0;if(this.index>=this.route.length)this.finish(true,'所有首领已击败。');else this.phase='walking';}
  }
  bossMechanic(enemy){
   const dungeon=DUNGEONS.find(d=>d.id===this.dungeon),living=this.heroes.filter(h=>!h.dead);const focus=living[Math.floor(this.random()*living.length)];if(!focus)return;
@@ -98,14 +103,15 @@ export class Run{
  finish(success,reason){if(this.result)return;const inTime=this.clock<=this.limit;const upgrade=success&&inTime?(this.clock<this.limit*.65?3:this.clock<this.limit*.8?2:1):0;this.phase=success?'complete':'failed';this.result={id:this.id,dungeon:this.dungeon,level:this.level,success,inTime,upgrade,time:this.elapsed,penalty:this.penalty,reason,metrics:{...this.metrics},heroes:this.heroes.map(h=>({id:h.id,damage:Math.round(h.damage),healing:Math.round(h.healing),casts:h.casts})),loot:success?this.loot():[],date:new Date().toISOString()};this.addLog(success?'通关！打开宝箱查看战利品。':reason);}
  serialize(){return JSON.parse(JSON.stringify(this));}
  static restore(data){
-  if(!data||data.version!==1||!validateTeam(data.heroes?.map(h=>h.id))||!DUNGEONS.some(d=>d.id===data.dungeon)||!Number.isInteger(data.index)||data.index<0||data.index>12)throw new Error('远征存档格式无效');
-  if(!['walking','combat','recovering','complete','failed'].includes(data.phase)||!data.metrics||typeof data.id!=='string'||data.level<2||data.level>20||data.limit<=0||data.heroes.some(h=>h.maxHp<=0)||(!data.result&&data.index===12))throw new Error('远征状态无效');
+  if(!data||data.version!==2||!validateTeam(data.heroes?.map(h=>h.id))||!DUNGEONS.some(d=>d.id===data.dungeon)||!Number.isInteger(data.index)||data.index<0||data.index>getMap(data.dungeon).route.length)throw new Error('远征存档格式无效');
+  if(!['walking','combat','recovering','complete','failed'].includes(data.phase)||!data.metrics||typeof data.id!=='string'||data.level<2||data.level>20||data.limit<=0||data.heroes.some(h=>h.maxHp<=0)||(!data.result&&data.index===getMap(data.dungeon).route.length))throw new Error('远征状态无效');
   if(JSON.stringify(data).length>1500000)throw new Error('远征存档过大');
-  for(const key of ['elapsed','penalty','limit','level','seed','wipes'])if(!Number.isFinite(data[key])||data[key]<0)throw new Error('远征存档数值无效');
+  for(const key of ['elapsed','penalty','limit','level','seed','wipes','pathCursor'])if(!Number.isFinite(data[key])||data[key]<0)throw new Error('远征存档数值无效');
   for(const key of ['enemies','hazards','effects','log'])if(!Array.isArray(data[key])||data[key].length>100)throw new Error('远征存档结构无效');
   for(const hero of data.heroes)for(const key of ['hp','maxHp','power','armor','haste','crit','x','y','attackCd','skillCd','interruptCd','tauntCd','shield','shieldTime','damage','healing','casts','flash'])if(!Number.isFinite(hero[key]))throw new Error('队员存档损坏');
   for(const enemy of data.enemies){for(const key of ['hp','maxHp','x','y','attackCd','castCd'])if(!Number.isFinite(enemy[key]))throw new Error('敌人存档损坏');if(!enemy.threat||typeof enemy.threat!=='object')throw new Error('仇恨存档损坏');}
   for(const z of data.hazards)for(const key of ['x','y','r','life','max','damage'])if(!Number.isFinite(z[key]))throw new Error('预警存档损坏');
+  if(!Number.isInteger(data.pathCursor)||data.pathCursor<0||!Number.isInteger(data.transportedIndex))throw new Error('路线进度无效');
   const run=Object.assign(Object.create(Run.prototype),JSON.parse(JSON.stringify(data)));run.paused=true;return run;
  }
 }
