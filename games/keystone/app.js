@@ -1,0 +1,119 @@
+import {DUNGEONS,SPECS,DEFAULT_TEAM,ROLES,SLOTS,QUALITIES,SEASON,spec,stats,affixes,itemScore,validateTeam,RAIDER_REFERENCE,REFERENCE_TEAM} from './data.js';
+import {Run,ROUTE} from './engine.js';
+import {load,save,equip,autoEquip,settle,BAG_LIMIT} from './storage.js';
+const $=id=>document.getElementById(id),esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=t=>`${String(Math.floor(Math.max(0,t)/60)).padStart(2,'0')}:${String(Math.floor(Math.max(0,t)%60)).padStart(2,'0')}`;
+const loaded=load(localStorage);let profile=loaded.profile,run=null,gearHero=profile.team[0],toastTimer=0,lastFrame=0,uiClock=0,saveClock=0,repeatCountdown=null,lastLog='',storageFailed=false;
+const canvas=$('battle'),ctx=canvas.getContext('2d');let view={w:900,h:395,dpr:1},camera={x:400,y:300},dialogKind='',modalPaused=false;
+const active=()=>!!run&&!run.result;
+function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3600);}
+function persist(){profile.checkpoint=active()?run.serialize():null;if(!save(localStorage,profile)){if(!storageFailed)toast('浏览器未能保存进度，请检查存储空间。当前页面仍可游玩。');storageFailed=true;return false;}return true;}
+function initSetup(){
+ $('team-selects').innerHTML=profile.team.map((id,i)=>{const role=i===0?'tank':i===1?'heal':'dps';return `<div class="team-slot"><span class="role-symbol">${role==='tank'?'盾':role==='heal'?'＋':'刃'}</span><div><label for="team-${i}">${i+1} / ${ROLES[role]}</label><select id="team-${i}" data-team="${i}">${SPECS.filter(s=>s.role===role).map(s=>`<option value="${s.id}" ${s.id===id?'selected':''}>${s.job} · ${s.name}</option>`).join('')}</select></div></div>`;}).join('');
+ $('dungeon-select').innerHTML=DUNGEONS.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');if(!DUNGEONS.some(d=>d.id===profile.dungeon))profile.dungeon='fangs';$('dungeon-select').value=profile.dungeon;updateKeys();$('repeat').checked=profile.settings.repeat;$('speed').value=profile.settings.speed;
+}
+function updateKeys(){profile.key=Math.min(profile.key,profile.maxKey);$('key-select').innerHTML=Array.from({length:profile.maxKey-1},(_,i)=>`<option value="${i+2}">+${i+2} 层</option>`).join('');$('key-select').value=profile.key;$('unlocked-key').textContent=`已解锁至 +${profile.maxKey}`;updateDungeon();}
+function updateDungeon(){const d=DUNGEONS.find(d=>d.id===profile.dungeon);$('dungeon-theme').textContent=d.theme+' · 正式服时限 '+fmt(d.referenceTimer)+' → 本版 '+fmt(d.gameTimer);$('affixes').innerHTML=affixes(profile.key).map(a=>`<span class="affix">${a}</span>`).join('')||'<span class="muted">低层探索 · 熟悉队伍配合</span>';}
+function startRun(automatic=false){
+ if(active()){toast('请先完成当前远征；刷新后也可继续进度。');return;}
+ const team=Array.from(document.querySelectorAll('[data-team]')).map(e=>e.value);if(!validateTeam(team)){toast('请选择 1 坦克、1 治疗、3 位不同专精的输出。');return;}
+ if(profile.bag.length>BAG_LIMIT-3){profile.settings.repeat=false;$('repeat').checked=false;toast('背包剩余空间不足 3 格，请先穿戴或分解装备。');persist();return;}
+ profile.team=team;run=new Run({team,dungeon:profile.dungeon,level:profile.key,equipment:profile.equipment});repeatCountdown=null;lastLog='';$('result').hidden=true;modalPaused=false;persist();renderUI();
+ if(!automatic)$('battle').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function completed(){
+ if(!run?.result||profile.completed.includes(run.id))return;
+ if(!settle(profile,run.result)){toast('无法领取战利品：背包空间不足。请先整理背包。');return;}
+ if(run.result.success&&profile.settings.repeat&&profile.bag.length<=BAG_LIMIT-3)repeatCountdown=8;else if(!run.result.success||profile.bag.length>BAG_LIMIT-3){profile.settings.repeat=false;$('repeat').checked=false;}
+ updateKeys();persist();renderResult();if(!profile.settings.repeat)$('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderParty(){
+ const heroes=run?.heroes||profile.team.map(id=>({id,...stats(id,profile.equipment[id]),hp:stats(id,profile.equipment[id]).maxHp,dead:false}));
+ $('party').innerHTML=heroes.map(h=>{const s=spec(h.id);return `<article class="hero-card ${h.dead?'dead':''}" style="--class-color:${s.color}" title="${esc(s.job+' · '+s.name+' / '+s.skill)}"><div class="hero-head"><span class="portrait">${s.mark}</span><div><strong>${s.job}</strong><small>${s.name} · ${ROLES[s.role]}</small></div></div><div class="hp-track"><i style="width:${Math.max(0,h.hp/h.maxHp*100)}%"></i></div><div class="hero-foot"><span>${h.dead?'等待复活':Math.ceil(h.hp)+' / '+Math.round(h.maxHp)}</span><b>装等 ${h.ilvl||0}</b></div></article>`;}).join('');
+ const max=Math.max(1,...heroes.map(h=>spec(h.id).role==='heal'?h.healing||0:h.damage||0));
+ $('meters').innerHTML=heroes.map(h=>{const s=spec(h.id),n=s.role==='heal'?h.healing||0:h.damage||0;return `<div class="meter-line" style="--class-color:${s.color}"><span>${s.job}${s.role==='heal'?' 治疗':''}</span><div class="track"><i style="width:${n/max*100}%"></i></div><b>${Math.round(n).toLocaleString()}</b></div>`;}).join('');
+}
+function renderUI(){
+ const running=active();document.querySelector('.setup').classList.toggle('is-running',running);
+ for(const select of document.querySelectorAll('[data-team],#dungeon-select,#key-select'))select.disabled=running;
+ $('start').disabled=running;$('resume').hidden=!running||!run.paused;$('resume').textContent='继续远征 · '+fmt(run?.elapsed||0);
+ $('pause').disabled=!running;$('pause').textContent=run?.paused?'继续':'暂停';$('idle-note').hidden=!!run;$('pause-note').hidden=!running||!run.paused;
+ $('reference-team').disabled=running;
+ $('bag-count').textContent=`${profile.bag.length}/${BAG_LIMIT}`;
+ if(run){const d=DUNGEONS.find(d=>d.id===run.dungeon);$('dungeon-label').textContent=`${SEASON.name} · ${d.theme}`;$('run-title').textContent=`${d.name} · +${run.level}`;$('timer').textContent=fmt(run.clock);$('time-limit').textContent='/ '+fmt(run.limit);$('timer').style.color=run.clock>run.limit?'#e79b8b':'';$('penalty').textContent=run.penalty?`含死亡惩罚 +${run.penalty}s`:'';
+ const phase=run.paused&&running?'暂停 · 随时继续':({walking:'自动行进中',combat:run.boss?'首领战':'小队交战中',recovering:`复活集结 · ${Math.ceil(run.reviveTimer)}s`,complete:run.result?.inTime?'限时通关':'超时完成',failed:'远征结束'})[run.phase];$('phase').textContent=phase;
+ $('enemy-progress').textContent=run.progress+'%';$('progress-fill').style.width=run.progress+'%';$('boss-progress').textContent=run.metrics.bosses+' / 3';$('encounter').textContent=run.result?'远征已结算':`${run.index+1} / 12 · ${run.currentName}`;$('death-count').textContent=`死亡 ${run.metrics.deaths} · 团灭 ${run.wipes}`;
+ const signature=run.log[0]?.time+'-'+run.log[0]?.text;if(lastLog!==signature){lastLog=signature;$('log').innerHTML=run.log.slice(0,12).map(l=>`<p><time>${fmt(l.time)}</time>${esc(l.text)}</p>`).join('');}
+ }
+ renderParty();if(run?.result&&repeatCountdown!==null){const next=$('repeat-status');if(next)next.textContent=`${Math.ceil(repeatCountdown)} 秒后再次挑战同一副本与层数`;} }
+function itemCard(item,{actions=true,loot=false}={}){
+ const q=QUALITIES[item.quality],inBag=profile.bag.some(i=>i.id===item.id),compatible=item.role==='all'||item.role===spec(gearHero).role,old=profile.equipment[gearHero]?.[item.slot],delta=itemScore(item,gearHero)-Math.max(0,itemScore(old,gearHero));
+ return `<article class="item-card" style="--quality:${q.color}"><span class="item-level">${item.ilvl}</span><strong>${esc(item.name)}</strong><small>${q.name} · ${SLOTS[item.slot]} · ${item.role==='all'?'通用':ROLES[item.role]+'专用'}</small><small>强度 +${item.power} · 生命 +${item.stamina}</small><small>急速 +${(item.haste*100).toFixed(1)}% · 暴击 +${(item.crit*100).toFixed(1)}%</small>${actions?`<div class="item-compare ${!compatible||delta<=0?'down':''}">${compatible?(old?'替换 '+esc(old.name)+'：':'当前部位未装备：')+'推荐分 '+(delta>=0?'+':'')+delta.toFixed(1):'所选队员无法使用此装备'}</div><button data-equip="${esc(item.id)}" ${!inBag||!compatible||active()?'disabled':''}>${!inBag?'已分配':active()?'战斗结束后穿戴':'给'+esc(spec(gearHero).job)+'穿戴'}</button>${!loot&&inBag?`<button data-salvage="${esc(item.id)}" ${active()?'disabled':''}>分解此件</button>`:''}`:''}</article>`;
+}
+function renderResult(){
+ if(!run?.result)return;const r=run.result;$('result').hidden=false;
+ $('result').innerHTML=`<p class="eyebrow">EXPEDITION COMPLETE</p><div class="result-top"><h2>${r.success?(r.inTime?'钥石升阶，满载而归。':'跨过终点，也有收获。'):'整装，再赴秘境。'}</h2><span class="badge">${r.success?(r.inTime?'钥石 +'+r.upgrade:'超时完成'):'挑战失败'}</span></div><p>用时 ${fmt(r.time+r.penalty)} · 死亡 ${r.metrics.deaths} · 打断 ${r.metrics.interrupts} · 成功避让 ${r.metrics.dodges}<br>${r.success?'战利品已放入背包，可分配给队员。':'本次没有装备掉落。可以调整阵容、装备或降低层数后再试。'}</p>${r.loot.length?`<div class="loot-grid">${r.loot.map(i=>itemCard(i,{actions:false})).join('')}</div>`:''}<div class="result-actions"><button data-action="bag">分配装备 / 一键推荐</button><button data-action="again">再次挑战 +${r.level}</button><button data-action="upgrade" ${r.upgrade?'':'disabled'}>挑战 +${Math.min(20,r.level+r.upgrade)}</button><button data-action="camp">返回配置</button></div><p id="repeat-status">${repeatCountdown!==null?Math.ceil(repeatCountdown)+' 秒后再次挑战同一副本与层数':'可在左侧勾选连续刷本，解放双手。'}</p>`;
+}
+function pauseForDialog(){modalPaused=active()&&!run.paused;if(modalPaused){run.paused=true;persist();}repeatCountdown=null;}
+function openDialog(kind){pauseForDialog();dialogKind=kind;const title={bag:'队伍装备与背包',history:'远征记录',help:'队长手记'};$('dialog-title').textContent=title[kind];$('dialog-tag').textContent=kind==='bag'?'YOUR COLLECTION':kind==='history'?'YOUR EXPEDITIONS':'HOW IT WORKS';fillDialog();$('dialog').showModal();renderUI();}
+function fillDialog(){
+ if(dialogKind==='bag'){
+  const equipped=profile.equipment[gearHero]||{};const values=stats(gearHero,equipped);
+  $('dialog-body').innerHTML=`<div class="bag-toolbar"><label>分配给 <select id="gear-hero">${profile.team.map(id=>`<option value="${id}" ${id===gearHero?'selected':''}>${spec(id).job} · ${spec(id).name}</option>`).join('')}</select></label><button data-action="autoequip" ${active()?'disabled':''}>全队一键推荐穿戴</button><span class="muted">背包 ${profile.bag.length}/${BAG_LIMIT}</span></div><p class="subtle">${active()?'远征中可以查看装备，结束后可换装。':'按职业匹配后比较综合推荐分；一键穿戴会优先分配给队伍中靠前的成员。'}装备永久保存在当前浏览器。</p><p>生命 ${Math.round(values.maxHp)} · 强度 ${Math.round(values.power)} · 平均装等 ${values.ilvl}</p><div class="gear-grid">${Object.entries(SLOTS).map(([slot,name])=>`<div class="gear-slot"><small>${name}</small><strong style="color:${equipped[slot]?QUALITIES[equipped[slot].quality].color:'#62768d'}">${equipped[slot]?esc(equipped[slot].name):'尚未装备'}</strong><small>${equipped[slot]?'装等 '+equipped[slot].ilvl:'等待下一次掉落'}</small></div>`).join('')}</div><h3>收藏 ${profile.bag.length} 件装备</h3><div class="bag-grid">${profile.bag.length?profile.bag.map(i=>itemCard(i)).join(''):'<p class="empty">背包空空，去完成一场远征吧。</p>'}</div>`;
+ }else if(dialogKind==='history'){
+  $('dialog-body').innerHTML=`<p>完成 ${profile.runs} 场 · 通关 ${profile.wins} 场 · 最高解锁 +${profile.maxKey}</p>${profile.history.map(r=>`<article class="history-card"><h3>${esc(DUNGEONS.find(d=>d.id===r.dungeon)?.name||'秘境')} · +${r.level} · ${r.success?(r.inTime?'限时通关':'超时完成'):'未通关'}</h3><p>${fmt(r.time+(r.penalty||0))} · ${esc(new Date(r.date).toLocaleString('zh-CN'))} · 掉落 ${(r.loot||[]).length} 件</p><details><summary>查看队伍贡献与掉落</summary>${(r.heroes||[]).filter(h=>spec(h.id)).map(h=>`<p>${spec(h.id).job} · ${spec(h.id).name}：伤害 ${h.damage} / 治疗 ${h.healing}</p>`).join('')}<div class="loot-grid">${(r.loot||[]).filter(i=>QUALITIES[i.quality]).map(i=>itemCard(i,{actions:false})).join('')}</div></details></article>`).join('')||'<p class="empty">第一场远征，等待你的队伍。</p>'}`;
+ }else $('dialog-body').innerHTML=`<div class="help-grid"><article><h3>01 / 组建小队</h3><p>选择一名坦克、一名治疗和三名不同专精的输出。坦克嘲讽与减伤，治疗自动优先救急，输出会打断、释放专属技能和躲开地面预警。</p></article><article><h3>02 / 自动推进</h3><p>队伍沿路线探索 12 处遭遇与 3 位首领。死亡增加 5 秒计时，团灭后复活重新拉怪，三次团灭或远征达到 6 分钟时撤离。在本版副本时限内通关提升钥石；超时通关仍掉装备。</p></article><article><h3>03 / 装备与成长</h3><p>限时通关掉落 3 件装备，超时通关掉 2 件。部位包括武器、头部、胸甲、鞋子和饰品；强度、生命、急速与暴击都会影响战斗。装备按坦克/治疗/输出匹配。选中队员可以手动换装，也可全队一键推荐。</p></article><article><h3>04 / 随时放下</h3><p>切走窗口自动暂停，每 3 秒保存进度，刷新后可继续。1×/2×/3×仅改变播放速度，计时同步推进。连续刷本只在当前页面运行，失败、背包将满或打开弹窗时停止自动续局。</p></article><article><h3>05 / 层数与词缀</h3><p>从 +2 开始，限时通关解锁更高层数，最多 +20。+4 强韧提高小怪生命，+7 暴君提高首领生命，+10 涌动增加首领地面预警。为短局游玩设计，属于自定义简化数值。</p></article><article><h3>06 / 本赛季地图</h3><p>${DUNGEONS.map(d=>d.name).join('、')}。地图池与原始时限参考 Raider.IO 国服第 2 赛季公开数据，时限缩短至十分之一；路线、首领名字和技能采用原创轻量改编，并非正式服攻略。公开数据快照核对日期 2026-10-30，阵容取自一条国服 +24 记录，不代表职业排名。</p></article></div>`;
+}
+function performAction(event){const target=event.target.closest('button');if(!target||target.disabled)return;
+ if(target.dataset.equip){if(equip(profile,gearHero,target.dataset.equip)){persist();fillDialog();renderUI();toast('装备已穿戴，下次远征生效。');}return;}
+ if(target.dataset.salvage){const id=target.dataset.salvage;const index=profile.bag.findIndex(i=>i.id===id);if(index>=0){const item=profile.bag[index];profile.bag.splice(index,1);persist();fillDialog();renderUI();toast('已分解 '+item.name+'，释放 1 格背包。');}return;}
+ const action=target.dataset.action;if(action==='bag')openDialog('bag');if(action==='autoequip'){const n=autoEquip(profile);persist();fillDialog();renderUI();toast(n?`已为小队更换 ${n} 件装备。`:'当前装备已是推荐搭配。');}
+ if(action==='again'){profile.key=run.result.level;updateKeys();startRun();}if(action==='upgrade'){profile.key=Math.min(20,run.result.level+run.result.upgrade);updateKeys();startRun();}
+ if(action==='camp'){repeatCountdown=null;run=null;lastLog='';$('result').hidden=true;$('run-title').textContent='小队正在等待出发';$('dungeon-label').textContent='选择下一场冒险';$('timer').textContent='00:00';$('penalty').textContent='';$('phase').textContent='营地 · 准备就绪';$('enemy-progress').textContent='0%';$('progress-fill').style.width='0%';$('boss-progress').textContent='0 / 3';$('encounter').textContent='路线共 12 处遭遇 · 3 位首领';$('death-count').textContent='死亡 0 · 团灭 0';$('log').innerHTML='<p class="log-empty">准备开始下一场远征。</p>';persist();renderUI();document.querySelector('.setup').scrollIntoView({behavior:'smooth'});}
+}
+$('dialog-body').addEventListener('click',performAction);$('result').addEventListener('click',performAction);
+$('dialog-body').addEventListener('change',event=>{if(event.target.id==='gear-hero'){gearHero=event.target.value;fillDialog();}});
+$('team-selects').addEventListener('change',event=>{const index=Number(event.target.dataset.team);if(!Number.isInteger(index))return;const next=profile.team.slice();next[index]=event.target.value;if(!validateTeam(next)){toast('输出专精不能重复，请选择另一位。');event.target.value=profile.team[index];return;}profile.team=next;gearHero=profile.team[0];persist();renderUI();});
+$('reference-team').addEventListener('click',()=>{if(active())return;profile.team=[...REFERENCE_TEAM];profile.dungeon='nalorakk';gearHero=profile.team[0];initSetup();persist();renderUI();toast('已套用国服 +24 记录中的五个专精；从当前已解锁层数开始。');});
+$('dungeon-select').addEventListener('change',event=>{profile.dungeon=event.target.value;updateDungeon();persist();});$('key-select').addEventListener('change',event=>{profile.key=Number(event.target.value);updateDungeon();persist();});
+$('repeat').addEventListener('change',event=>{profile.settings.repeat=event.target.checked;if(!event.target.checked)repeatCountdown=null;else if(run?.result?.success&&profile.bag.length<=BAG_LIMIT-3)repeatCountdown=8;persist();});
+$('speed').addEventListener('change',event=>{profile.settings.speed=Number(event.target.value);persist();});
+$('start').addEventListener('click',()=>startRun());
+function togglePause(){if(!active())return;run.paused=!run.paused;persist();renderUI();}
+$('pause').addEventListener('click',togglePause);$('resume').addEventListener('click',()=>{if(active()){run.paused=false;renderUI();persist();}});
+$('bag-open').addEventListener('click',()=>openDialog('bag'));$('history-open').addEventListener('click',()=>openDialog('history'));$('help-open').addEventListener('click',()=>openDialog('help'));$('dialog-close').addEventListener('click',()=>$('dialog').close());
+$('dialog').addEventListener('close',()=>{if(modalPaused&&active()&&!document.hidden)run.paused=false;modalPaused=false;persist();renderUI();});
+$('dialog').addEventListener('click',event=>{if(event.target!==$('dialog'))return;const r=$('dialog').getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)$('dialog').close();});
+function interrupt(){if(active()){run.paused=true;modalPaused=false;}repeatCountdown=null;persist();renderUI();}
+window.addEventListener('blur',interrupt);document.addEventListener('visibilitychange',()=>{if(document.hidden)interrupt();});window.addEventListener('pagehide',()=>persist());
+document.addEventListener('keydown',event=>{if($('dialog').open||event.target.closest('input,select,textarea,button')||event.ctrlKey||event.metaKey||event.altKey)return;if(event.code==='Space'&&!event.repeat&&active()){event.preventDefault();togglePause();}});
+function resize(){const r=canvas.getBoundingClientRect();view={w:r.width,h:r.height,dpr:Math.min(devicePixelRatio||1,2)};canvas.width=Math.round(view.w*view.dpr);canvas.height=Math.round(view.h*view.dpr);}
+new ResizeObserver(resize).observe(canvas);
+function circle(x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
+function draw(){
+ if(!ctx)return;ctx.setTransform(view.dpr,0,0,view.dpr,0,0);ctx.fillStyle='#111b26';ctx.fillRect(0,0,view.w,view.h);
+ const dungeon=DUNGEONS.find(d=>d.id===(run?.dungeon||profile.dungeon));const center=run?run.heroes[0]:{x:260,y:230};camera.x+=(center.x-camera.x)*.035;camera.y+=(center.y-camera.y)*.035;
+ const scale=view.w<500?.93:1.05;ctx.save();ctx.translate(view.w/2,view.h/2);ctx.scale(scale,scale);ctx.translate(-camera.x,-camera.y);
+ ctx.fillStyle=dungeon.floor;ctx.fillRect(-500,-500,2000,1600);
+ for(let x=-200;x<1100;x+=40)for(let y=-200;y<900;y+=40){ctx.strokeStyle='#b9c4c008';ctx.lineWidth=1;ctx.strokeRect(x+1,y+1,38,38);if((x+y)%120===0){ctx.fillStyle=dungeon.color+'07';ctx.fillRect(x+2,y+2,36,36);}}
+ ctx.strokeStyle='#70868224';ctx.lineWidth=58;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();ROUTE.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();ctx.strokeStyle=dungeon.color+'22';ctx.lineWidth=1;ctx.setLineDash([3,12]);ctx.stroke();ctx.setLineDash([]);
+ ROUTE.forEach((p,i)=>{ctx.strokeStyle=i<(run?.index||0)?'#82988777':dungeon.color+'44';ctx.lineWidth=1;ctx.beginPath();ctx.arc(p.x,p.y,i%4===3?57:47,0,Math.PI*2);ctx.stroke();for(let k=0;k<4;k++){const a=k/4*Math.PI*2;circle(p.x+Math.cos(a)*61,p.y+Math.sin(a)*61,5,'#090f18aa');circle(p.x+Math.cos(a)*61,p.y+Math.sin(a)*61,2,dungeon.color+'66');}});
+ for(const z of run?.hazards||[]){ctx.fillStyle='#dd765b33';ctx.beginPath();ctx.arc(z.x,z.y,z.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#eea77b';ctx.lineWidth=2;ctx.beginPath();ctx.arc(z.x,z.y,z.r*(1-z.life/z.max),0,Math.PI*2);ctx.stroke();}
+ for(const e of run?.enemies||[]){if(e.hp<=0)continue;const boss=e.kind==='boss',r=boss?22:12;circle(e.x,e.y+4,r+2,'#07101a77');ctx.save();ctx.translate(e.x,e.y);ctx.rotate(Math.PI/4);ctx.fillStyle=e.flash>0?'#f3dbb7':boss?dungeon.color:e.kind==='caster'?'#aa8dba':'#a17b68';ctx.fillRect(-r*.75,-r*.75,r*1.5,r*1.5);ctx.strokeStyle=boss?'#e8c899':'#d2b1a077';ctx.lineWidth=2;ctx.strokeRect(-r*.75,-r*.75,r*1.5,r*1.5);ctx.restore();circle(e.x-4,e.y-3,2,'#201d29');circle(e.x+4,e.y-3,2,'#201d29');if(boss){ctx.strokeStyle=dungeon.color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(e.x-17,e.y-16);ctx.lineTo(e.x-22,e.y-34);ctx.moveTo(e.x+17,e.y-16);ctx.lineTo(e.x+22,e.y-34);ctx.stroke();}
+ ctx.fillStyle='#0d1521';ctx.fillRect(e.x-r,e.y-r-12,r*2,4);ctx.fillStyle=boss?'#e0b582':'#c18881';ctx.fillRect(e.x-r,e.y-r-12,r*2*Math.max(0,e.hp/e.maxHp),4);
+ if(e.cast){ctx.fillStyle='#2c3444';ctx.fillRect(e.x-r,e.y+r+8,r*2,4);ctx.fillStyle=e.cast.interruptible?'#bba0df':'#e3a179';ctx.fillRect(e.x-r,e.y+r+8,r*2*(1-e.cast.remaining/e.cast.total),4);}
+ if(boss){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle='#eadac4';ctx.fillText(e.name,e.x,e.y-r-22);}}
+ const heroes=run?.heroes||profile.team.map((id,i)=>({id,x:190+i*27,y:210+(i%2)*28,hp:1,maxHp:1}));
+ for(const h of heroes){const s=spec(h.id);if(h.dead){ctx.strokeStyle='#728399';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(h.x-5,h.y-5);ctx.lineTo(h.x+5,h.y+5);ctx.moveTo(h.x+5,h.y-5);ctx.lineTo(h.x-5,h.y+5);ctx.stroke();continue;}
+ circle(h.x,h.y+7,13,'#07101a99');if(h.shield>0){ctx.strokeStyle=s.color+'aa';ctx.lineWidth=2;ctx.beginPath();ctx.arc(h.x,h.y-2,19,0,Math.PI*2);ctx.stroke();}ctx.fillStyle=h.flash>0?'#ece1c6':s.color;ctx.beginPath();ctx.moveTo(h.x,h.y-13);ctx.lineTo(h.x+11,h.y+8);ctx.lineTo(h.x-11,h.y+8);ctx.closePath();ctx.fill();circle(h.x,h.y-10,6,'#172333');ctx.fillStyle=s.color;ctx.fillRect(h.x-3,h.y-11,6,2);ctx.font='600 10px system-ui';ctx.textAlign='center';ctx.fillStyle='#e4e1d8';ctx.fillText(s.mark,h.x,h.y+25);ctx.fillStyle='#0a1521';ctx.fillRect(h.x-13,h.y-23,26,3);ctx.fillStyle=s.color;ctx.fillRect(h.x-13,h.y-23,26*Math.max(0,h.hp/h.maxHp),3);
+ }
+ for(const fx of run?.effects||[]){ctx.globalAlpha=Math.min(1,fx.life*2);ctx.font='600 11px system-ui';ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='#111a25';ctx.strokeText(fx.text,fx.x,fx.y-(1.1-fx.life)*20);ctx.fillStyle=fx.color;ctx.fillText(fx.text,fx.x,fx.y-(1.1-fx.life)*20);}ctx.globalAlpha=1;ctx.restore();
+ const mw=98,mh=66,mx=view.w-mw-12,my=12;ctx.fillStyle='#0d1723cd';ctx.fillRect(mx,my,mw,mh);ctx.strokeStyle='#889ba144';ctx.strokeRect(mx,my,mw,mh);ctx.strokeStyle='#71899477';ctx.lineWidth=1;ctx.beginPath();ROUTE.forEach((p,i)=>{const x=mx+9+p.x/850*80,y=my+7+p.y/650*52;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();ROUTE.forEach((p,i)=>circle(mx+9+p.x/850*80,my+7+p.y/650*52,i%4===3?3:2,i<(run?.index||0)?'#85b49b':i===(run?.index||0)?'#edc782':'#586d84'));ctx.font='9px system-ui';ctx.fillStyle='#9aafbf';ctx.textAlign='left';ctx.fillText('自动路线',mx+9,my+mh-5);
+}
+function frame(ts){const dt=Math.min(.12,(ts-(lastFrame||ts))/1000);lastFrame=ts;
+ if(active()&&!run.paused&&!$('dialog').open){let remaining=dt*profile.settings.speed;while(remaining>0&&!run.result){const step=Math.min(.04,remaining);run.update(step);remaining-=step;}if(run.result)completed();}
+ if(repeatCountdown!==null&&!document.hidden&&!$('dialog').open){repeatCountdown-=dt;if(repeatCountdown<=0){repeatCountdown=null;startRun(true);}}
+ uiClock+=dt;saveClock+=dt;if(uiClock>=.2){uiClock=0;renderUI();}if(saveClock>=3){saveClock=0;if(active())persist();}draw();requestAnimationFrame(frame);
+}
+initSetup();if(profile.checkpoint){try{run=Run.restore(profile.checkpoint);profile.team=run.heroes.map(h=>h.id);profile.dungeon=run.dungeon;profile.key=run.level;initSetup();toast('已恢复上次远征，点击继续。');}catch{profile.checkpoint=null;toast('上次远征存档损坏，已回到营地。');}}
+renderUI();resize();requestAnimationFrame(frame);if(loaded.error)toast(loaded.error);
