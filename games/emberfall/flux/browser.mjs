@@ -5,8 +5,15 @@ const ASSET_BASE=new URL('./',import.meta.url);
 export function createBrowserPlatform(canvas){
  const listeners={start:[],move:[],end:[],cancel:[]},memory=new Map();
  const offscreen=(width=1,height=1)=>{const c=document.createElement('canvas');c.width=width;c.height=height;return c;};
+ const getDimensions=()=>{
+  const shell=canvas.closest?.('#game-shell'),width=shell?.clientWidth||0;
+  if(width<=760)return {width:WIDTH,height:HEIGHT};
+  const full=document.fullscreenElement===shell,w=Math.min(1280,width);
+  const h=full?Math.max(320,Math.min(900,Math.round(((window.innerHeight||720)-58)*w/width))):Math.max(560,Math.min(720,Math.round(w*.62)));
+  return {width:w,height:h};
+ };
  const api={
-  getSystemInfoSync:()=>({screenWidth:WIDTH,screenHeight:HEIGHT,pixelRatio:Math.min(window.devicePixelRatio||1,2),platform:'browser',safeArea:{top:0,bottom:HEIGHT,left:0,right:WIDTH}}),
+  getSystemInfoSync:()=>{const {width,height}=getDimensions();return {screenWidth:width,screenHeight:height,pixelRatio:Math.min(window.devicePixelRatio||1,2),platform:'browser',safeArea:{top:0,bottom:height,left:0,right:width}};},
   getPerformance:()=>performance,createCanvas:()=>offscreen(),createOffscreenCanvas:({width,height})=>offscreen(width,height),createImage(){const image=new Image();Object.defineProperty(image,'src',{get:()=>image.getAttribute('src')||'',set:value=>image.setAttribute('src',new URL(value,ASSET_BASE).href)});return image;},
   getStorageSync(key){if(memory.has(key))return memory.get(key);try{return localStorage.getItem(PREFIX+key)||'';}catch{return '';}},
   setStorageSync(key,value){memory.set(key,String(value));try{localStorage.setItem(PREFIX+key,String(value));}catch{document.getElementById('storage-note').hidden=false;}},
@@ -17,18 +24,27 @@ export function createBrowserPlatform(canvas){
  const AudioContext=window.AudioContext||window.webkitAudioContext;
  if(AudioContext)api.createWebAudioContext=()=>new AudioContext();
  // Friend/cloud APIs are intentionally absent: the original scene displays its local-only fallback.
- return {api,listeners,canvas};
+ return {api,listeners,canvas,getDimensions};
 }
 
 export function mountFlux(runtime,platform){
  const {game,sm,SFX,canvas,ctx,info,dpr,CHARACTERS}=runtime;
  const status=document.getElementById('status'),controls=document.getElementById('scene-controls');
+ let viewW=info.screenWidth||WIDTH,viewH=info.screenHeight||HEIGHT;
  const keys=new Set();let primary=null,last=0,raf=0,disposed=false,signature='',suspended=false,campVisible=false;
  let keyboardVector={x:0,y:0};const originalVector=game.input.getVector.bind(game.input);
  game.input.getVector=()=>keys.size?keyboardVector:originalVector();
- const position=event=>{const r=canvas.getBoundingClientRect();return {clientX:(event.clientX-r.left)*WIDTH/r.width,clientY:(event.clientY-r.top)*HEIGHT/r.height,identifier:event.pointerId};};
+ const position=event=>{const r=canvas.getBoundingClientRect();return {clientX:(event.clientX-r.left)*viewW/r.width,clientY:(event.clientY-r.top)*viewH/r.height,identifier:event.pointerId};};
  const dispatch=(kind,touch)=>{const event={touches:kind==='end'||kind==='cancel'?[]:[touch],changedTouches:[touch]};for(const fn of platform.listeners[kind])fn(event);};
  function clearMovement(){keys.clear();keyboardVector={x:0,y:0};game.input._end();game.lastTouchState=false;if(primary!==null){try{canvas.releasePointerCapture(primary);}catch{}primary=null;}}
+ function resize(){
+  const {width,height}=platform.getDimensions();if(width===viewW&&height===viewH)return;
+  clearMovement();viewW=width;viewH=height;canvas.width=width*dpr;canvas.height=height*dpr;
+  info.screenWidth=width;info.screenHeight=height;game.resize?.(width,height);
+  if(game.player&&game.camera){game.camera.x=game.player.x-width/2;game.camera.y=game.player.y-height/2;}
+  last=0;game.lastTime=null;
+ }
+ window.addEventListener('resize',resize);document.addEventListener('fullscreenchange',resize);
  const camp=createCamp(runtime,platform,()=>{clearMovement();game.lastTime=null;last=0;signature='';syncControls();if(game.isRunning)canvas.focus({preventScroll:true});});
  function pause(){clearMovement();if(game.isRunning){game.isPaused=true;SFX.pauseBGM();}game.lastTime=null;last=0;}
  function togglePause(){if(!game.isRunning)return;if(game.isPaused){game.isPaused=false;SFX.resumeBGM();game.lastTime=null;last=0;}else pause();syncControls();}
@@ -105,8 +121,8 @@ export function mountFlux(runtime,platform){
     const y=Number(keys.has('s')||keys.has('arrowdown'))-Number(keys.has('w')||keys.has('arrowup'));const length=Math.hypot(x,y)||1;
     keyboardVector={x:x/length,y:y/length};game.time+=dt;game.frameDt=dt;game.update(dt);
    }
-   if(!campVisible){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,WIDTH,HEIGHT);ctx.save();
-   try{if(game.isRunning||game.stageSystem?.state==='reward'||game.bossRushMode&&sm.currentSceneName==='playing')game.draw();else sm.draw(ctx,WIDTH,HEIGHT);}finally{ctx.restore();}}
+   if(!campVisible){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,viewW,viewH);ctx.save();
+   try{if(game.isRunning||game.stageSystem?.state==='reward'||game.bossRushMode&&sm.currentSceneName==='playing')game.draw();else sm.draw(ctx,viewW,viewH);}finally{ctx.restore();}}
    const minutes=String(Math.floor(game.time/60)).padStart(2,'0'),seconds=String(Math.floor(game.time%60)).padStart(2,'0');
    if(game.isRunning)status.textContent=`${game.isPaused?'已暂停':'远征中'} · ${minutes}:${seconds} / 20:00 · Lv.${game.player.level} · 击败 ${game.player.kills}`;
    else status.textContent=({title:'远征待命 · 灰烬林地',charSelect:'远征待命 · 选择守夜者',curseSelect:'选择已解锁诅咒，或直接开始挑战',upgrade:'战斗已暂停，请选择强化',gameOver:'本次远征已结算'})[sm.currentSceneName]||'营地';

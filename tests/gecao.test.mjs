@@ -18,7 +18,7 @@ const {CHARACTERS}=require('./src/Character');
 test('imported gameplay modules match the supplied WeChat source byte for byte',()=>{
  const manifest=JSON.parse(readFileSync(new URL('../games/emberfall/flux/source-manifest.json',import.meta.url)));
  assert.equal(manifest.modules.length,62);
- for(const item of manifest.modules){if(['src/scenes/TitleScene.js','src/MapManager.js','src/Renderer.js','src/Enemy.js','src/Boss.js','src/scenes/CharSelectScene.js','src/Character.js','src/StageSystem.js','src/BossData.js'].includes(item.path))continue;
+ for(const item of manifest.modules){if(['src/scenes/TitleScene.js','src/RenderSystem.js','src/MapManager.js','src/Renderer.js','src/Enemy.js','src/Boss.js','src/scenes/CharSelectScene.js','src/Character.js','src/StageSystem.js','src/BossData.js'].includes(item.path))continue;
   const bytes=readFileSync(new URL('../games/emberfall/flux/'+item.path,import.meta.url));
   assert.equal(createHash('sha256').update(bytes).digest('hex'),item.sha256,item.path);
  }
@@ -43,13 +43,9 @@ test('art changes preserve original enemy, boss, chapter and character gameplay'
  assert.deepEqual(normalize(require('./src/BossData')),baseline.bosses);
 });
 
-test('fallback map drawing always creates a vignette independently of its background cache',()=>{
- const MapManager=require('./src/MapManager');const map=new MapManager();
- map.draw(context,0,0,390,844,.016);
- assert.ok(map._bgGradient);assert.ok(map._vignetteGradient);
- assert.equal(context.fillStyle,map._vignetteGradient);
- assert.equal(map._vignetteW,390);assert.equal(map._vignetteH,844);
- map.draw(context,0,0,420,900,.016);assert.equal(map._vignetteW,420);assert.equal(map._vignetteH,900);
+test('all chapters render the procedural courtyard without external ground images',()=>{
+ const MapManager=require('./src/MapManager'),map=new MapManager();
+ for(const stage of STAGE_CONFIGS){map.setStyle(stage.mapStyle);assert.doesNotThrow(()=>map.draw(context,-500,-300,1000,600,.016));assert.ok(map.scenery.ground);assert.ok(map.visibleProps(-500,-300,1000,600,{x:0,y:0}).length>5);}
 });
 
 test('weapon damage, cooldown cap and source evolution conditions are retained',()=>{
@@ -96,4 +92,12 @@ test('every imported weapon can run its actual update and rendering path',()=>{
   for(let i=0;i<120&&g.isRunning;i++){g.time+=1/60;g.update(1/60);}
   assert.doesNotThrow(()=>g.draw(),id);assert.ok(Number.isFinite(g.player.hp),id);
  }
+});
+
+test('scenery, enemies and the player draw once in foot-height order',()=>{
+ const g=new Game(canvas());g.resize(1000,620);g.startWithCharacter('tracer',[]);g._tutorialStep=-1;
+ const order=[],actor=(name,y)=>({x:0,y,draw(){order.push(name);}});
+ g.mapManager.visibleProps=()=>[actor('foreground tree',40),actor('background pillar',-40)];
+ g.enemies=[actor('enemy',-10)];g.bosses=[];g.player.draw=()=>order.push('player');g.player.y=0;
+ g.draw();assert.deepEqual(order,['background pillar','enemy','player','foreground tree']);
 });

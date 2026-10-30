@@ -87,12 +87,14 @@ function installRenderSystem(GameClass) {
             }
             for (const p of this.pickups) p.draw(ctx);
 
+            // Share the first game's foot-height layering with the new actors.
+            const worldDrawables = this.mapManager.visibleProps(this.camera.x, this.camera.y, this.width, this.height, this.player);
             for (const e of this.enemies) {
-                if (e.x > camLeft && e.x < camRight && e.y > camTop && e.y < camBottom) {
-                    e.draw(ctx);
-                }
+                if (e.x > camLeft && e.x < camRight && e.y > camTop && e.y < camBottom) worldDrawables.push(e);
             }
-            for (const b of this.bosses) b.draw(ctx);
+            worldDrawables.push(...this.bosses, this.player);
+            worldDrawables.sort((a, b) => a.y - b.y);
+            for (const actor of worldDrawables) actor.draw(ctx);
 
             // 绘制屏幕外的 Boss 和盗宝地精指示器
             const screenCx = this.camera.x + this.width / 2;
@@ -220,7 +222,7 @@ function installRenderSystem(GameClass) {
                 }
             }
 
-            try { this.player.draw(ctx); } catch (_e) { throw new Error('player.draw: ' + _e.message); }
+            // Player was drawn with the scenery above.
 
             for (const w of this.player.weapons) { try { if (w.drawEffects) w.drawEffects(ctx); } catch (_e) { throw new Error('weapon.drawEffects(' + w.id + '): ' + _e.message); } }
 

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createBrowserPlatform,mountFlux} from '../games/emberfall/flux/browser.mjs';
 
-function environment(){
+function environment(width=0){
  const nodes=new Map(),stored=new Map(),events={},windowEvents={};let nextFrame;
  class Node{
   constructor(){this.events={};this.children=[];this.hidden=false;}
@@ -16,14 +16,14 @@ function environment(){
  globalThis.Image=class{constructor(){this.attrs=new Map();}getAttribute(k){return this.attrs.get(k);}setAttribute(k,v){this.attrs.set(k,v);}};
  globalThis.localStorage={getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)};
  globalThis.requestAnimationFrame=fn=>(nextFrame=fn,1);globalThis.cancelAnimationFrame=()=>{};
- const canvas=new Node();const context=new Proxy({}, {get:()=>()=>{},set:()=>true});
+ const canvas=new Node();const shell={clientWidth:width};canvas.closest=()=>shell;const context=new Proxy({}, {get:()=>()=>{},set:()=>true});
  const input={active:false,vector:{x:0,y:0},getVector(){return this.vector;},_end(){this.active=false;this.vector={x:0,y:0};}};
- const game={input,isRunning:true,isPaused:false,_tutorialStep:-1,time:0,player:{level:1,kills:0},draw(){},update(dt){this.updates=(this.updates||0)+1;this.cooldown=(this.cooldown||5)-dt;},_handleTouchInput(){},lastTime:null};
+ const game={resize(w,h){this.width=w;this.height=h;},input,isRunning:true,isPaused:false,_tutorialStep:-1,time:0,player:{level:1,kills:0},draw(){},update(dt){this.updates=(this.updates||0)+1;this.cooldown=(this.cooldown||5)-dt;},_handleTouchInput(){},lastTime:null};
  const sm={currentSceneName:'playing',currentScene:{},draw(){}};
  const sound={pauseBGM(){},resumeBGM(){},stopBGM(){}};
  const platform=createBrowserPlatform(canvas);
- mountFlux({game,sm,SFX:sound,canvas,ctx:context,info:{},dpr:1,CHARACTERS:{}},platform);
- return {game,nodes,stored,events,windowEvents,canvas,platform,frame:time=>nextFrame(time)};
+ mountFlux({game,sm,SFX:sound,canvas,ctx:context,info:platform.api.getSystemInfoSync(),dpr:1,CHARACTERS:{}},platform);
+ return {game,nodes,stored,events,windowEvents,canvas,platform,shell,frame:time=>nextFrame(time)};
 }
 
 test('web pause, blur, hidden tabs and tutorial freeze time and cooldowns',()=>{
@@ -70,4 +70,23 @@ test('a second pointer can dash along movement without stealing the first pointe
  assert.equal(starts,1);assert.equal(dashAngle,0);assert.equal(e.game.input.active,true);
  e.canvas.events.pointercancel[0]({pointerId:2});assert.equal(e.game.input.active,true);
  e.canvas.events.pointercancel[0]({pointerId:1});assert.equal(e.game.input.active,false);
+});
+
+test('desktop canvas and pointer coordinates follow the shell width, including resize',()=>{
+ const e=environment(1100),info=e.platform.api.getSystemInfoSync();
+ assert.equal(info.screenWidth,1100);assert.equal(info.screenHeight,682);
+ let touch;e.platform.listeners.start.push(event=>{touch=event.touches[0];});
+ e.canvas.events.pointerdown[0]({button:0,pointerId:1,clientX:117.5,clientY:221,preventDefault(){}});
+ assert.equal(touch.clientX,550);assert.equal(touch.clientY,341);
+ e.shell.clientWidth=390;e.windowEvents.resize();
+ assert.equal(e.game.width,390);assert.equal(e.game.height,844);assert.equal(e.canvas.width,390);assert.equal(e.canvas.height,844);
+ e.canvas.events.pointerdown[0]({button:0,pointerId:2,clientX:117.5,clientY:221,preventDefault(){}});
+ assert.equal(touch.clientX,195);assert.equal(touch.clientY,422);
+});
+
+test('fullscreen keeps the logical aspect ratio aligned with the available viewport',()=>{
+ const e=environment(1920);document.fullscreenElement=e.shell;window.innerHeight=1080;
+ e.events.fullscreenchange();
+ assert.equal(e.game.width,1280);assert.equal(e.game.height,681);
+ assert.equal(e.platform.api.getSystemInfoSync().safeArea.bottom,681);
 });
