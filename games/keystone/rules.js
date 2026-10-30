@@ -1,5 +1,6 @@
 // All combat distances use atlas units; camera zoom never changes these rules.
-export const RULES={unitsPerYard:3,hpGrowth:1.08,damageGrowth:1.06,limit:480,hardLimit:720,hasteCap:.25,critCap:.30,critMultiplier:1.5,deathPenalty:5,revive:6,maxWipes:3,moveSpeed:65,followSpeed:100,separation:15,leash:135,attackInterval:1.2,enemyAttack:16,bossAttack:42,trashHp:900,rubyTrashHp:220,bossHp:11500};
+// High-key curve is verified with previous-floor uncommon gear, not future-floor rewards.
+export const RULES={unitsPerYard:3,hpGrowth:1.065,damageGrowth:1.06,limit:480,hardLimit:720,hasteCap:.25,critCap:.30,critMultiplier:1.5,deathPenalty:5,revive:6,maxWipes:3,moveSpeed:65,followSpeed:100,separation:15,leash:135,attackInterval:1.2,enemyAttack:16,bossAttack:42,trashHp:900,rubyTrashHp:220,bossHp:11500};
 export const TRINKETS={
  shield:{name:'守护屏障',role:'tank',cooldown:24,description:'生命低于 45% 时获得最大生命 25% 的护盾，持续 6 秒'},
  recover:{name:'复苏之息',role:'tank',cooldown:22,description:'生命低于 60% 时恢复最大生命 20%'},

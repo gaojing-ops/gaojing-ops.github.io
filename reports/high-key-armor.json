@@ -1,0 +1,71 @@
+[
+  {
+    "tag": "armor",
+    "ids": [
+      "dk-blood",
+      "shaman-resto",
+      "mage-frost",
+      "warlock-demo",
+      "evoker-dev"
+    ],
+    "dungeon": "ruby",
+    "level": 20,
+    "tier": 18,
+    "armorTier": 0,
+    "style": "aggressive",
+    "effect": "cleave",
+    "seed": 123,
+    "success": true,
+    "inTime": true,
+    "time": 442.52,
+    "deaths": 5,
+    "missedInterrupts": 8,
+    "reason": "所有首领与敌方进度已完成"
+  },
+  {
+    "tag": "armor",
+    "ids": [
+      "dk-blood",
+      "shaman-resto",
+      "mage-frost",
+      "warlock-demo",
+      "evoker-dev"
+    ],
+    "dungeon": "ruby",
+    "level": 20,
+    "tier": 18,
+    "armorTier": 9,
+    "style": "aggressive",
+    "effect": "cleave",
+    "seed": 123,
+    "success": true,
+    "inTime": true,
+    "time": 414.4,
+    "deaths": 0,
+    "missedInterrupts": 9,
+    "reason": "所有首领与敌方进度已完成"
+  },
+  {
+    "tag": "armor",
+    "ids": [
+      "dk-blood",
+      "shaman-resto",
+      "mage-frost",
+      "warlock-demo",
+      "evoker-dev"
+    ],
+    "dungeon": "ruby",
+    "level": 20,
+    "tier": 18,
+    "armorTier": 18,
+    "style": "aggressive",
+    "effect": "cleave",
+    "seed": 123,
+    "success": true,
+    "inTime": true,
+    "time": 423.4,
+    "deaths": 0,
+    "missedInterrupts": 11,
+    "reason": "所有首领与敌方进度已完成"
+  }
+]
