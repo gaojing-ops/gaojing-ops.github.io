@@ -28,3 +28,18 @@
 /* Divine blessings retain their patron color in both the picker and the build. */
 .upgrade-deity{font-size:12px;color:var(--card-color);margin-bottom:7px;letter-spacing:.4px}.build-item{align-items:center}.build-item small{display:block;font-size:9px;color:var(--item-color);margin-bottom:3px}.deity-codex>svg,.deity-codex h3{color:var(--deity-color)}.deity-grid{margin-bottom:22px}.codex-subtitle{font-size:14px;font-weight:500;color:var(--gold);margin:22px 0 12px}.upgrade-card{min-height:258px}.upgrade-overlay{overflow:auto}
 @media(max-width:620px){.upgrade-deity{font-size:11px;margin-bottom:3px}.upgrade-card{min-height:96px;padding-top:10px;padding-bottom:10px}.upgrade-card>p{font-size:11px;margin-top:4px}.upgrade-content>p{margin-bottom:8px}.upgrade-hint{margin-top:9px}}
+
+/* Movement begins at the player's touch, while owned upgrades stay in the arena. */
+.game-stage{touch-action:none;user-select:none}
+.joystick{left:0;top:0;bottom:auto;transform:translate(-50%,-50%);pointer-events:none;background:#91bba526;border-color:#c7dfb970}
+.touch-controls:has(.joystick:not([hidden])){display:block}
+.touch-move-hint{position:absolute;left:16px;bottom:42px;font-size:11px;color:#bfceb4;letter-spacing:.3px;text-shadow:0 1px 4px #000;pointer-events:none}
+.touch-controls:has(.joystick:not([hidden])) .touch-move-hint{opacity:0}
+.run-build{display:flex;align-items:center;gap:10px;min-height:44px;padding:5px 12px;background:#14231e;border-bottom:1px solid #78977526}
+.run-build-button{display:flex;align-items:center;gap:6px;flex-shrink:0;min-height:34px;padding:5px 8px;border:1px solid #96845b66;border-radius:5px;background:#b59c4720;color:#e7c98f;font-size:12px}
+.run-build-button svg{width:15px;height:15px}.run-build-button b{font-weight:600}.run-build-button>span{font-size:10px;color:#b3bea7}
+.run-build-items{display:flex;align-items:center;gap:6px;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;padding:3px 1px;scrollbar-width:thin}
+.run-build-chip{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;font-size:11px;color:#d5ddca;background:#b0c1950b;border:1px solid #7f9d793b;border-radius:4px;padding:5px 7px}
+.run-build-chip svg{width:13px;height:13px;color:var(--item-color)}.run-build-chip b{font-size:10px;font-weight:500;color:var(--item-color)}.run-build-empty{font-size:11px;white-space:nowrap;color:#91a18b}
+.owned-blessings{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}.owned-blessing{padding:15px;border:1px solid #8c9d6e38;border-radius:6px;background:#b0c19508}.owned-blessing-heading{display:flex;align-items:center;gap:10px}.owned-blessing-heading>svg{width:24px;height:24px;color:var(--item-color)}.owned-blessing-heading small{color:var(--item-color);font-size:11px}.owned-blessing h3{font-size:15px;line-height:1.4;color:#e5e6d9;margin:3px 0 0}.owned-blessing-heading>b{margin-left:auto;color:var(--item-color);white-space:nowrap;font-size:13px}.owned-blessing p{font-size:12px;line-height:1.8;margin:12px 0 0}.build-vitals{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:18px;color:#a8b49b}.build-vitals b{color:#e7c98f;margin-left:5px}
+@media(max-width:620px){.run-build{padding:4px 8px;gap:8px}.run-build-button{min-height:36px}.owned-blessings{grid-template-columns:1fr}.touch-move-hint{max-width:calc(100% - 115px);font-size:10px}}

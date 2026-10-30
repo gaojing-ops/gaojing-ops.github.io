@@ -37,7 +37,7 @@
 Node.js 22+，无需安装依赖：
 
 ```sh
-node --test tests/game.test.mjs tests/blessings.mjs
+node --test tests/game.test.mjs tests/blessings.mjs tests/touch-controls.test.mjs
 node --check games/emberfall/game.js
 node --check games/emberfall/app.js
 git diff --check
@@ -56,3 +56,11 @@ git diff --check
 人物脚下的闪避条直接读取 `dashCooldown / dashMax`，跟随人物且保持屏幕像素大小；倒计时向上取一位小数，避免尚不可用时显示 0.0 秒。暂停和升级选择停止冷却，重新开局清空赐福。
 
 `tests/blessings.mjs` 覆盖神明归属、灼烧叠加、减速、暴击倍率、恢复、减冷却叠加、暂停、冷却条文本、不同神明选项、满级保底与重开重置。与原有八项回归测试一起运行；VM 适配器移除模块导出，不改变正式接口。浏览器已验证赐福选择、风神减冷却、构筑归属和闪避条；手机真机多点触控与完整通关仍待实机验收。
+
+## 浮动摇杆与战斗内赐福
+
+`touch-controls.js` 在战斗画面空白处的 pointerdown 位置建立摇杆原点，由 game-stage 捕获单一移动指针。其他指针保持独立，可继续点击闪避；按钮和弹窗不会启动摇杆。抬手、pointercancel、lostpointercapture、暂停、失焦、全屏切换和窗口尺寸变化都会释放捕获并清零移动。
+
+战斗上方的赐福栏横向滚动显示当前升级名称和等级；“详情”使用现有弹窗，显示所有持续赐福、每层效果、当前生命上限和实际闪避冷却。从战斗中打开会暂停，正常关闭后继续；在升级或原本暂停时打开不会绕过原有状态。即时治疗不计入持续赐福。
+
+`tests/touch-controls.test.mjs` 覆盖不同触点、死区与速度上限、第二指针隔离、按钮与非主键过滤、取消与捕获丢失、暂停/尺寸变化时的清理。真机多点触控仍需实机验收。
