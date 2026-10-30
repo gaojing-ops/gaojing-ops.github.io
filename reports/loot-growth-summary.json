@@ -1,0 +1,143 @@
+{
+  "assumptions": "Fixed default party; highest unlocked key; equip after each clear; discard unused backpack items; retain initially equipped trinket effects; completion means all 15 slots at tier19, not all epic",
+  "campaigns": [
+    {
+      "dungeon": "ruby",
+      "seed": 1,
+      "firstTimed20": 25,
+      "all15SlotsTier19": 38,
+      "firstWeaponByHero": {
+        "priest-holy": 1,
+        "mage-frost": 1,
+        "paladin-prot": 3,
+        "hunter-bm": 4,
+        "rogue-outlaw": 5
+      },
+      "referencePlus5": [
+        {
+          "afterRuns": 0,
+          "time": 434,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 3,
+          "time": 401,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 5,
+          "time": 323,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 10,
+          "time": 270,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 15,
+          "time": 244,
+          "success": true,
+          "inTime": true
+        }
+      ],
+      "longestNoNumericUpgradeBeforeCap": 2
+    },
+    {
+      "dungeon": "kings",
+      "seed": 42,
+      "firstTimed20": 19,
+      "all15SlotsTier19": 34,
+      "firstWeaponByHero": {
+        "priest-holy": 4,
+        "mage-frost": 4,
+        "paladin-prot": 5,
+        "hunter-bm": 5,
+        "rogue-outlaw": 6
+      },
+      "referencePlus5": [
+        {
+          "afterRuns": 0,
+          "time": 430,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 3,
+          "time": 380,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 5,
+          "time": 304,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 10,
+          "time": 254,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 15,
+          "time": 209,
+          "success": true,
+          "inTime": true
+        }
+      ],
+      "longestNoNumericUpgradeBeforeCap": 2
+    },
+    {
+      "dungeon": "fangs",
+      "seed": 123,
+      "firstTimed20": 13,
+      "all15SlotsTier19": 30,
+      "firstWeaponByHero": {
+        "paladin-prot": 1,
+        "mage-frost": 1,
+        "hunter-bm": 2,
+        "rogue-outlaw": 4,
+        "priest-holy": 5
+      },
+      "referencePlus5": [
+        {
+          "afterRuns": 0,
+          "time": 379,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 3,
+          "time": 323,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 5,
+          "time": 247,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 10,
+          "time": 202,
+          "success": true,
+          "inTime": true
+        },
+        {
+          "afterRuns": 15,
+          "time": 180,
+          "success": true,
+          "inTime": true
+        }
+      ],
+      "longestNoNumericUpgradeBeforeCap": 2
+    }
+  ]
+}

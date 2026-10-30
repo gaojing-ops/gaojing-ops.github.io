@@ -1,0 +1,10 @@
+{
+  "profiles": 2000,
+  "assumption": "All +20 clears succeed; rewards use real loot/settle/autoEquip; start from tier18 with fixed trinket effects",
+  "median": 16,
+  "p90": 31,
+  "p99": 52,
+  "max": 79,
+  "notFinishedAfter80": 0,
+  "maxNoUpgrade": 33
+}
