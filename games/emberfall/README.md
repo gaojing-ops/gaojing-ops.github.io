@@ -32,3 +32,9 @@ python -m http.server 8000
 - `app.js`：界面与引擎连接、角色选择、触屏交互和本地战绩。
 
 所有游戏美术均由 Canvas / SVG 绘制，无外部图片、字体或运行时依赖。音效在用户操作后由浏览器生成。游戏为单人本地运行，战绩保存在当前浏览器，不在设备之间同步。
+
+## 开发与验证
+
+开发说明见 [DEVELOPMENT.md](../../docs/DEVELOPMENT.md)，包含状态流转、键盘事件、结算边界及回归测试方法。
+
+在仓库根目录运行 `node --test tests/game.test.mjs`（Node.js 22 或更新版本，无需安装依赖）。

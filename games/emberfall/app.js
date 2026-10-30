@@ -308,7 +308,7 @@ $('replay-button').addEventListener('click',startRun);
 $('resume-button').addEventListener('click',() => { game.resume(); canvas.focus({preventScroll:true}); });
 $('pause-camp-button').addEventListener('click',returnToCamp);
 $('result-camp-button').addEventListener('click',returnToCamp);
-$('pause-button').addEventListener('click',() => { if (state === 'playing') game.pause(); else if (state === 'paused') game.resume(); });
+$('pause-button').addEventListener('click',() => { if (state === 'playing') game.pause(); else if (state === 'paused') { game.resume(); canvas.focus({preventScroll:true}); } });
 $('sound-button').addEventListener('click',() => { soundEnabled = !soundEnabled; game.setSound(soundEnabled); updateSoundButton(); persistRecords(); });
 $('fullscreen-button').addEventListener('click',async () => {
   try {
@@ -333,7 +333,8 @@ document.addEventListener('visibilitychange',() => { if (document.hidden) interr
 window.addEventListener('blur',interruptRun);
 
 document.addEventListener('keydown',event => {
-  if (dialog.open) return;
+  if (dialog.open || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return;
+  if (event.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])')) return;
   const key = event.key.toLowerCase();
   if (state === 'upgrade' && ['1','2','3'].includes(key)) {
     event.preventDefault();

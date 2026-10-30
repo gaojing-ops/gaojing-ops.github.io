@@ -143,7 +143,17 @@ export function createGame(canvas, hooks = {}) {
     p.dashTimer=.19;p.inv=Math.max(p.inv,.25);p.dashCooldown=p.dashMax;
     addRing(p.x,p.y,55,CHARACTERS[character].color,.3);tone(180,.13,'triangle',.3,-120);return true;
   }
-  function handleKeyDown(e){const key=e.key.toLowerCase();if(e.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;if(state!=='playing')return;if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){e.preventDefault();keys.add(key);if(key===' '&&!e.repeat)dash();}}
+  function handleKeyDown(e){
+    if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.isComposing)return;
+    if(e.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
+    if(state!=='playing')return;
+    const key=e.key.toLowerCase();
+    // Space activates a focused control; it only dashes from the play surface.
+    if(key===' '&&e.target?.closest?.('button,a[href],[role="button"]'))return;
+    if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){
+      e.preventDefault();keys.add(key);if(key===' '&&!e.repeat)dash();
+    }
+  }
   function handleKeyUp(e){keys.delete(e.key.toLowerCase());}
   function handleBlur(){clearInput();pause();}
   window.addEventListener('keydown',handleKeyDown);window.addEventListener('keyup',handleKeyUp);window.addEventListener('blur',handleBlur);
@@ -161,7 +171,7 @@ export function createGame(canvas, hooks = {}) {
   function addRing(x,y,r,color,life=.45){effects.push({type:'ring',x,y,r,color,life,max:life});if(effects.length>45)effects.shift();}
   function floating(x,y,text,color=COLORS.amber,size=14){if(texts.length<60)texts.push({x,y,text:String(text),color,life:.7,max:.7,size});}
   function hurtEnemy(e,amount,critical=false,source='shot') {
-    if(e.hp<=0)return;
+    if(state!=='playing'||e.hp<=0)return;
     e.hp-=amount;e.hit=.12;
     if(source!=='burn')floating(e.x+rand(-5,5),e.y-e.r-4,Math.round(amount),critical?COLORS.amber:'#d8e3ce',critical?18:12);
     if(source==='shot'&&build.fire){e.burn=2.6;e.burnTick=Math.min(e.burnTick,.3);}
@@ -190,6 +200,8 @@ export function createGame(canvas, hooks = {}) {
     if(state!=='playing'||xp<xpNext)return;
     xp-=xpNext;level++;xpNext=Math.floor(6+level*3.2);p.hp=Math.min(p.maxHp,p.hp+Math.max(4,p.maxHp*.045));
     const eligible=UPGRADES.filter(u=>(build[u.id]||0)<u.max&&(u.id!=='heal'||p.hp<p.maxHp*.72));
+    // A fully developed build must never open an empty, inescapable picker.
+    if(!eligible.length)eligible.push(UPGRADES.find(u=>u.id==='heal'));
     // New abilities are gently favored early; every pick still changes the run.
     const weighted=eligible.map(u=>({u,key:Math.random()+(level<5&&['orbit','lightning','nova'].includes(u.id)?.18:0)})).sort((a,b)=>b.key-a.key);
     choices=weighted.slice(0,3).map(({u})=>({...u,description:(build[u.id]&&u.id!=='heal'?`Lv.${build[u.id]} → ${build[u.id]+1} · `:'')+u.description}));
@@ -262,6 +274,7 @@ export function createGame(canvas, hooks = {}) {
     if(!bossSpawned&&time>=180){bossSpawned=true;spawnEnemy('boss');safeHook('onToast','长夜之主已现身 · 击败它，迎接黎明');shake=5;tone(80,.6,'sawtooth',.3,-30);}
     if(build.lightning){lightningTimer-=dt;if(lightningTimer<=0){castLightning();lightningTimer=4.5;}}
     if(build.nova){novaTimer-=dt;if(novaTimer<=0){castNova();novaTimer=5.8;}}
+    if(state!=='playing')return;
     // Enemy movement and contact. A gentle separation keeps crowds readable.
     for(const e of enemies){
       if(e.hp<=0)continue;e.hit=Math.max(0,e.hit-dt);e.slow=Math.max(0,e.slow-dt);e.orbCd=Math.max(0,e.orbCd-dt);e.phase+=dt*3;
@@ -282,9 +295,12 @@ export function createGame(canvas, hooks = {}) {
       s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;
       if(s.life<=0)continue;
       for(const e of enemies){if(e.hp<=0||s.hit.has(e.id))continue;if(Math.hypot(s.x-e.x,s.y-e.y)<e.r+s.r+2){s.hit.add(e.id);hurtEnemy(e,s.damage,s.crit);addParticles(s.x,s.y,CHARACTERS[character].color,3,35);if(s.pierce--<=0){s.life=0;break;}}}
+      if(state!=='playing')return;
     }
     for(const s of hostile){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(Math.hypot(s.x-p.x,s.y-p.y)<p.r+s.r&&p.dashTimer<=0){hurtPlayer(s.damage);s.life=0;}}
+    if(state!=='playing')return;
     for(const w of warnings){w.life-=dt;if(w.life<=0){addRing(w.x,w.y,w.r,COLORS.purple,.4);addParticles(w.x,w.y,COLORS.purple,18,150);if(Math.hypot(w.x-p.x,w.y-p.y)<w.r+p.r)hurtPlayer(w.damage);}}
+    if(state!=='playing')return;
     warnings=warnings.filter(w=>w.life>0);
     for(const g of gems){
       let d=dist(g,p);if(d<p.pickup)g.pull=true;
