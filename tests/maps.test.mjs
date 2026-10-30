@@ -7,11 +7,24 @@ import {DUNGEONS,DEFAULT_TEAM} from '../games/keystone/data.js';
 import {Run} from '../games/keystone/engine.js';
 const ref=JSON.parse(fs.readFileSync(new URL('../games/keystone/maps/source.json',import.meta.url),'utf8'));
 const root=new URL('../',import.meta.url);
-test('homepage is the same Keystone entry and the old tracked game is removed',()=>{
- assert.equal(fs.readFileSync(new URL('index.html',root),'utf8'),fs.readFileSync(new URL('games/keystone/index.html',root),'utf8'));
- assert.ok(!fs.existsSync(new URL('games/emberfall',root))||fs.readdirSync(new URL('games/emberfall',root)).length===0);
- assert.ok(!fs.readFileSync(new URL('index.html',root),'utf8').includes('emberfall'));
+test('homepage keeps Keystone and both games have working navigation and assets',()=>{
+ const homepage=fs.readFileSync(new URL('index.html',root),'utf8');
+ assert.equal(homepage,fs.readFileSync(new URL('games/keystone/index.html',root),'utf8'));
+ for(const path of ['index.html','games/keystone/index.html','games/emberfall/index.html']){
+  const html=fs.readFileSync(new URL(path,root),'utf8');
+  assert.match(html,/aria-label="切换游戏"/);
+  assert.match(html,/href="\/games\/keystone\/"/);
+  assert.match(html,/href="\/games\/emberfall\/"/);
+  assert.match(html,/href="\/games\/navigation\.css"/);
+  assert.match(html,new RegExp('href="/games/'+(path.includes('emberfall')?'emberfall':'keystone')+'/" aria-current="page"'));
+  for(const [,asset] of html.matchAll(/(?:src|href)="([^"#]+\.(?:js|css))"/g)){
+   assert.ok(fs.existsSync(asset.startsWith('/')?new URL('.'+asset,root):new URL(asset,new URL(path,root))),`Missing ${asset} in ${path}`);
+  }
+ }
+ assert.match(homepage,/src="\/games\/keystone\/app\.js"/);
+ assert.match(fs.readFileSync(new URL('games/emberfall/index.html',root),'utf8'),/src="\.\/app\.js"/);
 });
+
 test('each dungeon has its own retained in-game atlas, route and source commit',()=>{
  const hashes=new Set(),routes=new Set();for(const d of DUNGEONS){const map=getMap(d.id);const asset=fs.readFileSync(new URL('.'+map.image,root));assert.ok(asset.length>20000);hashes.add(createHash('sha256').update(asset).digest('hex'));routes.add(JSON.stringify(map.route));assert.equal(map.sourceCommit,ref.commit);assert.ok(map.route.every(p=>p.x>=0&&p.x<=map.width&&p.y>=0&&p.y<=map.height));assert.ok(map.route.every(p=>p.via.every(v=>v.x>=0&&v.x<=map.width&&v.y>=0&&v.y<=map.height)));}assert.equal(hashes.size,8);assert.equal(routes.size,8);
 });
