@@ -6,7 +6,7 @@ const MONSTERS=['Bat','Skeleton','Ghost','DataWorm','SwarmDrone','Hornet','FireF
 const MAPS={CyberGrid:0,ToxicSwamp:1,CryoRealm:2,VoidNebula:3,Matrix:4};
 function preload(){
  if(pending)return pending;
- pending=Promise.all(Object.keys(layout).map(name=>new Promise(resolve=>{
+ pending=Promise.all(Object.keys(layout).filter(name=>name!=='terrain').map(name=>new Promise(resolve=>{
   try{const image=wx.createImage();image.onload=()=>{images[name]=image;resolve();};image.onerror=()=>{console.warn('Art atlas unavailable:',name);resolve();};image.src='art/'+name+'.png';}catch{resolve();}
  })));return pending;
 }
@@ -33,16 +33,4 @@ function drawMonster(ctx,enemy){
  return drawSprite(ctx,'monsters',index,enemy.x,enemy.y,enemy.radius*3.5,flip,Math.sin(time*6+enemy.x*.1)*Math.min(1.2,enemy.radius*.1),enemy.flashTimer>0);
 }
 function drawBoss(ctx,boss){return drawSprite(ctx,'bosses',boss.artIndex||0,boss.x,boss.y,boss.radius*3.3,boss.game.player.x<boss.x,Math.sin(boss.game.time*2)*1.5,boss.flashTimer>0);}
-function drawMap(ctx,style,camX,camY,w,h){
- const image=images.terrain;if(!image)return false;
- const rect=layout.terrain.rects[MAPS[style]??0],[sx,sy,sw,sh]=rect;
- const tile=512,ox=camX*.3,oy=camY*.3,x0=Math.floor(ox/tile),y0=Math.floor(oy/tile);
- // Mirrored repeats join a texture edge to itself, avoiding visible hard seams.
- for(let row=y0;row*tile-oy<h;row++)for(let col=x0;col*tile-ox<w;col++){
-  const flipX=Math.abs(col)%2,flipY=Math.abs(row)%2;
-  ctx.save();ctx.translate(col*tile-ox+(flipX?tile:0),row*tile-oy+(flipY?tile:0));ctx.scale(flipX?-1:1,flipY?-1:1);
-  ctx.drawImage(image,sx,sy,sw,sh,0,0,tile,tile);ctx.restore();
- }
- ctx.fillStyle='rgba(7,13,10,.30)';ctx.fillRect(0,0,w,h);return true;
-}
-module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawMap,HEROES,MONSTERS,MAPS};
+module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,HEROES,MONSTERS};
