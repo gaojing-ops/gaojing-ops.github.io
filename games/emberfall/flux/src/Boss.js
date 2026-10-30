@@ -1547,6 +1547,7 @@ class Boss {
     // ─── 绘制 ───
 
     draw(ctx) {
+        if (Art.drawBossActor(ctx, this)) return;
         // 绘制持续技能效果（在Boss本体之下）
         if (this._sustainedEffect) {
             this._drawSustainedEffect(ctx);

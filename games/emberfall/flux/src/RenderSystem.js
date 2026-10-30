@@ -1,7 +1,8 @@
 // ─── 统一主渲染系统 (从 Game.js 分离) ──────────────────────────
 // 挂载到 Game.prototype，维护 Game 类瘦身
 const { drawDamageNumber } = require('./Renderer');
-const { drawSentry } = require('./FacetedArt');
+const Art = require('./Art');
+const { drawSentry } = Art;
 const { fastSin, fastCos } = require('./MathLUT');
 const { now: perfNow } = require('./platform');
 const SpeedRunSceneModule = require('./scenes/SpeedRunScene');
@@ -37,31 +38,18 @@ function installRenderSystem(GameClass) {
 
 
 
-            if (this.radiationPulse) {
-                const rp = this.radiationPulse;
-                ctx.save();
-                ctx.globalAlpha = rp.a;
-                ctx.strokeStyle = rp.color;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
-                ctx.stroke();
-                for (let i = 1; i <= 3; i++) {
-                    const innerR = rp.r * (1 - i * 0.25);
-                    ctx.globalAlpha = rp.a * (0.3 - i * 0.08);
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(rp.x, rp.y, innerR, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-                ctx.restore();
-            }
+            Art.drawPulse(ctx, this.radiationPulse, this.time);
 
             try { this.eventSystem.drawWorld(ctx); } catch (_eErr) {
                 throw new Error('eventSystem.drawWorld: ' + _eErr.message);
             }
 
             for (const w of this.player.weapons) { try { if (w.drawGroundEffects) w.drawGroundEffects(ctx); } catch (_e) { throw new Error('weapon.drawGroundEffects(' + w.id + '): ' + _e.message); } }
+
+            // Hostile areas stay on the ground, below actors and foreground trees.
+            for (const boss of this.bosses) Art.drawBossGround(ctx, boss);
+            for (const enemy of this.enemies) Art.drawEnemyGround(ctx, enemy);
+            Art.drawMortarWarnings(ctx, this.mortarWarnings, this.time);
 
             // 绘制命运神龛
             if (this.destinyShrines) {
@@ -143,33 +131,7 @@ function installRenderSystem(GameClass) {
                 }
                 for (const [color, group] of ebGroups) {
                     if (group.length === 0) continue;
-                    ctx.fillStyle = color;
-                    ctx.beginPath();
-                    for (const eb of group) {
-                        ctx.moveTo(eb.x + eb.radius, eb.y);
-                        ctx.arc(eb.x, eb.y, eb.radius, 0, Math.PI * 2);
-                    }
-                    ctx.fill();
-                }
-            }
-
-            if (this.mortarWarnings) {
-                for (const mw of this.mortarWarnings) {
-                    if (!mw.active) continue;
-                    ctx.save();
-                    const alpha = 0.3 + fastSin(this.time * 10) * 0.2;
-                    const progress = 1 - (mw.timer / 1.5);
-                    ctx.globalAlpha = alpha;
-                    ctx.strokeStyle = '#ff4422';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(mw.x, mw.y, mw.radius, 0, Math.PI * 2);
-                    ctx.stroke();
-                    ctx.fillStyle = 'rgba(255, 68, 34, 0.15)';
-                    ctx.beginPath();
-                    ctx.arc(mw.x, mw.y, mw.radius * progress, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
+                    Art.drawHostileProjectiles(ctx, group, color);
                 }
             }
 

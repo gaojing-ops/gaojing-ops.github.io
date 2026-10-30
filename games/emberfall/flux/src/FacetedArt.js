@@ -181,6 +181,8 @@ function monster(c,d,pose=0,boss=false){
   else if(d.v===2){flame(c,0,-48,.8);line(c,[[-12,-62],[-16,-48],[-7,-33]],d.accent,2);}
   else if(d.v===3){poly(c,[[-33,-63],[-49,-86],[-42,-43]],d.light);poly(c,[[33,-63],[49,-86],[42,-43]],d.light);}
  }else if(d.shape==='hydra'){
+  // Six smaller necks behind the three foreground heads make the nine-headed silhouette.
+  for(const [x,y] of [[-48,-78],[-35,-100],[-14,-116],[14,-116],[35,-100],[48,-78]]){line(c,[[x*.25,-22],[x*.8,-54],[x,y]],d.main,8);poly(c,[[x-8,y+1],[x-9,y-9],[x,y-15],[x+9,y-8],[x+7,y+3]],d.main,P.ink);line(c,[[x-4,y-7],[x+4,y-7]],P.light,1.5);}
   poly(c,[[-32,0],[-36,-31],[-15,-58],[16,-59],[37,-29],[33,0]],d.main,P.ink);
   for(const [x,y] of [[-29,-78],[0,-98],[29,-78]]){line(c,[[x*.4,-23],[x,-49],[x,y]],d.main,15);poly(c,[[x-13,y+1],[x-14,y-15],[x+1,y-22],[x+15,y-11],[x+12,y+5]],d.light,P.ink);line(c,[[x-7,y-10],[x-3,y-10]],P.light,2);line(c,[[x+5,y-10],[x+9,y-10]],P.light,2);poly(c,[[x-8,y-18],[x-16,y-31],[x-3,y-21]],P.bone);}
  }else if(d.shape==='rift'){
@@ -268,8 +270,8 @@ function pigment(color){
  let value={main:'#bc9a62',light:'#e8d6a0',dark:'#725c3b'};
  if(/^#[\da-f]{6}$/i.test(color)){
   const n=parseInt(color.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;
-  if(b>r*1.2&&b>g*1.1)value={main:'#9782a5',light:'#d0bdcf',dark:'#55465f'};
-  else if(b>r*1.2&&g>r*1.1)value={main:'#8fada9',light:'#d0dfce',dark:'#4c7275'};
+  if(b>r*1.2&&g>r*1.25)value={main:'#8fada9',light:'#d0dfce',dark:'#4c7275'};
+  else if(b>r*1.2&&b>g*1.1)value={main:'#9782a5',light:'#d0bdcf',dark:'#55465f'};
   else if(g>r*1.1&&g>b*1.2)value={main:'#91a66a',light:'#c5d5a0',dark:'#4e6542'};
   else if(r>g*1.3)value={main:'#be8658',light:'#efd39a',dark:'#75503d'};
  }

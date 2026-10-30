@@ -158,6 +158,7 @@ export function installWebHUD(runtime){
  game.spawnDamageNumber=function(x,y,value,...args){return damageText(x,y,typeof value==='string'?text(value):value,...args);};
  const originalDraw=game.draw.bind(game);
  game.draw=function(){
+  if(this.player&&art.drawPlayerActor&&!this.player._webBattleArt){const player=this.player;player._webBattleArt=true;player.draw=ctx=>art.drawPlayerActor(ctx,player,art.drawHero);}
   if(this.bossRushMode&&!this.bossRushMode._webThemed){
    const mode=this.bossRushMode;mode._webThemed=true;
    mode._drawFightingHUD=function(ctx,w){modePlate(ctx,w,'首领连战',`${this.currentWave+1} / 10`,this.currentWave/10);};
