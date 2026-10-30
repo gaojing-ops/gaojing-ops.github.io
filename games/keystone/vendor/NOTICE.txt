@@ -4,3 +4,7 @@ MDT distributed under GPL-2.0; see MDT-LICENSE.txt.
 World of Warcraft game maps/artwork are copyright Blizzard Entertainment.
 Atlas tiles assembled and resized to WebP for this project on 2026-10-30.
 Original gameplay implementation is available in this public repository.
+
+Class icons: World of Warcraft artwork (copyright Blizzard Entertainment), distributed locally for this fan-game prototype.
+Source: https://wow.zamimg.com/images/wow/icons/large/classicon_{class}.jpg
+Fetched 2026-10-30. No runtime third-party icon requests.
