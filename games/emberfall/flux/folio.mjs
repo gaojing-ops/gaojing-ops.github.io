@@ -187,7 +187,7 @@ export function createFolio(runtime,platform,hooks={}){
    body+=stats([['总伤害',fmt(total)],['每秒伤害',fmt(total/Math.max(1,game.time))]])+(rows.length?grid(rows.map(([id,value])=>card(damageSource(id,c).name,`${fmt(value)} 伤害 · 占比 ${(value/total*100).toFixed(1)}%`,`<meter aria-label="${esc(damageSource(id,c).name)}伤害占比" min="0" max="${total}" value="${value}"></meter>`,'','',icon(damageSource(id,c).icon))).join('')):'<p class="folio-empty">尚未留下伤敌的记录。</p>');
   }else if(tab==='blessings')body+=divineRecord();
   else body+=grid(card('营地之声','切换行旅中的音乐与音效。','',button(SFX.isMuted?'音效：关':'音效：开',()=>{SFX.toggleMute();game._saveSettings?.();}),'',icon('bell'))+card('林间光影','简约会减少友方场地纹样，保留实际范围与危险预警。手动选择后保持该画质。','',button((game.qualityLevel||0)>=.8?'光影：精细':'光影：简约',()=>{game.qualityLevel=(game.qualityLevel||0)>=.8?0:1;game.autoQuality=false;game._saveSettings?.();})+button(`自动光影：${game.autoQuality?'开':'关'}`,()=>{game.autoQuality=!game.autoQuality;game._saveSettings?.();}),'',icon('eye')));
-  if(tab==='journey')body+=note(game.autoPlay&&game.autoUpgrade?'挂机已就绪：继续守夜后，切换窗口或标签页将继续战斗。手动暂停仍然有效。':'同时开启随行走位与随缘强化，即可在切屏后继续战斗。');
+  if(tab==='journey')body+=note('随行会自动释放咏誓；地面预警迫近、步行难以撤离时，会使用已就绪的闪避。')+note(game.autoPlay&&game.autoUpgrade?'挂机已就绪：继续守夜后，切换窗口或标签页将继续战斗。手动暂停仍然有效。':'同时开启随行走位与随缘强化，即可在切屏后继续战斗。');
   return body;
  }
 

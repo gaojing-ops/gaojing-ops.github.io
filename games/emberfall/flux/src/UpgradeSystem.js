@@ -134,11 +134,11 @@ class UpgradeSystem {
 				}
 
 				// ═══ 协同标签：解锁进化 ═══
-				const sameElement = p.weapons.some(w => {
+				const unlocksAwakening = lvl === 0 && p.weapons.some(w => {
 					const wDef = WEAPON_DEFS[w.id];
-					return wDef && wDef.evolveWith === id;
+					return !w.evolved && wDef && wDef.evolveWith === id;
 				});
-				if (sameElement) {
+				if (unlocksAwakening) {
 					synergy = '🔗 解锁进化';
 					weight += 15;
 				}
