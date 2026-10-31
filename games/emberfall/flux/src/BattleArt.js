@@ -1,31 +1,31 @@
 // Presentation only. Geometry reads the original actors and warning records.
 // Warm terracotta marks hostile attacks; friendly elements retain muted pigments.
 const F=require('./FacetedArt');
-const TAU=Math.PI*2,INK='#15251e',BONE='#dfd5ad',DANGER='#cc8c72',DARK='#563e35',GOLD='#c6a66c';
+const TAU=Math.PI*2,INK='#0b1713',BONE='#f5e4bc',DANGER='#ed8669',DARK='#8f3f31',GOLD='#e7bd70';
 function polygon(c,points,fill,stroke){c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
 function ring(c,x,y,r,color,alpha=.8,sy=1,n=10){c.save();c.globalAlpha*=alpha;c.lineWidth=1.3;const points=[];for(let i=0;i<n;i++){const a=i/n*TAU;points.push([x+Math.cos(a)*r,y+Math.sin(a)*r*sy]);}polygon(c,points,null,color);c.restore();}
 function diamond(c,x,y,r,fill,edge){polygon(c,[[x,y-r],[x+r*.7,y],[x,y+r],[x-r*.7,y]],fill,edge);}
 function circleWarning(c,x,y,r,time=0,progress){
- c.save();c.lineWidth=1.6;c.fillStyle=DARK;c.globalAlpha*=.16;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
- c.globalAlpha/= .16;c.globalAlpha*=.85;c.strokeStyle=DANGER;c.beginPath();c.arc(x,y,r,0,TAU);c.stroke();
+ c.save();c.lineWidth=2.6;c.fillStyle=DARK;c.globalAlpha*=.25;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
+ c.globalAlpha/= .25;c.globalAlpha*=.85;c.strokeStyle=DANGER;c.beginPath();c.arc(x,y,r,0,TAU);c.stroke();
  for(let i=0;i<8;i++){const a=i*TAU/8,dx=Math.cos(a),dy=Math.sin(a);c.beginPath();c.moveTo(x+dx*(r-7),y+dy*(r-7));c.lineTo(x+dx*r,y+dy*r);c.stroke();}
  diamond(c,x,y,Math.min(8,r*.16),DANGER,INK);
  if(progress!==undefined){c.globalAlpha*=.5;c.beginPath();c.arc(x,y,Math.max(0,Math.min(1,progress))*r,0,TAU);c.stroke();}
  c.restore();
 }
 function lineWarning(c,x,y,angle,width,length){
- c.save();c.translate(x,y);c.rotate(angle||0);c.globalAlpha*=.16;c.fillStyle=DARK;c.fillRect(0,-width/2,length,width);c.globalAlpha/=.16;c.globalAlpha*=.88;c.lineWidth=1.4;
+ c.save();c.translate(x,y);c.rotate(angle||0);c.globalAlpha*=.25;c.fillStyle=DARK;c.fillRect(0,-width/2,length,width);c.globalAlpha/=.25;c.globalAlpha*=.95;c.lineWidth=2.4;
  polygon(c,[[0,-width/2],[length,-width/2],[length,width/2],[0,width/2]],null,DANGER);
  for(let px=22;px<length;px+=46){c.beginPath();c.moveTo(px-6,-Math.min(7,width*.3));c.lineTo(px,0);c.lineTo(px-6,Math.min(7,width*.3));c.stroke();}c.restore();
 }
 function sector(c,x,y,angle,halfWidth,outer,inner,fill,edge,opacity=.2){
  c.save();c.translate(x,y);c.rotate(angle||0);c.globalAlpha*=opacity;c.beginPath();c.arc(0,0,outer,-halfWidth,halfWidth);if(inner>0)c.arc(0,0,inner,halfWidth,-halfWidth,true);else c.lineTo(0,0);c.closePath();c.fillStyle=fill;c.fill();
- c.globalAlpha/=opacity;c.globalAlpha*=.85;c.lineWidth=1.5;c.strokeStyle=edge;c.stroke();
+ c.globalAlpha/=opacity;c.globalAlpha*=.95;c.lineWidth=2.4;c.strokeStyle=edge;c.stroke();
  for(let r=inner+30;r<outer;r+=55){diamond(c,r,0,5,edge);}c.restore();
 }
 function drawTelegraph(c,b){
  const t=b.telegraph;if(!t||t.type==='none')return;
- c.save();const time=b.game.time||0;c.globalAlpha*=.78+Math.sin(time*6)*.12;
+ c.save();const time=b.game.time||0;c.globalAlpha*=.9+Math.sin(time*6)*.06;
  if(t.type==='circle')circleWarning(c,t.x,t.y,t.radius,time);
  else if(t.type==='multi_circle')for(const target of t.targets)circleWarning(c,target.x,target.y,t.radius,time);
  else if(t.type==='line')lineWarning(c,t.x,t.y,t.angle,t.width,t.length);
@@ -54,7 +54,7 @@ function drawBossActor(c,b){
  if(!F.drawBoss(c,b))return false;
  const w=Math.max(105,b.radius*3.4),x=b.x-w/2,y=b.y-b.radius*2.05-12,pct=Math.max(0,Math.min(1,b.hp/b.maxHp));
  c.save();c.lineWidth=1;c.fillStyle=INK;c.fillRect(x-3,y-3,w+6,13);c.strokeStyle='#7f825c';c.strokeRect(x-3,y-3,w+6,13);
- c.fillStyle=pct>.7?'#b3bc8b':pct>.35?GOLD:DANGER;c.fillRect(x,y,w*pct,6);c.fillStyle=INK;for(const mark of [.35,.7])c.fillRect(x+w*mark-1,y,2,6);
+ c.fillStyle=pct>.7?'#cddf91':pct>.35?GOLD:DANGER;c.fillRect(x,y,w*pct,6);c.fillStyle=INK;for(const mark of [.35,.7])c.fillRect(x+w*mark-1,y,2,6);
  c.font='12px "SimSun",serif';c.textAlign='center';c.fillStyle=BONE;c.fillText(b.name,b.x,y-9);
  for(let i=0;i<(b.phase||1);i++)diamond(c,b.x+(i-((b.phase||1)-1)/2)*9,y+17,3,b.phase===3?DANGER:GOLD);
  if(b.shield>0)ring(c,b.x,b.y-b.radius*.45,b.radius*1.55,'#a8bbb5',.75,1.25,8);c.restore();return true;
@@ -74,7 +74,7 @@ function drawEnemyActor(c,e){
  if(e._isBounty)F.drawIcon(c,'coin',e.x-8,e.y-r*2.5-34,16);c.restore();return true;
 }
 function drawHostileProjectiles(c,group,color){
- if(!group.length)return;const tint=F.pigment(color);c.save();c.fillStyle=tint.dark;c.strokeStyle=DANGER;c.lineWidth=1;
+ if(!group.length)return;c.save();c.fillStyle='#873f35';c.strokeStyle=DANGER;c.lineWidth=1.6;
  c.beginPath();for(const b of group){const r=b.radius,k=r*Math.SQRT1_2;c.moveTo(b.x,b.y-r);c.lineTo(b.x+k,b.y-k);c.lineTo(b.x+r,b.y);c.lineTo(b.x+k,b.y+k);c.lineTo(b.x,b.y+r);c.lineTo(b.x-k,b.y+k);c.lineTo(b.x-r,b.y);c.lineTo(b.x-k,b.y-k);c.closePath();}c.fill();c.stroke();
  c.fillStyle=BONE;c.beginPath();for(const b of group){const r=Math.min(2,b.radius*.38);c.moveTo(b.x,b.y-r);c.lineTo(b.x+r,b.y);c.lineTo(b.x,b.y+r);c.lineTo(b.x-r,b.y);c.closePath();}c.fill();c.restore();
 }

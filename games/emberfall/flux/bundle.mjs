@@ -623,31 +623,31 @@ module.exports = { AURA_TYPES, updateAuras, drawAuras };
 // Presentation only. Geometry reads the original actors and warning records.
 // Warm terracotta marks hostile attacks; friendly elements retain muted pigments.
 const F=require('./FacetedArt');
-const TAU=Math.PI*2,INK='#15251e',BONE='#dfd5ad',DANGER='#cc8c72',DARK='#563e35',GOLD='#c6a66c';
+const TAU=Math.PI*2,INK='#0b1713',BONE='#f5e4bc',DANGER='#ed8669',DARK='#8f3f31',GOLD='#e7bd70';
 function polygon(c,points,fill,stroke){c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
 function ring(c,x,y,r,color,alpha=.8,sy=1,n=10){c.save();c.globalAlpha*=alpha;c.lineWidth=1.3;const points=[];for(let i=0;i<n;i++){const a=i/n*TAU;points.push([x+Math.cos(a)*r,y+Math.sin(a)*r*sy]);}polygon(c,points,null,color);c.restore();}
 function diamond(c,x,y,r,fill,edge){polygon(c,[[x,y-r],[x+r*.7,y],[x,y+r],[x-r*.7,y]],fill,edge);}
 function circleWarning(c,x,y,r,time=0,progress){
- c.save();c.lineWidth=1.6;c.fillStyle=DARK;c.globalAlpha*=.16;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
- c.globalAlpha/= .16;c.globalAlpha*=.85;c.strokeStyle=DANGER;c.beginPath();c.arc(x,y,r,0,TAU);c.stroke();
+ c.save();c.lineWidth=2.6;c.fillStyle=DARK;c.globalAlpha*=.25;c.beginPath();c.arc(x,y,r,0,TAU);c.fill();
+ c.globalAlpha/= .25;c.globalAlpha*=.85;c.strokeStyle=DANGER;c.beginPath();c.arc(x,y,r,0,TAU);c.stroke();
  for(let i=0;i<8;i++){const a=i*TAU/8,dx=Math.cos(a),dy=Math.sin(a);c.beginPath();c.moveTo(x+dx*(r-7),y+dy*(r-7));c.lineTo(x+dx*r,y+dy*r);c.stroke();}
  diamond(c,x,y,Math.min(8,r*.16),DANGER,INK);
  if(progress!==undefined){c.globalAlpha*=.5;c.beginPath();c.arc(x,y,Math.max(0,Math.min(1,progress))*r,0,TAU);c.stroke();}
  c.restore();
 }
 function lineWarning(c,x,y,angle,width,length){
- c.save();c.translate(x,y);c.rotate(angle||0);c.globalAlpha*=.16;c.fillStyle=DARK;c.fillRect(0,-width/2,length,width);c.globalAlpha/=.16;c.globalAlpha*=.88;c.lineWidth=1.4;
+ c.save();c.translate(x,y);c.rotate(angle||0);c.globalAlpha*=.25;c.fillStyle=DARK;c.fillRect(0,-width/2,length,width);c.globalAlpha/=.25;c.globalAlpha*=.95;c.lineWidth=2.4;
  polygon(c,[[0,-width/2],[length,-width/2],[length,width/2],[0,width/2]],null,DANGER);
  for(let px=22;px<length;px+=46){c.beginPath();c.moveTo(px-6,-Math.min(7,width*.3));c.lineTo(px,0);c.lineTo(px-6,Math.min(7,width*.3));c.stroke();}c.restore();
 }
 function sector(c,x,y,angle,halfWidth,outer,inner,fill,edge,opacity=.2){
  c.save();c.translate(x,y);c.rotate(angle||0);c.globalAlpha*=opacity;c.beginPath();c.arc(0,0,outer,-halfWidth,halfWidth);if(inner>0)c.arc(0,0,inner,halfWidth,-halfWidth,true);else c.lineTo(0,0);c.closePath();c.fillStyle=fill;c.fill();
- c.globalAlpha/=opacity;c.globalAlpha*=.85;c.lineWidth=1.5;c.strokeStyle=edge;c.stroke();
+ c.globalAlpha/=opacity;c.globalAlpha*=.95;c.lineWidth=2.4;c.strokeStyle=edge;c.stroke();
  for(let r=inner+30;r<outer;r+=55){diamond(c,r,0,5,edge);}c.restore();
 }
 function drawTelegraph(c,b){
  const t=b.telegraph;if(!t||t.type==='none')return;
- c.save();const time=b.game.time||0;c.globalAlpha*=.78+Math.sin(time*6)*.12;
+ c.save();const time=b.game.time||0;c.globalAlpha*=.9+Math.sin(time*6)*.06;
  if(t.type==='circle')circleWarning(c,t.x,t.y,t.radius,time);
  else if(t.type==='multi_circle')for(const target of t.targets)circleWarning(c,target.x,target.y,t.radius,time);
  else if(t.type==='line')lineWarning(c,t.x,t.y,t.angle,t.width,t.length);
@@ -676,7 +676,7 @@ function drawBossActor(c,b){
  if(!F.drawBoss(c,b))return false;
  const w=Math.max(105,b.radius*3.4),x=b.x-w/2,y=b.y-b.radius*2.05-12,pct=Math.max(0,Math.min(1,b.hp/b.maxHp));
  c.save();c.lineWidth=1;c.fillStyle=INK;c.fillRect(x-3,y-3,w+6,13);c.strokeStyle='#7f825c';c.strokeRect(x-3,y-3,w+6,13);
- c.fillStyle=pct>.7?'#b3bc8b':pct>.35?GOLD:DANGER;c.fillRect(x,y,w*pct,6);c.fillStyle=INK;for(const mark of [.35,.7])c.fillRect(x+w*mark-1,y,2,6);
+ c.fillStyle=pct>.7?'#cddf91':pct>.35?GOLD:DANGER;c.fillRect(x,y,w*pct,6);c.fillStyle=INK;for(const mark of [.35,.7])c.fillRect(x+w*mark-1,y,2,6);
  c.font='12px "SimSun",serif';c.textAlign='center';c.fillStyle=BONE;c.fillText(b.name,b.x,y-9);
  for(let i=0;i<(b.phase||1);i++)diamond(c,b.x+(i-((b.phase||1)-1)/2)*9,y+17,3,b.phase===3?DANGER:GOLD);
  if(b.shield>0)ring(c,b.x,b.y-b.radius*.45,b.radius*1.55,'#a8bbb5',.75,1.25,8);c.restore();return true;
@@ -696,7 +696,7 @@ function drawEnemyActor(c,e){
  if(e._isBounty)F.drawIcon(c,'coin',e.x-8,e.y-r*2.5-34,16);c.restore();return true;
 }
 function drawHostileProjectiles(c,group,color){
- if(!group.length)return;const tint=F.pigment(color);c.save();c.fillStyle=tint.dark;c.strokeStyle=DANGER;c.lineWidth=1;
+ if(!group.length)return;c.save();c.fillStyle='#873f35';c.strokeStyle=DANGER;c.lineWidth=1.6;
  c.beginPath();for(const b of group){const r=b.radius,k=r*Math.SQRT1_2;c.moveTo(b.x,b.y-r);c.lineTo(b.x+k,b.y-k);c.lineTo(b.x+r,b.y);c.lineTo(b.x+k,b.y+k);c.lineTo(b.x,b.y+r);c.lineTo(b.x-k,b.y+k);c.lineTo(b.x-r,b.y);c.lineTo(b.x-k,b.y-k);c.closePath();}c.fill();c.stroke();
  c.fillStyle=BONE;c.beginPath();for(const b of group){const r=Math.min(2,b.radius*.38);c.moveTo(b.x,b.y-r);c.lineTo(b.x+r,b.y);c.lineTo(b.x,b.y+r);c.lineTo(b.x-r,b.y);c.closePath();}c.fill();c.restore();
 }
@@ -7880,66 +7880,66 @@ module.exports = {
 // Shared, code-native artwork: the same flat facets as Emberfall's first courtyard.
 // World actors, portraits and interface emblems all use these models and pigments.
 const TAU=Math.PI*2;
-const P={ink:'#15251e',edge:'#a9b58e',bone:'#c9c6a2',boneLight:'#e1dbb8',gold:'#c6a66c',light:'#f1d492',iron:'#626e66',steel:'#a4afa0',wood:'#65533b',shadow:'#07151088'};
+const P={ink:'#0b1713',edge:'#d2ddbc',bone:'#e2d7ad',boneLight:'#f4ebcf',gold:'#e7bd70',light:'#f4dfa0',iron:'#83958a',steel:'#c2d1c1',wood:'#8b6a43',shadow:'#020c0bb8'};
 const HEROES={
- tracer:{main:'#8c7548',light:'#b69b64',dark:'#514832',accent:'#f1cd85',weapon:'lantern'},
- walker:{main:'#59685f',light:'#92a090',dark:'#35453d',accent:'#c9c6a2',weapon:'sword'},
- gunner:{main:'#3b6552',light:'#73917a',dark:'#263f35',accent:'#c7b87f',weapon:'bow'},
- cryomancer:{main:'#4a6a70',light:'#8da8a5',dark:'#2d494e',accent:'#c4ded0',weapon:'frost'},
- biohazard:{main:'#596344',light:'#89946b',dark:'#38462e',accent:'#b9c382',weapon:'thorn'},
- berserker:{main:'#805448',light:'#b88263',dark:'#4c3731',accent:'#e4b485',weapon:'axe'},
- arcane:{main:'#645b77',light:'#9a8caa',dark:'#3c364b',accent:'#d5c1c9',weapon:'moon'},
- engineer:{main:'#796447',light:'#ac9162',dark:'#493e2f',accent:'#d8bc81',weapon:'hammer'},
- assassin:{main:'#4a465c',light:'#797185',dark:'#2e2d3b',accent:'#b8a8bf',weapon:'dagger'}
+ tracer:{main:'#b5914f',light:'#edc778',dark:'#5e472a',accent:'#f2d485',weapon:'lantern'},
+ walker:{main:'#738c83',light:'#c2d8ca',dark:'#374e45',accent:'#ece0ad',weapon:'sword'},
+ gunner:{main:'#508e74',light:'#9fceb1',dark:'#264e3c',accent:'#e7d38e',weapon:'bow'},
+ cryomancer:{main:'#568caa',light:'#a9ddeb',dark:'#304f6a',accent:'#def2f0',weapon:'frost'},
+ biohazard:{main:'#89994a',light:'#cedb83',dark:'#43542a',accent:'#e0e99c',weapon:'thorn'},
+ berserker:{main:'#ad6350',light:'#eaa47a',dark:'#65372d',accent:'#f3d28c',weapon:'axe'},
+ arcane:{main:'#9675ac',light:'#d6b5df',dark:'#50395f',accent:'#f1d6e6',weapon:'moon'},
+ engineer:{main:'#aa8147',light:'#e0b975',dark:'#5e4629',accent:'#f3d48a',weapon:'hammer'},
+ assassin:{main:'#73628e',light:'#b6a0d0',dark:'#41334e',accent:'#e2c6ef',weapon:'dagger'}
 };
 const MONSTERS={
- Bat:{shape:'bat',main:'#554859',light:'#81717d',v:0},
- Skeleton:{shape:'skeleton',main:'#837c66',light:'#b9b69a',v:0},
- Ghost:{shape:'ghost',main:'#626774',light:'#a3abae',v:0},
- DataWorm:{shape:'worm',main:'#5b6650',light:'#82916b',v:0},
- SwarmDrone:{shape:'fly',main:'#777149',light:'#b9ad72',v:0},
- Hornet:{shape:'fly',main:'#8a7046',light:'#ccb378',v:1},
- FireFly:{shape:'fly',main:'#925c40',light:'#d5a15f',v:2},
- Crawler:{shape:'beetle',main:'#526447',light:'#859568',v:0},
- WarpMite:{shape:'beetle',main:'#5a4e6a',light:'#9b84a2',v:1},
- Turret:{shape:'altar',main:'#71694d',light:'#b0a278',v:0},
- LaserDrone:{shape:'eye',main:'#695658',light:'#ba8d79',v:0},
- ScatterGun:{shape:'skeleton',main:'#766047',light:'#b49b6d',v:1},
- SpiralCaster:{shape:'priest',main:'#62516e',light:'#9d87a4',v:0},
- MortarDrone:{shape:'altar',main:'#76644a',light:'#b09969',v:1},
- ChainGunner:{shape:'skeleton',main:'#655d49',light:'#a79875',v:2},
- FrostWisp:{shape:'ghost',main:'#5e7980',light:'#b5d1c5',v:1},
- SlimeGlob:{shape:'slime',main:'#5b7050',light:'#91a577',v:0},
- CyberSpider:{shape:'spider',main:'#68664c',light:'#a39a6c',v:0},
- GlitchEntity:{shape:'ghost',main:'#5d536b',light:'#9f8da8',v:2},
- FrostTitan:{shape:'golem',main:'#5b7378',light:'#9fb9b0',v:1},
- PlagueSource:{shape:'root',main:'#596244',light:'#98a56f',v:0},
- IronGolem:{shape:'golem',main:'#5e6860',light:'#9ca48d',v:0},
- RoyalSlime:{shape:'slime',main:'#706448',light:'#b2a675',v:1},
- VoidLeech:{shape:'worm',main:'#52465e',light:'#8b7b95',v:1},
- Assassin:{shape:'hunter',main:'#4c4354',light:'#8b778d',v:0},
- Bomber:{shape:'hunter',main:'#785544',light:'#c69765',v:1},
- ShieldBearer:{shape:'skeleton',main:'#626c5b',light:'#a0ab8b',v:3},
- Charger:{shape:'beast',main:'#685c46',light:'#a39672',v:0},
- MiniSpider:{shape:'spider',main:'#6a6c4c',light:'#aeb080',v:1},
- ToxicBlob:{shape:'slime',main:'#657444',light:'#a2b26d',v:2},
- Healer:{shape:'priest',main:'#526b58',light:'#9db99a',v:1},
- ShieldPriest:{shape:'priest',main:'#5c6979',light:'#a1b4bb',v:2},
- LootGoblin:{shape:'goblin',main:'#6a714b',light:'#a4ac72',v:0},
- Splitter:{shape:'slime',main:'#6b5b73',light:'#aa91ad',v:3},
- Phantom:{shape:'ghost',main:'#646677',light:'#b5bbc5',v:3}
+ Bat:{shape:'bat',main:'#6d5e71',light:'#a08d9b',v:0},
+ Skeleton:{shape:'skeleton',main:'#a29a80',light:'#e1ddbd',v:0},
+ Ghost:{shape:'ghost',main:'#7c8191',light:'#c7d0d4',v:0},
+ DataWorm:{shape:'worm',main:'#748067',light:'#a1b286',v:0},
+ SwarmDrone:{shape:'fly',main:'#948d5f',light:'#e1d38e',v:0},
+ Hornet:{shape:'fly',main:'#aa8c5b',light:'#f1da95',v:1},
+ FireFly:{shape:'fly',main:'#b37554',light:'#f1c578',v:2},
+ Crawler:{shape:'beetle',main:'#697e5c',light:'#a4b783',v:0},
+ WarpMite:{shape:'beetle',main:'#726485',light:'#bea3c6',v:1},
+ Turret:{shape:'altar',main:'#8d8463',light:'#d6c695',v:0},
+ LaserDrone:{shape:'eye',main:'#846e70',light:'#e2ae96',v:0},
+ ScatterGun:{shape:'skeleton',main:'#93795c',light:'#dbbe88',v:1},
+ SpiralCaster:{shape:'priest',main:'#7c688a',light:'#c0a7c8',v:0},
+ MortarDrone:{shape:'altar',main:'#937e60',light:'#d6bb84',v:1},
+ ChainGunner:{shape:'skeleton',main:'#7f765f',light:'#ccba92',v:2},
+ FrostWisp:{shape:'ghost',main:'#77969e',light:'#dcf1ef',v:1},
+ SlimeGlob:{shape:'slime',main:'#748c67',light:'#b2c994',v:0},
+ CyberSpider:{shape:'spider',main:'#838062',light:'#c7bd87',v:0},
+ GlitchEntity:{shape:'ghost',main:'#766a86',light:'#c2aecd',v:2},
+ FrostTitan:{shape:'golem',main:'#748f95',light:'#c2e1d6',v:1},
+ PlagueSource:{shape:'root',main:'#717c59',light:'#bac98b',v:0},
+ IronGolem:{shape:'golem',main:'#778379',light:'#bfc8ae',v:0},
+ RoyalSlime:{shape:'slime',main:'#8c7e5e',light:'#d8cb92',v:1},
+ VoidLeech:{shape:'worm',main:'#695b77',light:'#ab99b7',v:1},
+ Assassin:{shape:'hunter',main:'#62586b',light:'#ab94ae',v:0},
+ Bomber:{shape:'hunter',main:'#956d59',light:'#f0b97f',v:1},
+ ShieldBearer:{shape:'skeleton',main:'#7c8774',light:'#c4d0ab',v:3},
+ Charger:{shape:'beast',main:'#83755b',light:'#c7b88e',v:0},
+ MiniSpider:{shape:'spider',main:'#858762',light:'#d4d69e',v:1},
+ ToxicBlob:{shape:'slime',main:'#7f9159',light:'#c6d888',v:2},
+ Healer:{shape:'priest',main:'#698670',light:'#c0e1bd',v:1},
+ ShieldPriest:{shape:'priest',main:'#758496',light:'#c5dbe3',v:2},
+ LootGoblin:{shape:'goblin',main:'#858d61',light:'#c8d28e',v:0},
+ Splitter:{shape:'slime',main:'#86748f',light:'#cfb2d3',v:3},
+ Phantom:{shape:'ghost',main:'#7e8094',light:'#dce3ef',v:3}
 };
 const BOSSES=[
- {shape:'golem',main:'#6f5547',light:'#ae7f57',accent:'#edb877',v:2},
- {shape:'golem',main:'#4c475d',light:'#8a7b96',accent:'#cab2ce',v:3},
- {shape:'hydra',main:'#755840',light:'#b89561',accent:'#e0b57b',v:0},
- {shape:'golem',main:'#526f75',light:'#9eb5b0',accent:'#d0ddd0',v:1},
- {shape:'root',main:'#4e5e3e',light:'#8b9a66',accent:'#b9c887',v:1},
- {shape:'rift',main:'#55455f',light:'#9680a3',accent:'#d0b2d3',v:0},
- {shape:'commander',main:'#776347',light:'#b09a6c',accent:'#e5cf99',v:0},
- {shape:'warden',main:'#52646b',light:'#8ea4a4',accent:'#c3cec0',v:0},
- {shape:'hunter',main:'#443c49',light:'#817083',accent:'#ce9992',v:2},
- {shape:'vampire',main:'#653f48',light:'#a77077',accent:'#ddafad',v:0}
+ {shape:'golem',main:'#8b6d5c',light:'#d49d6f',accent:'#f1df94',v:2},
+ {shape:'golem',main:'#625c76',light:'#aa99b8',accent:'#f1d8f1',v:3},
+ {shape:'hydra',main:'#927054',light:'#dfb77b',accent:'#f1dc99',v:0},
+ {shape:'golem',main:'#698b92',light:'#c1dcd6',accent:'#f1f1f1',v:1},
+ {shape:'root',main:'#647752',light:'#abbd80',accent:'#e1f1a7',v:1},
+ {shape:'rift',main:'#6d5a78',light:'#b89ec7',accent:'#f1d8f1',v:0},
+ {shape:'commander',main:'#947d5c',light:'#d6bd87',accent:'#f1f1bb',v:0},
+ {shape:'warden',main:'#697e86',light:'#afc8c8',accent:'#ecf1e9',v:0},
+ {shape:'hunter',main:'#59505f',light:'#a08ca2',accent:'#f1bbb3',v:2},
+ {shape:'vampire',main:'#7f535e',light:'#cc8c94',accent:'#f1d5d3',v:0}
 ];
 function poly(c,points,color,stroke){c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fillStyle=color;c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=1;c.stroke();}}
 function line(c,points,color,width=2){c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.strokeStyle=color;c.lineWidth=width;c.lineJoin='miter';c.stroke();}
@@ -8096,7 +8096,7 @@ function drawHero(c,id,x,y,radius,angle=0,moving=false,time=0,alpha=1){
  if(!HEROES[id])return false;shadow(c,x,y,radius,alpha);
  const extent=radius*3.45,bob=moving?Math.sin(time*11)*1:0;
  sprite(c,'heroes',id,x,y+radius*.8,extent,Math.cos(angle)<0,moving?Math.floor(time*8)%2:0,bob,false,alpha);
- c.save();c.globalAlpha*=alpha*.6;c.strokeStyle=P.gold;c.lineWidth=1;c.beginPath();c.ellipse(x,y+radius*.85,radius*.94,radius*.32,0,0,TAU);c.stroke();c.restore();return true;
+ c.save();c.globalAlpha*=alpha*.95;c.strokeStyle=P.light;c.lineWidth=2;c.beginPath();c.ellipse(x,y+radius*.85,radius*.94,radius*.32,0,0,TAU);c.stroke();c.restore();return true;
 }
 function drawPortrait(c,id,x,y,size){if(!HEROES[id])return false;const image=model('heroes',id,0),w=size*148/165,f=image.width/192;c.drawImage(image,22*f,16*f,148*f,165*f,x+(size-w)/2,y,w,size);return true;}
 function drawMonster(c,e){
@@ -8149,10 +8149,10 @@ function pigment(color){
  let value={main:'#bc9a62',light:'#e8d6a0',dark:'#725c3b'};
  if(/^#[\da-f]{6}$/i.test(color)){
   const n=parseInt(color.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;
-  if(b>r*1.2&&g>r*1.25)value={main:'#8fada9',light:'#d0dfce',dark:'#4c7275'};
-  else if(b>r*1.2&&b>g*1.1)value={main:'#9782a5',light:'#d0bdcf',dark:'#55465f'};
-  else if(g>r*1.1&&g>b*1.2)value={main:'#91a66a',light:'#c5d5a0',dark:'#4e6542'};
-  else if(r>g*1.3)value={main:'#be8658',light:'#efd39a',dark:'#75503d'};
+  if(b>r*1.2&&g>r*1.25)value={main:'#78c3d6',light:'#d6f0ec',dark:'#4c7275'};
+  else if(b>r*1.2&&b>g*1.1)value={main:'#b296d4',light:'#ead5ed',dark:'#55465f'};
+  else if(g>r*1.1&&g>b*1.2)value={main:'#b0cb69',light:'#e0eaa8',dark:'#4e6542'};
+  else if(r>g*1.3)value={main:'#e3a260',light:'#f3dfac',dark:'#75503d'};
  }
  pigments.set(color,value);return value;
 }
@@ -8179,7 +8179,7 @@ function drawArea(c,x,y,r,color,time=0){
  for(let i=0;i<4;i++){const a=i*TAU/4+time*.06;gem(c,Math.cos(a)*r*.78,Math.sin(a)*r*.78,Math.min(7,r*.08),d.main,d.light);}
  c.restore();
 }
-function drawGem(c,x,y,size){c.save();gem(c,x,y,size,'#9cba78','#dae0ac');c.restore();}
+function drawGem(c,x,y,size){c.save();gem(c,x,y,size,'#b7d976','#eff2bd');c.restore();}
 function drawPickup(c,x,y,type,alpha=1){
  const icons={magnet:'bell',bomb:'flame',potion:'flask',chest:'chest',evolution_core:'crystal',weapon_altar:'sword',merchant:'coin',grass:'leaf',teleporter:'rune',heal_shrine:'leaf',power_shrine:'sword',speed_shrine:'feather',shield_orb:'shield',xp_orb:'book',lucky_coin:'coin',trap:'thorn'};
  c.save();c.globalAlpha*=alpha;oval(c,x,y+9,15,5,P.shadow);
@@ -26018,7 +26018,7 @@ module.exports = { PASSIVE_DEFS, Weapon, WEAPON_DEFS };
 // First-version courtyard and independent scenery. No movement or combat rules here.
 const TAU=Math.PI*2,SIZE=512,CACHE_LIMIT=16;
 const PALETTES={
- CyberGrid:{base:'#142420',patch:['#1b2f27','#24372b'],stone:['#263630','#283931','#2b3932','#23332c'],tree:['#19372d','#244838'],accentColor:'#c5d394'},
+ CyberGrid:{base:'#142420',patch:['#1b2f27','#24372b'],stone:['#334b41','#3b5145','#3e5449','#30473c'],tree:['#19372d','#244838'],accentColor:'#c5d394'},
  ToxicSwamp:{base:'#1b261c',patch:['#253323','#303d24'],stone:['#323b2c','#35402d','#3a432e','#2c382b'],tree:['#283d25','#3e5130'],accentColor:'#c5d68b'},
  CryoRealm:{base:'#17282e',patch:['#213640','#2c4149'],stone:['#34464a','#3a4d50','#405359','#2e4148'],tree:['#294446','#3a5c5d'],accentColor:'#b5d8da'},
  VoidNebula:{base:'#221f2d',patch:['#302a3b','#3a3043'],stone:['#3b3546','#423a4a','#473d50','#352e40'],tree:['#332c43','#4b4058'],accentColor:'#cbb5d9'},
@@ -26056,7 +26056,7 @@ class WorldScenery{
         if(random()<.13) continue;
         ground.beginPath();ground.arc(cx,cy,r+27,a,b);ground.arc(cx,cy,r-27,b,a,true);ground.closePath();
         ground.fillStyle=p.stone[Math.floor(random()*4)];ground.fill();
-        ground.strokeStyle='#344239';ground.lineWidth=1;ground.stroke();
+        ground.strokeStyle='#526754';ground.lineWidth=1;ground.stroke();
       }
     }
     ground.strokeStyle='#41645150';ground.lineWidth=2;ground.beginPath();ground.arc(cx,cy,374,0,TAU);ground.stroke();

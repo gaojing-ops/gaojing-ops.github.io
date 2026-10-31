@@ -7,7 +7,7 @@ export function themeColor(value){
   const n=parseInt(m[1],16),r=n>>16,g=n>>8&255,b=n&255,max=Math.max(r,g,b),min=Math.min(r,g,b);
   if(max-min>90&&max>245){
    // Keep elemental distinctions while removing the imported neon palette.
-   result=(r>g*1.25&&r>b*1.1?'#c37e67':b>r*1.25&&b>g*1.15?'#a6a0be':g>r*1.35&&g>b*1.1?'#91ae80':r>160&&g>130&&b<160?'#dfbd7f':g>r*1.15&&b>r*1.15?'#b4c8b2':'#d0b987')+(m[2]||'');
+   result=(r>g*1.25&&r>b*1.1?'#e8997b':b>r*1.25&&b>g*1.15?'#b9a6db':g>r*1.35&&g>b*1.1?'#b0cb84':r>160&&g>130&&b<160?'#edc97b':g>r*1.15&&b>r*1.15?'#9ed8dd':'#e8cc96')+(m[2]||'');
   }else if(max<45&&b>r*1.25)result='#102019'+(m[2]||'');
  }else if(/^rgba?\(/i.test(value)){
   const values=value.match(/[\d.]+/g)?.map(Number);
@@ -60,13 +60,13 @@ export function installWebHUD(runtime){
  // All panels use the same chipped stone and brass as the courtyard props.
  const stone=(ctx,x,y,w,h,active=false)=>{
   const cut=6;ctx.beginPath();ctx.moveTo(x+cut,y);ctx.lineTo(x+w-cut,y);ctx.lineTo(x+w,y+cut);ctx.lineTo(x+w,y+h-cut);ctx.lineTo(x+w-cut,y+h);ctx.lineTo(x+cut,y+h);ctx.lineTo(x,y+h-cut);ctx.lineTo(x,y+cut);ctx.closePath();
-  ctx.fillStyle='#142219ee';ctx.fill();ctx.strokeStyle=active?'#caa86a':'#78865c77';ctx.lineWidth=active?1.2:1;ctx.stroke();
+  ctx.fillStyle='#0c1c16f5';ctx.fill();ctx.strokeStyle=active?'#edc579':'#a6b78fbb';ctx.lineWidth=active?1.2:1;ctx.stroke();
   ctx.strokeStyle=active?'#e3c99244':'#a2ae7c2e';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+cut+2,y+2);ctx.lineTo(x+w-cut-2,y+2);ctx.stroke();
  };
  const control=(ctx,key,cx,cy,label,cooldown)=>{
   ctx.save();stone(ctx,cx-28,cy-28,56,56,cooldown<=0);
   if(cooldown>0)ctx.globalAlpha=.28;art.drawIcon?.(ctx,key,cx-20,cy-22,40);ctx.globalAlpha=1;
-  ctx.textAlign='center';ctx.font='600 10px "Microsoft YaHei",sans-serif';ctx.fillStyle='#d1c49a';ctx.fillText(label,cx,cy+43);
+  ctx.textAlign='center';ctx.font='600 10px "Microsoft YaHei",sans-serif';ctx.fillStyle='#f2ddb0';ctx.fillText(label,cx,cy+43);
   if(cooldown>0){ctx.font='600 17px Georgia,serif';ctx.fillStyle='#ecd9a6';ctx.fillText(Math.ceil(cooldown),cx,cy+6);}
   ctx.restore();
  };
@@ -93,17 +93,17 @@ export function installWebHUD(runtime){
   ctx.save();stone(ctx,10,10,bw+78,96);
   art.drawPortrait(ctx,p.characterId,9,18,55);
   ctx.font='13px "SimSun",serif';ctx.textAlign='left';ctx.fillStyle='#e0d7b3';ctx.fillText(catalogs.characters[p.characterId]?.name||'守夜者',x,y+3);
-  ctx.textAlign='right';ctx.font='10px Georgia,serif';ctx.fillStyle='#b8c5a0';ctx.fillText(`${Math.ceil(p.hp)} / ${p.maxHp}`,x+bw,y+3);
-  ctx.fillStyle='#0d1c13';ctx.fillRect(x,y+14,bw,7);ctx.fillStyle=p.hp/p.maxHp<.3?'#bd8568':'#a8bb86';ctx.fillRect(x,y+14,bw*Math.max(0,p.hp/p.maxHp),7);
+  ctx.textAlign='right';ctx.font='10px Georgia,serif';ctx.fillStyle='#e0e9cb';ctx.fillText(`${Math.ceil(p.hp)} / ${p.maxHp}`,x+bw,y+3);
+  ctx.fillStyle='#0d1c13';ctx.fillRect(x,y+14,bw,7);ctx.fillStyle=p.hp/p.maxHp<.3?'#e48870':'#bcd989';ctx.fillRect(x,y+14,bw*Math.max(0,p.hp/p.maxHp),7);
   ctx.strokeStyle='#71825777';ctx.strokeRect(x,y+14,bw,7);
   ctx.fillStyle='#0d1c13';ctx.fillRect(x,y+26,bw,3);ctx.fillStyle='#c2a36a';ctx.fillRect(x,y+26,bw*Math.min(1,p.xp/p.maxXp),3);
-  ctx.textAlign='left';ctx.font='10px "Microsoft YaHei"';ctx.fillStyle='#a5b596';ctx.fillText(`第 ${p.level} 阶 · 击败 ${p.kills}`,x,y+47);
-  ctx.fillStyle='#b8aa7b';ctx.fillText(`减伤 ${Math.round((p.armor||0)*100)}% · 余烬 ${this.meta?.data.chips||0}`,x,y+64);
+  ctx.textAlign='left';ctx.font='10px "Microsoft YaHei"';ctx.fillStyle='#d2dec0';ctx.fillText(`第 ${p.level} 阶 · 击败 ${p.kills}`,x,y+47);
+  ctx.fillStyle='#e5cf9a';ctx.fillText(`减伤 ${Math.round((p.armor||0)*100)}% · 余烬 ${this.meta?.data.chips||0}`,x,y+64);
   if(p.weapons.length)stone(ctx,10,this.height-45,p.weapons.length*26+12,34);
   for(let i=0;i<p.weapons.length;i++)art.drawIcon?.(ctx,p.weapons[i].id,17+i*26,this.height-39,22);
   const buffs=[['_weaponSurge','焰盛'],['_speedBurst','疾风'],['_xpSurge','悟道'],['_armorBoost','坚壁'],['_drainField','汲魂'],['timeRift','迟暮'],['_densitySurge','黑潮']].filter(([id])=>this[id]?.timer>0);
   ctx.fillStyle='#b6b78d';ctx.fillText(buffs.map(([id,label])=>`${label} ${Math.ceil(this[id].timer)}秒`).join(' · '),20,123);
-  if(!narrow){ctx.textAlign='center';ctx.fillStyle='#83956e';ctx.font='10px "Microsoft YaHei"';ctx.fillText('WASD 移动    SPACE 闪避    E 咏誓    P 暂歇',this.width/2,this.height-20);}
+  if(!narrow){ctx.textAlign='center';ctx.fillStyle='#b9cca7';ctx.font='10px "Microsoft YaHei"';ctx.fillText('WASD 移动    SPACE 闪避    E 咏誓    P 暂歇',this.width/2,this.height-20);}
   ctx.restore();this._drawDashButton(ctx);
  };
  game._drawPauseButton=function(){
@@ -112,7 +112,7 @@ export function installWebHUD(runtime){
  };
  const modePlate=(ctx,w,title,detail,ratio)=>{
   const bw=w<600?131:188,x=w-bw-12;ctx.save();stone(ctx,x,10,bw,49);ctx.textAlign='left';ctx.font='12px "SimSun",serif';ctx.fillStyle='#d7ca9e';ctx.fillText(title,x+10,29);
-  ctx.textAlign='right';ctx.font='10px Georgia,serif';ctx.fillStyle='#a0b18e';ctx.fillText(detail,x+bw-10,29);ctx.fillStyle='#0e1e15';ctx.fillRect(x+10,41,bw-20,3);ctx.fillStyle='#a59763';ctx.fillRect(x+10,41,(bw-20)*Math.max(0,Math.min(1,ratio)),3);ctx.restore();
+  ctx.textAlign='right';ctx.font='10px Georgia,serif';ctx.fillStyle='#d2dfbf';ctx.fillText(detail,x+bw-10,29);ctx.fillStyle='#0e1e15';ctx.fillRect(x+10,41,bw-20,3);ctx.fillStyle='#e0bf75';ctx.fillRect(x+10,41,(bw-20)*Math.max(0,Math.min(1,ratio)),3);ctx.restore();
  };
  game._drawSpeedRunHUD=function(){const target=catalogs.speed.KILL_TARGET,elapsed=Math.max(0,this.time-(this.speedRunStartTime||0));modePlate(this.ctx,this.width,'疾行试炼',`${this.speedRunKills||0}/${target}`,(this.speedRunKills||0)/target);this.ctx.save();this.ctx.fillStyle='#afbc99';this.ctx.font='12px Georgia,serif';this.ctx.textAlign='right';this.ctx.fillText(catalogs.speed.formatTime(elapsed*1000),this.width-68,95);this.ctx.restore();};
  game._drawBossDamagePanel=function(){
@@ -195,8 +195,8 @@ export function installWebHUD(runtime){
    this.stageSystem._drawStageHUD=function(ctx,w,h){
     const cfg=catalogs.stages[this.currentStage];if(!cfg||this.game.isSpeedRunMode)return;const left=Math.max(0,cfg.duration-this.stageTime),bw=w<600?131:188,x=w-bw-12;
     ctx.save();stone(ctx,x,10,bw,49);ctx.textAlign='left';ctx.fillStyle='#d7ca9e';ctx.font='12px "SimSun",serif';ctx.fillText(this.game.endlessMode?'无尽守夜':cfg.name,x+10,30);
-    ctx.textAlign='right';ctx.fillStyle='#a0b18e';ctx.font='10px Georgia,serif';ctx.fillText(this.game.endlessMode?`第 ${this.game.endlessWave||1} 潮`:`${Math.floor(left/60)}:${String(Math.floor(left%60)).padStart(2,'0')}`,x+bw-10,30);
-    ctx.fillStyle='#0e1e15';ctx.fillRect(x+10,41,bw-20,3);ctx.fillStyle='#a59763';ctx.fillRect(x+10,41,(bw-20)*Math.min(1,this.stageTime/cfg.duration),3);ctx.restore();
+    ctx.textAlign='right';ctx.fillStyle='#d2dfbf';ctx.font='10px Georgia,serif';ctx.fillText(this.game.endlessMode?`第 ${this.game.endlessWave||1} 潮`:`${Math.floor(left/60)}:${String(Math.floor(left%60)).padStart(2,'0')}`,x+bw-10,30);
+    ctx.fillStyle='#0e1e15';ctx.fillRect(x+10,41,bw-20,3);ctx.fillStyle='#e0bf75';ctx.fillRect(x+10,41,(bw-20)*Math.min(1,this.stageTime/cfg.duration),3);ctx.restore();
    };
   }
   return originalDraw();
