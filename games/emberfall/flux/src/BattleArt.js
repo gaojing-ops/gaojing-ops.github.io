@@ -91,4 +91,11 @@ function drawPlayerActor(c,p,heroDraw=F.drawHero){
  if(p.game.playerInvincible>0)ring(c,p.x,p.y-p.radius*.45,p.radius*1.35,'#c9c8a0',.7,1.2,8);
  for(const pet of p.pets||[])pet.draw(c);c.restore();return true;
 }
-module.exports={drawTelegraph,drawBossGround,drawBossActor,drawEnemyGround,drawEnemyActor,drawHostileProjectiles,drawMortarWarnings,drawPlayerActor,drawPulse,circleWarning,lineWarning,sector};
+function drawPlayerFocus(c,p){
+ if(!p)return;c.save();const x=p.x,y=p.y-p.radius*2.5-10;
+ // A tiny locator stays above dense friendly spells without changing actor layering.
+ c.lineJoin='round';c.lineWidth=4;polygon(c,[[x-7,y-5],[x,y+3],[x+7,y-5]],null,INK);
+ c.lineWidth=2;polygon(c,[[x-7,y-5],[x,y+3],[x+7,y-5]],null,'#fff0bd');
+ c.restore();
+}
+module.exports={drawTelegraph,drawBossGround,drawBossActor,drawEnemyGround,drawEnemyActor,drawHostileProjectiles,drawMortarWarnings,drawPlayerActor,drawPlayerFocus,drawPulse,circleWarning,lineWarning,sector};

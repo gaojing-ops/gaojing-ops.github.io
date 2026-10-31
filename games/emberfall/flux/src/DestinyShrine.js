@@ -1,5 +1,6 @@
 const { fastSin, fastCos } = require('./MathLUT');
 const SFX = require('./SFX');
+const Art = require('./Art');
 
 class DestinyShrine {
     constructor(game, x, y) {
@@ -31,38 +32,10 @@ class DestinyShrine {
 
     draw(ctx) {
         if (!this.active) return;
-
-        // 绘制发光的金色法阵和光柱
         ctx.save();
-        ctx.translate(this.x, this.y);
-
-        // 呼吸效果
-        const scale = 1.0 + fastSin(this.timer * 3) * 0.1;
-        ctx.scale(scale, scale);
-
-        // 外层光环
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius + 15, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffaa0044';
-        ctx.fill();
-
-        // 内层法阵
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = '#ffcc00';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        // 旋转的符文点
-        ctx.rotate(this.timer);
-        for (let i = 0; i < 3; i++) {
-            ctx.beginPath();
-            ctx.arc(this.radius * fastCos(i * Math.PI * 2 / 3), this.radius * fastSin(i * Math.PI * 2 / 3), 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-        }
-
+        Art.drawArea(ctx, this.x, this.y, this.radius, '#e7bd70', this.timer,
+            this.game.qualityLevel >= 0.5 ? 0.06 : 0, this.game.qualityLevel >= 0.5);
+        Art.drawIcon(ctx, 'rune', this.x - 18, this.y - 43, 36);
         ctx.restore();
     }
 
@@ -179,7 +152,7 @@ class DestinyShrine {
             return;
         }
 
-        this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 120, '【诡异】基因突变！！', '#aa44ff', true);
+        this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 120, '【异兆】炉火重铸', '#aa44ff', true);
 
         // 随机挑一把
         const idx = Math.floor(Math.random() * p.weapons.length);
@@ -189,23 +162,23 @@ class DestinyShrine {
         // 挑一个新的没拿过的普通武器
         const WEAPON_DEFS = require('./Weapons').WEAPON_DEFS;
         const allKeys = Object.keys(WEAPON_DEFS).filter(k =>
-            !WEAPON_DEFS[k].isFusion &&
+            !WEAPON_DEFS[k].isFusion && !WEAPON_DEFS[k].evolved &&
             !p.weapons.find(pw => pw.id === k)
         );
 
         if (allKeys.length > 0) {
             const newKey = allKeys[Math.floor(Math.random() * allKeys.length)];
             const def = WEAPON_DEFS[newKey];
-            w.id = newKey;
-            w.def = def;
-            w.level = def.maxLevel; // 直接满级
-            // damage 是 getter 属性，不能直接赋值；cooldown 是倒计时
-            w.cooldown = 0;
-            w.evolved = false;
+            // A fresh weapon cannot carry another weapon's awakening multipliers,
+            // clones, gravity fields or nano swarm after the shrine changes its type.
+            const replacement = new (require('./Weapons').Weapon)(this.game, newKey);
+            replacement.level = def.maxLevel;
+            p.weapons[idx] = replacement;
+            this.game.synergy?.check();
 
             this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 80, oldName + ' -> ' + def.name, '#aa44ff', true);
         } else {
-            this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 80, '无事发生...', '#aaaaaa', true);
+            this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 80, '神龛未作回应', '#aaaaaa', true);
         }
     }
 }

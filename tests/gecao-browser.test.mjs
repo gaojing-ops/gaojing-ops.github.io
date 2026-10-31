@@ -39,6 +39,17 @@ test('web pause, blur, hidden tabs and tutorial freeze time and cooldowns',()=>{
  document.hidden=false;e.events.visibilitychange();e.frame(8200);assert.equal(e.game.isPaused,true);
 });
 
+test('automatic quality samples actual foreground work once per rendered frame and ignores background throttling',()=>{
+ const e=environment(),samples=[];e.game.recordFrameCost=seconds=>samples.push(seconds);
+ e.game.autoPlay=e.game.autoUpgrade=true;
+ e.game.draw=()=>e.setTime(performance.now()+40);
+ e.frame(1000);e.frame(2000);
+ assert.equal(e.game._qualityUsesRenderCost,true);assert.deepEqual(samples,[.04,.04]);
+ e.nodes.get('pause-web').events.click[0]();e.frame(3000);assert.equal(samples.length,2,'pause is not load');
+ e.nodes.get('pause-web').events.click[0]();e.windowEvents.blur();e.frame(5000);assert.equal(samples.length,3);assert.equal(samples[2],.04,'unfocused RAF gap is not measured as CPU work');
+ document.hidden=true;e.events.visibilitychange();e.timer(6000);assert.equal(samples.length,3,'background catch-up is not a rendered frame');
+});
+
 test('reward and result statuses never call a stopped journey camp or offer a stale continue label',()=>{
  const e=environment();e.game.isRunning=false;e.game.isPaused=true;e.game.stageSystem={state:'reward'};e.frame(1000);
  assert.equal(e.nodes.get('status').textContent,'章节已完成，请选择赐福');

@@ -9,9 +9,57 @@ const Game=require('./src/Game'),Boss=require('./src/Boss'),Bullet=require('./sr
 const {Weapon,WEAPON_DEFS}=require('./src/Weapons');
 const {EVOLUTION_RECIPES,UNION_RECIPES,checkEvolutions,evolveWeapon,isEvolutionUnlocked,getEvolutionProgress,getEvolutionDamageMult}=require('./src/Evolution');
 const {progression}=require('./src/Progression'),Art=require('./src/Art');
+const DestinyShrine=require('./src/DestinyShrine');
 function start(hero='tracer'){const g=new Game(canvas());g.resize(1000,620);g.startWithCharacter(hero,[]);g._tutorialStep=-1;return g;}
 function full(g,id){const w=new Weapon(g,id);w.level=w.def.maxLevel;g.player.weapons.push(w);return w;}
 function unlocked(g){g.player.kills=5000;g.player.totalHealed=1000;g.player.totalGemsCollected=1000;g.bossKills=10;g.frozenKills=g.poisonKills=100;}
+
+test('natural shrine transmutation replaces old awakening state and recalculates lost resonance',()=>{
+ const g=start(),p=g.player;p.weapons=[];unlocked(g);
+ const old=full(g,'toxin_spray');full(g,'acid_pool');full(g,'venom_sting');p.passives.push({id:EVOLUTION_RECIPES.toxin_spray.requirePassive,level:1});
+ evolveWeapon(old,EVOLUTION_RECIPES.toxin_spray);assert.equal(p.plagueSpread,true);assert.equal(p.bonusToxicDmg,.25);
+ for(const key of ['_clones','_orbList','_firePools','_acidPools','_gravityZones','_nanoSwarm'])old[key].push({x:0,y:0,radius:40});
+ const random=Math.random;Math.random=()=>0;
+ try{new DestinyShrine(g,0,0)._eventWeird();}finally{Math.random=random;}
+ const next=p.weapons[0];assert.notEqual(next,old);assert.equal(next.id,'flux_bolt');assert.equal(next.level,next.def.maxLevel);assert.equal(next.evolved,false);assert.equal(next._evolutionBonuses,null);
+ assert.equal(p.weapons.length,3);assert.equal(p.plagueSpread,false);assert.equal(p.bonusToxicDmg,.15);
+ const ordinary=new Weapon(g,next.id);ordinary.level=next.level;assert.equal(next.damage,ordinary.damage);assert.equal(next.interval,ordinary.interval);
+ for(const key of ['_clones','_orbList','_firePools','_acidPools','_gravityZones','_nanoSwarm'])assert.equal(next[key].length,0,key);
+ const shrine=new DestinyShrine(g,10,20),state=JSON.stringify([p.weapons.map(w=>[w.id,w.level]),shrine.timer,shrine.active]);Math.random=()=>{throw Error('shrine art used combat RNG');};
+ try{shrine.draw(ctx);}finally{Math.random=random;}
+ assert.equal(JSON.stringify([p.weapons.map(w=>[w.id,w.level]),shrine.timer,shrine.active]),state);
+});
+
+test('shrine ordinary-weapon pool never grants hidden standalone evolution definitions',()=>{
+ const g=start(),p=g.player;
+ p.weapons=Object.keys(WEAPON_DEFS).filter(id=>!WEAPON_DEFS[id].isFusion&&!WEAPON_DEFS[id].evolved).map(id=>new Weapon(g,id));
+ const before=p.weapons.slice(),random=Math.random;Math.random=()=>.99;
+ try{new DestinyShrine(g,0,0)._eventWeird();}finally{Math.random=random;}
+ assert.deepEqual(p.weapons,before,'with every ordinary weapon owned there is no eligible replacement');
+});
+
+test('boss damage notice expires through combat updates without drawing and preserves a stable paused receipt',()=>{
+ const g=start();g.spawnTimer=g.bossTimer=999;const log={flux_bolt:120,burn:80};g._showBossDamageBreakdown(log,'守林巨兽');log.flux_bolt=0;
+ assert.equal(g._lastBossDamageRecord.log.flux_bolt,120,'receipt cannot be mutated by a pooled boss');
+ g.isPaused=true;g.update(.1);assert.equal(g._bossDamageDisplay.timer,5);g.isPaused=false;
+ for(let i=0;i<360;i++)g.update(1/60);
+ assert.equal(g._bossDamageDisplay,null,'background or throttled drawing cannot prolong notice lifetime');assert.equal(g._lastBossDamageRecord.log.burn,80);
+ g.startWithCharacter('tracer',[]);assert.equal(g._lastBossDamageRecord,null);
+});
+
+test('browser quality follows measured CPU frames rather than fixed helper steps and respects manual choice',()=>{
+ const g=start();g._qualityUsesRenderCost=true;g.autoQuality=true;g.qualityLevel=.5;g.spawnTimer=g.bossTimer=999;
+ for(let i=0;i<120;i++)g.update(1/60);
+ assert.equal(g.qualityLevel,.5,'fixed simulation steps cannot force fine quality');
+ for(let i=0;i<59;i++)g.recordFrameCost(.04);assert.equal(g.qualityLevel,.5,'hysteresis waits for a complete sample window');
+ g.recordFrameCost(.04);assert.equal(g.qualityLevel,.25);
+ for(let i=0;i<60;i++)g.recordFrameCost(.04);assert.equal(g.qualityLevel,0);
+ for(let i=0;i<60;i++)g.recordFrameCost(.005);assert.equal(g.qualityLevel,.05,'recovery is gradual');
+ for(let i=0;i<60;i++)g.recordFrameCost(.018);assert.equal(g.qualityLevel,.05,'middle budget does not oscillate');
+ g.autoQuality=false;g.qualityLevel=1;for(let i=0;i<120;i++)g.recordFrameCost(.2);assert.equal(g.qualityLevel,1);assert.equal(g._ftCount,0);
+ g.autoQuality=true;for(let i=0;i<59;i++)g.recordFrameCost(.04);assert.equal(g.qualityLevel,1);g.recordFrameCost(.04);assert.equal(g.qualityLevel,.75);
+ for(const bad of [NaN,Infinity,-1])g.recordFrameCost(bad);assert.ok(Number.isFinite(g._ftSum));
+});
 
 test('all six fusions remain available after ordinary awakening and consume exactly one full secondary',()=>{
  for(const [id,recipe]of Object.entries(UNION_RECIPES)){
@@ -103,4 +151,30 @@ test('real domain bullet drawing keeps the actual radius without an opaque legac
   arcs.length=alphas.length=0;new Bullet(g,0,0,0,0,0,{radius:1000,shape,evolved:true,visualOnly:true}).draw(c);
   assert.ok(arcs.includes(1000));assert.ok(!arcs.some(r=>r>1000));assert.ok(alphas.every(a=>a<.6));assert.equal(alpha,1);
  }
+});
+
+test('dense evolved crescents keep their hit radius while bounding opaque cores and trail width',()=>{
+ const g=start(),arcs=[],points=[],strokes=[],stack=[];let alpha=1,width=1;
+ const c=new Proxy({save(){stack.push([alpha,width]);},restore(){[alpha,width]=stack.pop();},arc(x,y,r){arcs.push(r);},moveTo(x,y){points.push([x,y]);},lineTo(x,y){points.push([x,y]);},stroke(){strokes.push({alpha,width});}},{get:(o,k)=>k==='globalAlpha'?alpha:k==='lineWidth'?width:o[k]??(()=>{}),set:(o,k,v)=>{if(k==='globalAlpha')alpha=v;else if(k==='lineWidth')width=v;else o[k]=v;return true;}});
+ const b=new Bullet(g,0,0,1,0,10,{radius:40,shape:'crescent',evolved:true});b.historyCount=2;b.historyX[0]=-5;b.historyY[0]=0;b.historyX[1]=0;b.historyY[1]=0;
+ const before=JSON.stringify([b.x,b.y,b.radius,b.damage,b.historyCount]);b.draw(c);
+ assert.ok(arcs.includes(40),'large projectile keeps its true collision outline');assert.ok(points.every(([x,y])=>Math.abs(x)<30&&Math.abs(y)<30),'solid core no longer grows with the hit volume');
+ assert.ok(strokes.some(s=>s.width<=4&&s.alpha<=.18),'thick opaque trails cannot cover incoming attacks');assert.equal(alpha,1);assert.equal(width,1);assert.equal(JSON.stringify([b.x,b.y,b.radius,b.damage,b.historyCount]),before);
+});
+
+test('hostile shots and the player locator draw after friendly spell layers',()=>{
+ const g=start(),p=g.player,order=[],saved={};g.camera.x=p.x-g.width/2;g.camera.y=p.y-g.height/2;
+ g.enemyBullets=[{active:true,x:p.x,y:p.y,radius:5,color:'#ff0000'}];
+ for(const [key,label] of [['drawNightMagic','friendly'],['drawPlayerFocus','locator'],['drawHostileProjectiles','hostile']]){saved[key]=Art[key];Art[key]=()=>order.push(label);}
+ try{g.draw();}finally{Object.assign(Art,saved);}
+ assert.ok(order.indexOf('hostile')>order.indexOf('friendly'));assert.ok(order.indexOf('locator')>order.indexOf('friendly'));
+ const state=JSON.stringify([p.x,p.y,p.hp,p.weapons.map(w=>[w.id,w.level])]),random=Math.random;Math.random=()=>{throw Error('focus marker consumed RNG');};
+ try{Art.drawPlayerFocus(ctx,p);}finally{Math.random=random;}
+ assert.equal(JSON.stringify([p.x,p.y,p.hp,p.weapons.map(w=>[w.id,w.level])]),state);
+});
+
+test('large persistent loot fields skip offscreen drawing while preserving every reward',()=>{
+ const g=start(),p=g.player;g.camera.x=p.x-g.width/2;g.camera.y=p.y-g.height/2;let visible=0,offscreen=0;
+ g.pickups=[{x:p.x,y:p.y,active:true,draw(){visible++;}},...Array.from({length:800},(_,i)=>({x:p.x+10000+i,y:p.y,active:true,draw(){offscreen++;}}))];
+ g.draw();assert.equal(visible,1);assert.equal(offscreen,0);assert.equal(g.pickups.length,801);assert.ok(g.pickups.every(p=>p.active),'render culling never deletes or collects an offscreen reward');
 });

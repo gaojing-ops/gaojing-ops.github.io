@@ -713,7 +713,14 @@ function drawPlayerActor(c,p,heroDraw=F.drawHero){
  if(p.game.playerInvincible>0)ring(c,p.x,p.y-p.radius*.45,p.radius*1.35,'#c9c8a0',.7,1.2,8);
  for(const pet of p.pets||[])pet.draw(c);c.restore();return true;
 }
-module.exports={drawTelegraph,drawBossGround,drawBossActor,drawEnemyGround,drawEnemyActor,drawHostileProjectiles,drawMortarWarnings,drawPlayerActor,drawPulse,circleWarning,lineWarning,sector};
+function drawPlayerFocus(c,p){
+ if(!p)return;c.save();const x=p.x,y=p.y-p.radius*2.5-10;
+ // A tiny locator stays above dense friendly spells without changing actor layering.
+ c.lineJoin='round';c.lineWidth=4;polygon(c,[[x-7,y-5],[x,y+3],[x+7,y-5]],null,INK);
+ c.lineWidth=2;polygon(c,[[x-7,y-5],[x,y+3],[x+7,y-5]],null,'#fff0bd');
+ c.restore();
+}
+module.exports={drawTelegraph,drawBossGround,drawBossActor,drawEnemyGround,drawEnemyActor,drawHostileProjectiles,drawMortarWarnings,drawPlayerActor,drawPlayerFocus,drawPulse,circleWarning,lineWarning,sector};
 
 },{"./FacetedArt":"src/FacetedArt.js"}],
 "src/Boss.js":[function(require,module,exports){
@@ -3805,12 +3812,14 @@ class Bullet {
             drawBullet(ctx, this.x, this.y, this.radius, this.color, this.shape, 0, 0, false);
             return; // The domain already has a range outline; no legacy filled halo or inflated radius.
         }
+        ctx.save();
+        const alpha = ctx.globalAlpha;
         // 简化拖尾绘制（减少状态切换）
         if (this.historyCount > 1) {
             const startIdx = (this.historyHead - this.historyCount + this.maxHistory) % this.maxHistory;
-            ctx.globalAlpha = this.evolved ? 0.5 : 0.3;
+            ctx.globalAlpha = alpha * (this.evolved ? 0.18 : 0.14);
             ctx.strokeStyle = this.color;
-            ctx.lineWidth = this.radius * (this.evolved ? 0.8 : 0.6);
+            ctx.lineWidth = Math.min(4, this.radius * 0.4);
             ctx.beginPath();
             for (let i = 0; i < this.historyCount; i++) {
                 const idx = (startIdx + i) % this.maxHistory;
@@ -3818,17 +3827,7 @@ class Bullet {
                 else ctx.lineTo(this.historyX[idx], this.historyY[idx]);
             }
             ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
-
-        // 终极武器外发光（无 shadowBlur）
-        if (this.evolved && this.radius < 48) {
-            ctx.globalAlpha = 0.1;
-            ctx.fillStyle = this.color;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1;
+            ctx.globalAlpha = alpha;
         }
 
         const angle = Math.atan2(this.vy, this.vx);
@@ -3837,9 +3836,10 @@ class Bullet {
             drawAngle += this.glowTimer * 2;
         }
 
-        // 终极武器使用稍大尺寸，但不给 glowIntensity（避免 drawBullet 里的 shadowBlur）
-        const drawSize = this.evolved && this.radius < 48 ? this.radius * 1.3 : this.radius;
+        // The native glyph stays compact; its outline preserves the actual hit radius.
+        const drawSize = this.radius;
         drawBullet(ctx, this.x, this.y, drawSize, this.color, this.shape, drawAngle, 0, this.evolved);
+        ctx.restore();
     }
 }
 
@@ -5001,6 +5001,7 @@ module.exports = { getDailyConfig, saveDailyScore, getDailyLeaderboard };
 "src/DestinyShrine.js":[function(require,module,exports){
 const { fastSin, fastCos } = require('./MathLUT');
 const SFX = require('./SFX');
+const Art = require('./Art');
 
 class DestinyShrine {
     constructor(game, x, y) {
@@ -5032,38 +5033,10 @@ class DestinyShrine {
 
     draw(ctx) {
         if (!this.active) return;
-
-        // 绘制发光的金色法阵和光柱
         ctx.save();
-        ctx.translate(this.x, this.y);
-
-        // 呼吸效果
-        const scale = 1.0 + fastSin(this.timer * 3) * 0.1;
-        ctx.scale(scale, scale);
-
-        // 外层光环
-        ctx.globalCompositeOperation = 'lighter';
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius + 15, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffaa0044';
-        ctx.fill();
-
-        // 内层法阵
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = '#ffcc00';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        // 旋转的符文点
-        ctx.rotate(this.timer);
-        for (let i = 0; i < 3; i++) {
-            ctx.beginPath();
-            ctx.arc(this.radius * fastCos(i * Math.PI * 2 / 3), this.radius * fastSin(i * Math.PI * 2 / 3), 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-        }
-
+        Art.drawArea(ctx, this.x, this.y, this.radius, '#e7bd70', this.timer,
+            this.game.qualityLevel >= 0.5 ? 0.06 : 0, this.game.qualityLevel >= 0.5);
+        Art.drawIcon(ctx, 'rune', this.x - 18, this.y - 43, 36);
         ctx.restore();
     }
 
@@ -5180,7 +5153,7 @@ class DestinyShrine {
             return;
         }
 
-        this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 120, '【诡异】基因突变！！', '#aa44ff', true);
+        this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 120, '【异兆】炉火重铸', '#aa44ff', true);
 
         // 随机挑一把
         const idx = Math.floor(Math.random() * p.weapons.length);
@@ -5190,30 +5163,30 @@ class DestinyShrine {
         // 挑一个新的没拿过的普通武器
         const WEAPON_DEFS = require('./Weapons').WEAPON_DEFS;
         const allKeys = Object.keys(WEAPON_DEFS).filter(k =>
-            !WEAPON_DEFS[k].isFusion &&
+            !WEAPON_DEFS[k].isFusion && !WEAPON_DEFS[k].evolved &&
             !p.weapons.find(pw => pw.id === k)
         );
 
         if (allKeys.length > 0) {
             const newKey = allKeys[Math.floor(Math.random() * allKeys.length)];
             const def = WEAPON_DEFS[newKey];
-            w.id = newKey;
-            w.def = def;
-            w.level = def.maxLevel; // 直接满级
-            // damage 是 getter 属性，不能直接赋值；cooldown 是倒计时
-            w.cooldown = 0;
-            w.evolved = false;
+            // A fresh weapon cannot carry another weapon's awakening multipliers,
+            // clones, gravity fields or nano swarm after the shrine changes its type.
+            const replacement = new (require('./Weapons').Weapon)(this.game, newKey);
+            replacement.level = def.maxLevel;
+            p.weapons[idx] = replacement;
+            this.game.synergy?.check();
 
             this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 80, oldName + ' -> ' + def.name, '#aa44ff', true);
         } else {
-            this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 80, '无事发生...', '#aaaaaa', true);
+            this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 80, '神龛未作回应', '#aaaaaa', true);
         }
     }
 }
 
 module.exports = DestinyShrine;
 
-},{"./MathLUT":"src/MathLUT.js","./SFX":"src/SFX.js","./Weapons":"src/Weapons.js"}],
+},{"./MathLUT":"src/MathLUT.js","./SFX":"src/SFX.js","./Art":"src/Art.js","./Weapons":"src/Weapons.js"}],
 "src/Enemy.js":[function(require,module,exports){
 const { drawBat, drawSkeleton, drawGhost, drawDataWorm, drawSwarmDrone,
     drawFrostWisp, drawSlimeGlob, drawCyberSpider, drawGlitchEntity,
@@ -8198,11 +8171,11 @@ function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
   const core=Math.min(28,s*.6);gem(c,0,0,core,d.dark,d.light);for(let i=0;i<4;i++){const a=i*TAU/4;line(c,[[Math.cos(a)*core*1.4,Math.sin(a)*core*1.4],[Math.cos(a+.4)*s*.75,Math.sin(a+.4)*s*.75]],d.main,1.5);}
   c.restore();c.restore();return;
  }
- if(radius>48){
+ if(radius>24){
   c.save();c.globalAlpha*=.24;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,radius,0,TAU);c.stroke();c.restore();
-  s=24; // Keep the full hit boundary, with a compact readable projectile core.
+  s=18; // Keep the full hit boundary, with a compact readable projectile core.
  }
- if(evolved&&radius<48){c.save();c.globalAlpha*=.13;const points=[];for(let i=0;i<8;i++)points.push([Math.cos(i*TAU/8)*s*2,Math.sin(i*TAU/8)*s*2]);poly(c,points,d.main);c.restore();}
+ if(evolved&&radius<=24){c.save();c.globalAlpha*=.06;const points=[];for(let i=0;i<8;i++)points.push([Math.cos(i*TAU/8)*s*2,Math.sin(i*TAU/8)*s*2]);poly(c,points,d.main);c.restore();}
  if(['bolt','rocket','sting','needle','arrow'].includes(shape)){
   c.save();c.globalAlpha*=.26;poly(c,[[-s*3.2,0],[-s,-s*.7],[s*.3,0],[-s,s*.7]],d.dark);c.restore();
   poly(c,[[s*1.8,0],[-s,-s*.65],[-s*.45,0],[-s,s*.65]],d.main);poly(c,[[s*1.8,0],[-s,-s*.65],[-s*.45,0]],d.light);
@@ -8483,6 +8456,7 @@ class Game {
 
 		// Boss 伤害来源展示
 		this._bossDamageDisplay = null; // { log, bossName, timer }
+		this._lastBossDamageRecord = null;
 
 		// 新手引导
 		this._tutorialStep = -1; // -1=关闭, 0/1/2=进行中
@@ -8533,6 +8507,7 @@ class Game {
 		this.drainLine = null;
 		this._weaponDamageStats = {};
 		this._bossDamageDisplay = null;
+		this._lastBossDamageRecord = null;
 		// 暂停/菜单状态重置
 		this.isPaused = false;
 		this.pauseShowEquip = false;
@@ -9090,7 +9065,7 @@ class Game {
 		}
 
 		// ─── 性能监控与自动降质 ───
-		if (this.autoQuality) {
+		if (this.autoQuality && !this._qualityUsesRenderCost) {
 			// 环形缓冲写入，O(1) 替换旧值
 			this._ftSum -= this._ftBuf[this._ftIdx];
 			this._ftBuf[this._ftIdx] = dt;
@@ -9121,6 +9096,10 @@ class Game {
 		this.lastTouchState = input.active;
 
 		if (this.isPaused) return;
+		if (this._bossDamageDisplay) {
+			this._bossDamageDisplay.timer -= dt;
+			if (this._bossDamageDisplay.timer <= 0) this._bossDamageDisplay = null;
+		}
 		if (this.pantheon) this.pantheon.update(dt);
 
 		// 构建空间网格（必须在 player.update 之前，否则武器的火池/酸池无法查询敌人）
@@ -10130,6 +10109,25 @@ class Game {
 	}
 
 	// ─── 设置保存/加载 ───
+	// Browser helpers simulate fixed steps; only real foreground CPU work can
+	// inform their visual quality. Sample once per rendered frame, not per step.
+	recordFrameCost(seconds) {
+		if (!this.autoQuality) {
+			this._ftBuf.fill(0); this._ftIdx = this._ftCount = this._ftSum = 0;
+			return;
+		}
+		if (!Number.isFinite(seconds) || seconds < 0) return;
+		this._ftSum -= this._ftBuf[this._ftIdx];
+		this._ftBuf[this._ftIdx] = seconds;
+		this._ftSum += this._ftBuf[this._ftIdx];
+		this._ftIdx = (this._ftIdx + 1) % 60;
+		this._ftCount = Math.min(60, this._ftCount + 1);
+		if (this._ftCount < 60 || this._ftIdx !== 0) return;
+		const average = this._ftSum / 60;
+		if (average > 0.025) this.qualityLevel = Math.max(0, this.qualityLevel - 0.25);
+		else if (average < 0.012) this.qualityLevel = Math.min(1, this.qualityLevel + 0.05);
+	}
+
 	_saveSettings() {
 		try {
 			wx.setStorageSync('flux_settings', JSON.stringify({
@@ -11497,14 +11495,14 @@ function installHUD(GameClass) {
 
 	// ═══ Boss 伤害来源面板 ═══
 	GameClass.prototype._showBossDamageBreakdown = function (log, bossName) {
-		this._bossDamageDisplay = { log, bossName, timer: 5 };
+		this._lastBossDamageRecord = { log: { ...log }, bossName };
+		this._bossDamageDisplay = { ...this._lastBossDamageRecord, timer: 5 };
 	};
 
 	GameClass.prototype._drawBossDamagePanel = function () {
 		const bdd = this._bossDamageDisplay;
 		if (!bdd) return;
-		bdd.timer -= (this.frameDt || 0.016);
-		if (bdd.timer <= 0) { this._bossDamageDisplay = null; return; }
+		if (bdd.timer <= 0) return;
 
 		const ctx = this.ctx;
 		const w = this.width;
@@ -16039,7 +16037,9 @@ function installRenderSystem(GameClass) {
                     g.draw(ctx);
                 }
             }
-            for (const p of this.pickups) p.draw(ctx);
+            for (const p of this.pickups) {
+                if (p.x > camLeft && p.x < camRight && p.y > camTop && p.y < camBottom) p.draw(ctx);
+            }
 
             // Share the first game's foot-height layering with the new actors.
             const worldDrawables = this.mapManager.visibleProps(this.camera.x, this.camera.y, this.width, this.height, this.player);
@@ -16091,22 +16091,6 @@ function installRenderSystem(GameClass) {
                 }
             }
 
-            {
-                if (!this._ebGroups) this._ebGroups = new Map();
-                const ebGroups = this._ebGroups;
-                for (const arr of ebGroups.values()) arr.length = 0;
-                for (const eb of this.enemyBullets) {
-                    if (eb.active && eb.x > camLeft && eb.x < camRight && eb.y > camTop && eb.y < camBottom) {
-                        let group = ebGroups.get(eb.color);
-                        if (!group) { group = []; ebGroups.set(eb.color, group); }
-                        group.push(eb);
-                    }
-                }
-                for (const [color, group] of ebGroups) {
-                    if (group.length === 0) continue;
-                    Art.drawHostileProjectiles(ctx, group, color);
-                }
-            }
 
             try { this.particles.draw(ctx); } catch (_e) { throw new Error('particles.draw: ' + _e.message); }
 
@@ -16138,6 +16122,26 @@ function installRenderSystem(GameClass) {
             }
 
             Art.drawNightMagic(ctx, this);
+            Art.drawPlayerFocus(ctx, this.player);
+
+            // Danger shots remain legible above every friendly spell layer.
+            {
+                if (!this._ebGroups) this._ebGroups = new Map();
+                const ebGroups = this._ebGroups;
+                for (const arr of ebGroups.values()) arr.length = 0;
+                for (const eb of this.enemyBullets) {
+                    if (eb.active && eb.x > camLeft && eb.x < camRight && eb.y > camTop && eb.y < camBottom) {
+                        let group = ebGroups.get(eb.color);
+                        if (!group) { group = []; ebGroups.set(eb.color, group); }
+                        group.push(eb);
+                    }
+                }
+                for (const [color, group] of ebGroups) {
+                    if (group.length === 0) continue;
+                    Art.drawHostileProjectiles(ctx, group, color);
+                }
+            }
+
 
             for (const d of this.damageNumbers) { drawDamageNumber(ctx, d.x, d.y, d.text, d.a, d.color, d.scale || 1, d.glow || false, d.bounce || false, d.bouncePhase || -1); }
             ctx.restore();

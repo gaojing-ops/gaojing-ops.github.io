@@ -67,7 +67,9 @@ function installRenderSystem(GameClass) {
                     g.draw(ctx);
                 }
             }
-            for (const p of this.pickups) p.draw(ctx);
+            for (const p of this.pickups) {
+                if (p.x > camLeft && p.x < camRight && p.y > camTop && p.y < camBottom) p.draw(ctx);
+            }
 
             // Share the first game's foot-height layering with the new actors.
             const worldDrawables = this.mapManager.visibleProps(this.camera.x, this.camera.y, this.width, this.height, this.player);
@@ -119,22 +121,6 @@ function installRenderSystem(GameClass) {
                 }
             }
 
-            {
-                if (!this._ebGroups) this._ebGroups = new Map();
-                const ebGroups = this._ebGroups;
-                for (const arr of ebGroups.values()) arr.length = 0;
-                for (const eb of this.enemyBullets) {
-                    if (eb.active && eb.x > camLeft && eb.x < camRight && eb.y > camTop && eb.y < camBottom) {
-                        let group = ebGroups.get(eb.color);
-                        if (!group) { group = []; ebGroups.set(eb.color, group); }
-                        group.push(eb);
-                    }
-                }
-                for (const [color, group] of ebGroups) {
-                    if (group.length === 0) continue;
-                    Art.drawHostileProjectiles(ctx, group, color);
-                }
-            }
 
             try { this.particles.draw(ctx); } catch (_e) { throw new Error('particles.draw: ' + _e.message); }
 
@@ -166,6 +152,26 @@ function installRenderSystem(GameClass) {
             }
 
             Art.drawNightMagic(ctx, this);
+            Art.drawPlayerFocus(ctx, this.player);
+
+            // Danger shots remain legible above every friendly spell layer.
+            {
+                if (!this._ebGroups) this._ebGroups = new Map();
+                const ebGroups = this._ebGroups;
+                for (const arr of ebGroups.values()) arr.length = 0;
+                for (const eb of this.enemyBullets) {
+                    if (eb.active && eb.x > camLeft && eb.x < camRight && eb.y > camTop && eb.y < camBottom) {
+                        let group = ebGroups.get(eb.color);
+                        if (!group) { group = []; ebGroups.set(eb.color, group); }
+                        group.push(eb);
+                    }
+                }
+                for (const [color, group] of ebGroups) {
+                    if (group.length === 0) continue;
+                    Art.drawHostileProjectiles(ctx, group, color);
+                }
+            }
+
 
             for (const d of this.damageNumbers) { drawDamageNumber(ctx, d.x, d.y, d.text, d.a, d.color, d.scale || 1, d.glow || false, d.bounce || false, d.bouncePhase || -1); }
             ctx.restore();

@@ -233,12 +233,14 @@ class Bullet {
             drawBullet(ctx, this.x, this.y, this.radius, this.color, this.shape, 0, 0, false);
             return; // The domain already has a range outline; no legacy filled halo or inflated radius.
         }
+        ctx.save();
+        const alpha = ctx.globalAlpha;
         // 简化拖尾绘制（减少状态切换）
         if (this.historyCount > 1) {
             const startIdx = (this.historyHead - this.historyCount + this.maxHistory) % this.maxHistory;
-            ctx.globalAlpha = this.evolved ? 0.5 : 0.3;
+            ctx.globalAlpha = alpha * (this.evolved ? 0.18 : 0.14);
             ctx.strokeStyle = this.color;
-            ctx.lineWidth = this.radius * (this.evolved ? 0.8 : 0.6);
+            ctx.lineWidth = Math.min(4, this.radius * 0.4);
             ctx.beginPath();
             for (let i = 0; i < this.historyCount; i++) {
                 const idx = (startIdx + i) % this.maxHistory;
@@ -246,17 +248,7 @@ class Bullet {
                 else ctx.lineTo(this.historyX[idx], this.historyY[idx]);
             }
             ctx.stroke();
-            ctx.globalAlpha = 1;
-        }
-
-        // 终极武器外发光（无 shadowBlur）
-        if (this.evolved && this.radius < 48) {
-            ctx.globalAlpha = 0.1;
-            ctx.fillStyle = this.color;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.globalAlpha = 1;
+            ctx.globalAlpha = alpha;
         }
 
         const angle = Math.atan2(this.vy, this.vx);
@@ -265,9 +257,10 @@ class Bullet {
             drawAngle += this.glowTimer * 2;
         }
 
-        // 终极武器使用稍大尺寸，但不给 glowIntensity（避免 drawBullet 里的 shadowBlur）
-        const drawSize = this.evolved && this.radius < 48 ? this.radius * 1.3 : this.radius;
+        // The native glyph stays compact; its outline preserves the actual hit radius.
+        const drawSize = this.radius;
         drawBullet(ctx, this.x, this.y, drawSize, this.color, this.shape, drawAngle, 0, this.evolved);
+        ctx.restore();
     }
 }
 

@@ -39,6 +39,7 @@ export function createBrowserPlatform(canvas){
 
 export function mountFlux(runtime,platform){
  const {game,sm,SFX,canvas,ctx,info,dpr,CHARACTERS}=runtime;
+ game._qualityUsesRenderCost=true;
  if(runtime.catalogs){runtime.catalogs.curses=runtime.CURSE_DEFS;registerLore(runtime.catalogs);}
  const status=document.getElementById('status'),controls=document.getElementById('scene-controls');
  let viewW=info.screenWidth||WIDTH,viewH=info.screenHeight||HEIGHT,backgroundTimer=null,pendingTime=0,unfocused=false,soundSuppressed=false;
@@ -175,11 +176,13 @@ export function mountFlux(runtime,platform){
  function frame(timestamp){
   if(disposed)return;
   if(document.hidden){raf=requestAnimationFrame(frame);return;}
+  const started=performance.now(),measure=mayAdvance();
   try{
    // Embedded/occluded windows may throttle RAF without a visibility event.
    // Helpers still use bounded 60 Hz steps and retain the elapsed interval.
    if(!(unfocused&&idleEnabled()))advance(timestamp,idleEnabled());
    renderScene();
+   if(measure)game.recordFrameCost?.((performance.now()-started)/1000);
   }catch(error){runtimeError(error);}
   raf=requestAnimationFrame(frame);
  }

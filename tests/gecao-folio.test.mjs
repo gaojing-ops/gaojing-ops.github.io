@@ -41,6 +41,7 @@ test('new vocabulary covers every catalog and leaves all gameplay definitions in
  assert.equal(JSON.stringify(c),before);assert.match(TRAITS.berserker,/20 个百分点/);assert.match(TRAITS.tracer,/2.5%/);
  for(const boss of c.bosses)assert.equal(text(boss.name),boss.name,'achievement titles cannot rewrite a boss name');
  assert.equal(text('林间强敌：熔心破坏者'),'林间强敌：熔心破坏者');
+ assert.equal(text('MAGNET!'),'余烬归拢');
  assert.match(entry('skills','arcane').desc,/50 个百分点/);assert.match(text('数据强化 · 200 HP · 芯片'),/厚壳黑潮 · 200 生命 · 余烬/);
 });
 
@@ -202,6 +203,15 @@ test('stone notifications wrap long text without mutating timers, rewards or ran
  Math.random=()=>{throw Error('notification consumed combat RNG');};draws.length=0;
  try{for(const w of [390,1000]){g.achievements.draw(context,w,844);g.eventSystem.draw(context,w,844);g.eventEnhancer.draw(context,w,844);}}finally{Math.random=random;}
  assert.equal(fields(),before);assert.doesNotMatch(draws.join(''),/芯片|数据暴雨|🏆|HP|XP/);assert.ok(draws.some(line=>line.includes('血月临林')));
+});
+
+test('boss receipt stays outside the battle center and its full values remain available in pause on narrow screens',()=>{
+ const e=environment(true),g=e.game;g.startWithCharacter('tracer',[]);g._tutorialStep=-1;e.sm.switchTo('playing');
+ g._showBossDamageBreakdown({flux_bolt:100,burn:50,synergy:50},'熔心破坏者');
+ const before=JSON.stringify(g._lastBossDamageRecord),timer=g._bossDamageDisplay.timer;
+ draws.length=0;g.resize(1000,620);g._drawBossDamagePanel();assert.ok(draws.some(t=>t.includes('完整记录：暂停')));assert.equal(g._bossDamageDisplay.timer,timer,'drawing cannot advance combat timers');
+ draws.length=0;g.resize(390,728);g._drawBossDamagePanel();assert.equal(draws.length,0,'narrow battle never receives an obstructive boss report');
+ g.isPaused=true;e.sync();e.click('锋芒记录');assert.match(e.root.html,/最近首领 · 熔心破坏者/);assert.match(e.root.html,/50.0%/);assert.match(e.root.html,/余焰灼伤/);assert.match(e.root.html,/五灵协鸣/);assert.equal(JSON.stringify(g._lastBossDamageRecord),before);
 });
 
 test('new runs retain readable event and blood-moon panels when their source systems are replaced',()=>{
