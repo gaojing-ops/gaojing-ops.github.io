@@ -59,15 +59,15 @@ export function installWebHUD(runtime){
  art.drawPortrait=function(ctx,id,x,y,size,skinId){ctx.save();ctx.filter=filterFor(id,skinId??game.meta?.getSelectedSkin(id));const result=portraitDraw(ctx,id,x,y,size);ctx.restore();return result;};
  // All panels use the same chipped stone and brass as the courtyard props.
  const stone=(ctx,x,y,w,h,active=false)=>{
-  const cut=5;ctx.beginPath();ctx.moveTo(x+cut,y);ctx.lineTo(x+w-cut,y);ctx.lineTo(x+w,y+cut);ctx.lineTo(x+w,y+h-cut);ctx.lineTo(x+w-cut,y+h);ctx.lineTo(x+cut,y+h);ctx.lineTo(x,y+h-cut);ctx.lineTo(x,y+cut);ctx.closePath();
-  ctx.fillStyle='#1c2e23ed';ctx.fill();ctx.strokeStyle=active?'#b9a36f':'#78865c88';ctx.lineWidth=1;ctx.stroke();
-  ctx.strokeStyle='#a2ae7c33';ctx.beginPath();ctx.moveTo(x+cut+2,y+2);ctx.lineTo(x+w-cut-2,y+2);ctx.stroke();
+  const cut=6;ctx.beginPath();ctx.moveTo(x+cut,y);ctx.lineTo(x+w-cut,y);ctx.lineTo(x+w,y+cut);ctx.lineTo(x+w,y+h-cut);ctx.lineTo(x+w-cut,y+h);ctx.lineTo(x+cut,y+h);ctx.lineTo(x,y+h-cut);ctx.lineTo(x,y+cut);ctx.closePath();
+  ctx.fillStyle='#142219ee';ctx.fill();ctx.strokeStyle=active?'#caa86a':'#78865c77';ctx.lineWidth=active?1.2:1;ctx.stroke();
+  ctx.strokeStyle=active?'#e3c99244':'#a2ae7c2e';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+cut+2,y+2);ctx.lineTo(x+w-cut-2,y+2);ctx.stroke();
  };
  const control=(ctx,key,cx,cy,label,cooldown)=>{
   ctx.save();stone(ctx,cx-28,cy-28,56,56,cooldown<=0);
   if(cooldown>0)ctx.globalAlpha=.28;art.drawIcon?.(ctx,key,cx-20,cy-22,40);ctx.globalAlpha=1;
-  ctx.textAlign='center';ctx.font='10px "Microsoft YaHei"';ctx.fillStyle='#c6bc92';ctx.fillText(label,cx,cy+43);
-  if(cooldown>0){ctx.font='17px Georgia,serif';ctx.fillStyle='#e5d5a1';ctx.fillText(Math.ceil(cooldown),cx,cy+6);}
+  ctx.textAlign='center';ctx.font='600 10px "Microsoft YaHei",sans-serif';ctx.fillStyle='#d1c49a';ctx.fillText(label,cx,cy+43);
+  if(cooldown>0){ctx.font='600 17px Georgia,serif';ctx.fillStyle='#ecd9a6';ctx.fillText(Math.ceil(cooldown),cx,cy+6);}
   ctx.restore();
  };
  // Short-lived messages follow the same stone, engraving and icon system as menus.
@@ -99,7 +99,8 @@ export function installWebHUD(runtime){
   ctx.fillStyle='#0d1c13';ctx.fillRect(x,y+26,bw,3);ctx.fillStyle='#c2a36a';ctx.fillRect(x,y+26,bw*Math.min(1,p.xp/p.maxXp),3);
   ctx.textAlign='left';ctx.font='10px "Microsoft YaHei"';ctx.fillStyle='#a5b596';ctx.fillText(`第 ${p.level} 阶 · 击败 ${p.kills}`,x,y+47);
   ctx.fillStyle='#b8aa7b';ctx.fillText(`护甲 ${p.armor||0} · 余烬 ${this.meta?.data.chips||0}`,x,y+64);
-  for(let i=0;i<p.weapons.length;i++)art.drawIcon?.(ctx,p.weapons[i].id,17+i*25,this.height-39,23);
+  if(p.weapons.length)stone(ctx,10,this.height-45,p.weapons.length*26+12,34);
+  for(let i=0;i<p.weapons.length;i++)art.drawIcon?.(ctx,p.weapons[i].id,17+i*26,this.height-39,22);
   const buffs=[['_weaponSurge','焰盛'],['_speedBurst','疾风'],['_xpSurge','悟道'],['_armorBoost','坚壁'],['_drainField','汲魂'],['timeRift','迟暮'],['_densitySurge','黑潮']].filter(([id])=>this[id]?.timer>0);
   ctx.fillStyle='#b6b78d';ctx.fillText(buffs.map(([id,label])=>`${label} ${Math.ceil(this[id].timer)}秒`).join(' · '),20,123);
   if(!narrow){ctx.textAlign='center';ctx.fillStyle='#83956e';ctx.font='10px "Microsoft YaHei"';ctx.fillText('WASD 移动    SPACE 闪避    E 咏誓    P 暂歇',this.width/2,this.height-20);}
@@ -134,6 +135,19 @@ export function installWebHUD(runtime){
  game._drawDashButton=function(ctx){
   const cx=this.width-53,cy=this.height-64,r=28;this.dashBtnRect={x:cx-r,y:cy-r,w:r*2,h:r*2,cx,cy,r};
   control(ctx,'feather',cx,cy,'闪避',this.player.dashCooldown);
+ };
+ game._drawComboDisplay=function(ctx,dt){
+  const narrow=this.width<600,baseY=(narrow?Math.max(122,this.height*.15):this.height*.12)+(this.safeAreaTop||0);
+  if(this.killCombo>=5){
+   const combo=this.killCombo,size=combo>=100?28:combo>=75?26:combo>=50?24:combo>=30?22:combo>=15?20:18;
+   ctx.fillStyle=combo>=100?'#ffd700':combo>=75?'#ff44ff':combo>=50?'#ff8800':combo>=30?'#00ccff':combo>=15?'#88ff44':'#ffcc00';
+   ctx.font='600 '+size+'px "Songti SC","SimSun",serif';ctx.textAlign='center';ctx.fillText(combo+' 连杀!',this.width/2,baseY);ctx.textAlign='left';
+  }
+  if(this._comboBreakDisplay&&this._comboBreakDisplay.timer>0){
+   this._comboBreakDisplay.timer-=dt;const cbd=this._comboBreakDisplay;
+   ctx.globalAlpha=Math.min(1,cbd.timer);ctx.fillStyle='#ff4444';ctx.font='bold 16px sans-serif';
+   ctx.textAlign='center';ctx.fillText('最终连杀: '+cbd.count,this.width/2,baseY+28);ctx.textAlign='left';ctx.globalAlpha=1;
+  }
  };
  if(catalogs.weaponType&&art.drawArea){
   catalogs.weaponType.prototype.drawGroundEffects=function(ctx){

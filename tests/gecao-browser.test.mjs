@@ -75,6 +75,19 @@ test('throttled background ticks use bounded normal steps and retain elapsed tim
  document.hidden=false;e.events.visibilitychange();e.frame(6100);assert.ok(Math.abs(e.game.time-5.1)<1e-9);
 });
 
+test('long background suspension caps catch-up backlog, mutes batch SFX, and unfocused visible windows still draw',()=>{
+ let draws=0;
+ const e=environment();e.game.autoPlay=e.game.autoUpgrade=true;
+ e.game.draw=()=>{draws++;};
+ e.frame(1000);e.frame(1100);
+ const prevDraws=draws;e.windowEvents.blur();e.timer(1300);e.frame(1300);
+ assert.ok(draws>prevDraws,'visible unfocused window continues drawing while background timer advances');
+ document.hidden=true;e.events.visibilitychange();
+ e.setTime(3600000);document.hidden=false;e.windowEvents.focus();e.events.visibilitychange();
+ const afterReturn=e.game.time;e.frame(3600016);
+ assert.ok(e.game.time-afterReturn<.05,'returning to foreground clears remaining backlog instead of fast-forwarding');
+});
+
 test('background simulation stops at results, manual pause, and page disposal',()=>{
  const e=environment();e.game.autoPlay=e.game.autoUpgrade=true;e.frame(1000);e.frame(1100);
  const update=e.game.update.bind(e.game);e.game.update=dt=>{update(dt);if(e.game.time>=.2){e.game.isRunning=false;e.sm.currentSceneName='gameOver';}};

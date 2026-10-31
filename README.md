@@ -4,8 +4,8 @@
 
 两个游戏共用站点，通过页面上方的游戏导航切换：
 
-- [五人远征 · KEYSTONE](https://gaojing-ops.github.io/games/keystone/)：五人自动秘境，选择队伍、刷本、收集装备并挑战更高钥石。首页 `/` 仍使用五人远征。
-- [长夜余烬 · EMBERFALL](https://gaojing-ops.github.io/games/emberfall/)：20 分钟、5 章生存肉鸽，使用作者 FluxMusou 小程序的原战斗与成长规则，含武器进化、元素协同、角色技能、芯片与天赋。原三分钟试炼保留在 `/games/emberfall/trial.html`。
+- [长夜余烬 · EMBERFALL](https://gaojing-ops.github.io/games/emberfall/)：20 分钟、5 章生存肉鸽，使用作者 FluxMusou 小程序的原战斗与成长规则，含武器进化、元素协同、角色技能、芯片与天赋。首页 `/` 默认进入长夜余烬；原三分钟试炼保留在 `/games/emberfall/trial.html`。
+- [五人远征 · KEYSTONE](https://gaojing-ops.github.io/games/keystone/)：五人自动秘境，选择队伍、刷本、收集装备并挑战更高钥石。
 
 无需构建，直接静态托管。本地运行 `python -m http.server 9876`。
 

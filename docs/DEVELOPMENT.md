@@ -6,10 +6,11 @@
 
 在仓库根目录运行 `python -m http.server 8000`。
 
-- `/` 与 `/games/keystone/`：五人远征，使用 `/games/keystone/` 下的脚本和样式。
+- `/` 与 `/games/emberfall/`：长夜余烬 20 分钟原玩法。
+- `/games/keystone/`：五人远征，使用 `/games/keystone/` 下的脚本和样式。
 - `/games/emberfall/trial.html`：旧试炼，使用相对路径加载原脚本与样式。
 
-三个页面均有游戏切换导航。旧试炼的界面、脚本与样式在 `/games/emberfall/` 下维护；勿用旧肉鸽主页覆盖五人远征首页。使用 HTTP 打开，浏览器需要加载 ES 模块。GitHub Pages 直接托管静态文件，没有构建步骤。
+各个页面均有游戏切换导航。旧试炼的界面、脚本与样式在 `/games/emberfall/` 下维护。使用 HTTP 打开，浏览器需要加载 ES 模块。GitHub Pages 直接托管静态文件，没有构建步骤。
 
 ## 模块与数据
 

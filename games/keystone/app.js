@@ -8,14 +8,16 @@ import {getMap} from './maps.js';
 import {load,save,equip,autoEquip,settle,BAG_LIMIT,claimReserve} from './storage.js';
 const $=id=>document.getElementById(id),esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=t=>`${String(Math.floor(Math.max(0,t)/60)).padStart(2,'0')}:${String(Math.floor(Math.max(0,t)%60)).padStart(2,'0')}`;
-const loaded=load(localStorage);let profile=loaded.profile,run=null,gearHero=profile.team[0],toastTimer=0,lastFrame=0,uiClock=0,saveClock=0,repeatCountdown=null,lastLog='',storageFailed=false;
+const memoryStore=new Map(),fallbackStore={getItem:k=>memoryStore.get(k)??null,setItem:(k,v)=>{memoryStore.set(k,String(v));throw Error('disabled');}};
+const getStore=()=>{try{return window.localStorage||fallbackStore;}catch{return fallbackStore;}};
+const loaded=load(getStore());let profile=loaded.profile,run=null,gearHero=profile.team[0],toastTimer=0,lastFrame=0,uiClock=0,saveClock=0,repeatCountdown=null,lastLog='',storageFailed=false;
 const canvas=$('battle'),ctx=canvas.getContext('2d');let view={w:900,h:395,dpr:1},camera={x:400,y:300},dialogKind='',modalPaused=false;
 let routeEditor=null,selectedHero=null;let mapOverview=true;const mapImages=new Map();
 const classImages=new Map();function classImage(job){if(!classImages.has(job)){const img=new Image();img.src=ICONS[job];classImages.set(job,img);}return classImages.get(job);}
 function atlas(id){if(!mapImages.has(id)){const img=new Image();img.src=getMap(id).image;mapImages.set(id,img);}return mapImages.get(id);}
 const active=()=>!!run&&!run.result;
 function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3600);}
-function persist(){if(loaded.readOnly)return false;profile.checkpoint=active()?run.serialize():null;if(!save(localStorage,profile)){if(!storageFailed)toast('浏览器未能保存进度，请检查存储空间。当前页面仍可游玩。');storageFailed=true;return false;}return true;}
+function persist(){if(loaded.readOnly)return false;profile.checkpoint=active()?run.serialize():null;if(!save(getStore(),profile)){if(!storageFailed)toast('浏览器未能保存进度，请检查存储空间。当前页面仍可游玩。');storageFailed=true;return false;}return true;}
 function initSetup(){
  $('team-selects').innerHTML=profile.team.map((id,i)=>{const role=i===0?'tank':i===1?'heal':'dps';return `<div class="team-slot"><span class="role-symbol">${role==='tank'?'盾':role==='heal'?'＋':'刃'}</span><div><label for="team-${i}">${i+1} / ${ROLES[role]}</label><select id="team-${i}" data-team="${i}">${SPECS.filter(s=>s.role===role).map(s=>`<option value="${s.id}" ${s.id===id?'selected':''}>${s.job} · ${s.name}</option>`).join('')}</select></div></div>`;}).join('');
  $('dungeon-select').innerHTML=DUNGEONS.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');if(!DUNGEONS.some(d=>d.id===profile.dungeon))profile.dungeon='fangs';$('dungeon-select').value=profile.dungeon;updateKeys();$('repeat').checked=profile.settings.repeat;$('speed').value=profile.settings.speed;
