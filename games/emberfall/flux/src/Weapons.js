@@ -129,7 +129,7 @@ class Weapon {
                     }
                 }
                 if (this.evolved && hitCount > 0) {
-                    p.hp = Math.min(p.maxHp, p.hp + Math.min(3, hitCount * 0.35));
+                    p.heal(Math.min(3, hitCount * 0.35));
                 }
                 for (const b of this.game.bosses) {
                     if (!b.active) continue;
@@ -824,7 +824,7 @@ class Weapon {
                 }
             }
         }
-        p.hp = Math.min(p.maxHp, p.hp + Math.min(6 + this.level, totalHeal));
+        p.heal(Math.min(6 + this.level, totalHeal));
         const primary = candidates[0].e;
         this.game.drainLine = { x1: p.x, y1: p.y, x2: primary.x, y2: primary.y, a: 0.5, color: this.def.color };
     }

@@ -102,10 +102,10 @@ nano_swarm|万萤腐夜|毒萤飞遍战场，持续腐蚀敌群。
  skills:table(`
 tracer|烛火越夜|借烛照的余火穿过敌阵：持续 1.5 秒，额外移动速度 +200%，期间免受伤害。
 walker|炉誓不退|以余铸的炉火立下铁誓：持续 5 秒，护甲 +15，反伤比例增加 50 个百分点。
-gunner|逐风破晓|循乘岚的羽声瞄准黑潮：持续 6 秒，伤害加成增加 100 个百分点。
-cryomancer|霜月止潮|向凝月借一轮霜月，唤起覆盖身边战场的寒霜，范围随视野与范围加成扩大。普通敌人基础冻结 4 秒（受冻结时长加成）、随后减速；生命充足者受到 35 × 伤害倍率的冲击。首领减速 3 秒。
+gunner|逐风破晓|循乘岚的羽声瞄准黑潮：持续 6 秒，伤害加成增加 100 个百分点；实际伤害倍率提升至少 15%，重复咏誓刷新持续时间。
+cryomancer|霜月止潮|向凝月借一轮霜月，唤起覆盖身边战场的寒霜，范围随视野与范围加成扩大。普通敌人基础冻结 4 秒（受冻结时长加成，最高 8 秒且不超过本次冷却的 80%）、随后减速；生命充足者受到 35 × 伤害倍率的冲击。首领减速 3 秒。
 biohazard|荆萝漫夜|借青萝的荆枝，让半径 440 × 范围倍率内的普通敌人增加 8 秒中毒与 10 层毒素（范围上限 640，层数上限 50）；范围内首领受到 45 × 伤害倍率的伤害。
-berserker|燃烬破晓|以残火燃刃，承烛照之誓：持续 8 秒，移动速度 +30%，伤害加成增加 60 个百分点。
+berserker|燃烬破晓|以残火燃刃，承烛照之誓：持续 8 秒，移动速度 +30%，伤害加成增加 60 个百分点，实际伤害倍率提升至少 10%；重复咏誓刷新持续时间。
 arcane|星夜织咒|沿玄瞳的星轨立即重置武器冷却，并在 6 秒内增加 50 个百分点的冷却缩减。
 engineer|三灯守夜|以余铸的炉誓在身边立起 3 座符灯，自动攻击敌人，持续 20 秒。符灯射程为 340 × 范围倍率。
 assassin|玄夜折影|借玄瞳的夜幕折跃至 400 × 范围倍率内最近的普通敌人身旁，无普通敌人时可锁定首领；落点半径 165 × 范围倍率内的普通敌人受到 80 × 伤害倍率的伤害、首领受到 48 × 伤害倍率的伤害，并获得 0.8 秒无敌。
@@ -400,6 +400,7 @@ export function text(value=''){
 }
 export function entry(kind,id,source={}){return LORE[kind]?.[id]||{name:text(source.name||source.resultName||id),desc:text(source.desc||source.resultDesc||'')};}
 export function damageSource(id,catalogs){
+ if(id==='poison')return {name:'荆毒余伤',icon:'leaf'};
  const boon=catalogs.pantheon?.BLESSINGS.find(b=>b.id===id);
  if(boon)return {name:`${boon.name} · ${catalogs.pantheon.DEITIES[boon.deity].name}`,icon:'god_'+boon.deity};
  const hero=({skill_cryo:'cryomancer',skill_bio:'biohazard'})[id];

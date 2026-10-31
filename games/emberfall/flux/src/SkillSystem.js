@@ -58,10 +58,9 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87
 		use: (game) => {
 			const p = game.player;
 			const duration = 6;
-			p.bonusMight += 1.0;
+			game.skillSystem.refreshPower(1.0, 0.15, duration);
 			game.spawnDamageNumber(p.x, p.y - 40, '聚焦射击!', '#add2ae');
 			if (game.triggerScreenPulse) game.triggerScreenPulse('#add2ae33', 0.3);
-			game.skillSystem.addTimedEffect(() => { game.player.bonusMight -= 1.0; }, duration);
 		},
 	},
 
@@ -74,7 +73,9 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87
 		color: '#addce8',
 		use: (game) => {
 			const p = game.player;
-			const freezeDur = 4 * (1 + (p.bonusFreezeDur || 0));
+			// Keep a response window even with maximum cooldown and freeze bonuses.
+			const cooldown = 25 * (1 - Math.min(0.7, p.bonusCdr || 0));
+			const freezeDur = Math.min(8, cooldown * 0.8, 4 * (1 + (p.bonusFreezeDur || 0)));
 			const maxR = Math.max(540, Math.hypot(game.width || 800, game.height || 600) * 0.58) * (p.area || 1);
 			const maxRSq = maxR * maxR;
 			const novaDmg = (p.might || 1) * 35;
@@ -152,14 +153,12 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87
 		use: (game) => {
 			const p = game.player;
 			const duration = 8;
-			p.bonusSpeed += 0.30;
-			p.bonusMight += 0.60;
+			game.skillSystem.refreshPower(0.60, 0.10, duration, 0.30);
 			game.spawnDamageNumber(p.x, p.y - 40, '血怒爆发!', '#efb36c');
 			if (game.triggerScreenPulse) game.triggerScreenPulse('#efb36c22', 0.4);
 			if (game.particles) {
 game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#efb36c', size: 3 });
 			}
-			game.skillSystem.addTimedEffect(() => { game.player.bonusSpeed -= 0.30; game.player.bonusMight -= 0.60; }, duration);
 		},
 	},
 
@@ -326,6 +325,17 @@ class SkillSystem {
 		this._activeEffects.push({ timer: duration, restore: restoreFn });
 	}
 
+	refreshPower(bonus, floor, duration, speed = 0) {
+		const p = this.game.player;
+		const old = this._activeEffects.findIndex(e => e.key === 'power');
+		if (old >= 0) this._activeEffects.splice(old, 1)[0].restore();
+		p.bonusMight += bonus; p.bonusSpeed += speed;
+		p._skillPower = { bonus, floor };
+		this._activeEffects.push({ key: 'power', timer: duration, restore() {
+			p.bonusMight -= bonus; p.bonusSpeed -= speed; p._skillPower = null;
+		} });
+	}
+
 	tryUse() {
 		if (!this.skillDef) return false;
 		if (this.cooldown > 0) return false;
@@ -334,6 +344,7 @@ class SkillSystem {
 		try {
 			this.skillDef.use(this.game);
 			const fx = makeSkillEffect(this.game, origin);
+			if (fx && ['gunner', 'berserker'].includes(fx.kind)) this.visualEffects = (this.visualEffects || []).filter(e => e.kind !== fx.kind);
 			if (fx) this.visualEffects = [...(this.visualEffects || []), fx].slice(-12);
 		} catch (e) {
 			console.error('[SkillSystem] skill error:', e);

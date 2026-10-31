@@ -127,11 +127,11 @@ class Pickup {
             }
             case 'potion':
                 // Heal (诅咒: 禁止回血时无效)
-                if (this.game.curseNoHeal) {
+                if (!p.canHeal) {
                     this.game.spawnDamageNumber(p.x, p.y - 30, '回血被封锁!', '#ff4444');
                 } else {
-                    p.hp = Math.min(p.maxHp, p.hp + 30);
-                    this.game.spawnDamageNumber(p.x, p.y - 30, '+30 HP', '#00ff00');
+                    const actualHeal = p.heal(30);
+                    this.game.spawnDamageNumber(p.x, p.y - 30, '+' + Math.floor(actualHeal) + ' HP', '#00ff00');
                 }
                 break;
             case 'chest':
@@ -198,9 +198,8 @@ class Pickup {
             // ═══ 新地图元素效果 ═══
             case 'heal_shrine':
                 // 治疗神殿：回复50%生命
-                const healAmount = Math.floor(p.maxHp * 0.5);
-                p.hp = Math.min(p.maxHp, p.hp + healAmount);
-                p.totalHealed += healAmount;
+                const healAmount = p.heal(Math.floor(p.maxHp * 0.5));
+
                 this.game.spawnDamageNumber(p.x, p.y - 40, `💗 +${healAmount} HP`, '#44ff88');
                 if (this.game.particles) {
                     this.game.particles.emit(this.x, this.y, { count: 25, speed: 80, life: 0.5, color: '#44ff88', size: 4 });
@@ -307,8 +306,7 @@ class Pickup {
         const roll = Math.random();
         if (roll < 0.4) {
             // 回血
-            const heal = 30 + Math.floor(this.game.time / 60) * 5;
-            p.hp = Math.min(p.maxHp, p.hp + heal);
+            const heal = p.heal(30 + Math.floor(this.game.time / 60) * 5);
             this.game.spawnDamageNumber(p.x, p.y - 40, `+${heal} HP`, '#00ff00');
         } else if (roll < 0.7) {
             // 经验

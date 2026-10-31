@@ -660,37 +660,41 @@ class Game {
 
 		// 自动升级：智能决策（进化>护命>遗物>协同>升级已有武器>升级已有被动>稀有度>随机）
 		if (this.autoUpgrade && options && options.length > 0) {
+			const p = this.player;
+			const hpRatio = p.hp / p.maxHp;
+			const canSacrificeHealing = !p.canHeal || (hpRatio >= 0.8 && p.regen <= 0.25 && !p.poisonLeech && !p.voidLeech && !p.weapons.some(w => w.id === 'soul_drain' || w.id === 'radiation_field' && w.evolved));
+			const usable = options.filter(o => (p.canHeal || !['heal', 'chest_heal'].includes(o.type)) && (o.type !== 'relic' || o.id !== 'overload_core' || canSacrificeHealing));
+			const autoOptions = usable.length ? usable : options;
 			let pick = null;
-			const hpRatio = this.player.hp / this.player.maxHp;
 
 			// 优先级1：进化选项必选，收益最大
-			pick = pick || options.find(o => o.type === 'evolve');
+			pick = pick || autoOptions.find(o => o.type === 'evolve');
 			
 			// 优先级2：濒死护命，血量<35% 优先紧急治疗
-			if (!pick && hpRatio < 0.35) {
-				pick = options.find(o => o.type === 'heal');
+			if (!pick && hpRatio < 0.35 && this.player.canHeal) {
+				pick = autoOptions.find(o => o.type === 'heal');
 			}
 			
 			// 优先级3：遗物是极其稀有的全局乘区加成，必选
-			if (!pick) pick = options.find(o => o.type === 'relic');
-			if (!pick) pick = preferBlessing(this, options);
+			if (!pick) pick = autoOptions.find(o => o.type === 'relic');
+			if (!pick) pick = preferBlessing(this, autoOptions);
 			
 			// 优先级4：有协同标签的选项（进化就绪/解锁进化），有极高收益
-			if (!pick) pick = options.find(o => o.synergy);
+			if (!pick) pick = autoOptions.find(o => o.synergy);
 			
 			// 优先级5：优先升级现有武器（宁可一招鲜吃遍天，避免拿一堆 1 级武器刮痧）
-			if (!pick) pick = options.find(o => o.type === 'weapon_up');
+			if (!pick) pick = autoOptions.find(o => o.type === 'weapon_up');
 			
 			// 优先级6：优先升级现有的被动
-			if (!pick) pick = options.find(o => o.type === 'passive' && this.player.passives.some(p => p.id === o.id));
+			if (!pick) pick = autoOptions.find(o => o.type === 'passive' && this.player.passives.some(p => p.id === o.id));
 
 			// 优先级7：既然只能选新的了，那就优先拿高稀有度的“好货”
 			if (!pick) {
-				pick = options.find(o => o.rarity === 'legendary' || o.rarity === 'epic' || o.rarity === 'rare');
+				pick = autoOptions.find(o => o.rarity === 'legendary' || o.rarity === 'epic' || o.rarity === 'rare');
 			}
 			
 			// 优先级8：保底随机
-			if (!pick) pick = options[Math.floor(Math.random() * options.length)];
+			if (!pick) pick = autoOptions[Math.floor(Math.random() * autoOptions.length)];
 
 			this.upgradeSystem.applyOption(pick);
 			// 显示选择了什么
@@ -1206,8 +1210,8 @@ class Game {
 				if (this._lastStandKills >= 10) {
 					const bonus = Math.floor(this.player.maxHp * 0.2);
 					this.player.maxHp += bonus;
-					this.player.hp = Math.min(this.player.maxHp, this.player.hp + bonus);
-					this.spawnDamageNumber(this.player.x, this.player.y - 50, '+' + bonus + ' HP!', '#44ff88', false);
+					this.player.heal(bonus);
+					this.spawnDamageNumber(this.player.x, this.player.y - 50, '生命上限+' + bonus, '#44ff88', false);
 				}
 			}
 		}
@@ -1787,7 +1791,7 @@ class Game {
 			this._regenDroneTimer = (this._regenDroneTimer || 0) + dt;
 			if (this._regenDroneTimer >= 1) {
 				this._regenDroneTimer -= 1;
-				this.player.hp = Math.min(this.player.maxHp, this.player.hp + 1);
+				this.player.heal(1);
 			}
 		}
 

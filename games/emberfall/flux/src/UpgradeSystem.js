@@ -289,10 +289,10 @@ class UpgradeSystem {
 				break;
 			}
 			case 'heal': {
-				if (this.game.curseNoHeal) break;
+				if (!p.canHeal) break;
 				const healAmount = p.maxHp * 0.3;
-				p.hp = Math.min(p.maxHp, p.hp + healAmount);
-				p.totalHealed += healAmount; // 统计追踪
+				p.heal(healAmount);
+
 				break;
 			}
 			case 'relic': {

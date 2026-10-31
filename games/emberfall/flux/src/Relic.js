@@ -27,7 +27,6 @@ const RELIC_DEFS = [
         color: '#ff4444',
         apply: (player) => {
             player.relicFlags.overloadCore = true;
-            player.bonusMight += 1.0;
         },
     },
     {

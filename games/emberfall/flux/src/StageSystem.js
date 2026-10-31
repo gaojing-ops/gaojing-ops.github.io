@@ -70,8 +70,8 @@ const STAGE_REWARDS = [
 		icon: '❤',
 		apply: (game) => {
 			game.player.maxHp += 50;
-			game.player.hp = game.player.maxHp;
-			game.spawnDamageNumber(game.player.x, game.player.y - 50, '应急修复! HP全回', '#44ff88');
+			game.player.heal(game.player.maxHp);
+			game.spawnDamageNumber(game.player.x, game.player.y - 50, (game.player.canHeal ? '应急修复! HP全回' : '生命上限+50'), '#44ff88');
 		},
 	},
 	{

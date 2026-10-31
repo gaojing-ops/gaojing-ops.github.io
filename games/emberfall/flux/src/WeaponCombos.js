@@ -190,9 +190,8 @@ const _WEAPON_COMBOS = {
 	'soul_drain+venom_sting': {
 		name: '\u2620 \u7075\u9B42\u8150\u8680', color: '#88ff88',
 		fn(g, e) {
-			const heal = Math.floor(g.player.maxHp * 0.08);
-			g.player.hp = Math.min(g.player.maxHp, g.player.hp + heal);
-			g.player.totalHealed += heal;
+			const heal = g.player.heal(Math.floor(g.player.maxHp * 0.08));
+
 			e.takeDamage(g.player.might * 25);
 			g.spawnDamageNumber(e.x, e.y - 40, '\u7075\u9B42\u8150\u8680!', '#88ff88', false);
 			g.spawnDamageNumber(g.player.x, g.player.y - 30, '+' + heal + ' HP', '#44ff88');

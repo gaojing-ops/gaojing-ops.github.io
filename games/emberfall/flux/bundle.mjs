@@ -2878,15 +2878,15 @@ const { safeRoundRect: _safeRoundRect } = require('./CanvasUtils');
 
 // 增益池定义
 const BUFF_DEFS = [
-	{ id: 'heal_full',    name: '紧急修复',   desc: 'HP 全回',            icon: '❤',  apply: (p) => { p.hp = p.maxHp; } },
+	{ id: 'heal_full',    name: '紧急修复',   desc: 'HP 全回',            icon: '❤',  apply: (p) => { p.heal(p.maxHp); } },
 	{ id: 'damage_up',   name: '伤害超载',   desc: '伤害永久 +20%',      icon: '⚡', apply: (p) => { p.bonusMight = (p.bonusMight || 0) + 0.20; } },
 	{ id: 'cdr_up',      name: '冷却压缩',   desc: '武器冷却永久 -15%',  icon: '⏱', apply: (p) => { p.bonusCdr = (p.bonusCdr || 0) + 0.15; } },
-	{ id: 'hp_up',       name: '生命扩容',   desc: '最大 HP 永久 +30',   icon: '💚', apply: (p) => { p.maxHp += 30; p.hp = Math.min(p.hp + 30, p.maxHp); } },
+	{ id: 'hp_up',       name: '生命扩容',   desc: '最大 HP 永久 +30',   icon: '💚', apply: (p) => { p.maxHp += 30; p.heal(30); } },
 	{ id: 'armor_up',    name: '护甲锻造',   desc: '护甲永久 +10',       icon: '🛡', apply: (p) => { p.bonusArmor = (p.bonusArmor || 0) + 10; } },
 	{ id: 'speed_up',    name: '超速芯片',   desc: '移速永久 +15%',      icon: '💨', apply: (p) => { p.bonusSpeed = (p.bonusSpeed || 0) + 0.15; } },
 	{ id: 'pickup_up',   name: '磁力增强',   desc: '拾取范围永久 +30%',  icon: '🧲', apply: (p) => { p.bonusPickup = (p.bonusPickup || 0) + 0.30; } },
 	{ id: 'weapon_lvl',  name: '武器进化',   desc: '所有武器 +1 级',     icon: '⚔',  apply: (p, game) => { for (const w of p.weapons) w.level = Math.min((w.level || 1) + 1, 8); } },
-	{ id: 'heal_half',   name: '战地急救',   desc: 'HP 回复 50%',        icon: '💊', apply: (p) => { p.hp = Math.min(p.maxHp, p.hp + p.maxHp * 0.5); } },
+	{ id: 'heal_half',   name: '战地急救',   desc: 'HP 回复 50%',        icon: '💊', apply: (p) => { p.heal(p.maxHp * 0.5); } },
 ];
 
 // 10 波 Boss 序列（wave 索引 0~9 对应 boss wave 参数 1~10）
@@ -4190,9 +4190,8 @@ class CharacterTraitHandler {
 	onPoisonedEnemyKilled(enemy) {
 		if (!this.player.poisonLeech) return;
 
-		const healAmount = 3;
-		this.player.hp = Math.min(this.player.maxHp, this.player.hp + healAmount);
-		this.player.totalHealed += healAmount;
+		const healAmount = this.player.heal(3);
+		if (healAmount <= 0) return;
 
 		// 视觉效果
 		this.player.game.spawnDamageNumber(
@@ -4221,9 +4220,8 @@ function installChestSystem(Game) {
 		// Boss Rush 模式下不打开宝箱UI（防止 isRunning=false 阻塞 BossRushMode.update）
 		if (this.bossRushMode) {
 			const p = this.player;
-			const heal = Math.floor(p.maxHp * 0.3);
-			p.hp = Math.min(p.maxHp, p.hp + heal);
-			p.totalHealed = (p.totalHealed || 0) + heal;
+			const heal = p.heal(Math.floor(p.maxHp * 0.3));
+
 			this.spawnDamageNumber(p.x, p.y - 40, '+' + heal + ' HP', '#44ff88');
 			return;
 		}
@@ -4243,7 +4241,7 @@ function installChestSystem(Game) {
 		});
 
 		// 治疗
-		pool.push({
+		if (p.canHeal) pool.push({
 			type: 'chest_heal', id: 'chest_heal',
 			name: '\u2764 \u6CBB\u7597',
 			desc: '\u6062\u590D 30% \u6700\u5927\u751F\u547D',
@@ -4361,9 +4359,8 @@ function installChestSystem(Game) {
 				break;
 			case 'chest_heal': {
 				SFX.sfxUpgrade();
-				const heal = Math.floor(p.maxHp * 0.3);
-				p.hp = Math.min(p.maxHp, p.hp + heal);
-				p.totalHealed += heal;
+				const heal = p.heal(Math.floor(p.maxHp * 0.3));
+
 				this.spawnDamageNumber(p.x, p.y - 40, '+' + heal + ' HP', '#44ff88');
 				break;
 			}
@@ -5696,7 +5693,10 @@ class Enemy {
             if (this.poisonTickTimer <= 0) {
                 // Deal poison damage based on stacks (capped at 50)
                 const cappedStacks = Math.min(this.poisonStacks, 50);
-                const poisonDmg = cappedStacks * 2;
+                const poisonDmg = cappedStacks * 2 * (1 + (this.game.player.bonusToxicDmg || 0));
+                const dealt = Math.min(Math.max(0, this.hp), poisonDmg);
+                this.game.player.totalDamage = (this.game.player.totalDamage || 0) + dealt;
+                if (this.game._weaponDamageStats) this.game._weaponDamageStats.poison = (this.game._weaponDamageStats.poison || 0) + dealt;
                 this.hp -= poisonDmg;
                 this.game.spawnDamageNumber(this.x, this.y - this.radius, Math.ceil(poisonDmg), '#88ff00');
                 this.poisonTickTimer = 0.5; // Tick every 0.5s
@@ -6843,12 +6843,11 @@ const EVENT_DEFS = [
 		name: '修复节点',
 		desc: '恢复 50% 生命值',
 		action: (game) => {
-			if (game.curseNoHeal) {
+			if (!game.player.canHeal) {
 				game.spawnDamageNumber(game.player.x, game.player.y - 30, '修复失败!', '#ff4444');
 				return;
 			}
-			const heal = game.player.maxHp * 0.5;
-			game.player.hp = Math.min(game.player.maxHp, game.player.hp + heal);
+			const heal = game.player.heal(game.player.maxHp * 0.5);
 			game.spawnDamageNumber(game.player.x, game.player.y - 30, `+${Math.floor(heal)} HP`, '#44ff88');
 		}
 	},
@@ -7258,8 +7257,8 @@ class EventSystem {
 				game._survivalTest = null;
 			} else if (game._survivalTest.timer <= 0) {
 				// 成功 → 全回血
-				if (!game.curseNoHeal) {
-					player.hp = player.maxHp;
+				if (player.canHeal) {
+					player.heal(player.maxHp);
 					game.spawnDamageNumber(player.x, player.y - 40, '试炼成功! HP全回', '#44ffcc');
 				} else {
 					game.spawnDamageNumber(player.x, player.y - 40, '试炼成功!', '#44ffcc');
@@ -8898,37 +8897,41 @@ class Game {
 
 		// 自动升级：智能决策（进化>护命>遗物>协同>升级已有武器>升级已有被动>稀有度>随机）
 		if (this.autoUpgrade && options && options.length > 0) {
+			const p = this.player;
+			const hpRatio = p.hp / p.maxHp;
+			const canSacrificeHealing = !p.canHeal || (hpRatio >= 0.8 && p.regen <= 0.25 && !p.poisonLeech && !p.voidLeech && !p.weapons.some(w => w.id === 'soul_drain' || w.id === 'radiation_field' && w.evolved));
+			const usable = options.filter(o => (p.canHeal || !['heal', 'chest_heal'].includes(o.type)) && (o.type !== 'relic' || o.id !== 'overload_core' || canSacrificeHealing));
+			const autoOptions = usable.length ? usable : options;
 			let pick = null;
-			const hpRatio = this.player.hp / this.player.maxHp;
 
 			// 优先级1：进化选项必选，收益最大
-			pick = pick || options.find(o => o.type === 'evolve');
+			pick = pick || autoOptions.find(o => o.type === 'evolve');
 			
 			// 优先级2：濒死护命，血量<35% 优先紧急治疗
-			if (!pick && hpRatio < 0.35) {
-				pick = options.find(o => o.type === 'heal');
+			if (!pick && hpRatio < 0.35 && this.player.canHeal) {
+				pick = autoOptions.find(o => o.type === 'heal');
 			}
 			
 			// 优先级3：遗物是极其稀有的全局乘区加成，必选
-			if (!pick) pick = options.find(o => o.type === 'relic');
-			if (!pick) pick = preferBlessing(this, options);
+			if (!pick) pick = autoOptions.find(o => o.type === 'relic');
+			if (!pick) pick = preferBlessing(this, autoOptions);
 			
 			// 优先级4：有协同标签的选项（进化就绪/解锁进化），有极高收益
-			if (!pick) pick = options.find(o => o.synergy);
+			if (!pick) pick = autoOptions.find(o => o.synergy);
 			
 			// 优先级5：优先升级现有武器（宁可一招鲜吃遍天，避免拿一堆 1 级武器刮痧）
-			if (!pick) pick = options.find(o => o.type === 'weapon_up');
+			if (!pick) pick = autoOptions.find(o => o.type === 'weapon_up');
 			
 			// 优先级6：优先升级现有的被动
-			if (!pick) pick = options.find(o => o.type === 'passive' && this.player.passives.some(p => p.id === o.id));
+			if (!pick) pick = autoOptions.find(o => o.type === 'passive' && this.player.passives.some(p => p.id === o.id));
 
 			// 优先级7：既然只能选新的了，那就优先拿高稀有度的“好货”
 			if (!pick) {
-				pick = options.find(o => o.rarity === 'legendary' || o.rarity === 'epic' || o.rarity === 'rare');
+				pick = autoOptions.find(o => o.rarity === 'legendary' || o.rarity === 'epic' || o.rarity === 'rare');
 			}
 			
 			// 优先级8：保底随机
-			if (!pick) pick = options[Math.floor(Math.random() * options.length)];
+			if (!pick) pick = autoOptions[Math.floor(Math.random() * autoOptions.length)];
 
 			this.upgradeSystem.applyOption(pick);
 			// 显示选择了什么
@@ -9444,8 +9447,8 @@ class Game {
 				if (this._lastStandKills >= 10) {
 					const bonus = Math.floor(this.player.maxHp * 0.2);
 					this.player.maxHp += bonus;
-					this.player.hp = Math.min(this.player.maxHp, this.player.hp + bonus);
-					this.spawnDamageNumber(this.player.x, this.player.y - 50, '+' + bonus + ' HP!', '#44ff88', false);
+					this.player.heal(bonus);
+					this.spawnDamageNumber(this.player.x, this.player.y - 50, '生命上限+' + bonus, '#44ff88', false);
 				}
 			}
 		}
@@ -10025,7 +10028,7 @@ class Game {
 			this._regenDroneTimer = (this._regenDroneTimer || 0) + dt;
 			if (this._regenDroneTimer >= 1) {
 				this._regenDroneTimer -= 1;
-				this.player.hp = Math.min(this.player.maxHp, this.player.hp + 1);
+				this.player.heal(1);
 			}
 		}
 
@@ -12022,7 +12025,7 @@ function installKillSystem(Game) {
 		// ═══ 新被动道具效果 ═══
 		// 虚空核心：击杀回复HP
 		if (this.player.voidLeech && this.player.voidLeech > 0) {
-			this.player.hp = Math.min(this.player.maxHp, this.player.hp + this.player.voidLeech);
+			this.player.heal(this.player.voidLeech);
 		}
 
 		// 灵魂收割：累积伤害加成
@@ -12074,7 +12077,7 @@ function installKillSystem(Game) {
 			this.player.vampireKillCount = (this.player.vampireKillCount || 0) + 1;
 			if (this.player.vampireKillCount >= 5) {
 				this.player.vampireKillCount = 0;
-				this.player.hp = Math.min(this.player.maxHp, this.player.hp + 1);
+				this.player.heal(1);
 			}
 		}
 
@@ -12190,9 +12193,8 @@ function installKillSystem(Game) {
 			this.spawnDamageNumber(enemy.x, enemy.y - 40, '\u8D4F\u91D1: \u5B9D\u7BB1!', '#ffcc00', false);
 		} else if (roll < 0.5) {
 			// 回血 50%
-			const heal = Math.floor(this.player.maxHp * 0.5);
-			this.player.hp = Math.min(this.player.maxHp, this.player.hp + heal);
-			this.player.totalHealed += heal;
+			const heal = this.player.heal(Math.floor(this.player.maxHp * 0.5));
+
 			this.spawnDamageNumber(enemy.x, enemy.y - 40, '\u8D4F\u91D1: +' + heal + ' HP', '#44ff88', false);
 		} else if (roll < 0.75) {
 			// 金币
@@ -12714,7 +12716,7 @@ const BLESSINGS=[
  row('storm','chain','鸣雷巡林','每 4 秒召雷，初始最多命中 3 名敌人，随神息成长至 6 名；每阶基础伤害 14，受伤害倍率与神息阶段加成。',{}, {pulse:'storm',interval:4}),
  row('moon','mail','月下霜衣','每阶增加 1 护甲；每点护甲提供 8% 减伤，总减伤上限 60%。',{bonusArmor:1}),
  row('moon','still','留住月光','每阶使冻结持续时间增加 15%。',{bonusFreezeDur:.15}),
- row('moon','tide','霜月止潮','每 6 秒冻结周围 150 × 范围倍率内的普通敌人，每阶持续 0.6 秒，另受冻结时长加成；首领仅减速 1 秒。',{}, {pulse:'moon',interval:6}),
+ row('moon','tide','霜月止潮','每 6 秒冻结周围 150 × 范围倍率内的普通敌人，每阶持续 0.6 秒，另受冻结时长加成，单次最高 3.6 秒；首领仅减速 1 秒。',{}, {pulse:'moon',interval:6}),
  row('grove','root','烬土新芽','每阶使生命上限增加 12，并恢复至多 12 生命。',{}, {health:12}),
  row('grove','sap','枝间回春','每阶增加每秒 0.25 生命恢复。',{bonusRegen:.25}),
  row('grove','thorn','春荆藏锋','每阶使毒素伤害增加 15%。',{bonusToxicDmg:.15}),
@@ -12734,7 +12736,7 @@ function pulseValues(game,def,rank=1){
  return {radius:(kind==='ember'?130:kind==='storm'?420:150)*p.area,
   damage:(kind==='ember'?12:kind==='storm'?14:kind==='dawn'?10:0)*rank*p.might*stage.power,
   healing:kind==='dawn'?rank*2*stage.power:0,
-  freeze:kind==='moon'?.6*rank*(1+(p.bonusFreezeDur||0)):0,
+  freeze:kind==='moon'?Math.min(3.6,.6*rank*(1+(p.bonusFreezeDur||0))):0,
   targets:kind==='storm'?3+stage.tier:null,stage};
 }
 const healingBlocked=game=>!!(game.curseNoHeal||game.player.relicFlags?.overloadCore);
@@ -12773,7 +12775,7 @@ function preferBlessing(game,options){
 function applyStats(game,def,opening=false){
  const p=game.player;for(const [key,value] of Object.entries(def.stats||{}))p[key]=(p[key]||0)+value;
  if(def.dash)p.dashMaxCooldown=Math.max(.9,p.dashMaxCooldown*def.dash);
- if(def.health){p.maxHp+=def.health;if(opening){p.hp=Math.min(p.maxHp,p.hp+def.health);}else if(!healingBlocked(game)){const healed=Math.min(def.health,p.maxHp-p.hp);p.hp+=healed;p.totalHealed+=healed;}}
+ if(def.health){p.maxHp+=def.health;if(opening){p.hp=Math.min(p.maxHp,p.hp+def.health);}else if(!healingBlocked(game)){p.heal(def.health);}}
 }
 class Pantheon{
  constructor(game,id){this.game=game;this.patron=Object.hasOwn(DEITIES,id)?id:null;this.ranks={};this.timers={};this.effects=[];this.metrics={};if(this.patron)applyStats(game,DEITIES[id],true);}
@@ -12809,7 +12811,7 @@ class Pantheon{
     metric.controlled++;
    }else{const before=Math.max(0,target.hp||0)+Math.max(0,target.shield||0);target.takeDamage(values.damage,def.id);const after=Math.max(0,target.hp||0)+Math.max(0,target.shield||0);metric.damage+=Math.max(0,before-after);}
   }
-  if(kind==='dawn'&&!healingBlocked(g)){const healed=Math.max(0,Math.min(p.maxHp-p.hp,values.healing));p.hp+=healed;p.totalHealed+=healed;metric.healing+=healed;}
+  if(kind==='dawn'&&!healingBlocked(g)){metric.healing+=p.heal(values.healing);}
   this.effects.push(effect);this.effects=this.effects.slice(-20);
  }
 }
@@ -13079,8 +13081,8 @@ class Pet {
                 p._medicBonusArmor = 5;
                 p.bonusArmor += 5;
                 p.shieldArmorExpiry = 10;
-                p.hp = Math.min(p.maxHp, p.hp + 30); // 回复30HP
-                this.game.spawnDamageNumber(p.x, p.y - 40, '+30 HP +护盾', '#44ff88');
+                const healed = p.heal(30); // 回复30HP
+                this.game.spawnDamageNumber(p.x, p.y - 40, '+' + Math.floor(healed) + ' HP +护盾', '#44ff88');
                 if (this.game.particles) {
                     this.game.particles.emit(p.x, p.y, { count: 10, speed: 60, life: 1, color: '#44ff88', size: 4 });
                 }
@@ -13330,11 +13332,11 @@ class Pickup {
             }
             case 'potion':
                 // Heal (诅咒: 禁止回血时无效)
-                if (this.game.curseNoHeal) {
+                if (!p.canHeal) {
                     this.game.spawnDamageNumber(p.x, p.y - 30, '回血被封锁!', '#ff4444');
                 } else {
-                    p.hp = Math.min(p.maxHp, p.hp + 30);
-                    this.game.spawnDamageNumber(p.x, p.y - 30, '+30 HP', '#00ff00');
+                    const actualHeal = p.heal(30);
+                    this.game.spawnDamageNumber(p.x, p.y - 30, '+' + Math.floor(actualHeal) + ' HP', '#00ff00');
                 }
                 break;
             case 'chest':
@@ -13401,9 +13403,8 @@ class Pickup {
             // ═══ 新地图元素效果 ═══
             case 'heal_shrine':
                 // 治疗神殿：回复50%生命
-                const healAmount = Math.floor(p.maxHp * 0.5);
-                p.hp = Math.min(p.maxHp, p.hp + healAmount);
-                p.totalHealed += healAmount;
+                const healAmount = p.heal(Math.floor(p.maxHp * 0.5));
+
                 this.game.spawnDamageNumber(p.x, p.y - 40, `💗 +${healAmount} HP`, '#44ff88');
                 if (this.game.particles) {
                     this.game.particles.emit(this.x, this.y, { count: 25, speed: 80, life: 0.5, color: '#44ff88', size: 4 });
@@ -13510,8 +13511,7 @@ class Pickup {
         const roll = Math.random();
         if (roll < 0.4) {
             // 回血
-            const heal = 30 + Math.floor(this.game.time / 60) * 5;
-            p.hp = Math.min(p.maxHp, p.hp + heal);
+            const heal = p.heal(30 + Math.floor(this.game.time / 60) * 5);
             this.game.spawnDamageNumber(p.x, p.y - 40, `+${heal} HP`, '#00ff00');
         } else if (roll < 0.7) {
             // 经验
@@ -13689,6 +13689,7 @@ class Player {
 
         // Toxic passive bonuses
         this.bonusToxicDmg = 0;     // +toxic damage %
+        this._skillPower = null;
         this.corrosionBonus = 0;    // +damage to poisoned enemies %
         this.plagueSpread = false;  // Poison spreads on death
 
@@ -13755,9 +13756,15 @@ class Player {
     }
 
     get might() {
+        const total = this._mightAtBonus(this.bonusMight);
+        const power = this._skillPower;
+        return power ? Math.max(total, this._mightAtBonus(this.bonusMight - power.bonus) * (1 + power.floor)) : total;
+    }
+
+    _mightAtBonus(bonus) {
         // 递减公式：bonusMight 边际递减，防止大量meta/天赋叠爆
         // +50% → 实际+38%, +100% → 实际+59%, +117% → 实际+67%
-        const diminished = this.bonusMight / (1 + this.bonusMight * 0.4);
+        const diminished = bonus / (1 + bonus * 0.4);
         let total = this.baseMight + diminished;
         // 添加角色特性加成
         if (this.traitHandler) {
@@ -13789,6 +13796,7 @@ class Player {
             const combo = (this.game && this.game.killCombo) || 0;
             total *= (1 + Math.min(combo * 0.02, 0.5));
         }
+        if (this.relicFlags?.overloadCore) total *= 2;
         return total;
     }
     get speed() {
@@ -13805,7 +13813,18 @@ class Player {
     get projSpeed() { return 1 + this.bonusProjSpeed; }
     get regen() { return this.bonusRegen; }
 
+    get canHeal() { return this.hp > 0 && !this.game._runSettled && !this.game.curseNoHeal && !this.relicFlags?.overloadCore; }
+
+    heal(amount) {
+        if (!this.canHeal || !Number.isFinite(amount) || amount <= 0) return 0;
+        const actual = Math.max(0, Math.min(amount, this.maxHp - this.hp));
+        this.hp += actual;
+        this.totalHealed = (this.totalHealed || 0) + actual;
+        return actual;
+    }
+
     reset() {
+        this._skillPower = null;
         this.x = this.game.width / 2;
         this.y = this.game.height / 2;
         this.maxHp = this.baseMaxHp;
@@ -13955,9 +13974,7 @@ class Player {
         // Regen (诅咒: 禁止回血, 遗物: 过载核心也禁止回血)
         const noHeal = this.game.curseNoHeal || (this.relicFlags && this.relicFlags.overloadCore);
         if (this.regen > 0 && !noHeal) {
-            const healed = Math.min(this.maxHp - this.hp, this.regen * dt);
-            this.hp += healed;
-            if (healed > 0) this.totalHealed += healed;
+            this.heal(this.regen * dt);
         }
 
         // Update weapons
@@ -14214,9 +14231,7 @@ class Player {
         this.level++;
         this.maxXp = Math.floor(16 + this.level * 14 + Math.pow(this.level, 1.78) * 6.5);
         // 诅咒: 禁止回血时跳过升级回血
-        if (!this.game.curseNoHeal) {
-            this.hp = Math.min(this.maxHp, this.hp + Math.max(10, Math.floor(this.maxHp * 0.12)));
-        }
+        this.heal(Math.max(10, Math.floor(this.maxHp * 0.12)));
         if (this.game.particles) this.game.particles.levelUp(this.x, this.y);
         this.game.triggerScreenPulse('#00ffcc', 0.6);
         sfxLevelUp();
@@ -14272,7 +14287,6 @@ const RELIC_DEFS = [
         color: '#ff4444',
         apply: (player) => {
             player.relicFlags.overloadCore = true;
-            player.bonusMight += 1.0;
         },
     },
     {
@@ -21013,10 +21027,9 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87
 		use: (game) => {
 			const p = game.player;
 			const duration = 6;
-			p.bonusMight += 1.0;
+			game.skillSystem.refreshPower(1.0, 0.15, duration);
 			game.spawnDamageNumber(p.x, p.y - 40, '聚焦射击!', '#add2ae');
 			if (game.triggerScreenPulse) game.triggerScreenPulse('#add2ae33', 0.3);
-			game.skillSystem.addTimedEffect(() => { game.player.bonusMight -= 1.0; }, duration);
 		},
 	},
 
@@ -21029,7 +21042,9 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87
 		color: '#addce8',
 		use: (game) => {
 			const p = game.player;
-			const freezeDur = 4 * (1 + (p.bonusFreezeDur || 0));
+			// Keep a response window even with maximum cooldown and freeze bonuses.
+			const cooldown = 25 * (1 - Math.min(0.7, p.bonusCdr || 0));
+			const freezeDur = Math.min(8, cooldown * 0.8, 4 * (1 + (p.bonusFreezeDur || 0)));
 			const maxR = Math.max(540, Math.hypot(game.width || 800, game.height || 600) * 0.58) * (p.area || 1);
 			const maxRSq = maxR * maxR;
 			const novaDmg = (p.might || 1) * 35;
@@ -21107,14 +21122,12 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87
 		use: (game) => {
 			const p = game.player;
 			const duration = 8;
-			p.bonusSpeed += 0.30;
-			p.bonusMight += 0.60;
+			game.skillSystem.refreshPower(0.60, 0.10, duration, 0.30);
 			game.spawnDamageNumber(p.x, p.y - 40, '血怒爆发!', '#efb36c');
 			if (game.triggerScreenPulse) game.triggerScreenPulse('#efb36c22', 0.4);
 			if (game.particles) {
 game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#efb36c', size: 3 });
 			}
-			game.skillSystem.addTimedEffect(() => { game.player.bonusSpeed -= 0.30; game.player.bonusMight -= 0.60; }, duration);
 		},
 	},
 
@@ -21281,6 +21294,17 @@ class SkillSystem {
 		this._activeEffects.push({ timer: duration, restore: restoreFn });
 	}
 
+	refreshPower(bonus, floor, duration, speed = 0) {
+		const p = this.game.player;
+		const old = this._activeEffects.findIndex(e => e.key === 'power');
+		if (old >= 0) this._activeEffects.splice(old, 1)[0].restore();
+		p.bonusMight += bonus; p.bonusSpeed += speed;
+		p._skillPower = { bonus, floor };
+		this._activeEffects.push({ key: 'power', timer: duration, restore() {
+			p.bonusMight -= bonus; p.bonusSpeed -= speed; p._skillPower = null;
+		} });
+	}
+
 	tryUse() {
 		if (!this.skillDef) return false;
 		if (this.cooldown > 0) return false;
@@ -21289,6 +21313,7 @@ class SkillSystem {
 		try {
 			this.skillDef.use(this.game);
 			const fx = makeSkillEffect(this.game, origin);
+			if (fx && ['gunner', 'berserker'].includes(fx.kind)) this.visualEffects = (this.visualEffects || []).filter(e => e.kind !== fx.kind);
 			if (fx) this.visualEffects = [...(this.visualEffects || []), fx].slice(-12);
 		} catch (e) {
 			console.error('[SkillSystem] skill error:', e);
@@ -22400,8 +22425,8 @@ const STAGE_REWARDS = [
 		icon: '❤',
 		apply: (game) => {
 			game.player.maxHp += 50;
-			game.player.hp = game.player.maxHp;
-			game.spawnDamageNumber(game.player.x, game.player.y - 50, '应急修复! HP全回', '#44ff88');
+			game.player.heal(game.player.maxHp);
+			game.spawnDamageNumber(game.player.x, game.player.y - 50, (game.player.canHeal ? '应急修复! HP全回' : '生命上限+50'), '#44ff88');
 		},
 	},
 	{
@@ -23914,10 +23939,10 @@ class UpgradeSystem {
 				break;
 			}
 			case 'heal': {
-				if (this.game.curseNoHeal) break;
+				if (!p.canHeal) break;
 				const healAmount = p.maxHp * 0.3;
-				p.hp = Math.min(p.maxHp, p.hp + healAmount);
-				p.totalHealed += healAmount; // 统计追踪
+				p.heal(healAmount);
+
 				break;
 			}
 			case 'relic': {
@@ -24199,9 +24224,8 @@ const _WEAPON_COMBOS = {
 	'soul_drain+venom_sting': {
 		name: '\u2620 \u7075\u9B42\u8150\u8680', color: '#88ff88',
 		fn(g, e) {
-			const heal = Math.floor(g.player.maxHp * 0.08);
-			g.player.hp = Math.min(g.player.maxHp, g.player.hp + heal);
-			g.player.totalHealed += heal;
+			const heal = g.player.heal(Math.floor(g.player.maxHp * 0.08));
+
 			e.takeDamage(g.player.might * 25);
 			g.spawnDamageNumber(e.x, e.y - 40, '\u7075\u9B42\u8150\u8680!', '#88ff88', false);
 			g.spawnDamageNumber(g.player.x, g.player.y - 30, '+' + heal + ' HP', '#44ff88');
@@ -24981,7 +25005,7 @@ class Weapon {
                     }
                 }
                 if (this.evolved && hitCount > 0) {
-                    p.hp = Math.min(p.maxHp, p.hp + Math.min(3, hitCount * 0.35));
+                    p.heal(Math.min(3, hitCount * 0.35));
                 }
                 for (const b of this.game.bosses) {
                     if (!b.active) continue;
@@ -25676,7 +25700,7 @@ class Weapon {
                 }
             }
         }
-        p.hp = Math.min(p.maxHp, p.hp + Math.min(6 + this.level, totalHeal));
+        p.heal(Math.min(6 + this.level, totalHeal));
         const primary = candidates[0].e;
         this.game.drainLine = { x1: p.x, y1: p.y, x2: primary.x, y2: primary.y, a: 0.5, color: this.def.color };
     }
