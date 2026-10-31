@@ -292,11 +292,11 @@ function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
   const core=Math.min(28,s*.6);gem(c,0,0,core,d.dark,d.light);for(let i=0;i<4;i++){const a=i*TAU/4;line(c,[[Math.cos(a)*core*1.4,Math.sin(a)*core*1.4],[Math.cos(a+.4)*s*.75,Math.sin(a+.4)*s*.75]],d.main,1.5);}
   c.restore();c.restore();return;
  }
- if(radius>48){
+ if(radius>24){
   c.save();c.globalAlpha*=.24;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,radius,0,TAU);c.stroke();c.restore();
-  s=24; // Keep the full hit boundary, with a compact readable projectile core.
+  s=18; // Keep the full hit boundary, with a compact readable projectile core.
  }
- if(evolved&&radius<48){c.save();c.globalAlpha*=.13;const points=[];for(let i=0;i<8;i++)points.push([Math.cos(i*TAU/8)*s*2,Math.sin(i*TAU/8)*s*2]);poly(c,points,d.main);c.restore();}
+ if(evolved&&radius<=24){c.save();c.globalAlpha*=.06;const points=[];for(let i=0;i<8;i++)points.push([Math.cos(i*TAU/8)*s*2,Math.sin(i*TAU/8)*s*2]);poly(c,points,d.main);c.restore();}
  if(['bolt','rocket','sting','needle','arrow'].includes(shape)){
   c.save();c.globalAlpha*=.26;poly(c,[[-s*3.2,0],[-s,-s*.7],[s*.3,0],[-s,s*.7]],d.dark);c.restore();
   poly(c,[[s*1.8,0],[-s,-s*.65],[-s*.45,0],[-s,s*.65]],d.main);poly(c,[[s*1.8,0],[-s,-s*.65],[-s*.45,0]],d.light);

@@ -821,14 +821,14 @@ function installHUD(GameClass) {
 
 	// ═══ Boss 伤害来源面板 ═══
 	GameClass.prototype._showBossDamageBreakdown = function (log, bossName) {
-		this._bossDamageDisplay = { log, bossName, timer: 5 };
+		this._lastBossDamageRecord = { log: { ...log }, bossName };
+		this._bossDamageDisplay = { ...this._lastBossDamageRecord, timer: 5 };
 	};
 
 	GameClass.prototype._drawBossDamagePanel = function () {
 		const bdd = this._bossDamageDisplay;
 		if (!bdd) return;
-		bdd.timer -= (this.frameDt || 0.016);
-		if (bdd.timer <= 0) { this._bossDamageDisplay = null; return; }
+		if (bdd.timer <= 0) return;
 
 		const ctx = this.ctx;
 		const w = this.width;

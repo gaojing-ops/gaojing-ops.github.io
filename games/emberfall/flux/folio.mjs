@@ -181,6 +181,8 @@ export function createFolio(runtime,platform,hooks={}){
   else if(tab==='attributes')body+=note('以下为当前实际属性，已计入神誓、行装、临时增益、伤害递减及减伤/冷却上限。')+stats([
    ['实际伤害倍率','×'+fmt(p.might)],['实际减伤',fmt(p.armor*100)+'%'],['移动速度',fmt(p.speed)],['范围倍率','×'+fmt(p.area)],['武器冷却缩减',fmt(p.cdr*100)+'% / 50%'],['咏誓冷却缩减',fmt(Math.min(.7,p.bonusCdr||0)*100)+'% / 70%'],['闪避冷却',fmt(p.dashMaxCooldown)+' 秒'],['每秒恢复',(game.curseNoHeal||p.relicFlags?.overloadCore)?'禁疗中':fmt(p.regen)],['拾取半径',fmt(p.pickup)],['经验加成',fmt((p.bonusXp||0)*100)+'%'],['普通敌人暴击率',fmt(Math.min(1,p.luckyChance||0)*100)+'%'],['普通敌人暴击倍率','×'+fmt(2+(p.criticalDamage||0))],['额外投射物','+'+p.bonusProjectile],['接触反伤比例',fmt((p.thornDamage||0)*100)+'%']]);
   else if(tab==='damage'){
+   const last=game._lastBossDamageRecord;
+   if(last){const bossRows=Object.entries(last.log).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]),bossTotal=bossRows.reduce((n,[,v])=>n+v,0);body+=`<h3>最近首领 · ${esc(text(last.bossName))}</h3>`+stats(bossRows.map(([id,value])=>[damageSource(id,c).name,`${fmt(value)} · ${(value/Math.max(1,bossTotal)*100).toFixed(1)}%`]))+`<h3>本局全部伤害</h3>`;}
    const rows=Object.entries(game._weaponDamageStats||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]),total=rows.reduce((n,[,v])=>n+v,0);
    body+=stats([['总伤害',fmt(total)],['每秒伤害',fmt(total/Math.max(1,game.time))]])+(rows.length?grid(rows.map(([id,value])=>card(damageSource(id,c).name,`${fmt(value)} 伤害 · 占比 ${(value/total*100).toFixed(1)}%`,`<meter aria-label="${esc(damageSource(id,c).name)}伤害占比" min="0" max="${total}" value="${value}"></meter>`,'','',icon(damageSource(id,c).icon))).join('')):'<p class="folio-empty">尚未留下伤敌的记录。</p>');
   }else if(tab==='blessings')body+=divineRecord();

@@ -355,6 +355,7 @@ CDR|冷却缩减
 CD|冷却
 CRIT!|破绽！
 DODGE!|借影避锋
+MAGNET!|余烬归拢
 LAST STAND!|残灯不灭！
 HP|生命
 AUTO|随行

@@ -23,6 +23,7 @@ test('imported gameplay modules match the supplied WeChat source byte for byte',
   if(item.path==='src/KillSystem.js')continue; // XP bonuses now apply once at pickup; actual kill/drop/pickup regression in gecao-pantheon.test.mjs.
   if(['src/BossRushMode.js','src/ChestSystem.js','src/Pet.js','src/WeaponCombos.js','src/Relic.js'].includes(item.path))continue; // Shared healing gate, actual-restored counters and life-burning tradeoff, covered by gecao-healing.
   if(['src/Bullet.js','src/Evolution.js','src/AchievementSystem.js'].includes(item.path))continue; // Visual-only collision isolation and legal awakening/fusion transitions: gecao-progression.
+  if(item.path==='src/HUD.js')continue; // Boss damage receipt is read-only; expiry follows simulation time, covered by gecao-progression/folio.
   const bytes=readFileSync(new URL('../games/emberfall/flux/'+item.path,import.meta.url));
   assert.equal(createHash('sha256').update(bytes).digest('hex'),item.sha256,item.path);
  }

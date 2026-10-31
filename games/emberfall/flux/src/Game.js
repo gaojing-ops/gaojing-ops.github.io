@@ -221,6 +221,7 @@ class Game {
 
 		// Boss 伤害来源展示
 		this._bossDamageDisplay = null; // { log, bossName, timer }
+		this._lastBossDamageRecord = null;
 
 		// 新手引导
 		this._tutorialStep = -1; // -1=关闭, 0/1/2=进行中
@@ -271,6 +272,7 @@ class Game {
 		this.drainLine = null;
 		this._weaponDamageStats = {};
 		this._bossDamageDisplay = null;
+		this._lastBossDamageRecord = null;
 		// 暂停/菜单状态重置
 		this.isPaused = false;
 		this.pauseShowEquip = false;
@@ -828,7 +830,7 @@ class Game {
 		}
 
 		// ─── 性能监控与自动降质 ───
-		if (this.autoQuality) {
+		if (this.autoQuality && !this._qualityUsesRenderCost) {
 			// 环形缓冲写入，O(1) 替换旧值
 			this._ftSum -= this._ftBuf[this._ftIdx];
 			this._ftBuf[this._ftIdx] = dt;
@@ -859,6 +861,10 @@ class Game {
 		this.lastTouchState = input.active;
 
 		if (this.isPaused) return;
+		if (this._bossDamageDisplay) {
+			this._bossDamageDisplay.timer -= dt;
+			if (this._bossDamageDisplay.timer <= 0) this._bossDamageDisplay = null;
+		}
 		if (this.pantheon) this.pantheon.update(dt);
 
 		// 构建空间网格（必须在 player.update 之前，否则武器的火池/酸池无法查询敌人）
@@ -1868,6 +1874,25 @@ class Game {
 	}
 
 	// ─── 设置保存/加载 ───
+	// Browser helpers simulate fixed steps; only real foreground CPU work can
+	// inform their visual quality. Sample once per rendered frame, not per step.
+	recordFrameCost(seconds) {
+		if (!this.autoQuality) {
+			this._ftBuf.fill(0); this._ftIdx = this._ftCount = this._ftSum = 0;
+			return;
+		}
+		if (!Number.isFinite(seconds) || seconds < 0) return;
+		this._ftSum -= this._ftBuf[this._ftIdx];
+		this._ftBuf[this._ftIdx] = seconds;
+		this._ftSum += this._ftBuf[this._ftIdx];
+		this._ftIdx = (this._ftIdx + 1) % 60;
+		this._ftCount = Math.min(60, this._ftCount + 1);
+		if (this._ftCount < 60 || this._ftIdx !== 0) return;
+		const average = this._ftSum / 60;
+		if (average > 0.025) this.qualityLevel = Math.max(0, this.qualityLevel - 0.25);
+		else if (average < 0.012) this.qualityLevel = Math.min(1, this.qualityLevel + 0.05);
+	}
+
 	_saveSettings() {
 		try {
 			wx.setStorageSync('flux_settings', JSON.stringify({

@@ -152,12 +152,11 @@ export function installWebHUD(runtime){
  game._drawSpeedRunHUD=function(){const target=catalogs.speed.KILL_TARGET,elapsed=Math.max(0,this.time-(this.speedRunStartTime||0));modePlate(this.ctx,this.width,'疾行试炼',`${this.speedRunKills||0}/${target} · ${catalogs.speed.formatTime(elapsed*1000)}`,(this.speedRunKills||0)/target);};
  game._drawBossDamagePanel=function(){
   const display=this._bossDamageDisplay;if(!display)return;
-  // This timer was advanced by the original draw callback; retain its lifetime.
-  display.timer-=(this.frameDt||.016);if(display.timer<=0){this._bossDamageDisplay=null;return;}
-  const all=Object.entries(display.log).filter(([,value])=>value>0).sort((a,b)=>b[1]-a[1]);if(!all.length||this.height<500)return;const rows=all.slice(0,5);if(all.length>5)rows.push(['_rest',all.slice(5).reduce((sum,[,value])=>sum+value,0)]);
-  const ctx=this.ctx,bw=Math.min(360,this.width-40),x=(this.width-bw)/2,y=Math.min(this.height-(42+rows.length*29)-45,Math.max(this.height*.34,combatUILayout(this.width,this.height).comboY+40)),total=rows.reduce((sum,[,value])=>sum+value,0);
-  ctx.save();ctx.globalAlpha=Math.min(1,display.timer*2);stone(ctx,x,y,bw,42+rows.length*29,true);ctx.textAlign='left';ctx.fillStyle='#ddc58c';ctx.font='15px "SimSun",serif';ctx.fillText(text(display.bossName)+' · 锋芒记录',x+14,y+25);
-  rows.forEach(([id,value],i)=>{const py=y+43+i*29;art.drawIcon?.(ctx,damageSource(id,catalogs).icon,x+12,py-6,21);ctx.font='11px "Microsoft YaHei"';ctx.fillStyle='#edf0d6';ctx.fillText(damageSource(id,catalogs).name,x+42,py+8);ctx.textAlign='right';ctx.fillText(Math.round(value/total*100)+'%',x+bw-13,py+8);ctx.textAlign='left';ctx.fillStyle='#ad9c69';ctx.fillRect(x+42,py+15,(bw-90)*value/rows[0][1],2);});ctx.restore();
+  const all=Object.entries(display.log).filter(([,value])=>value>0).sort((a,b)=>b[1]-a[1]);if(!all.length||this.width<600||this.height<500)return;
+  const rows=all.slice(0,2),ctx=this.ctx,bw=226,x=this.width-bw-12,y=138,total=all.reduce((sum,[,value])=>sum+value,0);
+  ctx.save();ctx.globalAlpha=Math.min(1,display.timer*2);stone(ctx,x,y,bw,96);ctx.textAlign='left';ctx.fillStyle='#fff0bc';ctx.font='700 12px "Microsoft YaHei"';ctx.fillText(text(display.bossName)+' · 已击退',x+12,y+20);
+  rows.forEach(([id,value],i)=>{const py=y+37+i*20;ctx.font='11px "Microsoft YaHei"';ctx.fillStyle='#edf0d6';ctx.fillText(damageSource(id,catalogs).name,x+12,py);ctx.textAlign='right';ctx.fillText(Math.round(value/total*100)+'%',x+bw-12,py);ctx.textAlign='left';});
+  ctx.font='11px "Microsoft YaHei"';ctx.fillStyle='#ddc58c';ctx.fillText('完整记录：暂停 → 锋芒记录',x+12,y+82);ctx.restore();
  };
  game._drawBossEntrance=function(){
   const be=this._bossEntrance;if(!be||be.timer<=0)return;
