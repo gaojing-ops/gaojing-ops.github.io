@@ -39,6 +39,15 @@ test('web pause, blur, hidden tabs and tutorial freeze time and cooldowns',()=>{
  document.hidden=false;e.events.visibilitychange();e.frame(8200);assert.equal(e.game.isPaused,true);
 });
 
+test('reward and result statuses never call a stopped journey camp or offer a stale continue label',()=>{
+ const e=environment();e.game.isRunning=false;e.game.isPaused=true;e.game.stageSystem={state:'reward'};e.frame(1000);
+ assert.equal(e.nodes.get('status').textContent,'章节已完成，请选择赐福');
+ assert.equal(e.nodes.get('pause-web').textContent,'暂停');assert.equal(e.nodes.get('pause-web').disabled,true);
+ e.game.stageSystem=null;e.game.bossRushMode={state:'reward'};e.frame(1100);
+ assert.equal(e.nodes.get('status').textContent,'首领已退，请选择赐福');
+ e.game.bossRushMode.state='failed';e.frame(1200);assert.equal(e.nodes.get('status').textContent,'首领连战已结算');
+});
+
 test('both helpers keep an unfocused window running and release stale keyboard movement',()=>{
  const e=environment();e.game.autoPlay=true;e.game.autoUpgrade=true;
  e.frame(1000);e.frame(1100);

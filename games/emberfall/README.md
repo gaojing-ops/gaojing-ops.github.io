@@ -22,3 +22,11 @@
 修改导入模块后执行 `node scripts/build-gecao.mjs`，确定性生成浏览器模块包。仅使用 Node 标准库，无需安装依赖。不要直接编辑生成的 `flux/bundle.mjs`。
 
 测试：`node --test tests/gecao.test.mjs tests/gecao-browser.test.mjs tests/gecao-folio.test.mjs tests/gecao-art.test.mjs tests/gecao-battle-art.test.mjs`。旧试炼测试继续保留。
+
+## 最新实玩修复
+
+- 接触扣血、持续反伤与吸血按时间计算；玩家结算和敌人死亡只处理一次。
+- 毒素施加、传染与元素爆发统一遵守原有 50 层上限，防止后期伤害异常膨胀。
+- 升级伤害、护甲减伤、技能范围说明与当前实际规则一致；手机端菜单滚动预留顶部导航空间。
+- 疾行结算使用独立目标文案、完整统计及纪录入口，章间奖励与章节标记保持同步。
+- 验证范围与实玩结果见 [巡检记录](../../docs/EMBERFALL_PLAYTEST_2026-10-31.md)。

@@ -51,7 +51,7 @@ export function mountFlux(runtime,platform){
   last=null;game.lastTime=null;
  }
  window.addEventListener('resize',resize);document.addEventListener('fullscreenchange',resize);
- const camp=createCamp(runtime,platform,()=>{clearMovement();game.lastTime=null;last=null;signature='';syncControls();if(game.isRunning){canvas.focus({preventScroll:true});canvas.parentElement?.scrollIntoView?.({block:'start',behavior:'instant'});}});
+ const camp=createCamp(runtime,platform,()=>{clearMovement();game.lastTime=null;last=null;signature='';syncControls();if(game.isRunning){canvas.focus({preventScroll:true});document.getElementById('game-shell')?.scrollIntoView?.({block:'start',behavior:'instant'});}});
  const folio=createFolio(runtime,platform,{togglePause,afterAction(){clearMovement();game.lastTime=null;last=null;signature='';syncControls();}});
  const idleEnabled=()=>!!(game.autoPlay&&game.autoUpgrade);
  const inBackground=()=>document.hidden||unfocused;
@@ -108,7 +108,7 @@ export function mountFlux(runtime,platform){
  document.getElementById('sound-web').addEventListener('click',()=>{setSoundSuppressed(false);SFX.initAudio();SFX.toggleMute();document.getElementById('sound-web').textContent=SFX.isMuted?'音效：关':'音效：开';});
  function syncControls(){
   const muted=soundSuppressed?!!SFX._savedMute:!!SFX.isMuted;
-  const pauseButton=document.getElementById('pause-web');pauseButton.disabled=!game.isRunning;pauseButton.textContent=game.isPaused?'继续':'暂停';document.getElementById('sound-web').textContent=muted?'音效：关':'音效：开';
+  const pauseButton=document.getElementById('pause-web');pauseButton.disabled=!game.isRunning;pauseButton.textContent=game.isRunning&&game.isPaused?'继续':'暂停';document.getElementById('sound-web').textContent=muted?'音效：关':'音效：开';
   campVisible=camp.sync();folio.sync(campVisible);
   if(controls.children.length)controls.replaceChildren();
  }
@@ -121,9 +121,14 @@ export function mountFlux(runtime,platform){
    const mode=game.bossRushMode?`首领连战 · 第 ${game.bossRushMode.currentWave+1} 波`:game.isSpeedRunMode?'疾行试炼':game.endlessMode?'无尽守夜':'长夜远征';
    status.textContent=`${game.isPaused?'已暂停':mode} · ${minutes}:${seconds}${game.bossRushMode||game.isSpeedRunMode||game.endlessMode?'':' / 20:00'} · 第 ${game.player.level} 阶 · 击败 ${game.player.kills}`;
   }
+  else if(sm.currentSceneName==='playing'&&game.stageSystem?.state==='reward')status.textContent='章节已完成，请选择赐福';
+  else if(sm.currentSceneName==='playing'&&game.bossRushMode?.state==='reward')status.textContent='首领已退，请选择赐福';
+  else if(sm.currentSceneName==='playing'&&['complete','failed'].includes(game.bossRushMode?.state))status.textContent='首领连战已结算';
   else status.textContent=text(({title:'远征待命 · 灰烬林地',charSelect:'远征待命 · 选择守夜者',curseSelect:'选择已解锁诅咒，或直接开始挑战',upgrade:'战斗已暂停，请选择强化',gameOver:'本次远征已结算'})[sm.currentSceneName]||'营地');
-  const chapter=runtime.catalogs?.stages?.[game.stageSystem?.currentStage||0];
+  const chapterIndex=campVisible?0:game.stageSystem?.currentStage||0;
+  const chapter=runtime.catalogs?.stages?.[chapterIndex];
   const chapterName=document.querySelector?.('.chapter-mark strong');if(chapterName&&chapter)chapterName.textContent=chapter.name;
+  const chapterNumber=document.querySelector?.('.chapter-mark > span');if(chapterNumber)chapterNumber.textContent=`CHAPTER ${String(chapterIndex+1).padStart(2,'0')}`;
   syncControls();document.getElementById('loading').hidden=true;
  }
  function step(dt){

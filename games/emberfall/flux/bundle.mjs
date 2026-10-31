@@ -4516,12 +4516,13 @@ function installCollisionSystem(Game) {
 					actualDamage *= 1.5;
 				}
 
-				if (p.takeDamage(actualDamage, e)) { // 传入敌人用于反伤
+				if (p.takeDamage(actualDamage, e, true)) { // 持续接触伤害保留 dt 后的小数
+					if (this._runSettled) return;
 					if (this.eventSystem) this.eventSystem.onPlayerHit();
 
 					// 吸血词缀：敌人攻击时回复HP
 					if (e.vampiricAffix) {
-						const healAmount = Math.ceil(actualDamage * 0.3);
+						const healAmount = actualDamage * 0.3;
 						e.hp = Math.min(e.maxHp, e.hp + healAmount);
 						if (this.particles && Math.random() < 0.2) {
 							this.particles.emit(e.x, e.y - e.radius, { count: 3, speed: 30, life: 0.3, color: '#cc0044', size: 2 });
@@ -4548,7 +4549,8 @@ function installCollisionSystem(Game) {
 				if (this.playerInvincible > 0) continue; // Skip immediately if invincible
 				// Boss接触伤害更高（×1.5）
 				const bossDamage = boss.damage * dt * 1.5 * (this.curseEnemyDamageMult || 1);
-				if (p.takeDamage(bossDamage, boss)) {
+				if (p.takeDamage(bossDamage, boss, true)) {
+					if (this._runSettled) return;
 					if (this.eventSystem) this.eventSystem.onPlayerHit();
 
 					// Frost armor: 冰冻Boss（概率更低）
@@ -4569,6 +4571,7 @@ function installCollisionSystem(Game) {
 			if (dx * dx + dy * dy < rSumEb * rSumEb) {
 				if (this.playerInvincible > 0) { eb.active = false; continue; }
 				p.takeDamage(eb.damage);
+				if (this._runSettled) return;
 				if (this.eventSystem) this.eventSystem.onPlayerHit();
 				eb.active = false;
 			}
@@ -5514,6 +5517,14 @@ class Enemy {
         this._priestLinked = false;
     }
 
+    // All applications and death/chain transfers share the existing 50-stack
+    // poison limit. Capping only DOT left synergy bursts growing exponentially.
+    get poisonStacks() { return this._poisonStacks || 0; }
+    set poisonStacks(value) {
+        const stacks = Number(value);
+        this._poisonStacks = Number.isNaN(stacks) ? 0 : Math.max(0, Math.min(50, stacks));
+    }
+
     /**
      * 就地重置所有属性（对象池复用，绝对禁止 new）
      * 必须与 constructor 完全同步
@@ -6135,7 +6146,7 @@ class Enemy {
     }
 
     takeDamage(amount, bulletOrWeaponId = null) {
-        if (!Number.isFinite(amount)) return;
+        if (!this.active || !Number.isFinite(amount) || amount <= 0) return;
         // Priest invincibility shield
         if (this.invincibleTimer > 0) return;
 
@@ -6222,6 +6233,7 @@ class Enemy {
     }
 
     die() {
+        if (!this.active) return;
         this.active = false;
 
         // Cryo/Toxic 成就统计
@@ -8446,6 +8458,7 @@ class Game {
 
 	startWithCharacter(charId, curses, build, isBossRush) {
 		// 重置状态
+		this._runSettled = false;
 		this.bullets = [];
 		this.enemies = [];
 		this.gems = [];
@@ -8702,6 +8715,8 @@ class Game {
 	// ─── 游戏结束 ───
 
 	endGame() {
+		if (this._runSettled) return;
+		this._runSettled = true;
 		// Boss Rush 模式：玩家死亡通知 Boss Rush，不进入普通结算
 		if (this.bossRushMode) {
 			this.bossRushMode.onPlayerDied();
@@ -8764,6 +8779,8 @@ class Game {
 	}
 
 	victoryEnd() {
+		if (this._runSettled) return;
+		this._runSettled = true;
 		this.isRunning = false;
 		setKeepScreenOn(false);
 		this.autoPlay = false;
@@ -8821,6 +8838,7 @@ class Game {
 
 	enterEndlessMode() {
 		// 进入无尽模式
+		this._runSettled = false;
 		this.endlessMode = true;
 		this.endlessWave = 1;
 		this.victoryTriggered = false; // 重置以便继续游戏
@@ -8939,6 +8957,7 @@ class Game {
 			if (this._speedRunWinPending.timer <= 0) {
 				const pending = this._speedRunWinPending;
 				this._speedRunWinPending = null;
+				this._runSettled = true;
 				this.isRunning = false;
 				SFX.stopBGM();
 				let earnedChips = 0;
@@ -8949,6 +8968,7 @@ class Game {
 				const { formatTime } = require('./scenes/SpeedRunScene');
 				if (this.sceneManager) this.sceneManager.switchTo('gameOver', {
 					victory: true,
+					speedRun: true,
 					time: '速通 ' + formatTime(pending.elapsedMs),
 					timeSeconds: Math.floor(this.time),
 					kills: this.player.kills,
@@ -8958,6 +8978,9 @@ class Game {
 					newAchievements: this.achievements ? this.achievements.getNewAchievements() : [],
 					highestCombo: this.highestCombo || 0,
 					totalDamage: this.player.totalDamage || 0,
+					totalHealed: this.player.totalHealed || 0,
+					totalXp: this.player.totalXp || 0,
+					gemsCollected: this.player.totalGemsCollected || 0,
 					weapons: this.player.weapons.map(w => ({
 						name: (w.def && w.def.name) || w.id,
 						level: w.level,
@@ -8982,6 +9005,8 @@ class Game {
 		if (this.stageSystem) {
 			this.stageSystem.update(dt);
 		}
+		// A chapter/boss reward or final result can stop the run mid-frame.
+		if (!this.isRunning) return;
 
 		// ─── 地图交互元素更新 ───
 
@@ -9057,6 +9082,7 @@ class Game {
 		}
 
 		this.player.update(dt);
+		if (this._runSettled) return;
 
 		// 诅咒: 生命衰减
 		if (this.curseHealthDecay && this.player.hp > 1) {
@@ -9166,6 +9192,7 @@ class Game {
 				e.x -= dx * invD * e.speed * enemyDt * 0.5;
 				e.y -= dy * invD * e.speed * enemyDt * 0.5;
 			}
+			if (this._runSettled) return;
 		}
 
 		// ─── 敌人防重叠挤压（防止数十只怪叠在同一个像素点上像只有一只怪）───
@@ -9207,8 +9234,8 @@ class Game {
 		}
 
 		for (const g of this.gems) g.update(dt);
-		for (const p of this.pickups) p.update(dt);
-		for (const boss of this.bosses) boss.update(dt);
+		for (const p of this.pickups) { p.update(dt); if (this._runSettled) return; }
+		for (const boss of this.bosses) { boss.update(dt); if (this._runSettled) return; }
 
 		// Boss 弹幕
 		for (const eb of this.enemyBullets) {
@@ -9229,6 +9256,7 @@ class Game {
 					const dy = this.player.y - mw.y;
 					if (dx * dx + dy * dy < mw.radius * mw.radius) {
 						this.player.takeDamage(mw.damage);
+						if (this._runSettled) return;
 					}
 					// 爆炸视觉
 					if (this.particles) {
@@ -9247,6 +9275,7 @@ class Game {
 
 		// 碰撞检测
 		this._checkCollisions(dt);
+		if (this._runSettled) return;
 
 		// 事件系统更新
 		this.eventSystem.update(dt);
@@ -13805,8 +13834,8 @@ class Player {
         }
     }
 
-    takeDamage(amount, enemy = null) {
-        if (!Number.isFinite(amount)) return false;
+    takeDamage(amount, enemy = null, continuous = false) {
+        if (!Number.isFinite(amount) || amount <= 0 || this.hp <= 0) return false;
 
         // 无敌状态免疫伤害
         if (this.game.playerInvincible > 0) {
@@ -13823,7 +13852,9 @@ class Player {
             return false;
         }
 
-        const dmg = Math.max(1, amount * (1 - this.armor));
+        // Contact damage already includes dt. A per-frame minimum turns a
+        // 4 damage/second enemy into 60+ damage/second at higher frame rates.
+        const dmg = Math.max(continuous ? 0 : 1, amount * (1 - this.armor));
         const _wasAbove25 = this.hp > this.maxHp * 0.25;
         this.hp -= dmg;
         this.game.spawnDamageNumber(this.x, this.y - 20, Math.ceil(dmg), '#ff4444');
@@ -13855,7 +13886,8 @@ class Player {
 
         // 反伤机制（重装卫士特性）
         if (this.thornDamage > 0 && enemy && enemy.active) {
-            const thornDmg = Math.ceil(dmg * this.thornDamage);
+            const reflected = dmg * this.thornDamage;
+            const thornDmg = continuous ? reflected : Math.ceil(reflected);
             enemy.takeDamage(thornDmg);
             this.game.spawnDamageNumber(enemy.x, enemy.y - 20, thornDmg, '#aa44ff');
             if (this.game.particles) {
@@ -22743,7 +22775,7 @@ class SynergySystem {
      */
     _triggerToxicBurn(enemy, baseDamage) {
         // 基于中毒层数的额外伤害
-        const stacks = enemy.poisonStacks || 0;
+        const stacks = Math.min(50, enemy.poisonStacks || 0);
         const burnDamage = baseDamage * 0.5 + stacks * 5;
 
         // 应用持续燃烧
@@ -22768,7 +22800,7 @@ class SynergySystem {
      * 虚空毒素 - 瞬间爆发所有毒素伤害
      */
     _triggerVoidPoison(enemy, baseDamage) {
-        const stacks = enemy.poisonStacks || 0;
+        const stacks = Math.min(50, enemy.poisonStacks || 0);
         const burstDamage = stacks * 8; // 每层毒素 8 点瞬间伤害
 
         enemy.takeDamage(burstDamage);
@@ -22816,7 +22848,7 @@ class SynergySystem {
         const area = (this.game.player && this.game.player.area) || 1;
         const chainRange = 180 * area;
         const chainDamage = baseDamage * 0.6;
-        const stacks = enemy.poisonStacks || 1;
+        const stacks = Math.min(50, enemy.poisonStacks || 1);
         let chains = 0;
 
         for (const e of this.game.enemies) {
@@ -22850,7 +22882,7 @@ class SynergySystem {
     _triggerCryoPoison(enemy, baseDamage) {
         const area = (this.game.player && this.game.player.area) || 1;
         const radius = 125 * area;
-        const stacks = enemy.poisonStacks || 0;
+        const stacks = Math.min(50, enemy.poisonStacks || 0);
         const explosionDamage = baseDamage + stacks * 3;
         const radiusSq = radius * radius;
 
@@ -23406,9 +23438,11 @@ class UpgradeSystem {
 				const w = p.weapons.find(w => w.id === id);
 				// 确保等级不超过最大值
 				if (w.level < def.maxLevel) {
-					const base = def.baseDamage || 10;
-					const dmgNow = Math.floor(base * (1 + (w.level - 1) * 0.33));
-					const dmgNext = Math.floor(base * (1 + w.level * 0.33));
+					// Preview the real getter without mutating the equipped weapon.
+					const next = Object.create(w);
+					next.level = w.level + 1;
+					const dmgNow = w.damage;
+					const dmgNext = next.damage;
 					const opt = {
 						type: 'weapon_up', id, name: def.name,
 						desc: `LV.${w.level}→${w.level + 1}  伤害: ${dmgNow}→${dmgNext}`,
@@ -23460,10 +23494,10 @@ class UpgradeSystem {
 					if (hpRatio < 0.3) weight = 20; // 危险时高权重
 					else if (hpRatio < 0.5) weight = 15;
 					else if (hpRatio < 0.7) weight = 10;
-					// 显示当前护甲和预期减伤
-					const currentArmor = p.armor;
-					const nextArmor = currentArmor + 1;
-					desc = `护甲 ${currentArmor} → ${nextArmor} (伤害-${nextArmor})`;
+					// Armor is percentage mitigation, not flat damage subtraction.
+					const current = Math.round(p.armor * 100);
+					const next = Math.round(Math.min(0.6, (p.bonusArmor + def.perLevel) * 0.08) * (this.game.curseArmorBreak ? 0.5 : 1) * 100);
+					desc = `护甲 +${def.perLevel} · 减伤 ${current}% → ${next}%`;
 				}
 
 				// ═══ 协同标签：解锁进化 ═══
@@ -25104,7 +25138,7 @@ class Weapon {
             }
         }
 
-        this.game.spawnDamageNumber(targetX, targetY - 100, '鈽勶笍 澶╃綒杞ㄩ亾鐐?', '#ffdd00', true);
+        this.game.spawnDamageNumber(targetX, targetY - 100, '黎明天罚!', '#ffdd00', true);
 
         // 剧烈屏幕物理特效
         this.game.shakeAmount = 25;
@@ -25149,7 +25183,7 @@ class Weapon {
             }
         }
 
-        this.game.spawnDamageNumber(p.x, p.y - 100, '鉂勶笍 缁濆闆跺害娉ユ布!', '#66ffff', true);
+        this.game.spawnDamageNumber(p.x, p.y - 100, '霜腐幽潭!', '#66ffff', true);
         if (this.game.triggerScreenPulse) this.game.triggerScreenPulse('#66ffff77', 0.8);
         this.game.shakeAmount = 10;
         this.game.shakeDuration = 0.5;
@@ -25185,7 +25219,7 @@ class Weapon {
             evolved: true,
         }));
 
-        this.game.spawnDamageNumber(p.x, p.y - 80, '馃寑 铏氱┖濂囩偣鏋?', '#aa44ff', true);
+        this.game.spawnDamageNumber(p.x, p.y - 80, '吞星之瞳!', '#aa44ff', true);
         if (this.game.triggerScreenPulse) this.game.triggerScreenPulse('#330066aa', 0.4);
         this.game.shakeAmount = 8;
         this.game.shakeDuration = 0.4;

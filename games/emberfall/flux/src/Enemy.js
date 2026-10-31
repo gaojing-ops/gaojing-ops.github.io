@@ -322,6 +322,14 @@ class Enemy {
         this._priestLinked = false;
     }
 
+    // All applications and death/chain transfers share the existing 50-stack
+    // poison limit. Capping only DOT left synergy bursts growing exponentially.
+    get poisonStacks() { return this._poisonStacks || 0; }
+    set poisonStacks(value) {
+        const stacks = Number(value);
+        this._poisonStacks = Number.isNaN(stacks) ? 0 : Math.max(0, Math.min(50, stacks));
+    }
+
     /**
      * 就地重置所有属性（对象池复用，绝对禁止 new）
      * 必须与 constructor 完全同步
@@ -943,7 +951,7 @@ class Enemy {
     }
 
     takeDamage(amount, bulletOrWeaponId = null) {
-        if (!Number.isFinite(amount)) return;
+        if (!this.active || !Number.isFinite(amount) || amount <= 0) return;
         // Priest invincibility shield
         if (this.invincibleTimer > 0) return;
 
@@ -1030,6 +1038,7 @@ class Enemy {
     }
 
     die() {
+        if (!this.active) return;
         this.active = false;
 
         // Cryo/Toxic 成就统计

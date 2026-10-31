@@ -427,8 +427,8 @@ class Player {
         }
     }
 
-    takeDamage(amount, enemy = null) {
-        if (!Number.isFinite(amount)) return false;
+    takeDamage(amount, enemy = null, continuous = false) {
+        if (!Number.isFinite(amount) || amount <= 0 || this.hp <= 0) return false;
 
         // 无敌状态免疫伤害
         if (this.game.playerInvincible > 0) {
@@ -445,7 +445,9 @@ class Player {
             return false;
         }
 
-        const dmg = Math.max(1, amount * (1 - this.armor));
+        // Contact damage already includes dt. A per-frame minimum turns a
+        // 4 damage/second enemy into 60+ damage/second at higher frame rates.
+        const dmg = Math.max(continuous ? 0 : 1, amount * (1 - this.armor));
         const _wasAbove25 = this.hp > this.maxHp * 0.25;
         this.hp -= dmg;
         this.game.spawnDamageNumber(this.x, this.y - 20, Math.ceil(dmg), '#ff4444');
@@ -477,7 +479,8 @@ class Player {
 
         // 反伤机制（重装卫士特性）
         if (this.thornDamage > 0 && enemy && enemy.active) {
-            const thornDmg = Math.ceil(dmg * this.thornDamage);
+            const reflected = dmg * this.thornDamage;
+            const thornDmg = continuous ? reflected : Math.ceil(reflected);
             enemy.takeDamage(thornDmg);
             this.game.spawnDamageNumber(enemy.x, enemy.y - 20, thornDmg, '#aa44ff');
             if (this.game.particles) {

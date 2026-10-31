@@ -307,7 +307,7 @@ class SynergySystem {
      */
     _triggerToxicBurn(enemy, baseDamage) {
         // 基于中毒层数的额外伤害
-        const stacks = enemy.poisonStacks || 0;
+        const stacks = Math.min(50, enemy.poisonStacks || 0);
         const burnDamage = baseDamage * 0.5 + stacks * 5;
 
         // 应用持续燃烧
@@ -332,7 +332,7 @@ class SynergySystem {
      * 虚空毒素 - 瞬间爆发所有毒素伤害
      */
     _triggerVoidPoison(enemy, baseDamage) {
-        const stacks = enemy.poisonStacks || 0;
+        const stacks = Math.min(50, enemy.poisonStacks || 0);
         const burstDamage = stacks * 8; // 每层毒素 8 点瞬间伤害
 
         enemy.takeDamage(burstDamage);
@@ -380,7 +380,7 @@ class SynergySystem {
         const area = (this.game.player && this.game.player.area) || 1;
         const chainRange = 180 * area;
         const chainDamage = baseDamage * 0.6;
-        const stacks = enemy.poisonStacks || 1;
+        const stacks = Math.min(50, enemy.poisonStacks || 1);
         let chains = 0;
 
         for (const e of this.game.enemies) {
@@ -414,7 +414,7 @@ class SynergySystem {
     _triggerCryoPoison(enemy, baseDamage) {
         const area = (this.game.player && this.game.player.area) || 1;
         const radius = 125 * area;
-        const stacks = enemy.poisonStacks || 0;
+        const stacks = Math.min(50, enemy.poisonStacks || 0);
         const explosionDamage = baseDamage + stacks * 3;
         const radiusSq = radius * radius;
 
