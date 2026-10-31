@@ -11,6 +11,48 @@ const {Weapon,WEAPON_DEFS}=require('./src/Weapons');
 function start(){const g=new Game(canvas());g.selectedPatron='ember';g.startWithCharacter('tracer',[]);g._tutorialStep=-1;return g;}
 function seeded(fn){const old=Math.random;let seed=91;Math.random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);try{return fn();}finally{Math.random=old;}}
 
+test('awakening material only claims an unlock on first acquisition, so helpers can finish early weapons',()=>{
+ const g=start();g.startWithCharacter('cryomancer',[]);g._tutorialStep=-1;const p=g.player,us=g.upgradeSystem;
+ p.level=10;p.weapons[0].level=4;let pool;
+ us._weightedPick=(rows,count)=>{if(rows.some(o=>o.type==='passive'))pool=rows;return rows.slice(0,count);};
+ us.generateOptions();assert.ok(pool.find(o=>o.id==='cryo_core').synergy,'missing material is a real unlock');
+ p.passives.push({id:'cryo_core',level:1});us.generateOptions();
+ const passive=pool.find(o=>o.id==='cryo_core'),upgrade=pool.find(o=>o.id==='ice_shard');
+ assert.equal(passive.synergy,null);assert.equal(passive.weight,8,'already owned material cannot keep its unlock weight');
+ g.autoUpgrade=true;us.generateOptions=()=>({options:[passive,upgrade,{type:'heal',id:'heal'}],previews:[]});
+ g.showUpgradeScreen();assert.equal(p.weapons[0].level,5);assert.equal(p.getPassiveLevel('cryo_core'),1);
+ const fresh=start();fresh.startWithCharacter('cryomancer',[]);fresh.player.weapons[0].evolved=true;fresh.upgradeSystem._weightedPick=rows=>{if(rows.some(o=>o.type==='passive'))pool=rows;return rows.slice(0,3);};fresh.upgradeSystem.generateOptions();assert.equal(pool.find(o=>o.id==='cryo_core').synergy,null,'an awakened weapon cannot advertise another unlock');
+});
+
+test('lamp-only helpers enter real damage range, keep body clearance, and still yield to danger',()=>{
+ const g=start();g.startWithCharacter('walker',[]);g._tutorialStep=-1;const p=g.player;p.x=p.y=0;p.weapons[0].level=6;
+ g.enemies=[];g.gems=[];g.pickups=[];g._aiOrbitDir=1;let damage=0,minDistance=Infinity;
+ const boss={active:true,x:170,y:0,radius:30,telegraph:null,takeDamage(n){damage+=n;}};g.bosses=[boss];
+ for(let i=0;i<240;i++){g._updateAutoPlayAI(1/60);p.x+=g.input.vector.x*p.speed/60;p.y+=g.input.vector.y*p.speed/60;p.weapons[0].update(1/60);minDistance=Math.min(minDistance,Math.hypot(p.x-boss.x,p.y-boss.y));}
+ assert.ok(damage>0,'orbit must enter the unchanged lamp hit radius');assert.ok(minDistance>boss.radius+p.radius,'approach must not drive through the boss body');
+ p.x=p.y=0;g._aiTimer=0;g._aiVector=null;g.mortarWarnings=[{active:true,x:20,y:0,radius:100,timer:.8}];g._updateAutoPlayAI(1/60);assert.ok(g.input.vector.x<0,'visible danger overrides close-range approach');
+ g.mortarWarnings=[];p.bonusArea=2;g._aiTimer=0;g._aiVector=null;g._updateAutoPlayAI(1/60);assert.ok(Math.abs(g.input.vector.x)<.1,'a wide late-game lamp retains normal orbit spacing');
+});
+
+test('helpers avoid stationary and receding mines instead of walking through them for loot',()=>{
+ const g=start(),p=g.player;p.x=p.y=0;g.enemies=[];g.bosses=[];g.pickups=[];g.gems=[{active:true,x:200,y:0,value:10}];
+ for(const vx of [0,22]){g._aiVector=null;g._aiTimer=0;g.enemyBullets=[{active:true,x:50,y:0,vx,vy:0,radius:18}];g._updateAutoPlayAI(1/60);assert.ok(g.input.vector.x<0,'nearby mine overrides the gem attraction');}
+ g._aiVector=null;g._aiTimer=0;g.enemyBullets=[{active:true,x:0,y:0,vx:0,vy:0,radius:18}];g._updateAutoPlayAI(1/60);assert.ok(Number.isFinite(g.input.vector.x));assert.ok(Math.hypot(g.input.vector.x,g.input.vector.y)>.9);
+ g._aiVector=null;g._aiTimer=0;g.enemyBullets=[{active:true,x:50,y:0,vx:200,vy:0,radius:5}];g._updateAutoPlayAI(1/60);assert.ok(g.input.vector.x>0,'a fast departing shot still does not trigger unnecessary evasion');
+});
+
+test('urgent ground warnings use legal dash cooldown and invulnerability when walking cannot escape',()=>{
+ const g=start(),p=g.player;g.autoPlay=true;p.x=p.y=0;p.baseSpeed=40;p.slowed=5;p.slowAmount=.25;
+ g.spawnTimer=g.bossTimer=999;g.enemies=[];g.gems=[];g.pickups=[];g.skillSystem.cooldown=999;
+ g.mortarWarnings=[{active:true,x:0,y:0,radius:100,damage:999,timer:.2}];
+ const hp=p.hp;g._updateAutoPlayAI(1/60);assert.ok(p.dashCooldown>0);assert.ok(g.playerInvincible>0);assert.ok(Number.isFinite(p.dashAngle));
+ for(let i=0;i<3;i++){g.time+=.1;g.update(.1);}assert.equal(p.hp,hp,'existing dash iframes cover a blast that cannot be cleared at this slowed speed');assert.equal(g.mortarWarnings.length,0);
+ const h=start();h.player.x=h.player.y=0;h.enemies=[];h.gems=[];h.pickups=[];h.mortarWarnings=[{active:true,x:0,y:0,radius:100,timer:3}];
+ h._updateAutoPlayAI(.13);assert.equal(h.player.dashCooldown,0,'a warning that can be walked out of does not spend dash');
+ h.mortarWarnings[0].timer=.2;h.player.dashCooldown=1;h._aiTimer=0;h._updateAutoPlayAI(.13);assert.equal(h.player.dashActiveTimer,0,'cooldown cannot be bypassed');
+ h.player.dashCooldown=0;h.input.active=true;h._updateAutoPlayAI(.13);assert.equal(h.player.dashCooldown,0,'manual input remains authoritative');
+});
+
 test('opening offers retain a real carried-weapon choice without granting it or duplicating options',()=>seeded(()=>{
  const g=start(),p=g.player,us=g.upgradeSystem;
  for(const level of [2,3,6,9,12])for(const dice of [false,true]){

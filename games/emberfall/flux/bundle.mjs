@@ -9679,12 +9679,19 @@ class Game {
 			if (!eb.active) continue;
 			const dx = p.x - eb.x, dy = p.y - eb.y;
 			const dSq = dx * dx + dy * dy;
-			if (dSq < bulletAvoidRSq && dSq > 0) {
+			if (dSq < bulletAvoidRSq) {
 				const d = Math.sqrt(dSq);
 				// 判断子弹是否朝我飞来（点积检测）
 				const bvx = eb.vx || 0, bvy = eb.vy || 0;
 				const dot = dx * bvx + dy * bvy;
-				if (dot > 0) { // dx/dy 从子弹指向玩家；正点积才是迎面飞来
+				if (bvx * bvx + bvy * bvy <= 2500) {
+					// Mines and slow hazards remain dangerous even when stationary or
+					// drifting away: the watcher can walk into their contact radius.
+					const push = 5 + Math.pow((bulletAvoidR - d) / bulletAvoidR, 2) * 14;
+					forceX += d > 0 ? dx / d * push : push;
+					forceY += d > 0 ? dy / d * push : 0;
+					dangerCount++;
+				} else if (dSq > 0 && dot > 0) { // dx/dy 从子弹指向玩家；正点积才是迎面飞来
 					const pushForce = Math.pow((bulletAvoidR - d) / bulletAvoidR, 2) * 10.0;
 					// 往子弹飞行方向的垂直方向闪避
 					const cross = dx * bvy - dy * bvx;
@@ -9698,6 +9705,7 @@ class Game {
 
 		// Ground warnings (mortar shells and death blasts) share the visible fuse.
 		// Resolve a zero-distance escape deterministically instead of normalizing 0.
+		let urgentDash = null;
 		for (const w of this.mortarWarnings || []) {
 			if (!w.active) continue;
 			const dx = p.x - w.x, dy = p.y - w.y;
@@ -9708,8 +9716,19 @@ class Game {
 				forceX += (d > 0 ? dx / d : 1) * push;
 				forceY += (d > 0 ? dy / d : 0) * push;
 				dangerCount += 6;
+				const remaining = Math.max(0, w.timer || 0);
+				const escapeDistance = Math.max(0, w.radius + p.radius + 16 - d);
+				const walkTime = escapeDistance / Math.max(1, p.speed) + 0.12;
+				const moveTime = Math.max(0, remaining - 0.12);
+				const dashDistance = p.speed * (moveTime + (p.dashSpeedMult - 1) * Math.min(0.25, moveTime));
+				if (remaining > 0 && walkTime > remaining &&
+					(dashDistance >= escapeDistance || remaining <= 0.3) &&
+					(!urgentDash || remaining < urgentDash.remaining)) {
+					urgentDash = { remaining, angle: d > 0 ? Math.atan2(dy, dx) : Math.atan2(forceY, forceX) };
+				}
 			}
 		}
+		if (urgentDash && p.dashCooldown <= 0 && p.dashActiveTimer <= 0) p.dash(urgentDash.angle);
 
 		// ═══ 层4: Boss 追踪 + 环绕走位 ═══
 		let nearestBoss = null, nearestBossDSq = Infinity;
@@ -9725,18 +9744,25 @@ class Game {
 		if (nearestBoss) {
 			const dx = nearestBoss.x - p.x, dy = nearestBoss.y - p.y;
 			const d = Math.sqrt(nearestBossDSq);
-			const idealDist = 160;
+			// A lamp-only opening cannot hurt a boss while orbiting outside its
+			// actual radius. Wide late-game lamps retain the normal orbit spacing.
+			const lamp = p.weapons[0];
+			const reach = lamp?.id === 'radiation_field' ? Math.min((75 + lamp.level * 8) * p.area * (lamp.evolved ? 1.35 : 1), 240) : 0;
+			const shortRange = reach > 0 && reach < 240 && hpRatio >= 0.35;
+			const contactMargin = (nearestBoss.radius || 30) + p.radius + 20;
+			const outerDist = shortRange ? Math.max(contactMargin + 12, reach - 12) : 240;
+			const innerDist = shortRange ? Math.max(contactMargin, outerDist - 35) : 100;
 
 			if (dangerCount > 10) {
 				// 被大量小怪包围→优先逃离
 				const pushForce = Math.pow((200 - Math.min(d, 200)) / 200, 2) * 10.0;
 				forceX -= (dx / d) * pushForce;
 				forceY -= (dy / d) * pushForce;
-			} else if (d > idealDist + 80) {
+			} else if (d > outerDist) {
 				// 太远→靠近
 				forceX += (dx / d) * 5.0;
 				forceY += (dy / d) * 5.0;
-			} else if (d < idealDist - 60) {
+			} else if (d < innerDist) {
 				// 太近→后退
 				forceX -= (dx / d) * 4.0;
 				forceY -= (dy / d) * 4.0;
@@ -23887,11 +23913,11 @@ class UpgradeSystem {
 				}
 
 				// ═══ 协同标签：解锁进化 ═══
-				const sameElement = p.weapons.some(w => {
+				const unlocksAwakening = lvl === 0 && p.weapons.some(w => {
 					const wDef = WEAPON_DEFS[w.id];
-					return wDef && wDef.evolveWith === id;
+					return !w.evolved && wDef && wDef.evolveWith === id;
 				});
-				if (sameElement) {
+				if (unlocksAwakening) {
 					synergy = '🔗 解锁进化';
 					weight += 15;
 				}
