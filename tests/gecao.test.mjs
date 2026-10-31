@@ -18,7 +18,7 @@ const {CHARACTERS}=require('./src/Character');
 test('imported gameplay modules match the supplied WeChat source byte for byte',()=>{
  const manifest=JSON.parse(readFileSync(new URL('../games/emberfall/flux/source-manifest.json',import.meta.url)));
  assert.equal(manifest.modules.length,62);
- for(const item of manifest.modules){if(['src/scenes/TitleScene.js','src/RenderSystem.js','src/MapManager.js','src/Renderer.js','src/Enemy.js','src/Boss.js','src/scenes/CharSelectScene.js','src/Character.js','src/StageSystem.js','src/BossData.js','src/SpawnSystem.js','src/Player.js','src/ComboSystem.js','src/Gem.js','src/Pickup.js','src/Game.js','src/EventSystem.js','src/DestinyShrine.js','src/SkillSystem.js'].includes(item.path))continue;
+ for(const item of manifest.modules){if(['src/scenes/TitleScene.js','src/RenderSystem.js','src/MapManager.js','src/Renderer.js','src/Enemy.js','src/Boss.js','src/scenes/CharSelectScene.js','src/Character.js','src/StageSystem.js','src/BossData.js','src/SpawnSystem.js','src/Player.js','src/ComboSystem.js','src/Gem.js','src/Pickup.js','src/Game.js','src/EventSystem.js','src/DestinyShrine.js','src/SkillSystem.js','src/Weapons.js','src/WeaponData.js'].includes(item.path))continue;
   const bytes=readFileSync(new URL('../games/emberfall/flux/'+item.path,import.meta.url));
   assert.equal(createHash('sha256').update(bytes).digest('hex'),item.sha256,item.path);
  }

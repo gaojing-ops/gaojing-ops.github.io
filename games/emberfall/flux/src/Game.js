@@ -145,7 +145,7 @@ class Game {
 		this.spawnInterval = 1.2;
 
 		// Boss
-		this.bossTimer = 60;
+		this.bossTimer = 90;
 		this.bossWave = 0;
 
 		// 地图元素生成
@@ -250,7 +250,7 @@ class Game {
 		this.time = 0;
 		this.spawnTimer = 0;
 		this.spawnInterval = 1.2;
-		this.bossTimer = 60;
+		this.bossTimer = 90;
 		this.bossWave = 0;
 		this.mapElementTimer = 30;
 		this.shakeAmount = 0;
@@ -1305,7 +1305,7 @@ class Game {
 		}
 		vibrate('heavy');
 		this._bossEntrance = { timer: 1.5, phase: 0, name: boss.name, color: boss.color, slowActive: false };
-		this.bossTimer = Math.max(15, 60 - this.curseBossInterval);
+		this.bossTimer = Math.max(15, 75 - this.curseBossInterval);
 		this.shakeAmount = 8;
 		this.shakeDuration = 0.5;
 		this.spawnDamageNumber(this.player.x, this.player.y - 60, '⚠ BOSS!', '#ff0055');

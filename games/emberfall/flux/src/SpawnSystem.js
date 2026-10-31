@@ -106,68 +106,85 @@ function installSpawnSystem(Game) {
 			switch (style) {
 				case 'ToxicSwamp': // 第二章 · 腐根沼泽
 					biomeWeights = [
-						{ type: 'SlimeGlob', weight: 3 },
+						{ type: 'SlimeGlob', weight: 2.5 },
+						{ type: 'ToxicBlob', weight: 2.5 },
 						{ type: 'Crawler', weight: 2 },
-						{ type: 'Bomber', weight: 2 },
-						{ type: 'Healer', weight: 2 },
-						{ type: 'PlagueSource', weight: 2 },
-						{ type: 'RoyalSlime', weight: 1 }
+						{ type: 'Bomber', weight: 1.5 },
+						{ type: 'Healer', weight: 1.2 }
 					];
 					break;
 				case 'CryoRealm': // 第三章 · 霜裂遗迹
 					biomeWeights = [
-						{ type: 'FrostWisp', weight: 3 },
+						{ type: 'FrostWisp', weight: 2.5 },
 						{ type: 'Splitter', weight: 2 },
-						{ type: 'ShieldPriest', weight: 2 },
-						{ type: 'ScatterGun', weight: 2 },
-						{ type: 'FrostTitan', weight: 2 }
+						{ type: 'ShieldPriest', weight: 1.2 },
+						{ type: 'ScatterGun', weight: 1.5 }
 					];
 					break;
 				case 'VoidNebula': // 第四章 · 虚渊墓境
 					biomeWeights = [
-						{ type: 'VoidLeech', weight: 3 },
-						{ type: 'WarpMite', weight: 2 },
-						{ type: 'Phantom', weight: 3 },
-						{ type: 'Assassin', weight: 2 },
-						{ type: 'SpiralCaster', weight: 2 }
+						{ type: 'VoidLeech', weight: 2 },
+						{ type: 'WarpMite', weight: 2.5 },
+						{ type: 'Phantom', weight: 2.5 },
+						{ type: 'Assassin', weight: 1.5 },
+						{ type: 'SpiralCaster', weight: 1.5 }
 					];
 					break;
 				case 'Matrix': // 第五章 · 黎明圣城
 					biomeWeights = [
 						{ type: 'LaserDrone', weight: 2 },
-						{ type: 'Turret', weight: 2 },
-						{ type: 'ChainGunner', weight: 2 },
-						{ type: 'MortarDrone', weight: 2 },
-						{ type: 'GlitchEntity', weight: 2 },
-						{ type: 'IronGolem', weight: 2 }
+						{ type: 'Turret', weight: 1.5 },
+						{ type: 'ChainGunner', weight: 1.5 },
+						{ type: 'MortarDrone', weight: 1.5 },
+						{ type: 'GlitchEntity', weight: 2 }
 					];
 					break;
 				case 'CyberGrid': // 第一章 · 灰烬林地
 				default:
 					biomeWeights = [
+						{ type: 'Bat', weight: 2 },
 						{ type: 'Skeleton', weight: 2 },
 						{ type: 'CyberSpider', weight: 2 },
 						{ type: 'Ghost', weight: 2 },
-						{ type: 'DataWorm', weight: 2 },
-						{ type: 'Turret', weight: 1.5 },
-						{ type: 'ShieldBearer', weight: 1.5 },
-						{ type: 'Charger', weight: 1 }
+						{ type: 'DataWorm', weight: t > 60 ? 1.2 : 0.5 },
+						{ type: 'Turret', weight: t > 60 ? 1.0 : 0.45 }
 					];
+					if (t > 60) {
+						biomeWeights.push({ type: 'ShieldBearer', weight: 0.8 }, { type: 'Charger', weight: 0.8 });
+					}
 					break;
 			}
 		}
 
-		// 构建加权随机池
+		// 统计场上存活的巨型重装怪数量（限制同屏最多 4 只，避免肉盾铺满全屏）
+		let activeHeavyCount = 0;
+		for (let i = 0; i < this.enemies.length; i++) {
+			const ae = this.enemies[i];
+			if (!ae.active) continue;
+			if (ae.type === 'RoyalSlime' || ae.type === 'PlagueSource' || ae.type === 'FrostTitan' || ae.type === 'IronGolem') {
+				activeHeavyCount++;
+			}
+		}
+
+		// 构建按定位分层的加权随机池（潮怪高权重保割草爽感，重装怪低权重作精英压迫）
 		let weightedPool = [];
 		for (const p of pool) {
-			weightedPool.push({ type: p, weight: 1 });
+			let baseW = 1.0;
+			if (p === 'RoyalSlime' || p === 'PlagueSource' || p === 'FrostTitan' || p === 'IronGolem') {
+				baseW = activeHeavyCount >= 4 ? 0 : 0.18;
+			} else if (p === 'Bat' || p === 'FireFly' || p === 'SwarmDrone' || p === 'Crawler' || p === 'ToxicBlob' || p === 'Ghost' || p === 'CyberSpider' || p === 'Skeleton') {
+				baseW = t < 60 ? 2.2 : 1.4;
+			} else if (p === 'ShieldBearer' || p === 'Charger' || p === 'DataWorm' || p === 'Turret' || p === 'Healer' || p === 'ShieldPriest') {
+				baseW = t < 60 ? 0.45 : 0.85;
+			}
+			if (baseW > 0) weightedPool.push({ type: p, weight: baseW });
 		}
 		for (const bw of biomeWeights) {
 			const existing = weightedPool.find(x => x.type === bw.type);
 			if (existing) {
 				existing.weight += bw.weight;
-			} else if (t > 25) {
-				weightedPool.push({ type: bw.type, weight: bw.weight * 0.65 });
+			} else if (t > 30) {
+				weightedPool.push({ type: bw.type, weight: bw.weight * 0.55 });
 			}
 		}
 
@@ -183,6 +200,11 @@ function installSpawnSystem(Game) {
 		}
 
 		const enemy = this.enemyPool.get().reset(this, x, y, type, { hpMult, dmgMult });
+
+		// 巨型重装怪经验补偿（匹配其高额血量，击杀更有正反馈）
+		if (type === 'RoyalSlime' || type === 'PlagueSource' || type === 'FrostTitan' || type === 'IronGolem') {
+			enemy.xpValue = Math.ceil((enemy.xpValue || 25) * 2.2);
+		}
 
 		// 近战/群怪随时间提速（让玩家必须持续走位；远程怪不加速）
 		if (t > 60 && enemy.behavior !== 'shooter' && enemy.behavior !== 'spiral_shooter'

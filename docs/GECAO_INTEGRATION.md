@@ -101,3 +101,9 @@
 
 5. **UI 与战斗 HUD 精修（`flux.css`、`flux/folio.css`、`flux/theme.mjs`）**
    - 营地首页、手札弹窗与战斗 HUD 升级为鎏金羊皮纸标题、双层古铜线框、玻璃拟态暗夜石板、玉石经验条、红宝石血条与快捷状态胶囊，桌面与移动端布局自适应。
+
+6. **武器机制 Bug 修复与全角色/刷怪/首领数值平衡（`Weapons.js`、`WeaponData.js`、`SpawnSystem.js`、`Game.js`）**
+   - **修复全武器隐形辐射光环 Bug**：`Weapons.js` 中 `this._radTickTimer` 补回 `if (this.id === 'radiation_field')` 守卫，消除所有武器无条件自带隐形近战辐射圈的漏洞，并为 `radiation_field` 本身赋予微减速与进化黑洞牵引吸血效果。
+   - **拉平 9 名角色初始武器开局强度**：优化 `flux_bolt`（双发+基础穿透）、`soul_drain`（多重锁定吸血+灵魂溅射）、`shadow_clone`（环绕近身斩击+高频穿透飞镖）、`plasma_arc`、`ice_shard`、`chain_spark`、`toxin_spray` 的前期弹道数、穿透与冷却节奏，使全部 9 名角色在非无敌实战模拟中均能稳定清怪升级。
+   - **刷怪定位分层加权与重装怪同屏上限**：`SpawnSystem.js` 按潮怪、中甲机制怪、巨型重装怪分层设定权重；前 60 秒提高脆皮潮怪比重保障前期割草爽感，巨型重装怪（`RoyalSlime`、`PlagueSource`、`FrostTitan`、`IronGolem`）设为低权重精英、限制同屏最多 4 只并上调 2.2 倍经验回报。
+   - **首领登场节奏优化**：`Game.js` 首只 Boss 计时 `bossTimer` 由 `60s` 调整为 `90s`，后续基础间隔调整为 `75s`，给玩家留出充足的前期构筑成型时间。
