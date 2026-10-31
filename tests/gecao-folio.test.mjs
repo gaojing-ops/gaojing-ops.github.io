@@ -12,7 +12,7 @@ const storage=new Map();
 globalThis.wx={getStorageSync:k=>storage.get(k)||'',setStorageSync:(k,v)=>storage.set(k,v),createCanvas:()=>({getContext:()=>context}),createOffscreenCanvas:()=>({getContext:()=>context}),createImage:()=>({}),getSystemInfoSync:()=>({screenWidth:1000,screenHeight:620,pixelRatio:1,safeArea:{top:0,bottom:620}}),onTouchStart(){},onTouchMove(){},onTouchEnd(){},onTouchCancel(){}};
 function catalogs(){
  const get=(mod,key)=>require('./src/'+mod)[key];
- return {weaponType:get('Weapons','Weapon'),petType:get('Pet','Pet'),weapons:get('WeaponData','weapons'),passives:get('WeaponData','passives'),evolution:get('Evolution','EVOLUTION_RECIPES'),skills:get('SkillSystem','SKILL_DEFS'),characters:get('Character','CHARACTERS'),meta:get('MetaSystem','META_UPGRADES'),talents:require('./src/TalentTree'),skins:get('Skins','SKINS'),pets:get('Pet','PET_TYPES'),auras:get('Auras','AURA_TYPES'),relics:Object.fromEntries(get('Relic','RELIC_DEFS').map(row=>[row.id,row])),achievements:get('AchievementSystem','ACHIEVEMENT_DEFS'),builds:require('./src/BuildPreset'),bosses:require('./src/BossData'),enemies:get('Enemy','TYPES'),stages:get('StageSystem','STAGE_CONFIGS'),speed:require('./src/scenes/SpeedRunScene'),events:Object.fromEntries(get('EventSystem','EVENT_DEFS').map(row=>[row.id,row])),curses:get('CurseSystem','CURSE_DEFS')};
+ return {pantheon:require('./src/Pantheon'),weaponType:get('Weapons','Weapon'),petType:get('Pet','Pet'),weapons:get('WeaponData','weapons'),passives:get('WeaponData','passives'),evolution:get('Evolution','EVOLUTION_RECIPES'),skills:get('SkillSystem','SKILL_DEFS'),characters:get('Character','CHARACTERS'),meta:get('MetaSystem','META_UPGRADES'),talents:require('./src/TalentTree'),skins:get('Skins','SKINS'),pets:get('Pet','PET_TYPES'),auras:get('Auras','AURA_TYPES'),relics:Object.fromEntries(get('Relic','RELIC_DEFS').map(row=>[row.id,row])),achievements:get('AchievementSystem','ACHIEVEMENT_DEFS'),builds:require('./src/BuildPreset'),bosses:require('./src/BossData'),enemies:get('Enemy','TYPES'),stages:get('StageSystem','STAGE_CONFIGS'),speed:require('./src/scenes/SpeedRunScene'),events:Object.fromEntries(get('EventSystem','EVENT_DEFS').map(row=>[row.id,row])),curses:get('CurseSystem','CURSE_DEFS')};
 }
 function environment(fullArt=false){
  storage.clear();const nodes=new Map();let root;
@@ -203,4 +203,14 @@ test('all nine real active skills render through native combat art without chang
   const snapshot=()=>JSON.stringify([p.hp,p.maxHp,p.bonusArmor,p.bonusMight,p.bonusSpeed,p.bonusCdr,p.thornDamage,p.x,p.y,e.game.playerInvincible,e.game.skillSystem.cooldown,target.hp,target.frozen,target.poisoned,target.poisonStacks,p.turrets]);
   const before=snapshot();assert.doesNotThrow(()=>e.game.draw(),id);assert.equal(snapshot(),before,id);
  }
+});
+
+
+test('divine codex, fourth upgrade, paused oath and result all show actual run blessings',()=>{
+ const e=environment(true);e.game.selectedPatron='wind';e.game.startWithCharacter('tracer',[]);e.game._tutorialStep=-1;
+ e.sm.switchTo('compendium');e.sync();e.click('余烬诸神');assert.match(e.root.html,/烛照/);assert.match(e.root.html,/八|玄瞳/);assert.match(e.root.html,/god-art/);
+ e.sm.switchTo('playing');e.game.player.level=3;const options=e.game.upgradeSystem.generateOptions().options;
+ assert.equal(options.length,4);const boon=options.find(o=>o.type==='blessing');e.sm.switchTo('upgrade',{options,previews:[],game:e.game});e.sync();assert.match(e.root.html,/神明赐福/);e.click('选择 4');assert.equal(e.game.pantheon.ranks[boon.id],1);
+ e.game.isPaused=true;e.sync();e.click('祈誓与神赐');assert.match(e.root.html,/乘岚/);assert.match(e.root.html,new RegExp(boon.name));
+ e.game.isPaused=false;e.game.endGame();e.sync();assert.match(e.root.html,/乘岚/);assert.match(e.root.html,new RegExp(boon.name));
 });

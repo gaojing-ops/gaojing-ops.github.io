@@ -2,6 +2,7 @@
 // 移除所有 DOM 操作，UI 交给 SceneManager + Canvas 场景
 
 const Input = require('./Input');
+const { Pantheon } = require('./Pantheon');
 const Player = require('./Player');
 const { Enemy } = require('./Enemy');
 const { Weapon } = require('./Weapons');
@@ -470,6 +471,7 @@ class Game {
 
 		// 初始化技能系统（在 characterId 设置后）
 		if (this.skillSystem) this.skillSystem.init();
+		this.pantheon = new Pantheon(this, this.selectedPatron);
 
 		// 绑定技能按钮 touchEnd 回调
 		if (this.input && this.skillSystem) {
@@ -671,6 +673,7 @@ class Game {
 			
 			// 优先级3：遗物是极其稀有的全局乘区加成，必选
 			if (!pick) pick = options.find(o => o.type === 'relic');
+			if (!pick) pick = options.find(o => o.type === 'blessing' && o.deity === this.pantheon?.patron);
 			
 			// 优先级4：有协同标签的选项（进化就绪/解锁进化），有极高收益
 			if (!pick) pick = options.find(o => o.synergy);
@@ -850,6 +853,7 @@ class Game {
 		this.lastTouchState = input.active;
 
 		if (this.isPaused) return;
+		if (this.pantheon) this.pantheon.update(dt);
 
 		// 构建空间网格（必须在 player.update 之前，否则武器的火池/酸池无法查询敌人）
 		this._buildEnemyGrid();

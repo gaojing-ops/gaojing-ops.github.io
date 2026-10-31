@@ -164,6 +164,8 @@ function installRenderSystem(GameClass) {
                 ctx.restore();
             }
 
+            Art.drawNightMagic(ctx, this);
+
             for (const d of this.damageNumbers) { drawDamageNumber(ctx, d.x, d.y, d.text, d.a, d.color, d.scale || 1, d.glow || false, d.bounce || false, d.bouncePhase || -1); }
             ctx.restore();
 

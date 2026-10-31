@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset: ONE production game art atlas for Emberfall / 长夜余烬.
+Wide 2:1 canvas, exact uniform 4 columns by 2 rows, eight equal square portrait panels, edge-to-edge tile boundaries. No letters or labels. Each portrait: iconic half-body carved deity statue centered at the same scale, bold readable silhouette and visible face or mask, space around head.
+Style: faceted low-poly / angular painted cut-paper fantasy, dark woodland sanctuary, weathered stone and aged brass, warm gold edge lighting, controlled magic glow. No realism, neon cyberpunk or emoji.
+Top row, left to right: hooded ember guardian cradling an amber lantern with ember crown; green-cloaked masked wind traveler with feather headdress and wind ribbons; bronze antler-crowned thunder deity with branching lightning spear and pale gold sparks; veiled silver frost-moon goddess with crescent crown and icy blue crystals.
+Bottom row, left to right: moss-and-wood forest rebirth goddess with antlers, sprouting branches and green life seed; indigo-hooded night oracle with star blindfold, stylized star eye and lilac constellation halo; ancient bronze armored forge smith with hammer and glowing miniature hearth, copper-orange heart; ivory-gold dawn goddess with sunburst crown and radiant sunrise disc held at chest.
+Fine angular carved materials. Matching gods from the same ruined woodland sanctuary. No UI, frames, labels, typography or overlapping panels.

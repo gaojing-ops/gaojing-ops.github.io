@@ -213,12 +213,17 @@ class UpgradeSystem {
 		const pickCount = (p.relicFlags && p.relicFlags.quantumDice) ? 5 : 3;
 		const selected = this._weightedPick(pool, pickCount);
 		// 返回可选择的选项和预览选项
+		if (p.level % 3 === 0 && this.game.pantheon) {
+			const boon = this.game.pantheon.offer(this.banishList);
+			if (boon) { if (selected.length >= 5) selected.pop(); selected.push(boon); }
+		}
 		return { options: selected, previews };
 	}
 
 	applyOption(option) {
 		const p = this.game.player;
 		switch (option.type) {
+			case 'blessing': this.game.pantheon?.grant(option); break;
 			case 'weapon_new': {
 				const w = new Weapon(this.game, option.id);
 				p.weapons.push(w);

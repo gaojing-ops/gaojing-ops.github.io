@@ -1,4 +1,5 @@
 const { fastSin, fastCos } = require('./MathLUT');
+const { makeSkillEffect } = require('./NightMagic');
 const { now: perfNow } = require('./platform');
 // ─── 角色专属技能系统 ──────────────────────────
 // 每个角色1个主动技能，触摸右侧按钮触发，冷却管理
@@ -11,7 +12,7 @@ const SKILL_DEFS = {
 		icon: '⚡',
 		cooldown: 12,
 		desc: '1.5秒内移速×3，无敌',
-		color: '#00ffcc',
+		color: '#efb36c',
 		use: (game) => {
 			const p = game.player;
 			const duration = 1.5;
@@ -19,9 +20,9 @@ const SKILL_DEFS = {
 			const origSpeed = p.bonusSpeed;
 			p.bonusSpeed += 2.0; // 移速×3 (基础+200%)
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 20, speed: 150, life: 0.4, color: '#00ffcc', size: 3 });
+game.particles.emit(p.x, p.y, { count: 20, speed: 150, life: 0.4, color: '#efb36c', size: 3 });
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, '超速冲刺!', '#00ffcc');
+			game.spawnDamageNumber(p.x, p.y - 40, '超速冲刺!', '#efb36c');
 			game.skillSystem.addTimedEffect(() => { game.player.bonusSpeed -= 2.0; }, duration);
 		},
 	},
@@ -32,16 +33,16 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 150, life: 0.4, color: '#00ffc
 		icon: '🛡',
 		cooldown: 20,
 		desc: '5秒内护甲+15，反弹+50%',
-		color: '#aa44ff',
+		color: '#edac87',
 		use: (game) => {
 			const p = game.player;
 			const duration = 5;
 			p.bonusArmor += 15;
 			const origThorn = p.thornDamage;
 			p.thornDamage = (p.thornDamage || 0) + 0.50;
-			game.spawnDamageNumber(p.x, p.y - 40, '铁壁堡垒!', '#aa44ff');
+			game.spawnDamageNumber(p.x, p.y - 40, '铁壁堡垒!', '#edac87');
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff', size: 4 });
+game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87', size: 4 });
 			}
 			game.skillSystem.addTimedEffect(() => { game.player.bonusArmor -= 15; game.player.thornDamage = Math.max(0, game.player.thornDamage - 0.50); }, duration);
 		},
@@ -53,13 +54,13 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		icon: '🎯',
 		cooldown: 15,
 		desc: '6秒内伤害×2',
-		color: '#ff6600',
+		color: '#add2ae',
 		use: (game) => {
 			const p = game.player;
 			const duration = 6;
 			p.bonusMight += 1.0;
-			game.spawnDamageNumber(p.x, p.y - 40, '聚焦射击!', '#ff6600');
-			if (game.triggerScreenPulse) game.triggerScreenPulse('#ff660033', 0.3);
+			game.spawnDamageNumber(p.x, p.y - 40, '聚焦射击!', '#add2ae');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#add2ae33', 0.3);
 			game.skillSystem.addTimedEffect(() => { game.player.bonusMight -= 1.0; }, duration);
 		},
 	},
@@ -70,7 +71,7 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		icon: '❄',
 		cooldown: 25,
 		desc: '冻结屏幕内所有敌人4秒',
-		color: '#66ccff',
+		color: '#addce8',
 		use: (game) => {
 			const p = game.player;
 			const freezeDur = 4;
@@ -96,10 +97,10 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 					b.slowAmount = 0.6;
 				}
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, `冰封风暴! ×${count}`, '#66ccff');
-			if (game.triggerScreenPulse) game.triggerScreenPulse('#66ccff22', 0.6);
+			game.spawnDamageNumber(p.x, p.y - 40, `冰封风暴! ×${count}`, '#addce8');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#addce822', 0.6);
 			if (game.particles) {
-				game.particles.emit(p.x, p.y, { count: 30, speed: 200, life: 0.6, color: '#66ccff', size: 4 });
+				game.particles.emit(p.x, p.y, { count: 30, speed: 200, life: 0.6, color: '#addce8', size: 4 });
 			}
 		},
 	},
@@ -110,7 +111,7 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		icon: '☣',
 		cooldown: 20,
 		desc: '对附近所有敌人施加强力毒素',
-		color: '#88ff00',
+		color: '#c2dc93',
 		use: (game) => {
 			const p = game.player;
 			const radius = Math.min(440 * (p.area || 1), 640);
@@ -134,9 +135,9 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 					count++;
 				}
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, `病毒风暴! ×${count}`, '#88ff00');
+			game.spawnDamageNumber(p.x, p.y - 40, `病毒风暴! ×${count}`, '#c2dc93');
 			if (game.particles) {
-				game.particles.emit(p.x, p.y, { count: 25, speed: 160, life: 0.5, color: '#88ff00', size: 3 });
+				game.particles.emit(p.x, p.y, { count: 25, speed: 160, life: 0.5, color: '#c2dc93', size: 3 });
 			}
 		},
 	},
@@ -147,16 +148,16 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		icon: '🔥',
 		cooldown: 18,
 		desc: '8秒内移速+30%，伤害+60%',
-		color: '#ff0044',
+		color: '#efb36c',
 		use: (game) => {
 			const p = game.player;
 			const duration = 8;
 			p.bonusSpeed += 0.30;
 			p.bonusMight += 0.60;
-			game.spawnDamageNumber(p.x, p.y - 40, '血怒爆发!', '#ff0044');
-			if (game.triggerScreenPulse) game.triggerScreenPulse('#ff004422', 0.4);
+			game.spawnDamageNumber(p.x, p.y - 40, '血怒爆发!', '#efb36c');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#efb36c22', 0.4);
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff0044', size: 3 });
+game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#efb36c', size: 3 });
 			}
 			game.skillSystem.addTimedEffect(() => { game.player.bonusSpeed -= 0.30; game.player.bonusMight -= 0.60; }, duration);
 		},
@@ -168,7 +169,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		icon: '✨',
 		cooldown: 22,
 		desc: '6秒内冷却-50%',
-		color: '#ff44ff',
+		color: '#c7b5ef',
 		use: (game) => {
 			const p = game.player;
 			const duration = 6;
@@ -177,8 +178,8 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 				if (w.cooldown !== undefined) w.cooldown = 0;
 			}
 			p.bonusCdr += 0.50;
-			game.spawnDamageNumber(p.x, p.y - 40, '魔力潮汐!', '#ff44ff');
-			if (game.triggerScreenPulse) game.triggerScreenPulse('#ff44ff22', 0.5);
+			game.spawnDamageNumber(p.x, p.y - 40, '魔力潮汐!', '#c7b5ef');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#c7b5ef22', 0.5);
 			game.skillSystem.addTimedEffect(() => { game.player.bonusCdr -= 0.50; }, duration);
 		},
 	},
@@ -189,7 +190,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		icon: '⚙',
 		cooldown: 25,
 		desc: '立即部署3座强化炮台',
-		color: '#ffcc00',
+		color: '#edac87',
 		use: (game) => {
 			const p = game.player;
 			p.turrets = p.turrets || [];
@@ -213,7 +214,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 				};
 				p.turrets.push(turret);
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, '紧急部署! ×3炮台', '#ffcc00');
+			game.spawnDamageNumber(p.x, p.y - 40, '紧急部署! ×3炮台', '#edac87');
 		},
 	},
 
@@ -223,7 +224,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		icon: '🌑',
 		cooldown: 15,
 		desc: '瞬移至最近敌人，AOE爆发伤害',
-		color: '#8800ff',
+		color: '#c7b5ef',
 		use: (game) => {
 			const p = game.player;
 			const searchR = 400 * (p.area || 1);
@@ -244,7 +245,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 				}
 			}
 			if (!closest) {
-				game.spawnDamageNumber(p.x, p.y - 40, '无目标', '#8800ff');
+				game.spawnDamageNumber(p.x, p.y - 40, '无目标', '#c7b5ef');
 				return;
 			}
 			// 瞬移（保持安全距离）并赋予短暂无敌帧保护
@@ -273,9 +274,9 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 					hits++;
 				}
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, `影袭! ×${hits}`, '#8800ff');
+			game.spawnDamageNumber(p.x, p.y - 40, `影袭! ×${hits}`, '#c7b5ef');
 			if (game.particles) {
-				game.particles.emit(p.x, p.y, { count: 25, speed: 180, life: 0.4, color: '#8800ff', size: 4 });
+				game.particles.emit(p.x, p.y, { count: 25, speed: 180, life: 0.4, color: '#c7b5ef', size: 4 });
 			}
 		},
 	},
@@ -300,9 +301,12 @@ class SkillSystem {
 		}
 		this.cooldown = 0;
 		this._activeEffects = []; // 清除上局残留效果
+		this.visualEffects = [];
 	}
 
 	update(dt) {
+		if (this.game.isPaused || !this.game.isRunning) return;
+		this.visualEffects = (this.visualEffects || []).filter(e => (e.age += dt) < e.life);
 		if (!this.skillDef) return;
 		if (this.cooldown > 0) {
 			this.cooldown = Math.max(0, this.cooldown - dt);
@@ -325,8 +329,12 @@ class SkillSystem {
 	tryUse() {
 		if (!this.skillDef) return false;
 		if (this.cooldown > 0) return false;
+		if (this.game.isPaused || !this.game.isRunning) return false;
+		const origin = { x: this.game.player.x, y: this.game.player.y };
 		try {
 			this.skillDef.use(this.game);
+			const fx = makeSkillEffect(this.game, origin);
+			if (fx) this.visualEffects = [...(this.visualEffects || []), fx].slice(-12);
 		} catch (e) {
 			console.error('[SkillSystem] skill error:', e);
 		}

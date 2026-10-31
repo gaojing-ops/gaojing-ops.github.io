@@ -18,6 +18,22 @@ export function createCamp(runtime,platform,afterAction=()=>{}){
  let selected=Object.keys(CHARACTERS)[0],mode='normal',backdrop=null,progressSignature='',starting=false;
  let chosenCurses=new Set();
  const cards=new Map();
+ const gods=runtime.catalogs?.pantheon?.DEITIES;
+ if(gods){
+  game.selectedPatron=Object.hasOwn(gods,game.selectedPatron)?game.selectedPatron:'ember';
+  const panel=document.createElement('section');panel.className='camp-pantheon';panel.setAttribute('aria-label','选择祈誓神明');
+  panel.innerHTML=`<div class="panel-heading"><div><span class="section-index">03 /</span><h2>向余烬诸神祈誓</h2></div><span class="small-caps">THE LAST DIVINE EMBERS</span></div><p class="pantheon-lore">诸神的殿堂已经坍塌，留下的八道神息仍在守护长夜。借一份余火启程，让赐福伴你迎接黎明。</p><div class="god-grid" role="group" aria-label="开局神明"></div><p class="pantheon-rule">开局立即获得所选神明的祈誓加成；此后每逢 3、6、9…阶，升级会额外出现一份神赐，可与其他馈赠择一。神赐可跨神明组合，只在本次远征有效。</p><button type="button" class="primary-button god-start">携神誓启程 ↗</button>`;
+  const grid=panel.querySelector('.god-grid');
+  panel.querySelector('.god-start').addEventListener('click',()=>startJourney());
+  Object.entries(gods).forEach(([id,god],index)=>{
+   const b=document.createElement('button');b.type='button';b.className='god-card';b.dataset.god=id;b.setAttribute('aria-pressed',String(id===game.selectedPatron));
+   b.setAttribute('aria-label',`${god.name} · ${god.title}`);
+   b.innerHTML=`<span class="god-art" style="--god-x:${index%4*100/3}%;--god-y:${index<4?0:100}%" aria-hidden="true"></span><span class="god-copy"><small>${escape(god.title)}</small><strong>${escape(god.name)}</strong><span>${escape(god.gift)}</span><em>${escape(god.verse)}</em></span><span class="god-choice-mark">◆ 已祈誓</span>`;
+   b.addEventListener('click',()=>{game.selectedPatron=id;for(const other of grid.querySelectorAll('button'))other.setAttribute('aria-pressed',String(other===b));selectHero();});grid.append(b);
+  });
+  root.append(panel);
+ }
+
  const heroOrder=[...new Set(['tracer','gunner','walker',...Object.keys(CHARACTERS)])].filter(id=>CHARACTERS[id]);
  for(const id of heroOrder){
   const character=CHARACTERS[id];
@@ -32,8 +48,8 @@ export function createCamp(runtime,platform,afterAction=()=>{}){
   const c=CHARACTERS[selected];name.textContent=c.name;description.textContent=HERO_COPY[selected]?.[1]||loreText(c.desc);
   if(runtime.catalogs){let skillCopy=root.querySelector('#camp-skill-copy');if(!skillCopy){skillCopy=document.createElement('div');skillCopy.id='camp-skill-copy';skillCopy.className='camp-skill-copy';summary.parentElement.after(skillCopy);}
    const skill=entry('skills',selected,runtime.catalogs.skills[selected]);skillCopy.innerHTML=`<strong>${escape(skill.name)} · 咏誓 · ${runtime.catalogs.skills[selected].cooldown} 秒冷却</strong><p>${escape(skill.desc)}</p><p>天生特性 · ${escape(TRAITS[selected]||loreText(c.passive))}</p>`;}
-  summary.textContent=`生命 ${c.stats.maxHp} · 移速 ${c.stats.speed} · 初始伤害 ${Math.round(c.stats.might*100)}%`;
-  root.querySelector('#camp-start-hero').textContent=`以${c.name}的身份，踏入长夜。`;
+  summary.textContent=`角色基础：生命 ${c.stats.maxHp} · 移速 ${c.stats.speed} · 伤害 ${Math.round(c.stats.might*100)}%`;
+  root.querySelector('#camp-start-hero').textContent=`以${c.name}的身份${gods?`，携${gods[game.selectedPatron].name}之誓`:""}，踏入长夜。`;
  }
  function refreshCurses(){
   const signature=JSON.stringify(game.meta?.data||{});if(signature===progressSignature)return;progressSignature=signature;

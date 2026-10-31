@@ -93,6 +93,7 @@ export function installWebHUD(runtime){
  const wrap=(ctx,value,width)=>{const lines=[];let line='';for(const char of text(value)){if(char==='\n'||ctx.measureText(line+char).width>width){lines.push(line);line=char==='\n'?'':char;}else line+=char;}if(line)lines.push(line);return lines;};
  const statusLines=(ctx,w)=>{
   const rows=(game.eventEnhancer?.activeEvents||[]).filter(e=>e.type==='bloodMoon').map(e=>`血月临林 · ${Math.ceil(e.timer)} 秒`);
+  const oath=game.pantheon;if(oath?.patron)rows.unshift(`${catalogs.pantheon?.DEITIES[oath.patron]?.name||'诸神'}祈誓 · ${Object.values(oath.ranks).reduce((a,b)=>a+b,0)} 阶神赐`);
   if(game.eventEnhancer?.reaperCount>0)rows.push(`索魂者已现 · ${game.eventEnhancer.reaperCount}`);
   const buffs=[['_weaponSurge','焰盛'],['_speedBurst','疾风'],['_xpSurge','悟道'],['_armorBoost','坚壁'],['_drainField','汲魂'],['timeRift','迟暮'],['_densitySurge','黑潮']].filter(([id])=>game[id]?.timer>0);
   if(buffs.length)rows.push(buffs.map(([id,label])=>`${label} ${Math.ceil(game[id].timer)}秒`).join(' · '));
@@ -225,7 +226,7 @@ export function installWebHUD(runtime){
    this.skillSystem._webThemed=true;
    this.skillSystem.draw=function(ctx,w,h){
     if(!this.skillDef)return;const layout=combatUILayout(w,h).skill,{cx,cy,r}=layout;this.btnRect={x:cx-r,y:cy-r,w:r*2,h:r*2};
-    control(ctx,game.player.characterId,layout,'咏誓',this.cooldown,this.maxCooldown);
+    control(ctx,'skill_'+game.player.characterId,layout,'咏誓',this.cooldown,this.maxCooldown);
    };
   }
   if(this.stageSystem&&!this.stageSystem._webArt){
