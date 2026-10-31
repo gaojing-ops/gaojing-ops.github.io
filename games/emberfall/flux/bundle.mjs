@@ -13537,7 +13537,7 @@ class Player {
         this.y = this.game.height / 2;
         this.maxHp = this.baseMaxHp;
         this.hp = this.maxHp;
-        this.xp = 0; this.maxXp = 128; // 100 + 1*20 + 1^1.8 * 8
+        this.xp = 0; this.maxXp = 32; // 平滑前期升级曲线
         this.level = 1; this.kills = 0;
         this.weapons = []; this.passives = []; this.pets = [];
         this.bonusMight = 0; this.bonusSpeed = 0;
@@ -20745,19 +20745,34 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		desc: '冻结屏幕内所有敌人4秒',
 		color: '#66ccff',
 		use: (game) => {
+			const p = game.player;
 			const freezeDur = 4;
+			const maxR = Math.max(540, Math.hypot(game.width || 800, game.height || 600) * 0.58) * (p.area || 1);
+			const maxRSq = maxR * maxR;
+			const novaDmg = (p.might || 1) * 35;
 			let count = 0;
 			for (const e of game.enemies) {
 				if (!e.active) continue;
+				const dx = e.x - p.x, dy = e.y - p.y;
+				if (dx * dx + dy * dy > maxRSq) continue;
 				e.frozen = Math.max(e.frozen || 0, freezeDur);
-				e.slowed = Math.max(e.slowed || 0, freezeDur);
+				e.slowed = Math.max(e.slowed || 0, freezeDur + 2);
 				e.slowAmount = 0.3;
+				if (e.hp > novaDmg) e.takeDamage(novaDmg, 'skill_cryo');
 				count++;
 			}
-			game.spawnDamageNumber(game.player.x, game.player.y - 40, `冰封风暴! ×${count}`, '#66ccff');
+			for (const b of (game.bosses || [])) {
+				if (!b.active) continue;
+				const dx = b.x - p.x, dy = b.y - p.y;
+				if (dx * dx + dy * dy <= maxRSq) {
+					b.slowed = Math.max(b.slowed || 0, 3);
+					b.slowAmount = 0.6;
+				}
+			}
+			game.spawnDamageNumber(p.x, p.y - 40, `冰封风暴! ×${count}`, '#66ccff');
 			if (game.triggerScreenPulse) game.triggerScreenPulse('#66ccff22', 0.6);
 			if (game.particles) {
-game.particles.emit(game.player.x, game.player.y, { count: 30, speed: 200, life: 0.6, color: '#66ccff', size: 4 });
+				game.particles.emit(p.x, p.y, { count: 30, speed: 200, life: 0.6, color: '#66ccff', size: 4 });
 			}
 		},
 	},
@@ -20771,7 +20786,7 @@ game.particles.emit(game.player.x, game.player.y, { count: 30, speed: 200, life:
 		color: '#88ff00',
 		use: (game) => {
 			const p = game.player;
-			const radius = 300;
+			const radius = Math.min(440 * (p.area || 1), 640);
 			const radiusSq = radius * radius;
 			let count = 0;
 			for (const e of game.enemies) {
@@ -20784,9 +20799,17 @@ game.particles.emit(game.player.x, game.player.y, { count: 30, speed: 200, life:
 					count++;
 				}
 			}
+			for (const b of (game.bosses || [])) {
+				if (!b.active) continue;
+				const dx = b.x - p.x, dy = b.y - p.y;
+				if (dx * dx + dy * dy < radiusSq) {
+					b.takeDamage((p.might || 1) * 45, 'skill_bio');
+					count++;
+				}
+			}
 			game.spawnDamageNumber(p.x, p.y - 40, `病毒风暴! ×${count}`, '#88ff00');
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 25, speed: 160, life: 0.5, color: '#88ff00', size: 3 });
+				game.particles.emit(p.x, p.y, { count: 25, speed: 160, life: 0.5, color: '#88ff00', size: 3 });
 			}
 		},
 	},
@@ -20847,7 +20870,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 			p.turrets = [];
 			for (let i = 0; i < 3; i++) {
 				const angle = (i / 3) * Math.PI * 2;
-				const dist = 60;
+				const dist = 72;
 				const turret = {
 					x: p.x + fastCos(angle) * dist,
 					y: p.y + fastSin(angle) * dist,
@@ -20856,7 +20879,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 					shootTimer: 0,
 					shootInterval: 0.5, // 强化：更快射击
 					baseDamage: 15,
-					range: 250,
+					range: Math.round(340 * (p.area || 1)),
 					active: true,
 					lastTarget: null,
 					lastShootTime: 0,
@@ -20876,25 +20899,35 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		color: '#8800ff',
 		use: (game) => {
 			const p = game.player;
-			// 找视野内最近敌人（限制最大瞬移半径 320px，防止瞬移到视野外导致全屏怪物突兀跳变）
-			let closest = null, closestDist = 320 * 320;
+			const searchR = 400 * (p.area || 1);
+			// 找视野内最近敌人或Boss（限制瞬移半径，防止瞬移到视野外导致全屏怪物突兀跳变）
+			let closest = null, closestDist = searchR * searchR;
 			for (const e of game.enemies) {
 				if (!e.active) continue;
 				const dx = e.x - p.x, dy = e.y - p.y;
 				const d = dx * dx + dy * dy;
 				if (d < closestDist) { closestDist = d; closest = e; }
 			}
+			if (!closest && game.bosses) {
+				for (const b of game.bosses) {
+					if (!b.active) continue;
+					const dx = b.x - p.x, dy = b.y - p.y;
+					const d = dx * dx + dy * dy;
+					if (d < closestDist) { closestDist = d; closest = b; }
+				}
+			}
 			if (!closest) {
 				game.spawnDamageNumber(p.x, p.y - 40, '无目标', '#8800ff');
 				return;
 			}
-			// 瞬移（保持安全距离）
+			// 瞬移（保持安全距离）并赋予短暂无敌帧保护
 			const angle = Math.atan2(p.y - closest.y, p.x - closest.x);
 			p.x = closest.x + fastCos(angle) * 50;
 			p.y = closest.y + fastSin(angle) * 50;
-			// AOE爆发
+			game.playerInvincible = Math.max(game.playerInvincible || 0, 0.8);
+			// AOE爆发（随玩家范围属性扩大）
 			const dmg = p.might * 80;
-			const burstR = 100;
+			const burstR = 165 * (p.area || 1);
 			const burstRSq = burstR * burstR;
 			let hits = 0;
 			for (const e of game.enemies) {
@@ -20905,9 +20938,17 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 					hits++;
 				}
 			}
+			for (const b of (game.bosses || [])) {
+				if (!b.active) continue;
+				const dx = b.x - p.x, dy = b.y - p.y;
+				if (dx * dx + dy * dy < burstRSq) {
+					b.takeDamage(dmg * 0.6);
+					hits++;
+				}
+			}
 			game.spawnDamageNumber(p.x, p.y - 40, `影袭! ×${hits}`, '#8800ff');
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 25, speed: 180, life: 0.4, color: '#8800ff', size: 4 });
+				game.particles.emit(p.x, p.y, { count: 25, speed: 180, life: 0.4, color: '#8800ff', size: 4 });
 			}
 		},
 	},
@@ -24617,7 +24658,7 @@ class Weapon {
             if (this._radTickTimer <= 0) {
                 this._radTickTimer = 0.22;
                 const p = this.game.player;
-                const radius = Math.min((68 + this.level * 7) * p.area * (this.evolved ? 1.35 : 1), 160);
+                const radius = Math.min((75 + this.level * 8) * p.area * (this.evolved ? 1.35 : 1), 240);
                 const radiusSq = radius * radius;
                 const dmg = this.damage;
                 const nearby = this.game._getNearbyEnemies(p.x, p.y, radius);
@@ -24649,7 +24690,7 @@ class Weapon {
                 }
             }
         }
-        // 鍒嗚韩鏇存柊锛堝寘鍚鍒嗚傞昏緫锛
+        // 分身更新（包含环绕斩击与高频投射逻辑）
         for (const c of this._clones) {
             c.timer -= dt;
             c.angle += 2.6 * dt;
@@ -24658,14 +24699,16 @@ class Weapon {
             const p = this.game.player;
             const cx = p.x + fastCos(c.angle) * c.dist;
             const cy = p.y + fastSin(c.angle) * c.dist;
+            const touchR = 36 * (p.area || 1);
+            const touchRSq = touchR * touchR;
             c.contactTimer = (c.contactTimer || 0) - dt;
             if (c.contactTimer <= 0) {
                 c.contactTimer = 0.3;
-                const touchEnemies = this.game._getNearbyEnemies ? this.game._getNearbyEnemies(cx, cy, 32) : this.game.enemies;
+                const touchEnemies = this.game._getNearbyEnemies ? this.game._getNearbyEnemies(cx, cy, touchR) : this.game.enemies;
                 for (const te of touchEnemies) {
                     if (!te.active) continue;
                     const tdx = te.x - cx, tdy = te.y - cy;
-                    if (tdx * tdx + tdy * tdy < 32 * 32) {
+                    if (tdx * tdx + tdy * tdy < touchRSq) {
                         te.takeDamage(c.damage * 0.75, this.id);
                     }
                 }
@@ -24674,8 +24717,9 @@ class Weapon {
             if (c.shootTimer <= 0) {
                 c.shootTimer = 0.45;
                 // [OPT] 使用空间网格替换 _findNearest 全量遍历
-                let nearest = null, minDSq = 340 * 340;
-                const nearClones = this.game._getNearbyEnemies ? this.game._getNearbyEnemies(cx, cy, 340) : this.game.enemies;
+                const cloneRange = 380 * (p.area || 1);
+                let nearest = null, minDSq = cloneRange * cloneRange;
+                const nearClones = this.game._getNearbyEnemies ? this.game._getNearbyEnemies(cx, cy, cloneRange) : this.game.enemies;
                 for (const e of nearClones) {
                     if (!e.active) continue;
                     const edx = e.x - cx, edy = e.y - cy;
@@ -24686,7 +24730,7 @@ class Weapon {
                     const a = Math.atan2(nearest.y - cy, nearest.x - cx);
                     this.game.bullets.push(this.game.bulletPool.get().reset(this.game, cx, cy,
                         fastCos(a), fastSin(a), c.damage, {
-                        color: this.def.color, speed: 400, radius: 4.5,
+                        color: this.def.color, speed: 400, radius: 5 * (p.area || 1),
                         pierce: 2 + Math.floor(this.level / 3), homing: 0.6, lifetime: 1.5,
                         element: this.def.element,
                         evolved: this.evolved,
@@ -25269,31 +25313,32 @@ class Weapon {
 
     // ●● 波动
     _firePulseRing(p) {
-        const radius = Math.min((60 + this.level * 7) * p.area, 170);
-        const count = Math.min(14, 8 + this.level * 2);
+        const areaMult = Math.min(1.8, p.area || 1);
+        const count = Math.min(16, 8 + this.level * 2);
         for (let i = 0; i < count; i++) {
             const a = (i / count) * Math.PI * 2;
             this.game.bullets.push(this.game.bulletPool.get().reset(this.game, p.x, p.y,
-                fastCos(a), fastSin(a), this.damage * 0.6, {
-                color: this.def.color, speed: 300, radius: 3,
-                pierce: 2, lifetime: 0.5 + this.level * 0.05, homing: 0,
+                fastCos(a), fastSin(a), this.damage * 0.75, {
+                color: this.def.color, speed: 320, radius: (5 + this.level * 0.6) * areaMult,
+                pierce: 3, lifetime: (0.65 + this.level * 0.06) * areaMult, homing: 0,
                 element: this.def.element, shape: 'circle',
                 evolved: this.evolved,
             }));
         }
     }
 
-    // 鈼忊棌 鑳介噺鑴夊啿 锛燂紵锛
     _fireRadiationField(p) {
-        const radius = Math.min((68 + this.level * 7) * p.area * (this.evolved ? 1.35 : 1), 160);
+        const radius = Math.min((75 + this.level * 8) * p.area * (this.evolved ? 1.35 : 1), 240);
         this.game.radiationPulse = {
             x: p.x, y: p.y, r: radius, a: 0.6, color: this.def.color,
         };
     }
 
     _fireSoulDrain(p, enemies) {
-        const maxRange = 260 + this.level * 22;
+        const maxRange = (280 + this.level * 24) * (p.area || 1);
         const maxRangeSq = maxRange * maxRange;
+        const splashR = 56 * (p.area || 1);
+        const splashRSq = splashR * splashR;
         const targetCount = (this.evolved ? 5 : 2 + Math.floor(this.level / 2)) + p.bonusProjectile;
         const candidates = [];
         for (const e of enemies) {
@@ -25319,12 +25364,12 @@ class Weapon {
             const target = candidates[i].e;
             target.takeDamage(dmg, this.id);
             totalHeal += Math.min(dmg * (this.evolved ? 0.14 : 0.1), 2.5 + this.level * 0.4);
-            // 灵魂溅射：对目标周围48px内的紧邻怪群造成50%溅射伤害
-            const splash = this.game._getNearbyEnemies ? this.game._getNearbyEnemies(target.x, target.y, 48) : [];
+            // 灵魂溅射：对目标周围紧邻怪群造成50%溅射伤害（受p.area加成）
+            const splash = this.game._getNearbyEnemies ? this.game._getNearbyEnemies(target.x, target.y, splashR) : [];
             for (const se of splash) {
                 if (!se.active || se === target) continue;
                 const sdx = se.x - target.x, sdy = se.y - target.y;
-                if (sdx * sdx + sdy * sdy < 48 * 48) {
+                if (sdx * sdx + sdy * sdy < splashRSq) {
                     se.takeDamage(dmg * 0.5, this.id);
                 }
             }
@@ -25342,7 +25387,7 @@ class Weapon {
         for (let i = 0; i < count; i++) {
             this._clones.push({
                 angle: (i / count) * Math.PI * 2,
-                dist: 58 + this.level * 5,
+                dist: (62 + this.level * 6) * Math.min(1.5, p.area || 1),
                 timer: 5 + this.level,
                 damage: this.damage * 0.85,
                 shootTimer: 0.25 + (i * 0.08),
@@ -25394,8 +25439,7 @@ class Weapon {
         // 火球 - 增强伤害和持续时间?
         this._firePools.push({
             x: tx, y: ty,
-            // 缩小火球范围，避免后战线拥挤?
-            radius: Math.min((30 + this.level * 4) * p.area, 90),
+            radius: Math.min((46 + this.level * 6) * p.area * (this.evolved ? 1.6 : 1), 175),
             damage: this.damage * 0.5, // 提高伤害比例
             timer: 4 + this.level * 0.8, // 更长持续时间
             tickTimer: 0.1, // 立即造成第一段伤害
@@ -25451,7 +25495,7 @@ class Weapon {
 
     // 鈼忊棌 鍐扮悆鏂版槦 锛燂紵锛
     _fireGlacialNova(p) {
-        const radius = Math.min((60 + this.level * 8) * p.area, 140);
+        const radius = Math.min((85 + this.level * 10) * p.area * (this.evolved ? 1.35 : 1), 230);
         const radiusSq = radius * radius;
         const freezeDur = 1.0 + p.bonusFreezeDur * 2;
 
@@ -25539,8 +25583,7 @@ class Weapon {
         this._acidPools = this._acidPools || [];
         this._acidPools.push({
             x: tx, y: ty,
-            // 缂傗晛鐨濮ｆ帗鐫滈懠鍐ㄦ纯閿涘矂浼╅崗宥呮倵閺堢喖婀肩仦蹇涗紕閹嘎ゎ潒缁?
-            radius: Math.min((30 + this.level * 4) * p.area, 90),
+            radius: Math.min((46 + this.level * 6) * p.area * (this.evolved ? 1.5 : 1), 165),
             damage: this.damage * 0.4 * toxicMult,
             timer: 4 + this.level * 0.5,
             tickTimer: 0,
@@ -25592,7 +25635,7 @@ class Weapon {
             vx /= len; vy /= len;
         }
 
-        const dist = 30 + this.level * 2; // 链锯伸出的长度
+        const dist = (42 + this.level * 4) * (p.area || 1); // 链锯伸出的长度（随范围加成扩大）
         const cx = p.x + vx * dist;
         const cy = p.y + vy * dist;
 
@@ -25600,9 +25643,9 @@ class Weapon {
             0, 0, this.damage, { // vx=0, vy=0
             color: this.def.color,
             speed: 0,
-            radius: 20 + this.level * 4,
-            pierce: 9999, // 閺冪娀妾虹粚鍧椻偓蹇ョ礉闂堢姴顕撮崨浠嬫洪崚?
-            lifetime: 0.15, // 瀵垮懡鏋佸叾鐭紝璺?cooldown(0.1) 鍒氬ソ琛旀帴
+            radius: (34 + this.level * 5) * (p.area || 1),
+            pierce: 9999,
+            lifetime: 0.15,
             element: this.def.element,
             shape: this.def.shape,
             evolved: this.evolved,
@@ -25659,25 +25702,24 @@ class Weapon {
         this._acidPools = this._acidPools || [];
         this._acidPools.push({
             x: rx, y: ry,
-            radius: Math.min((40 + this.level * 6) * p.area, 120),
+            radius: Math.min((52 + this.level * 7) * p.area * (this.evolved ? 1.5 : 1), 180),
             damage: this.damage,
             timer: 3.5 + this.level * 0.5, // 存在时间
             tickTimer: 0,
             color: this.def.color, // 蓝色或白色圈
-            isHolyWater: true, // 鐗规畩鏍囪锛岀敤鏉ュ姞鐗规晥鍜屽噺閫?
+            isHolyWater: true,
         });
 
-        // 閻鍝ヮ暢閻¤泛鐡欓惃鍕顫嬬憴澶婂冀妫?
         if (this.game.particles) {
             this.game.particles.emit(rx, ry, { count: 12, speed: 120, life: 0.5, color: '#aaddff', size: 3 });
         }
     }
 
-    // ●● 坐标
+    // ●● 相位刃
     _firePhaseBlade(p, enemies) {
-        const aimAngle = this._getAimAngle(p, enemies, 250);
-        const arcHalf = Math.PI / 5; // ±36° = 72° total arc
-        const range = Math.min((80 + this.level * 10) * p.area, 220);
+        const aimAngle = this._getAimAngle(p, enemies, 340);
+        const arcHalf = Math.PI * 0.3; // ±54° = 108° 宽幅顺劈
+        const range = Math.min((105 + this.level * 12) * p.area * (this.evolved ? 1.3 : 1), 280);
         const rangeSq = range * range;
         const dmg = this.damage;
         let hits = 0;
@@ -25709,7 +25751,7 @@ class Weapon {
         }
     }
 
-    // 鈼忊棌 寮曞姏鐐 
+    // ●● 引力炮
     _fireGravityCannon(p, enemies) {
         const { nearest } = this._findNearest(p, enemies, 500);
         let tx, ty;
@@ -25721,8 +25763,8 @@ class Weapon {
         }
         this._gravityZones.push({
             x: tx, y: ty,
-            radius: Math.min((35 + this.level * 5) * p.area, 110),
-            pullStrength: 80 + this.level * 10,
+            radius: Math.min((52 + this.level * 7) * p.area * (this.evolved ? 1.4 : 1), 175),
+            pullStrength: 85 + this.level * 12,
             damage: this.damage * 0.2,
             blastDamage: this.damage * (this.evolved ? 2.5 : 1.5),
             timer: 2.0 + this.level * 0.1,
@@ -25733,15 +25775,21 @@ class Weapon {
         }
     }
 
-    // 鈼忊棌 绾崇背铏缇 
+    // ●● 纳米虫群
     _fireNanoSwarm(p) {
         const botCount = 2 + Math.floor(this.level / 2);
+        const areaMult = Math.min(1.6, p.area || 1);
+        const dist = (68 + this.level * 6) * areaMult;
+        const hitR = Math.round((22 + this.level * 2) * areaMult);
         if (this._nanoSwarm.length >= botCount) {
-            // 鍒锋柊璁℃椂鍣?
-            for (const bot of this._nanoSwarm) bot.timer = 1.0;
+            // 刷新计时器与动态范围
+            for (const bot of this._nanoSwarm) {
+                bot.timer = 1.0;
+                bot.dist = dist;
+                bot.hitRadius = hitR;
+            }
             return;
         }
-        const dist = 55 + this.level * 4;
         const toxicMult = 1 + (p.bonusToxicDmg || 0);
         this._nanoSwarm = [];
         for (let i = 0; i < botCount; i++) {
@@ -25751,7 +25799,7 @@ class Weapon {
                 speed: 3.0,
                 x: p.x, y: p.y,
                 damage: this.damage * toxicMult,
-                hitRadius: 12,
+                hitRadius: hitR,
                 hitTimer: 0,
                 timer: 1.0,
             });

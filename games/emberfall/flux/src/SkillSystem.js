@@ -72,19 +72,34 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		desc: '冻结屏幕内所有敌人4秒',
 		color: '#66ccff',
 		use: (game) => {
+			const p = game.player;
 			const freezeDur = 4;
+			const maxR = Math.max(540, Math.hypot(game.width || 800, game.height || 600) * 0.58) * (p.area || 1);
+			const maxRSq = maxR * maxR;
+			const novaDmg = (p.might || 1) * 35;
 			let count = 0;
 			for (const e of game.enemies) {
 				if (!e.active) continue;
+				const dx = e.x - p.x, dy = e.y - p.y;
+				if (dx * dx + dy * dy > maxRSq) continue;
 				e.frozen = Math.max(e.frozen || 0, freezeDur);
-				e.slowed = Math.max(e.slowed || 0, freezeDur);
+				e.slowed = Math.max(e.slowed || 0, freezeDur + 2);
 				e.slowAmount = 0.3;
+				if (e.hp > novaDmg) e.takeDamage(novaDmg, 'skill_cryo');
 				count++;
 			}
-			game.spawnDamageNumber(game.player.x, game.player.y - 40, `冰封风暴! ×${count}`, '#66ccff');
+			for (const b of (game.bosses || [])) {
+				if (!b.active) continue;
+				const dx = b.x - p.x, dy = b.y - p.y;
+				if (dx * dx + dy * dy <= maxRSq) {
+					b.slowed = Math.max(b.slowed || 0, 3);
+					b.slowAmount = 0.6;
+				}
+			}
+			game.spawnDamageNumber(p.x, p.y - 40, `冰封风暴! ×${count}`, '#66ccff');
 			if (game.triggerScreenPulse) game.triggerScreenPulse('#66ccff22', 0.6);
 			if (game.particles) {
-game.particles.emit(game.player.x, game.player.y, { count: 30, speed: 200, life: 0.6, color: '#66ccff', size: 4 });
+				game.particles.emit(p.x, p.y, { count: 30, speed: 200, life: 0.6, color: '#66ccff', size: 4 });
 			}
 		},
 	},
@@ -98,7 +113,7 @@ game.particles.emit(game.player.x, game.player.y, { count: 30, speed: 200, life:
 		color: '#88ff00',
 		use: (game) => {
 			const p = game.player;
-			const radius = 300;
+			const radius = Math.min(440 * (p.area || 1), 640);
 			const radiusSq = radius * radius;
 			let count = 0;
 			for (const e of game.enemies) {
@@ -111,9 +126,17 @@ game.particles.emit(game.player.x, game.player.y, { count: 30, speed: 200, life:
 					count++;
 				}
 			}
+			for (const b of (game.bosses || [])) {
+				if (!b.active) continue;
+				const dx = b.x - p.x, dy = b.y - p.y;
+				if (dx * dx + dy * dy < radiusSq) {
+					b.takeDamage((p.might || 1) * 45, 'skill_bio');
+					count++;
+				}
+			}
 			game.spawnDamageNumber(p.x, p.y - 40, `病毒风暴! ×${count}`, '#88ff00');
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 25, speed: 160, life: 0.5, color: '#88ff00', size: 3 });
+				game.particles.emit(p.x, p.y, { count: 25, speed: 160, life: 0.5, color: '#88ff00', size: 3 });
 			}
 		},
 	},
@@ -174,7 +197,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 			p.turrets = [];
 			for (let i = 0; i < 3; i++) {
 				const angle = (i / 3) * Math.PI * 2;
-				const dist = 60;
+				const dist = 72;
 				const turret = {
 					x: p.x + fastCos(angle) * dist,
 					y: p.y + fastSin(angle) * dist,
@@ -183,7 +206,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 					shootTimer: 0,
 					shootInterval: 0.5, // 强化：更快射击
 					baseDamage: 15,
-					range: 250,
+					range: Math.round(340 * (p.area || 1)),
 					active: true,
 					lastTarget: null,
 					lastShootTime: 0,
@@ -203,25 +226,35 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		color: '#8800ff',
 		use: (game) => {
 			const p = game.player;
-			// 找视野内最近敌人（限制最大瞬移半径 320px，防止瞬移到视野外导致全屏怪物突兀跳变）
-			let closest = null, closestDist = 320 * 320;
+			const searchR = 400 * (p.area || 1);
+			// 找视野内最近敌人或Boss（限制瞬移半径，防止瞬移到视野外导致全屏怪物突兀跳变）
+			let closest = null, closestDist = searchR * searchR;
 			for (const e of game.enemies) {
 				if (!e.active) continue;
 				const dx = e.x - p.x, dy = e.y - p.y;
 				const d = dx * dx + dy * dy;
 				if (d < closestDist) { closestDist = d; closest = e; }
 			}
+			if (!closest && game.bosses) {
+				for (const b of game.bosses) {
+					if (!b.active) continue;
+					const dx = b.x - p.x, dy = b.y - p.y;
+					const d = dx * dx + dy * dy;
+					if (d < closestDist) { closestDist = d; closest = b; }
+				}
+			}
 			if (!closest) {
 				game.spawnDamageNumber(p.x, p.y - 40, '无目标', '#8800ff');
 				return;
 			}
-			// 瞬移（保持安全距离）
+			// 瞬移（保持安全距离）并赋予短暂无敌帧保护
 			const angle = Math.atan2(p.y - closest.y, p.x - closest.x);
 			p.x = closest.x + fastCos(angle) * 50;
 			p.y = closest.y + fastSin(angle) * 50;
-			// AOE爆发
+			game.playerInvincible = Math.max(game.playerInvincible || 0, 0.8);
+			// AOE爆发（随玩家范围属性扩大）
 			const dmg = p.might * 80;
-			const burstR = 100;
+			const burstR = 165 * (p.area || 1);
 			const burstRSq = burstR * burstR;
 			let hits = 0;
 			for (const e of game.enemies) {
@@ -232,9 +265,17 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 					hits++;
 				}
 			}
+			for (const b of (game.bosses || [])) {
+				if (!b.active) continue;
+				const dx = b.x - p.x, dy = b.y - p.y;
+				if (dx * dx + dy * dy < burstRSq) {
+					b.takeDamage(dmg * 0.6);
+					hits++;
+				}
+			}
 			game.spawnDamageNumber(p.x, p.y - 40, `影袭! ×${hits}`, '#8800ff');
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 25, speed: 180, life: 0.4, color: '#8800ff', size: 4 });
+				game.particles.emit(p.x, p.y, { count: 25, speed: 180, life: 0.4, color: '#8800ff', size: 4 });
 			}
 		},
 	},

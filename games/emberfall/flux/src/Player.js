@@ -159,7 +159,7 @@ class Player {
         this.y = this.game.height / 2;
         this.maxHp = this.baseMaxHp;
         this.hp = this.maxHp;
-        this.xp = 0; this.maxXp = 128; // 100 + 1*20 + 1^1.8 * 8
+        this.xp = 0; this.maxXp = 32; // 平滑前期升级曲线
         this.level = 1; this.kills = 0;
         this.weapons = []; this.passives = []; this.pets = [];
         this.bonusMight = 0; this.bonusSpeed = 0;
