@@ -230,6 +230,7 @@ class Boss {
     _onDeath() {
         if (this._deathHandled) return;
         this._deathHandled = true;
+        this.game.bossKills = (this.game.bossKills || 0) + 1;
         if (this.game.particles) this.game.particles.bossExplosion(this.x, this.y, this.color);
 
         // 触发 Boss 伤害来源面板

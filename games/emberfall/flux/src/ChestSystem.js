@@ -83,7 +83,7 @@ function installChestSystem(Game) {
 				// 只有已解锁的进化才能在宝箱中出现
 				if (isEvolutionUnlocked(weaponId, isUnion, p, this)) {
 					pool.push({
-						type: 'chest_evolution', id: 'evolution_' + weaponId,
+						type: 'chest_evolution', id: 'evolution_' + (isUnion ? 'union_' : '') + weaponId,
 						name: '⚡ ' + recipe.resultName,
 						desc: isUnion ? '双拼融合: 摧毁并吸收 ' + (WEAPON_DEFS[consumeId]?.name || consumeId) : '进化 ' + (this.player.weapons.find(w => w.id === weaponId)?.def?.name || weaponId),
 						color: recipe.resultColor, _weaponId: weaponId,
@@ -183,10 +183,9 @@ function installChestSystem(Game) {
 				SFX.sfxEvolve();
 				const { evolveWeapon, EVOLUTION_RECIPES, UNION_RECIPES } = require('./Evolution');
 				const w = p.weapons.find(w => w.id === option._weaponId);
-				if (w && !w.evolved) {
+				if (w && (!w.evolved || option._isUnion)) {
 					const recipe = option._isUnion ? UNION_RECIPES[option._weaponId] : EVOLUTION_RECIPES[option._weaponId];
-					if (recipe) {
-						evolveWeapon(w, recipe, option._consumeId);
+					if (recipe && evolveWeapon(w, recipe, option._consumeId)) {
 						this.spawnDamageNumber(p.x, p.y - 60, '⚡ ' + recipe.resultName, recipe.resultColor, false);
 						this.spawnDamageNumber(p.x, p.y - 40, '进化成功！', '#ffcc00', false);
 					}

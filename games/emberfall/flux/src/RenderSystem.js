@@ -44,6 +44,7 @@ function installRenderSystem(GameClass) {
                 throw new Error('eventSystem.drawWorld: ' + _eErr.message);
             }
 
+            this._friendlyAreaFills = 0;
             for (const w of this.player.weapons) { try { if (w.drawGroundEffects) w.drawGroundEffects(ctx); } catch (_e) { throw new Error('weapon.drawGroundEffects(' + w.id + '): ' + _e.message); } }
 
             // Hostile areas stay on the ground, below actors and foreground trees.

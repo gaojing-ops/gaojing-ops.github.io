@@ -1,0 +1,3317 @@
+{
+  "baseline": "476a0430658e3c4b24beccdaee5d6c2030c21e3f",
+  "scope": "build synergies, awakening/fusion guidance, late-game effects and avoidable CPU work",
+  "automated": {
+    "fullSuite": {
+      "pass": 187,
+      "fail": 0,
+      "stage": "before final render-only oversized glyph and completed-route copy refinements"
+    },
+    "finalFocused": {
+      "pass": 40,
+      "fail": 0,
+      "stage": "final relevant artwork, progression, browser folio tests"
+    }
+  },
+  "normalBrowser": {
+    "method": "ordinary real-time browser engine run, recorded camp profile in isolated temporary memory storage, both normal helpers; no invulnerability, speedup, forced in-run gear or rewards",
+    "hero": "arcane",
+    "patron": "moon",
+    "campProfile": {
+      "meta_hp": 5,
+      "meta_might": 5,
+      "meta_speed": 4,
+      "meta_pickup": 3,
+      "meta_cdr": 3,
+      "meta_regen": 3,
+      "meta_mastery": 2,
+      "meta_reroll": 1
+    },
+    "talents": {},
+    "pets": [],
+    "auras": [],
+    "time": 1200,
+    "victory": true,
+    "level": 323,
+    "kills": 81314,
+    "totalDamage": 113542018.7,
+    "totalHealed": 3797.8,
+    "naturalFusion": "fusion_absolute_zero",
+    "warningsOrErrors": [],
+    "revisionNote": "combat fixes loaded; final presentation/quality and boss achievement criterion changes were made while the tab was running and not hot-loaded"
+  },
+  "engineSimulations": {
+    "method": "engine simulation, recorded camp upgrade profile, normal helpers, no forced in-run rewards or invulnerability",
+    "campProfile": {
+      "meta_hp": 5,
+      "meta_might": 5,
+      "meta_speed": 4,
+      "meta_pickup": 3,
+      "meta_cdr": 3,
+      "meta_regen": 3,
+      "meta_mastery": 2,
+      "meta_reroll": 1
+    },
+    "talentProfile": null,
+    "seconds": 1202,
+    "rows": [
+      {
+        "hero": "arcane",
+        "patron": "moon",
+        "seed": 37,
+        "dt": 0.016666666666666666,
+        "width": 1000,
+        "time": 1200,
+        "victory": true,
+        "dead": false,
+        "scene": "gameOver",
+        "chapter": 5,
+        "level": 434,
+        "kills": 79225,
+        "hp": 170,
+        "maxHp": 170,
+        "might": 7.263,
+        "bonusMight": 9.800000000000008,
+        "armor": 0.6,
+        "area": 10.38,
+        "heal": 2129,
+        "damage": 82429331,
+        "skillUses": 177,
+        "divine": {
+          "boon_tide": {
+            "casts": 76,
+            "hits": 3479,
+            "damage": 0,
+            "healing": 0,
+            "controlled": 3479
+          },
+          "boon_breath": {
+            "casts": 74,
+            "hits": 3156,
+            "damage": 743547.4669702861,
+            "healing": 0,
+            "controlled": 0
+          },
+          "boon_bell": {
+            "casts": 36,
+            "hits": 2475,
+            "damage": 425460.16812377685,
+            "healing": 0,
+            "controlled": 0
+          }
+        },
+        "boons": {
+          "boon_mail": 3,
+          "boon_twins": 1,
+          "boon_lore": 2,
+          "boon_tide": 3,
+          "boon_still": 3,
+          "boon_gather": 1,
+          "boon_breath": 2,
+          "boon_bell": 1,
+          "boon_wildfire": 1,
+          "boon_promise": 1,
+          "boon_sap": 1,
+          "boon_return": 1,
+          "boon_thorn": 2,
+          "boon_carry": 1
+        },
+        "weapons": [
+          {
+            "id": "soul_drain",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "phase_blade",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "frozen_orb",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "shadow_clone",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "fusion_cryo_toxic",
+            "level": 1,
+            "evolved": true
+          },
+          {
+            "id": "nano_swarm",
+            "level": 6,
+            "evolved": true
+          }
+        ],
+        "minHp": 0.44,
+        "peak": 181,
+        "rewards": 0,
+        "boonChoices": [
+          {
+            "time": 21.38,
+            "level": 6,
+            "id": "boon_mail",
+            "rank": 1
+          },
+          {
+            "time": 155.78,
+            "level": 18,
+            "id": "boon_twins",
+            "rank": 1
+          },
+          {
+            "time": 182.9,
+            "level": 24,
+            "id": "boon_mail",
+            "rank": 2
+          },
+          {
+            "time": 246.23,
+            "level": 30,
+            "id": "boon_lore",
+            "rank": 1
+          },
+          {
+            "time": 516.2,
+            "level": 54,
+            "id": "boon_tide",
+            "rank": 1
+          },
+          {
+            "time": 590.35,
+            "level": 60,
+            "id": "boon_still",
+            "rank": 1
+          },
+          {
+            "time": 635.22,
+            "level": 66,
+            "id": "boon_gather",
+            "rank": 1
+          },
+          {
+            "time": 635.22,
+            "level": 66,
+            "id": "boon_mail",
+            "rank": 3
+          },
+          {
+            "time": 658.13,
+            "level": 72,
+            "id": "boon_breath",
+            "rank": 1
+          },
+          {
+            "time": 789.53,
+            "level": 96,
+            "id": "boon_bell",
+            "rank": 1
+          },
+          {
+            "time": 804.3,
+            "level": 102,
+            "id": "boon_still",
+            "rank": 2
+          },
+          {
+            "time": 850.93,
+            "level": 120,
+            "id": "boon_still",
+            "rank": 3
+          },
+          {
+            "time": 923.35,
+            "level": 156,
+            "id": "boon_wildfire",
+            "rank": 1
+          },
+          {
+            "time": 923.35,
+            "level": 156,
+            "id": "boon_promise",
+            "rank": 1
+          },
+          {
+            "time": 943.1,
+            "level": 186,
+            "id": "boon_tide",
+            "rank": 2
+          },
+          {
+            "time": 943.1,
+            "level": 186,
+            "id": "boon_tide",
+            "rank": 3
+          },
+          {
+            "time": 1127.87,
+            "level": 384,
+            "id": "boon_sap",
+            "rank": 1
+          },
+          {
+            "time": 1131.62,
+            "level": 390,
+            "id": "boon_return",
+            "rank": 1
+          },
+          {
+            "time": 1131.62,
+            "level": 390,
+            "id": "boon_thorn",
+            "rank": 1
+          },
+          {
+            "time": 1131.62,
+            "level": 390,
+            "id": "boon_breath",
+            "rank": 2
+          },
+          {
+            "time": 1131.62,
+            "level": 390,
+            "id": "boon_thorn",
+            "rank": 2
+          },
+          {
+            "time": 1131.62,
+            "level": 390,
+            "id": "boon_lore",
+            "rank": 2
+          },
+          {
+            "time": 1131.62,
+            "level": 390,
+            "id": "boon_carry",
+            "rank": 1
+          }
+        ],
+        "incoming": {
+          "CyberSpider": 25.555333333333536,
+          "Skeleton": 7.354000000000212,
+          "DataWorm": 27.96493333333403,
+          "Splitter": 7.043999999999954,
+          "projectile-or-boss-skill": 1707.600000000002,
+          "熔心破坏者": 10.29600000000002,
+          "ShieldBearer": 5.861333333333391,
+          "MiniSpider": 0.29999999999998295,
+          "WarpMite": 0.9533333333334042,
+          "Assassin": 12.86000000000007,
+          "Charger": 23.926666666666762,
+          "Healer": 0.10666666666665492,
+          "Crawler": 1.6266666666665799,
+          "terrain": 3.480000000000132,
+          "Bomber": 6.533333333333388,
+          "烬鳞九头蛇": 23.759999999999877,
+          "GlitchEntity": 13.480000000000103,
+          "FrostWisp": 10.826666666666597,
+          "Phantom": 13.146666666666476,
+          "IronGolem": 30.2266666666668,
+          "MortarDrone": 10.006666666666632,
+          "腐根母巢": 51.69999999999973,
+          "SlimeGlob": 2.0999999999999375,
+          "ScatterGun": 2.526666666666614,
+          "VoidLeech": 2.113333333333287,
+          "RoyalSlime": 31.093333333333447,
+          "星蚀裂隙": 11.800000000000068,
+          "ToxicBlob": 3.280000000000001,
+          "SwarmDrone": 1.6800000000001205,
+          "古铜统帅": 22.24000000000001,
+          "Hornet": 0.1666666666666572,
+          "Bat": 0.9999999999999716,
+          "PlagueSource": 2.920000000000016,
+          "SpiralCaster": 1.0266666666666424,
+          "LaserDrone": 0.5266666666666708,
+          "Ghost": 1.613333333333344,
+          "FireFly": 0.3400000000000034
+        },
+        "impacts": [
+          {
+            "time": 101.283,
+            "amount": 6.24,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 102,
+            "amount": 18.2,
+            "caller": "at Boss._updateSustainedEffect"
+          },
+          {
+            "time": 115.383,
+            "amount": 7.28,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 115.633,
+            "amount": 7.28,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 121.85,
+            "amount": 15.4,
+            "caller": "at Boss._updateSustainedEffect"
+          },
+          {
+            "time": 128.833,
+            "amount": 17.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 136.067,
+            "amount": 5.72,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 137.967,
+            "amount": 6.16,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 138.167,
+            "amount": 5.72,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 139.033,
+            "amount": 15.4,
+            "caller": "at Boss._updateSustainedEffect"
+          },
+          {
+            "time": 144.133,
+            "amount": 15.4,
+            "caller": "at Boss._updateSustainedEffect"
+          },
+          {
+            "time": 149.5,
+            "amount": 8.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 151.95,
+            "amount": 5.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 152.117,
+            "amount": 5.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 152.25,
+            "amount": 5.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 163.367,
+            "amount": 6.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 163.467,
+            "amount": 6.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 164.017,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 165.467,
+            "amount": 16,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 178.367,
+            "amount": 8.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 180.6,
+            "amount": 16,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 196.65,
+            "amount": 6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 250.283,
+            "amount": 4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 252.333,
+            "amount": 5.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 252.417,
+            "amount": 5.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 253.05,
+            "amount": 5.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 253.767,
+            "amount": 5.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 254.15,
+            "amount": 5.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 269.25,
+            "amount": 4.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 276.75,
+            "amount": 6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 281.133,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 281.783,
+            "amount": 6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 282.183,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 283.717,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 289.783,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 291.5,
+            "amount": 4.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 294.633,
+            "amount": 6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 295.2,
+            "amount": 7.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 297.317,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 304.85,
+            "amount": 4.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 305.4,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 305.567,
+            "amount": 4.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 308.833,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 316.55,
+            "amount": 6.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 332.1,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 333.033,
+            "amount": 8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 342.967,
+            "amount": 6.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 357.5,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 366.65,
+            "amount": 11.2,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 366.65,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 366.65,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 366.65,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 366.65,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 366.65,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 366.65,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 370.833,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 376.967,
+            "amount": 5.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 382.95,
+            "amount": 6.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 383.317,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 389.283,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 390.35,
+            "amount": 5.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 390.767,
+            "amount": 5.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 406.55,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 406.65,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 406.717,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 411.533,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 425.8,
+            "amount": 6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 454.45,
+            "amount": 5.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 454.55,
+            "amount": 5.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 454.6,
+            "amount": 5.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 454.667,
+            "amount": 6.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 454.683,
+            "amount": 5.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 454.683,
+            "amount": 6.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 458.433,
+            "amount": 8.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 467.217,
+            "amount": 6.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 469.417,
+            "amount": 10,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 483.9,
+            "amount": 6,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 487.8,
+            "amount": 8.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 502.533,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 504.167,
+            "amount": 9.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 507.05,
+            "amount": 6.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 508.45,
+            "amount": 6.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 518.217,
+            "amount": 9.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 521.217,
+            "amount": 6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 552.867,
+            "amount": 10,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 555.633,
+            "amount": 7.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 556.533,
+            "amount": 7.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 559.567,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 570.35,
+            "amount": 10.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 574.217,
+            "amount": 10,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 575.467,
+            "amount": 7.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 575.833,
+            "amount": 13.6,
+            "caller": "at Game.update"
+          },
+          {
+            "time": 583.75,
+            "amount": 46.4,
+            "caller": "at Game.update"
+          },
+          {
+            "time": 584.8,
+            "amount": 79.2,
+            "caller": "at Game.update"
+          },
+          {
+            "time": 590.483,
+            "amount": 8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 590.6,
+            "amount": 8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 590.95,
+            "amount": 10.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 592.3,
+            "amount": 10.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 620.35,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 635.533,
+            "amount": 5.6,
+            "caller": "at Game._checkCollisions"
+          }
+        ],
+        "growth": [
+          {
+            "time": 4.45,
+            "level": 2
+          },
+          {
+            "time": 9.4,
+            "level": 3
+          },
+          {
+            "time": 11.9,
+            "level": 4
+          },
+          {
+            "time": 17.23,
+            "level": 5
+          },
+          {
+            "time": 21.38,
+            "level": 6
+          },
+          {
+            "time": 29.02,
+            "level": 7
+          },
+          {
+            "time": 35.02,
+            "level": 8
+          },
+          {
+            "time": 70.67,
+            "level": 9
+          },
+          {
+            "time": 76.2,
+            "level": 10
+          },
+          {
+            "time": 81.23,
+            "level": 11
+          },
+          {
+            "time": 86.72,
+            "level": 12
+          },
+          {
+            "time": 101.55,
+            "level": 13
+          },
+          {
+            "time": 119.48,
+            "level": 14
+          },
+          {
+            "time": 130.88,
+            "level": 15
+          },
+          {
+            "time": 140.88,
+            "level": 16
+          },
+          {
+            "time": 148.92,
+            "level": 17
+          },
+          {
+            "time": 155.78,
+            "level": 18
+          },
+          {
+            "time": 160.03,
+            "level": 19
+          },
+          {
+            "time": 169.53,
+            "level": 20
+          }
+        ],
+        "bySource": {
+          "soul_drain": 34004292.4,
+          "poison": 4440705.809653551,
+          "radiation_field": 2148289.7000000016,
+          "antimatter_engine": 2812811.6,
+          "frozen_orb": 1016304.9000000001,
+          "synergy": 8111235.900000006,
+          "shadow_clone": 15424827.047500137,
+          "ice_shard": 662343,
+          "toxin_spray": 27584.400000000034,
+          "nano_swarm": 2180605.3200000003,
+          "boon_breath": 946069.575881462,
+          "fusion_cryo_toxic": 7106365.5,
+          "boon_bell": 506641.65045351785,
+          "phase_blade": 2930370
+        },
+        "bosses": [
+          {
+            "name": "熔心破坏者",
+            "start": 92.82,
+            "hp": 2522,
+            "end": 181.45,
+            "seconds": 88.63
+          },
+          {
+            "name": "虚渊巨人",
+            "start": 232.73,
+            "hp": 8582,
+            "end": 251.78,
+            "seconds": 19.05
+          },
+          {
+            "name": "烬鳞九头蛇",
+            "start": 342.98,
+            "hp": 22249,
+            "end": 389.48,
+            "seconds": 46.5
+          },
+          {
+            "name": "霜冠泰坦",
+            "start": 458.68,
+            "hp": 58335,
+            "end": 489.73,
+            "seconds": 31.05
+          },
+          {
+            "name": "腐根母巢",
+            "start": 582.75,
+            "hp": 104093,
+            "end": 638.17,
+            "seconds": 55.42
+          },
+          {
+            "name": "星蚀裂隙",
+            "start": 711.6,
+            "hp": 157049,
+            "end": 830.1,
+            "seconds": 118.5
+          },
+          {
+            "name": "古铜统帅",
+            "start": 894.3,
+            "hp": 796523,
+            "seconds": null
+          }
+        ],
+        "checkpoints": [
+          {
+            "time": 60,
+            "level": 8,
+            "kills": 473,
+            "hp": 120,
+            "maxHp": 120,
+            "might": 1.368,
+            "bonusMight": 0.3,
+            "armor": 0.4,
+            "area": 1,
+            "heal": 12.4,
+            "damage": 23449,
+            "skillUses": 7,
+            "divine": {},
+            "boons": {
+              "boon_mail": 1
+            },
+            "weapons": [
+              {
+                "id": "soul_drain",
+                "level": 5,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 240,
+            "level": 28,
+            "kills": 2872,
+            "hp": 170,
+            "maxHp": 170,
+            "might": 2.376,
+            "bonusMight": 0.6000000000000001,
+            "armor": 0.6,
+            "area": 1.05,
+            "heal": 317.4,
+            "damage": 361171,
+            "skillUses": 32,
+            "divine": {},
+            "boons": {
+              "boon_mail": 2,
+              "boon_twins": 1
+            },
+            "weapons": [
+              {
+                "id": "soul_drain",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "radiation_field",
+                "level": 3,
+                "evolved": false
+              },
+              {
+                "id": "frozen_orb",
+                "level": 3,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 480,
+            "level": 46,
+            "kills": 7469,
+            "hp": 170,
+            "maxHp": 170,
+            "might": 2.424,
+            "bonusMight": 0.6500000000000002,
+            "armor": 0.6,
+            "area": 1.2,
+            "heal": 673.4,
+            "damage": 1583907,
+            "skillUses": 69,
+            "divine": {},
+            "boons": {
+              "boon_mail": 2,
+              "boon_twins": 1,
+              "boon_lore": 1
+            },
+            "weapons": [
+              {
+                "id": "soul_drain",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "radiation_field",
+                "level": 6,
+                "evolved": false
+              },
+              {
+                "id": "frozen_orb",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "shadow_clone",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "ice_shard",
+                "level": 3,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 720,
+            "level": 79,
+            "kills": 18392,
+            "hp": 163.7,
+            "maxHp": 170,
+            "might": 2.832,
+            "bonusMight": 1.1500000000000006,
+            "armor": 0.6,
+            "area": 1.7,
+            "heal": 1242.8,
+            "damage": 6494379,
+            "skillUses": 105,
+            "divine": {
+              "boon_tide": {
+                "casts": 20,
+                "hits": 64,
+                "damage": 0,
+                "healing": 0,
+                "controlled": 64
+              },
+              "boon_breath": {
+                "casts": 7,
+                "hits": 16,
+                "damage": 582.5,
+                "healing": 0,
+                "controlled": 0
+              }
+            },
+            "boons": {
+              "boon_mail": 3,
+              "boon_twins": 1,
+              "boon_lore": 1,
+              "boon_tide": 1,
+              "boon_still": 1,
+              "boon_gather": 1,
+              "boon_breath": 1
+            },
+            "weapons": [
+              {
+                "id": "soul_drain",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "radiation_field",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "frozen_orb",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "shadow_clone",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "fusion_cryo_toxic",
+                "level": 1,
+                "evolved": true
+              },
+              {
+                "id": "nano_swarm",
+                "level": 2,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 960,
+            "level": 203,
+            "kills": 41629,
+            "hp": 170,
+            "maxHp": 170,
+            "might": 6.351,
+            "bonusMight": 3.099999999999999,
+            "armor": 0.6,
+            "area": 3.68,
+            "heal": 1857.4,
+            "damage": 28595276,
+            "skillUses": 141,
+            "divine": {
+              "boon_tide": {
+                "casts": 47,
+                "hits": 871,
+                "damage": 0,
+                "healing": 0,
+                "controlled": 871
+              },
+              "boon_breath": {
+                "casts": 40,
+                "hits": 610,
+                "damage": 85546.28199698451,
+                "healing": 0,
+                "controlled": 0
+              },
+              "boon_bell": {
+                "casts": 14,
+                "hits": 509,
+                "damage": 61623.873625517044,
+                "healing": 0,
+                "controlled": 0
+              }
+            },
+            "boons": {
+              "boon_mail": 3,
+              "boon_twins": 1,
+              "boon_lore": 1,
+              "boon_tide": 3,
+              "boon_still": 3,
+              "boon_gather": 1,
+              "boon_breath": 1,
+              "boon_bell": 1,
+              "boon_wildfire": 1,
+              "boon_promise": 1
+            },
+            "weapons": [
+              {
+                "id": "soul_drain",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "phase_blade",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "frozen_orb",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "shadow_clone",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "fusion_cryo_toxic",
+                "level": 1,
+                "evolved": true
+              },
+              {
+                "id": "nano_swarm",
+                "level": 6,
+                "evolved": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "hero": "cryomancer",
+        "patron": "grove",
+        "seed": 37,
+        "dt": 0.016666666666666666,
+        "width": 1000,
+        "time": 862,
+        "victory": false,
+        "dead": true,
+        "scene": "gameOver",
+        "chapter": 4,
+        "level": 84,
+        "kills": 27419,
+        "hp": 0,
+        "maxHp": 286,
+        "might": 3.291,
+        "bonusMight": 2.1000000000000005,
+        "armor": 0,
+        "area": 2.97,
+        "heal": 978.4,
+        "damage": 14174983,
+        "skillUses": 66,
+        "divine": {},
+        "boons": {
+          "boon_root": 3,
+          "boon_sap": 3,
+          "boon_thorn": 3
+        },
+        "weapons": [
+          {
+            "id": "ice_shard",
+            "level": 7,
+            "evolved": true
+          },
+          {
+            "id": "venom_sting",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "holy_water",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "shadow_clone",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "rocket_swarm",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "napalm",
+            "level": 6,
+            "evolved": true
+          }
+        ],
+        "minHp": 0,
+        "peak": 180,
+        "rewards": 0,
+        "boonChoices": [
+          {
+            "time": 28.53,
+            "level": 6,
+            "id": "boon_root",
+            "rank": 1
+          },
+          {
+            "time": 65.98,
+            "level": 9,
+            "id": "boon_sap",
+            "rank": 1
+          },
+          {
+            "time": 111.83,
+            "level": 12,
+            "id": "boon_sap",
+            "rank": 2
+          },
+          {
+            "time": 164.23,
+            "level": 18,
+            "id": "boon_sap",
+            "rank": 3
+          },
+          {
+            "time": 186.47,
+            "level": 21,
+            "id": "boon_root",
+            "rank": 2
+          },
+          {
+            "time": 577.28,
+            "level": 54,
+            "id": "boon_root",
+            "rank": 3
+          },
+          {
+            "time": 699.7,
+            "level": 66,
+            "id": "boon_thorn",
+            "rank": 1
+          },
+          {
+            "time": 808.4,
+            "level": 78,
+            "id": "boon_thorn",
+            "rank": 2
+          },
+          {
+            "time": 861.78,
+            "level": 84,
+            "id": "boon_thorn",
+            "rank": 3
+          }
+        ],
+        "incoming": {
+          "FireFly": 3.0666666666664923,
+          "Bat": 3.1166666666667595,
+          "Ghost": 0.5600000000000023,
+          "CyberSpider": 28.63333333333344,
+          "SwarmDrone": 5.560000000000002,
+          "Skeleton": 2.1666666666666856,
+          "Crawler": 0.5833333333333712,
+          "projectile-or-boss-skill": 1050,
+          "WarpMite": 1.51666666666668,
+          "Phantom": 1.6666666666666856,
+          "霜冠泰坦": 12.5,
+          "Splitter": 1.2666666666666515,
+          "星蚀裂隙": 2.8249999999999886,
+          "FrostWisp": 1.5666666666667197,
+          "Assassin": 1.6000000000000227,
+          "古铜统帅": 11.799999999999955
+        },
+        "impacts": [
+          {
+            "time": 143.5,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 155.633,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 177.983,
+            "amount": 12,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 214.733,
+            "amount": 16,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 217,
+            "amount": 15,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 231.983,
+            "amount": 70,
+            "caller": "at Boss._onSustainedEffectEnd"
+          },
+          {
+            "time": 237.617,
+            "amount": 16,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 238.867,
+            "amount": 22,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 238.9,
+            "amount": 22,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 238.9,
+            "amount": 22,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 256.35,
+            "amount": 17,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 261.683,
+            "amount": 11,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 263.033,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 288.117,
+            "amount": 3,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 343.683,
+            "amount": 18,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 356.683,
+            "amount": 28,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 472.383,
+            "amount": 25,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 477.2,
+            "amount": 15,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 523.967,
+            "amount": 24,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 549.95,
+            "amount": 19,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 603.217,
+            "amount": 158,
+            "caller": "at Game.update"
+          },
+          {
+            "time": 612.45,
+            "amount": 22,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 706.217,
+            "amount": 16,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 713.533,
+            "amount": 10,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 715.617,
+            "amount": 10,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 715.733,
+            "amount": 10,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 816.517,
+            "amount": 3,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 825.4,
+            "amount": 18,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 826.917,
+            "amount": 18,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 836.2,
+            "amount": 12,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 837.25,
+            "amount": 12,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 837.283,
+            "amount": 12,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 850.317,
+            "amount": 3,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 851.25,
+            "amount": 18,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 858.55,
+            "amount": 45,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 861.95,
+            "amount": 286,
+            "caller": "at Game.update"
+          }
+        ],
+        "growth": [
+          {
+            "time": 5.33,
+            "level": 2
+          },
+          {
+            "time": 7.8,
+            "level": 3
+          },
+          {
+            "time": 15.45,
+            "level": 4
+          },
+          {
+            "time": 19.77,
+            "level": 5
+          },
+          {
+            "time": 28.53,
+            "level": 6
+          },
+          {
+            "time": 37.95,
+            "level": 7
+          },
+          {
+            "time": 50.95,
+            "level": 8
+          },
+          {
+            "time": 65.98,
+            "level": 9
+          },
+          {
+            "time": 75.38,
+            "level": 10
+          },
+          {
+            "time": 93.07,
+            "level": 11
+          },
+          {
+            "time": 111.83,
+            "level": 12
+          },
+          {
+            "time": 120.87,
+            "level": 13
+          },
+          {
+            "time": 128.28,
+            "level": 14
+          },
+          {
+            "time": 130.98,
+            "level": 15
+          },
+          {
+            "time": 145.6,
+            "level": 16
+          },
+          {
+            "time": 160.15,
+            "level": 17
+          },
+          {
+            "time": 164.23,
+            "level": 18
+          },
+          {
+            "time": 165.37,
+            "level": 19
+          },
+          {
+            "time": 178.22,
+            "level": 20
+          }
+        ],
+        "bySource": {
+          "ice_shard": 2439007,
+          "skill_cryo": 322517.71439210227,
+          "poison": 407952.02503725456,
+          "synergy": 2385664.650000003,
+          "venom_sting": 459028.2499999959,
+          "antimatter_engine": 27292,
+          "holy_water": 1489879.2000000002,
+          "shadow_clone": 1115103.0999999994,
+          "rocket_swarm": 257740,
+          "burn": 1165.6075757575757,
+          "napalm": 1171273.4500000037
+        },
+        "bosses": [
+          {
+            "name": "熔心破坏者",
+            "start": 114.73,
+            "hp": 2664,
+            "end": 125.25,
+            "seconds": 10.52
+          },
+          {
+            "name": "虚渊巨人",
+            "start": 221.2,
+            "hp": 8339,
+            "end": 238.5,
+            "seconds": 17.3
+          },
+          {
+            "name": "烬鳞九头蛇",
+            "start": 335.57,
+            "hp": 21840,
+            "end": 361.18,
+            "seconds": 25.61
+          },
+          {
+            "name": "霜冠泰坦",
+            "start": 451.83,
+            "hp": 57346,
+            "end": 479.6,
+            "seconds": 27.77
+          },
+          {
+            "name": "腐根母巢",
+            "start": 571.17,
+            "hp": 101126,
+            "end": 600.93,
+            "seconds": 29.76
+          },
+          {
+            "name": "星蚀裂隙",
+            "start": 690.47,
+            "hp": 148978,
+            "end": 723.83,
+            "seconds": 33.36
+          },
+          {
+            "name": "古铜统帅",
+            "start": 809.47,
+            "hp": 644500,
+            "seconds": null
+          }
+        ],
+        "checkpoints": [
+          {
+            "time": 60,
+            "level": 8,
+            "kills": 369,
+            "hp": 162,
+            "maxHp": 162,
+            "might": 1.096,
+            "bonusMight": 0.10000000000000009,
+            "armor": 0.6,
+            "area": 1,
+            "heal": 13.7,
+            "damage": 20831,
+            "skillUses": 3,
+            "divine": {},
+            "boons": {
+              "boon_root": 1
+            },
+            "weapons": [
+              {
+                "id": "ice_shard",
+                "level": 6,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 240,
+            "level": 24,
+            "kills": 2167,
+            "hp": 224,
+            "maxHp": 224,
+            "might": 1.285,
+            "bonusMight": 0.20000000000000007,
+            "armor": 0,
+            "area": 1.2,
+            "heal": 341.9,
+            "damage": 273489,
+            "skillUses": 12,
+            "divine": {},
+            "boons": {
+              "boon_root": 2,
+              "boon_sap": 3
+            },
+            "weapons": [
+              {
+                "id": "ice_shard",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "venom_sting",
+                "level": 2,
+                "evolved": false
+              },
+              {
+                "id": "holy_water",
+                "level": 2,
+                "evolved": false
+              },
+              {
+                "id": "shadow_clone",
+                "level": 1,
+                "evolved": false
+              },
+              {
+                "id": "rocket_swarm",
+                "level": 1,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 480,
+            "level": 43,
+            "kills": 6808,
+            "hp": 224,
+            "maxHp": 224,
+            "might": 1.657,
+            "bonusMight": 0.35000000000000003,
+            "armor": 0,
+            "area": 1.37,
+            "heal": 485.4,
+            "damage": 1316588,
+            "skillUses": 25,
+            "divine": {},
+            "boons": {
+              "boon_root": 2,
+              "boon_sap": 3
+            },
+            "weapons": [
+              {
+                "id": "ice_shard",
+                "level": 7,
+                "evolved": true
+              },
+              {
+                "id": "venom_sting",
+                "level": 6,
+                "evolved": false
+              },
+              {
+                "id": "holy_water",
+                "level": 7,
+                "evolved": true
+              },
+              {
+                "id": "shadow_clone",
+                "level": 6,
+                "evolved": false
+              },
+              {
+                "id": "rocket_swarm",
+                "level": 3,
+                "evolved": false
+              },
+              {
+                "id": "napalm",
+                "level": 2,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 720,
+            "level": 68,
+            "kills": 17085,
+            "hp": 286,
+            "maxHp": 286,
+            "might": 2.533,
+            "bonusMight": 1.2500000000000004,
+            "armor": 0,
+            "area": 2.02,
+            "heal": 821.2,
+            "damage": 6182149,
+            "skillUses": 47,
+            "divine": {},
+            "boons": {
+              "boon_root": 3,
+              "boon_sap": 3,
+              "boon_thorn": 1
+            },
+            "weapons": [
+              {
+                "id": "ice_shard",
+                "level": 7,
+                "evolved": true
+              },
+              {
+                "id": "venom_sting",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "holy_water",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "shadow_clone",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "rocket_swarm",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "napalm",
+                "level": 6,
+                "evolved": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "hero": "biohazard",
+        "patron": "ember",
+        "seed": 37,
+        "dt": 0.016666666666666666,
+        "width": 1000,
+        "time": 1200,
+        "victory": true,
+        "dead": false,
+        "scene": "gameOver",
+        "chapter": 5,
+        "level": 509,
+        "kills": 63730,
+        "hp": 195,
+        "maxHp": 195,
+        "might": 4.668,
+        "bonusMight": 10.460000000000015,
+        "armor": 0.6,
+        "area": 11.67,
+        "heal": 1098.6,
+        "damage": 63952528,
+        "skillUses": 140,
+        "divine": {
+          "boon_breath": {
+            "casts": 130,
+            "hits": 5213,
+            "damage": 1502657.5855054755,
+            "healing": 0,
+            "controlled": 0
+          }
+        },
+        "boons": {
+          "boon_coal": 3,
+          "boon_breath": 3,
+          "boon_lore": 1,
+          "boon_still": 1,
+          "boon_sap": 1,
+          "boon_wildfire": 3
+        },
+        "weapons": [
+          {
+            "id": "toxin_spray",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "napalm",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "boomerang",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "soul_drain",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "venom_sting",
+            "level": 6,
+            "evolved": true
+          },
+          {
+            "id": "glacial_nova",
+            "level": 6,
+            "evolved": true
+          }
+        ],
+        "minHp": 0.713,
+        "peak": 181,
+        "rewards": 0,
+        "boonChoices": [
+          {
+            "time": 20.82,
+            "level": 6,
+            "id": "boon_coal",
+            "rank": 1
+          },
+          {
+            "time": 169.85,
+            "level": 21,
+            "id": "boon_coal",
+            "rank": 2
+          },
+          {
+            "time": 206.63,
+            "level": 24,
+            "id": "boon_breath",
+            "rank": 1
+          },
+          {
+            "time": 265.77,
+            "level": 30,
+            "id": "boon_coal",
+            "rank": 3
+          },
+          {
+            "time": 341.87,
+            "level": 39,
+            "id": "boon_lore",
+            "rank": 1
+          },
+          {
+            "time": 716.47,
+            "level": 72,
+            "id": "boon_breath",
+            "rank": 2
+          },
+          {
+            "time": 766.75,
+            "level": 81,
+            "id": "boon_still",
+            "rank": 1
+          },
+          {
+            "time": 766.75,
+            "level": 81,
+            "id": "boon_sap",
+            "rank": 1
+          },
+          {
+            "time": 891.77,
+            "level": 114,
+            "id": "boon_breath",
+            "rank": 3
+          },
+          {
+            "time": 891.77,
+            "level": 114,
+            "id": "boon_wildfire",
+            "rank": 1
+          },
+          {
+            "time": 891.77,
+            "level": 114,
+            "id": "boon_wildfire",
+            "rank": 2
+          },
+          {
+            "time": 891.77,
+            "level": 114,
+            "id": "boon_wildfire",
+            "rank": 3
+          }
+        ],
+        "incoming": {
+          "CyberSpider": 8.008666666666699,
+          "FireFly": 0.46666666666664014,
+          "Bat": 0.36666666666667425,
+          "projectile-or-boss-skill": 982.6400000000016,
+          "熔心破坏者": 0.9250000000000114,
+          "Crawler": 0.6693333333333555,
+          "terrain": 0.9120000000000346,
+          "RoyalSlime": 1.7353333333333296,
+          "星蚀裂隙": 1.5900000000000034,
+          "Splitter": 1.813333333333361,
+          "Phantom": 4.439999999999969,
+          "古铜统帅": 8.919999999999959,
+          "DataWorm": 0.693333333333328,
+          "Skeleton": 0.46666666666666856,
+          "SlimeGlob": 0.7466666666666697,
+          "GlitchEntity": 9.246666666666698,
+          "Turret": 2.200000000000017,
+          "ShieldBearer": 1.493333333333311,
+          "Assassin": 1.2266666666666595,
+          "ScatterGun": 0.3199999999999932,
+          "Charger": 3.613333333333344,
+          "FrostTitan": 2.0933333333333337,
+          "Hornet": 0.6133333333333439,
+          "MortarDrone": 1.539999999999992,
+          "LaserDrone": 1.6866666666666674,
+          "Bomber": 4.313333333333333,
+          "WarpMite": 0.46000000000000796,
+          "FrostWisp": 1.653333333333336,
+          "IronGolem": 3.333333333333343,
+          "ChainGunner": 0.4000000000000057
+        },
+        "impacts": [
+          {
+            "time": 118.8,
+            "amount": 22,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 127.633,
+            "amount": 13,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 133.867,
+            "amount": 16,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 142.167,
+            "amount": 13,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 164.867,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 170.083,
+            "amount": 12,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 173.5,
+            "amount": 15,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 189.15,
+            "amount": 15,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 192.2,
+            "amount": 15,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 197.25,
+            "amount": 15,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 200.6,
+            "amount": 12,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 212.95,
+            "amount": 16,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 219.667,
+            "amount": 11.96,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 230.283,
+            "amount": 16.56,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 241.917,
+            "amount": 15.64,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 260.783,
+            "amount": 9.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 281.9,
+            "amount": 10.12,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 300.95,
+            "amount": 11.04,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 303.683,
+            "amount": 13.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 318.75,
+            "amount": 18.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 333.117,
+            "amount": 20.24,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 357.7,
+            "amount": 11.96,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 360.933,
+            "amount": 11.96,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 387.95,
+            "amount": 12.88,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 393.817,
+            "amount": 11.04,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 431.417,
+            "amount": 11.04,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 441.817,
+            "amount": 13.8,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 450.083,
+            "amount": 20.24,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 455.65,
+            "amount": 13.8,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 522.65,
+            "amount": 18.24,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 550.683,
+            "amount": 2.28,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 560.283,
+            "amount": 14.44,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 563.6,
+            "amount": 2.28,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 569.017,
+            "amount": 6.08,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 574.8,
+            "amount": 30.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 581.45,
+            "amount": 19.76,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 601.783,
+            "amount": 19.04,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 604.683,
+            "amount": 2.04,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 607.317,
+            "amount": 12.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 628.567,
+            "amount": 13.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 656.3,
+            "amount": 24.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 669.183,
+            "amount": 6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 673.483,
+            "amount": 6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 682.767,
+            "amount": 1.8,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 686.117,
+            "amount": 9.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 705.767,
+            "amount": 1.8,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 708.567,
+            "amount": 6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 725.317,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 749.467,
+            "amount": 14.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 752.65,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 757.683,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 766.7,
+            "amount": 9.6,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 769.633,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 777.7,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 788.1,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 792.517,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 795.55,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 800.733,
+            "amount": 14,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 807.517,
+            "amount": 22,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 809.95,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 812.6,
+            "amount": 22.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 815.117,
+            "amount": 12.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 820.583,
+            "amount": 18,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 824.383,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 830.517,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 838.967,
+            "amount": 11.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 844.3,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 846.667,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 853.667,
+            "amount": 7.2,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 856.45,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 863.167,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 876.383,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 878.9,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 882.667,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 890.467,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 894.083,
+            "amount": 7.2,
+            "caller": "at Boss._executeSkill"
+          },
+          {
+            "time": 896.35,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 902.633,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 905.8,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 911,
+            "amount": 6.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 915.617,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 919.033,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 921.85,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 926.617,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 937.283,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 951.283,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 957.533,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 970.217,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 974.033,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 976.683,
+            "amount": 4.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 980.067,
+            "amount": 30.4,
+            "caller": "at Game.update"
+          },
+          {
+            "time": 991.183,
+            "amount": 40.4,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 1006.55,
+            "amount": 32.8,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 1026.717,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 1029.667,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 1032.783,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 1043.117,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 1048.983,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 1084.067,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          },
+          {
+            "time": 1107.567,
+            "amount": 1.2,
+            "caller": "at Enemy.update"
+          }
+        ],
+        "growth": [
+          {
+            "time": 4.95,
+            "level": 2
+          },
+          {
+            "time": 6.55,
+            "level": 3
+          },
+          {
+            "time": 9.9,
+            "level": 4
+          },
+          {
+            "time": 14.4,
+            "level": 5
+          },
+          {
+            "time": 20.82,
+            "level": 6
+          },
+          {
+            "time": 25.78,
+            "level": 7
+          },
+          {
+            "time": 32.37,
+            "level": 8
+          },
+          {
+            "time": 44.18,
+            "level": 9
+          },
+          {
+            "time": 52.53,
+            "level": 10
+          },
+          {
+            "time": 64.92,
+            "level": 11
+          },
+          {
+            "time": 74.32,
+            "level": 12
+          },
+          {
+            "time": 90.67,
+            "level": 13
+          },
+          {
+            "time": 102.62,
+            "level": 14
+          },
+          {
+            "time": 103.73,
+            "level": 15
+          },
+          {
+            "time": 122.45,
+            "level": 16
+          },
+          {
+            "time": 133.98,
+            "level": 17
+          },
+          {
+            "time": 137.38,
+            "level": 18
+          },
+          {
+            "time": 146.83,
+            "level": 19
+          },
+          {
+            "time": 159.63,
+            "level": 20
+          }
+        ],
+        "bySource": {
+          "toxin_spray": 15357815.862756824,
+          "poison": 5980216.586106275,
+          "napalm": 4302043.949999966,
+          "skill_bio": 3251.6583351597287,
+          "boomerang": 3652771.500000004,
+          "soul_drain": 28795643.800000165,
+          "boon_breath": 1904398.454727099,
+          "venom_sting": 3122368.6549999923,
+          "glacial_nova": 700272.6000000006
+        },
+        "bosses": [
+          {
+            "name": "熔心破坏者",
+            "start": 110.48,
+            "hp": 2636,
+            "end": 136.67,
+            "seconds": 26.19
+          },
+          {
+            "name": "虚渊巨人",
+            "start": 209.48,
+            "hp": 8098,
+            "end": 241.53,
+            "seconds": 32.05
+          },
+          {
+            "name": "烬鳞九头蛇",
+            "start": 315.88,
+            "hp": 20793,
+            "end": 338.97,
+            "seconds": 23.09
+          },
+          {
+            "name": "霜冠泰坦",
+            "start": 425.15,
+            "hp": 53650,
+            "end": 456.87,
+            "seconds": 31.72
+          },
+          {
+            "name": "腐根母巢",
+            "start": 537.55,
+            "hp": 92986,
+            "end": 583.2,
+            "seconds": 45.65
+          },
+          {
+            "name": "星蚀裂隙",
+            "start": 657.38,
+            "hp": 137168,
+            "end": 709.45,
+            "seconds": 52.07
+          },
+          {
+            "name": "古铜统帅",
+            "start": 779.13,
+            "hp": 597497,
+            "seconds": null
+          }
+        ],
+        "checkpoints": [
+          {
+            "time": 60,
+            "level": 10,
+            "kills": 371,
+            "hp": 145,
+            "maxHp": 145,
+            "might": 1.119,
+            "bonusMight": 0.2400000000000002,
+            "armor": 0,
+            "area": 1.08,
+            "heal": 4.1,
+            "damage": 21389,
+            "skillUses": 4,
+            "divine": {},
+            "boons": {
+              "boon_coal": 1
+            },
+            "weapons": [
+              {
+                "id": "toxin_spray",
+                "level": 4,
+                "evolved": false
+              },
+              {
+                "id": "napalm",
+                "level": 2,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 240,
+            "level": 27,
+            "kills": 2282,
+            "hp": 145,
+            "maxHp": 145,
+            "might": 1.317,
+            "bonusMight": 0.5000000000000002,
+            "armor": 0.08,
+            "area": 1.38,
+            "heal": 212.7,
+            "damage": 384749,
+            "skillUses": 14,
+            "divine": {
+              "boon_breath": {
+                "casts": 4,
+                "hits": 6,
+                "damage": 156.0275862068966,
+                "healing": 0,
+                "controlled": 0
+              }
+            },
+            "boons": {
+              "boon_coal": 2,
+              "boon_breath": 1
+            },
+            "weapons": [
+              {
+                "id": "toxin_spray",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "napalm",
+                "level": 3,
+                "evolved": false
+              },
+              {
+                "id": "boomerang",
+                "level": 2,
+                "evolved": false
+              },
+              {
+                "id": "soul_drain",
+                "level": 1,
+                "evolved": false
+              },
+              {
+                "id": "venom_sting",
+                "level": 1,
+                "evolved": false
+              },
+              {
+                "id": "glacial_nova",
+                "level": 1,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 480,
+            "level": 52,
+            "kills": 7334,
+            "hp": 195,
+            "maxHp": 195,
+            "might": 1.54,
+            "bonusMight": 0.8600000000000005,
+            "armor": 0.16,
+            "area": 1.68,
+            "heal": 468.9,
+            "damage": 2018104,
+            "skillUses": 30,
+            "divine": {
+              "boon_breath": {
+                "casts": 37,
+                "hits": 48,
+                "damage": 1073.528348178021,
+                "healing": 0,
+                "controlled": 0
+              }
+            },
+            "boons": {
+              "boon_coal": 3,
+              "boon_breath": 1,
+              "boon_lore": 1
+            },
+            "weapons": [
+              {
+                "id": "toxin_spray",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "napalm",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "boomerang",
+                "level": 6,
+                "evolved": false
+              },
+              {
+                "id": "soul_drain",
+                "level": 5,
+                "evolved": false
+              },
+              {
+                "id": "venom_sting",
+                "level": 1,
+                "evolved": false
+              },
+              {
+                "id": "glacial_nova",
+                "level": 4,
+                "evolved": false
+              }
+            ]
+          },
+          {
+            "time": 720,
+            "level": 72,
+            "kills": 17926,
+            "hp": 195,
+            "maxHp": 195,
+            "might": 1.802,
+            "bonusMight": 1.410000000000001,
+            "armor": 0.6,
+            "area": 2.03,
+            "heal": 670.2,
+            "damage": 6691178,
+            "skillUses": 60,
+            "divine": {
+              "boon_breath": {
+                "casts": 68,
+                "hits": 142,
+                "damage": 3270.471091305249,
+                "healing": 0,
+                "controlled": 0
+              }
+            },
+            "boons": {
+              "boon_coal": 3,
+              "boon_breath": 2,
+              "boon_lore": 1
+            },
+            "weapons": [
+              {
+                "id": "toxin_spray",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "napalm",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "boomerang",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "soul_drain",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "venom_sting",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "glacial_nova",
+                "level": 6,
+                "evolved": true
+              }
+            ]
+          },
+          {
+            "time": 960,
+            "level": 163,
+            "kills": 39415,
+            "hp": 195,
+            "maxHp": 195,
+            "might": 4.119,
+            "bonusMight": 3.559999999999996,
+            "armor": 0.6,
+            "area": 4.77,
+            "heal": 861.7,
+            "damage": 26637712,
+            "skillUses": 100,
+            "divine": {
+              "boon_breath": {
+                "casts": 98,
+                "hits": 1351,
+                "damage": 258478.86548350175,
+                "healing": 0,
+                "controlled": 0
+              }
+            },
+            "boons": {
+              "boon_coal": 3,
+              "boon_breath": 3,
+              "boon_lore": 1,
+              "boon_still": 1,
+              "boon_sap": 1,
+              "boon_wildfire": 3
+            },
+            "weapons": [
+              {
+                "id": "toxin_spray",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "napalm",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "boomerang",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "soul_drain",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "venom_sting",
+                "level": 6,
+                "evolved": true
+              },
+              {
+                "id": "glacial_nova",
+                "level": 6,
+                "evolved": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "hero": "tracer",
+        "patron": "wind",
+        "seed": 37,
+        "dt": 0.016666666666666666,
+        "width": 1000,
+        "time": 133,
+        "victory": false,
+        "dead": true,
+        "scene": "gameOver",
+        "chapter": 1,
+        "level": 12,
+        "kills": 951,
+        "hp": 0,
+        "maxHp": 130,
+        "might": 1.984,
+        "bonusMight": 0.6000000000000001,
+        "armor": 0,
+        "area": 1,
+        "heal": 82.1,
+        "damage": 65367,
+        "skillUses": 14,
+        "divine": {},
+        "boons": {
+          "boon_carry": 1,
+          "boon_evade": 1
+        },
+        "weapons": [
+          {
+            "id": "flux_bolt",
+            "level": 6,
+            "evolved": false
+          },
+          {
+            "id": "ice_shard",
+            "level": 1,
+            "evolved": false
+          }
+        ],
+        "minHp": 0,
+        "peak": 123,
+        "rewards": 0,
+        "boonChoices": [
+          {
+            "time": 47.6,
+            "level": 6,
+            "id": "boon_carry",
+            "rank": 1
+          },
+          {
+            "time": 81.45,
+            "level": 9,
+            "id": "boon_evade",
+            "rank": 1
+          }
+        ],
+        "incoming": {
+          "FireFly": 10.066666666666094,
+          "CyberSpider": 14.866666666666632,
+          "Bat": 8.483333333332894,
+          "Ghost": 11.900000000000006,
+          "Skeleton": 11.283333333333502,
+          "Crawler": 0.9999999999999432,
+          "Splitter": 1.5999999999999233,
+          "SwarmDrone": 0.533333333333303,
+          "SlimeGlob": 1.25,
+          "ToxicBlob": 0.7500000000000284,
+          "DataWorm": 1.3000000000000114,
+          "FrostWisp": 2.666666666666572,
+          "MiniSpider": 0.9166666666666146,
+          "projectile-or-boss-skill": 142,
+          "Phantom": 0.3333333333333428,
+          "熔心破坏者": 3.1200000000001293
+        },
+        "impacts": [
+          {
+            "time": 120.6,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 130.8,
+            "amount": 15,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 131.233,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 131.517,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 131.65,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 131.933,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 133.15,
+            "amount": 15,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 133.333,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 133.333,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          },
+          {
+            "time": 133.35,
+            "amount": 14,
+            "caller": "at Game._checkCollisions"
+          }
+        ],
+        "growth": [
+          {
+            "time": 10.93,
+            "level": 2
+          },
+          {
+            "time": 25.27,
+            "level": 3
+          },
+          {
+            "time": 37.95,
+            "level": 4
+          },
+          {
+            "time": 43.45,
+            "level": 5
+          },
+          {
+            "time": 47.6,
+            "level": 6
+          },
+          {
+            "time": 50.78,
+            "level": 7
+          },
+          {
+            "time": 61.38,
+            "level": 8
+          },
+          {
+            "time": 81.45,
+            "level": 9
+          },
+          {
+            "time": 94.63,
+            "level": 10
+          },
+          {
+            "time": 109.17,
+            "level": 11
+          },
+          {
+            "time": 125.73,
+            "level": 12
+          }
+        ],
+        "bySource": {
+          "flux_bolt": 50543.650000000525,
+          "poison": 390.98999999999984,
+          "synergy": 7449.599999999986,
+          "ice_shard": 6930
+        },
+        "bosses": [
+          {
+            "name": "熔心破坏者",
+            "start": 110.73,
+            "hp": 2637,
+            "seconds": null
+          }
+        ],
+        "checkpoints": [
+          {
+            "time": 60,
+            "level": 7,
+            "kills": 327,
+            "hp": 126.7,
+            "maxHp": 130,
+            "might": 1.596,
+            "bonusMight": 0.10000000000000009,
+            "armor": 0,
+            "area": 1,
+            "heal": 32.4,
+            "damage": 17968,
+            "skillUses": 7,
+            "divine": {},
+            "boons": {
+              "boon_carry": 1
+            },
+            "weapons": [
+              {
+                "id": "flux_bolt",
+                "level": 5,
+                "evolved": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "browserRecipeFixtures": {
+    "method": "source-defined, visibly labeled test page, max-level legal materials and trial counters preconfigured; normal reward generation and click selection; independent storage, not natural long runs",
+    "evidence": [
+      {
+        "case": "黎明天罚",
+        "kind": "explicit simulated recipe fixture",
+        "text": "REST BESIDE THE FLAME\n在火光旁，歇一会儿。\n\n时间停在这一刻。准备好时，再继续这段旅程。\n\n远征\n随身行装\n流派之途\n锋芒记录\n当前属性\n行旅设置\n祈誓与神赐\n星夜织咒\n\n沿玄瞳的星轨立即重置武器冷却，并在 6 秒内增加 50 个百分点的冷却缩减。\n\n角色咏誓 · 冷却 22 秒\n\n第 1 级\n已融合\n黎明天罚\n\n唤下贯穿敌阵的天光，对范围内敌人造成伤害。\n\n伤害 185 · 间隔 4.55 秒\n\n记下此套行装 · 1\n火光未熄，归途仍在。\nEMBERFALL"
+      },
+      {
+        "case": "霜腐幽潭",
+        "kind": "explicit simulated recipe fixture",
+        "offer": "- strong: 本地模拟验收：预设材料与条件／后期静态压力快照，不计正常长局成绩，不写存档\n- button \"模拟融合：黎明天罚\"\n- button \"模拟融合：霜腐幽潭\" [active]\n- button \"模拟融合：吞星之瞳\"\n- button \"模拟融合：血棘龙卷\"\n- button \"模拟融合：寒毒结界\"\n- button \"模拟融合：终夜焰风\"\n- button \"模拟后期：六融合\"\n- button \"模拟后期：领域与毒萤\"\n- button \"模拟画质：精细\"\n- button \"模拟画质：简约\"\n- status: 模拟融合馈赠 · 霜腐幽潭；武器数 2；行装 acid_pool（觉醒倍率 1） / glacial_nova（觉醒倍率 1）；实际首领击败 10\n- paragraph: 尚未采样\n- banner:\n  - link \"长夜余烬 EMBERFALL\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: EMBERFALL\n  - generic: 独立肉鸽 · 长夜远征\n  - navigation \"营地导航\":\n    - button \"图鉴\" [disabled]\n    - button \"成长\" [disabled]\n    - button \"战绩\" [disabled]\n    - button \"玩法 ?\":\n      - text: 玩法\n      - generic: \"?\"\n    - button \"切换音效\": 音效：开\n- navigation \"切换游戏\":\n  - generic: 选择游戏\n  - link \"长夜余烬 生存肉鸽\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: 生存肉鸽\n  - link \"五人远征 自动秘境\":\n    - /url: /games/keystone/\n    - text: 五人远征\n    - generic: 自动秘境\n- main:\n  - paragraph: THE LONG NIGHT AWAITS\n  - heading \"守住火光，穿过长夜。\" [level=1]\n  - generic: CHAPTER 01\n  - strong: 灰烬林地\n  - generic: ◇\n  - region \"长夜余烬游戏\":\n    - status: 战斗已暂停，请选择强化\n    - generic: 五章远征\n    - button \"暂停\" [disabled]\n    - button \"全屏\"\n    - region \"选择强化\":\n      - text: LET THE EMBER GROW\n      - heading \"让火光再盛一分\" [level=2]\n      - paragraph: 长夜暂歇。选一份力量，再踏入林间。\n      - generic: 01 / 选择馈赠\n      - generic: THE EMBER’S GIFT\n      - article:\n        - generic: 护符\n        - heading \"不融霜心\" [level=3]\n        - paragraph: 冻结持续时间增加 15%。 (等级0 → 1)\n        - button \"选择 1 ↗\"\n      - article:\n        - generic: 新获武器\n        - heading \"绕月冰轮\" [level=3]\n        - paragraph: 冰轮旋转巡游，不断射出冰锥。\n        - paragraph: 觉醒之途 · 满城飞雪：绕月冰轮 0/6 级 ＋ 寒枝环 · 尚缺；冻结击败 100 / 60 选择后形成 2 件寒霜共鸣：冻结时长 +15%。\n        - button \"选择 2 ↗\"\n      - article:\n        - generic: 神兵融合\n        - generic: 传说\n        - heading \"霜腐幽潭\" [level=3]\n        - paragraph: 展开寒毒交织的幽潭，同时冻结并腐蚀敌人。\n        - paragraph: 吸收「寒潭回响」，空出一格武器位；原有同系共鸣会重新计算。\n        - button \"选择 3 ↗\"\n      - generic \"前路可期 · 2 条觉醒之途\"\n      - button \"重问命途 · 0\" [disabled]\n      - button \"暂辞馈赠 · 0\" [disabled]\n      - button \"放逐命签 · 0\" [disabled]\n      - button \"随缘强化：关\"\n      - text: 火光未熄，归途仍在。\n      - generic: EMBERFALL\n  - generic: 每一局，都是一场新的远征。\n  - generic: 拾取余烬 → 选择强化 → 突破重围\n  - link \"原三分钟试炼 ↗\":\n    - /url: ./trial.html",
+        "text": "REST BESIDE THE FLAME\n在火光旁，歇一会儿。\n\n时间停在这一刻。准备好时，再继续这段旅程。\n\n远征\n随身行装\n流派之途\n锋芒记录\n当前属性\n行旅设置\n祈誓与神赐\n星夜织咒\n\n沿玄瞳的星轨立即重置武器冷却，并在 6 秒内增加 50 个百分点的冷却缩减。\n\n角色咏誓 · 冷却 22 秒\n\n第 1 级\n已融合\n霜腐幽潭\n\n展开寒毒交织的幽潭，同时冻结并腐蚀敌人。\n\n伤害 111 · 间隔 4.55 秒\n\n记下此套行装 · 1\n火光未熄，归途仍在。\nEMBERFALL"
+      },
+      {
+        "case": "吞星之瞳",
+        "kind": "explicit simulated recipe fixture",
+        "offer": "- strong: 本地模拟验收：预设材料与条件／后期静态压力快照，不计正常长局成绩，不写存档\n- button \"模拟融合：黎明天罚\"\n- button \"模拟融合：霜腐幽潭\"\n- button \"模拟融合：吞星之瞳\" [active]\n- button \"模拟融合：血棘龙卷\"\n- button \"模拟融合：寒毒结界\"\n- button \"模拟融合：终夜焰风\"\n- button \"模拟后期：六融合\"\n- button \"模拟后期：领域与毒萤\"\n- button \"模拟画质：精细\"\n- button \"模拟画质：简约\"\n- status: 模拟融合馈赠 · 吞星之瞳；武器数 2；行装 gravity_cannon（觉醒倍率 1） / radiation_field（觉醒倍率 1）；实际首领击败 10\n- paragraph: 尚未采样\n- banner:\n  - link \"长夜余烬 EMBERFALL\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: EMBERFALL\n  - generic: 独立肉鸽 · 长夜远征\n  - navigation \"营地导航\":\n    - button \"图鉴\" [disabled]\n    - button \"成长\" [disabled]\n    - button \"战绩\" [disabled]\n    - button \"玩法 ?\":\n      - text: 玩法\n      - generic: \"?\"\n    - button \"切换音效\": 音效：开\n- navigation \"切换游戏\":\n  - generic: 选择游戏\n  - link \"长夜余烬 生存肉鸽\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: 生存肉鸽\n  - link \"五人远征 自动秘境\":\n    - /url: /games/keystone/\n    - text: 五人远征\n    - generic: 自动秘境\n- main:\n  - paragraph: THE LONG NIGHT AWAITS\n  - heading \"守住火光，穿过长夜。\" [level=1]\n  - generic: CHAPTER 01\n  - strong: 灰烬林地\n  - generic: ◇\n  - region \"长夜余烬游戏\":\n    - status: 战斗已暂停，请选择强化\n    - generic: 五章远征\n    - button \"暂停\" [disabled]\n    - button \"全屏\"\n    - region \"选择强化\":\n      - text: LET THE EMBER GROW\n      - heading \"让火光再盛一分\" [level=2]\n      - paragraph: 长夜暂歇。选一份力量，再踏入林间。\n      - generic: 01 / 选择馈赠\n      - generic: THE EMBER’S GIFT\n      - article:\n        - generic: 神兵融合\n        - generic: 传说\n        - heading \"吞星之瞳\" [level=3]\n        - paragraph: 放出缓慢前行的暗涡，牵引并绞伤敌人。\n        - paragraph: 吸收「守夜灯阵」，空出一格武器位；原有同系共鸣会重新计算。\n        - button \"选择 1 ↗\"\n      - article:\n        - generic: 护符\n        - heading \"长明烛芯\" [level=3]\n        - paragraph: 攻击范围增加 10%。 (等级0 → 1)\n        - paragraph: 觉醒之途 · 陨星深渊：坠星石 6/6 级 ＋ 长明烛芯 · 尚缺；击败首领 10 / 4\n        - button \"选择 2 ↗\"\n      - article:\n        - generic: 护符\n        - heading \"苦荆囊\" [level=3]\n        - paragraph: 毒素伤害增加 20%。 (等级0 → 1)\n        - button \"选择 3 ↗\"\n      - generic \"前路可期 · 2 条觉醒之途\"\n      - button \"重问命途 · 0\" [disabled]\n      - button \"暂辞馈赠 · 0\" [disabled]\n      - button \"放逐命签 · 0\" [disabled]\n      - button \"随缘强化：关\"\n      - text: 火光未熄，归途仍在。\n      - generic: EMBERFALL\n  - generic: 每一局，都是一场新的远征。\n  - generic: 拾取余烬 → 选择强化 → 突破重围\n  - link \"原三分钟试炼 ↗\":\n    - /url: ./trial.html",
+        "text": "REST BESIDE THE FLAME\n在火光旁，歇一会儿。\n\n时间停在这一刻。准备好时，再继续这段旅程。\n\n远征\n随身行装\n流派之途\n锋芒记录\n当前属性\n行旅设置\n祈誓与神赐\n星夜织咒\n\n沿玄瞳的星轨立即重置武器冷却，并在 6 秒内增加 50 个百分点的冷却缩减。\n\n角色咏誓 · 冷却 22 秒\n\n第 1 级\n已融合\n吞星之瞳\n\n放出缓慢前行的暗涡，牵引并绞伤敌人。\n\n伤害 148 · 间隔 5.46 秒\n\n记下此套行装 · 1\n火光未熄，归途仍在。\nEMBERFALL"
+      },
+      {
+        "case": "血棘龙卷",
+        "kind": "explicit simulated recipe fixture",
+        "offer": "- strong: 本地模拟验收：预设材料与条件／后期静态压力快照，不计正常长局成绩，不写存档\n- button \"模拟融合：黎明天罚\"\n- button \"模拟融合：霜腐幽潭\"\n- button \"模拟融合：吞星之瞳\"\n- button \"模拟融合：血棘龙卷\" [active]\n- button \"模拟融合：寒毒结界\"\n- button \"模拟融合：终夜焰风\"\n- button \"模拟后期：六融合\"\n- button \"模拟后期：领域与毒萤\"\n- button \"模拟画质：精细\"\n- button \"模拟画质：简约\"\n- status: 模拟融合馈赠 · 血棘龙卷；武器数 2；行装 chain_drill（觉醒倍率 1） / phase_blade（觉醒倍率 1）；实际首领击败 10\n- paragraph: 尚未采样\n- banner:\n  - link \"长夜余烬 EMBERFALL\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: EMBERFALL\n  - generic: 独立肉鸽 · 长夜远征\n  - navigation \"营地导航\":\n    - button \"图鉴\" [disabled]\n    - button \"成长\" [disabled]\n    - button \"战绩\" [disabled]\n    - button \"玩法 ?\":\n      - text: 玩法\n      - generic: \"?\"\n    - button \"切换音效\": 音效：开\n- navigation \"切换游戏\":\n  - generic: 选择游戏\n  - link \"长夜余烬 生存肉鸽\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: 生存肉鸽\n  - link \"五人远征 自动秘境\":\n    - /url: /games/keystone/\n    - text: 五人远征\n    - generic: 自动秘境\n- main:\n  - paragraph: THE LONG NIGHT AWAITS\n  - heading \"守住火光，穿过长夜。\" [level=1]\n  - generic: CHAPTER 01\n  - strong: 灰烬林地\n  - generic: ◇\n  - region \"长夜余烬游戏\":\n    - status: 战斗已暂停，请选择强化\n    - generic: 五章远征\n    - button \"暂停\" [disabled]\n    - button \"全屏\"\n    - region \"选择强化\":\n      - text: LET THE EMBER GROW\n      - heading \"让火光再盛一分\" [level=2]\n      - paragraph: 长夜暂歇。选一份力量，再踏入林间。\n      - generic: 01 / 选择馈赠\n      - generic: THE EMBER’S GIFT\n      - article:\n        - generic: 神兵融合\n        - generic: 传说\n        - heading \"血棘龙卷\" [level=3]\n        - paragraph: 刃轮与回旋之力合流，向四周掀起近战风暴。\n        - paragraph: 吸收「渡影刀」，空出一格武器位；原有同系共鸣会重新计算。\n        - button \"选择 1 ↗\"\n      - article:\n        - generic: 护符\n        - heading \"夜枭之眼\" [level=3]\n        - paragraph: 暴击伤害增加 50%。 (等级0 → 1)\n        - button \"选择 2 ↗\"\n      - article:\n        - generic: 新获武器\n        - heading \"弦月火刃\" [level=3]\n        - paragraph: 掷出炽热的弦月，穿透沿途的敌人。\n        - paragraph: 觉醒之途 · 赤月旋焰：弦月火刃 0/6 级 ＋ 长明烛芯 · 尚缺；击败敌人 5,000 / 400 融合之途 · 黎明天罚：弦月火刃 0/6 级 ＋ 晨钟波 0/6 级；击败首领 10 / 5\n        - button \"选择 3 ↗\"\n      - generic \"前路可期 · 2 条觉醒之途\"\n      - button \"重问命途 · 0\" [disabled]\n      - button \"暂辞馈赠 · 0\" [disabled]\n      - button \"放逐命签 · 0\" [disabled]\n      - button \"随缘强化：关\"\n      - text: 火光未熄，归途仍在。\n      - generic: EMBERFALL\n  - generic: 每一局，都是一场新的远征。\n  - generic: 拾取余烬 → 选择强化 → 突破重围\n  - link \"原三分钟试炼 ↗\":\n    - /url: ./trial.html",
+        "text": "REST BESIDE THE FLAME\n在火光旁，歇一会儿。\n\n时间停在这一刻。准备好时，再继续这段旅程。\n\n远征\n随身行装\n流派之途\n锋芒记录\n当前属性\n行旅设置\n祈誓与神赐\n星夜织咒\n\n沿玄瞳的星轨立即重置武器冷却，并在 6 秒内增加 50 个百分点的冷却缩减。\n\n角色咏誓 · 冷却 22 秒\n\n第 1 级\n已融合\n血棘龙卷\n\n刃轮与回旋之力合流，向四周掀起近战风暴。\n\n伤害 14 · 间隔 0.07 秒\n\n记下此套行装 · 1\n火光未熄，归途仍在。\nEMBERFALL"
+      },
+      {
+        "case": "寒毒结界",
+        "kind": "explicit simulated recipe fixture",
+        "offer": "- strong: 本地模拟验收：预设材料与条件／后期静态压力快照，不计正常长局成绩，不写存档\n- button \"模拟融合：黎明天罚\"\n- button \"模拟融合：霜腐幽潭\"\n- button \"模拟融合：吞星之瞳\"\n- button \"模拟融合：血棘龙卷\"\n- button \"模拟融合：寒毒结界\" [active]\n- button \"模拟融合：终夜焰风\"\n- button \"模拟后期：六融合\"\n- button \"模拟后期：领域与毒萤\"\n- button \"模拟画质：精细\"\n- button \"模拟画质：简约\"\n- status: 模拟融合馈赠 · 寒毒结界；武器数 2；行装 ice_shard（觉醒倍率 1） / toxin_spray（觉醒倍率 1）；实际首领击败 10\n- paragraph: 尚未采样\n- banner:\n  - link \"长夜余烬 EMBERFALL\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: EMBERFALL\n  - generic: 独立肉鸽 · 长夜远征\n  - navigation \"营地导航\":\n    - button \"图鉴\" [disabled]\n    - button \"成长\" [disabled]\n    - button \"战绩\" [disabled]\n    - button \"玩法 ?\":\n      - text: 玩法\n      - generic: \"?\"\n    - button \"切换音效\": 音效：开\n- navigation \"切换游戏\":\n  - generic: 选择游戏\n  - link \"长夜余烬 生存肉鸽\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: 生存肉鸽\n  - link \"五人远征 自动秘境\":\n    - /url: /games/keystone/\n    - text: 五人远征\n    - generic: 自动秘境\n- main:\n  - paragraph: THE LONG NIGHT AWAITS\n  - heading \"守住火光，穿过长夜。\" [level=1]\n  - generic: CHAPTER 01\n  - strong: 灰烬林地\n  - generic: ◇\n  - region \"长夜余烬游戏\":\n    - status: 战斗已暂停，请选择强化\n    - generic: 五章远征\n    - button \"暂停\" [disabled]\n    - button \"全屏\"\n    - region \"选择强化\":\n      - text: LET THE EMBER GROW\n      - heading \"让火光再盛一分\" [level=2]\n      - paragraph: 长夜暂歇。选一份力量，再踏入林间。\n      - generic: 01 / 选择馈赠\n      - generic: THE EMBER’S GIFT\n      - article:\n        - generic: 神兵融合\n        - generic: 传说\n        - heading \"寒毒结界\" [level=3]\n        - paragraph: 以霜与毒笼罩周围，让敌人同时承受冻结与中毒。\n        - paragraph: 吸收「腐枝吐息」，空出一格武器位；原有同系共鸣会重新计算。\n        - button \"选择 1 ↗\"\n      - article:\n        - generic: 新获武器\n        - heading \"绕月冰轮\" [level=3]\n        - paragraph: 冰轮旋转巡游，不断射出冰锥。\n        - paragraph: 觉醒之途 · 满城飞雪：绕月冰轮 0/6 级 ＋ 寒枝环 · 尚缺；冻结击败 100 / 60 选择后形成 2 件寒霜共鸣：冻结时长 +15%。\n        - button \"选择 2 ↗\"\n      - article:\n        - generic: 护符\n        - heading \"猎夜纹\" [level=3]\n        - paragraph: 对精英与首领的伤害增加 12%。 (等级0 → 1)\n        - button \"选择 3 ↗\"\n      - generic \"前路可期 · 2 条觉醒之途\"\n      - button \"重问命途 · 0\" [disabled]\n      - button \"暂辞馈赠 · 0\" [disabled]\n      - button \"放逐命签 · 0\" [disabled]\n      - button \"随缘强化：关\"\n      - text: 火光未熄，归途仍在。\n      - generic: EMBERFALL\n  - generic: 每一局，都是一场新的远征。\n  - generic: 拾取余烬 → 选择强化 → 突破重围\n  - link \"原三分钟试炼 ↗\":\n    - /url: ./trial.html",
+        "text": "REST BESIDE THE FLAME\n在火光旁，歇一会儿。\n\n时间停在这一刻。准备好时，再继续这段旅程。\n\n远征\n随身行装\n流派之途\n锋芒记录\n当前属性\n行旅设置\n祈誓与神赐\n星夜织咒\n\n沿玄瞳的星轨立即重置武器冷却，并在 6 秒内增加 50 个百分点的冷却缩减。\n\n角色咏誓 · 冷却 22 秒\n\n第 1 级\n已融合\n寒毒结界\n\n以霜与毒笼罩周围，让敌人同时承受冻结与中毒。\n\n伤害 92 · 间隔 3.64 秒\n\n记下此套行装 · 1\n火光未熄，归途仍在。\nEMBERFALL"
+      },
+      {
+        "case": "终夜焰风",
+        "kind": "explicit simulated recipe fixture",
+        "offer": "- strong: 本地模拟验收：预设材料与条件／后期静态压力快照，不计正常长局成绩，不写存档\n- button \"模拟融合：黎明天罚\"\n- button \"模拟融合：霜腐幽潭\"\n- button \"模拟融合：吞星之瞳\"\n- button \"模拟融合：血棘龙卷\"\n- button \"模拟融合：寒毒结界\"\n- button \"模拟融合：终夜焰风\" [active]\n- button \"模拟后期：六融合\"\n- button \"模拟后期：领域与毒萤\"\n- button \"模拟画质：精细\"\n- button \"模拟画质：简约\"\n- status: 模拟融合馈赠 · 终夜焰风；武器数 2；行装 boomerang（觉醒倍率 1） / rocket_swarm（觉醒倍率 1）；实际首领击败 10\n- paragraph: 尚未采样\n- banner:\n  - link \"长夜余烬 EMBERFALL\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: EMBERFALL\n  - generic: 独立肉鸽 · 长夜远征\n  - navigation \"营地导航\":\n    - button \"图鉴\" [disabled]\n    - button \"成长\" [disabled]\n    - button \"战绩\" [disabled]\n    - button \"玩法 ?\":\n      - text: 玩法\n      - generic: \"?\"\n    - button \"切换音效\": 音效：开\n- navigation \"切换游戏\":\n  - generic: 选择游戏\n  - link \"长夜余烬 生存肉鸽\":\n    - /url: /games/emberfall/\n    - text: 长夜余烬\n    - generic: 生存肉鸽\n  - link \"五人远征 自动秘境\":\n    - /url: /games/keystone/\n    - text: 五人远征\n    - generic: 自动秘境\n- main:\n  - paragraph: THE LONG NIGHT AWAITS\n  - heading \"守住火光，穿过长夜。\" [level=1]\n  - generic: CHAPTER 01\n  - strong: 灰烬林地\n  - generic: ◇\n  - region \"长夜余烬游戏\":\n    - status: 战斗已暂停，请选择强化\n    - generic: 五章远征\n    - button \"暂停\" [disabled]\n    - button \"全屏\"\n    - region \"选择强化\":\n      - text: LET THE EMBER GROW\n      - heading \"让火光再盛一分\" [level=2]\n      - paragraph: 长夜暂歇。选一份力量，再踏入林间。\n      - generic: 01 / 选择馈赠\n      - generic: THE EMBER’S GIFT\n      - article:\n        - generic: 新获武器\n        - heading \"坠星石\" [level=3]\n        - paragraph: 在目标处结出引力涡流，聚拢敌人后引爆。\n        - paragraph: 觉醒之途 · 陨星深渊：坠星石 0/6 级 ＋ 长明烛芯 · 尚缺；击败首领 10 / 4 融合之途 · 吞星之瞳：坠星石 0/6 级 ＋ 守夜灯阵 0/6 级；击败首领 10 / 5 选择后形成 2 件赤焰共鸣：攻击范围 +12%。\n        - button \"选择 1 ↗\"\n      - article:\n        - generic: 神兵融合\n        - generic: 传说\n        - heading \"终夜焰风\" [level=3]\n        - paragraph: 爆裂的回旋焰席卷战场，覆盖大范围敌人。\n        - paragraph: 吸收「逐星焰」，空出一格武器位；原有同系共鸣会重新计算。\n        - button \"选择 2 ↗\"\n      - article:\n        - generic: 护符\n        - heading \"急咏符\" [level=3]\n        - paragraph: 武器冷却时间减少 6%。 (等级0 → 1)\n        - button \"选择 3 ↗\"\n      - generic \"前路可期 · 2 条觉醒之途\"\n      - button \"重问命途 · 0\" [disabled]\n      - button \"暂辞馈赠 · 0\" [disabled]\n      - button \"放逐命签 · 0\" [disabled]\n      - button \"随缘强化：关\"\n      - text: 火光未熄，归途仍在。\n      - generic: EMBERFALL\n  - generic: 每一局，都是一场新的远征。\n  - generic: 拾取余烬 → 选择强化 → 突破重围\n  - link \"原三分钟试炼 ↗\":\n    - /url: ./trial.html",
+        "text": "REST BESIDE THE FLAME\n在火光旁，歇一会儿。\n\n时间停在这一刻。准备好时，再继续这段旅程。\n\n远征\n随身行装\n流派之途\n锋芒记录\n当前属性\n行旅设置\n祈誓与神赐\n星夜织咒\n\n沿玄瞳的星轨立即重置武器冷却，并在 6 秒内增加 50 个百分点的冷却缩减。\n\n角色咏誓 · 冷却 22 秒\n\n第 1 级\n已融合\n终夜焰风\n\n爆裂的回旋焰席卷战场，覆盖大范围敌人。\n\n伤害 129 · 间隔 2.73 秒\n\n记下此套行装 · 1\n火光未熄，归途仍在。\nEMBERFALL"
+      }
+    ]
+  },
+  "browserNormalResultText": "UNTIL THE NEXT WATCH\n黎明，终于到了。\n\n你把火光带过了整片长夜。\n\nDAWN HAS COME\n星纱法师\n\n带回 124,359 枚余烬 · 每一次归来，都为下次点灯。\n\n守夜时长\n20:00\n击败敌人\n81,314\n最终阶位\n323\n最高连击\n81254\n造成伤害\n113,542,018.7\n恢复生命\n3,797.8\n拾得经验\n22,892,973.6\n带回余烬\n+124,359\n五灯引魂\n第 6 级\n腐雨长夜\n第 6 级\n霜腐幽潭\n第 1 级\n万物霜寂\n第 6 级\n夜渡长锋\n第 6 级\n赤月旋焰\n第 6 级\nAN OATH AGAINST THE NIGHT\n凝月 · 霜夜之神\n\n护甲 +1，冻结持续时间 +15%。\n\n乘岚\n第 1 / 3 阶\n借风一跃\n\n每阶将闪避冷却再缩短 10%，最低 0.9 秒。\n\n凝月\n第 3 / 3 阶\n月下霜衣\n\n每阶增加 1 护甲；每点护甲提供 8% 减伤，总减伤上限 60%。\n\n凝月\n第 3 / 3 阶\n留住月光\n\n每阶使冻结持续时间增加 15%。\n\n凝月\n第 3 / 3 阶\n霜月止潮\n\n每 6 秒冻结周围 150 × 范围倍率内的普通敌人，每阶持续 0.6 秒，另受冻结时长加成，单次最高 3.6 秒；首领仅减速 1 秒。\n\n当前神息「破晓」· 半径 1,057.5 · 冻结 3.6 秒\n\n已触发 66 次 · 命中 2306 次 · 实际伤害 0 · 恢复 0\n\n青萝\n第 1 / 3 阶\n烬土新芽\n\n每阶使生命上限增加 12，并恢复至多 12 生命。\n\n青萝\n第 1 / 3 阶\n枝间回春\n\n每阶增加每秒 0.25 生命恢复。\n\n青萝\n第 1 / 3 阶\n春荆藏锋\n\n每阶使毒素伤害增加 15%。\n\n玄瞳\n第 2 / 3 阶\n群星引路\n\n每阶使拾取范围增加 18%。\n\n余铸\n第 1 / 3 阶\n旧铁还誓\n\n每阶使接触反伤比例增加 8 个百分点。\n\n余铸\n第 1 / 3 阶\n炉前不退\n\n每阶增加 1 护甲；每点护甲提供 8% 减伤，总减伤上限 60%。\n\n曦衡\n第 1 / 3 阶\n残灯续明\n\n每阶使生命上限增加 10、恢复至多 10 生命，并增加每秒 0.1 生命恢复。\n\n神息在第 20、40、60 阶成长，周期伤害与晨光治疗最高达到基础值的 2.5 倍，连雷最多 6 目标；不会放大护甲、冷却等上限属性。\n\n祈誓与神赐只在本次远征生效；伤害加成遵守现有递减公式，恢复效果受禁疗试炼限制。\n\n新刻痕：第一簇火、二十连斩、五十连斩、百兽止步、百斩不停、初露锋芒、五百归烬、初荆染血、十万锋芒、四器随身、二十次咏誓、五符相随、五百回春、毒蔓长夜、初雪凝锋、斩破首影、霜毒相生、百次霜落、六器成阵、霜拥长夜、五分未熄、百万余焰、千回不灭、三器觉醒、三影俱灭、五器觉醒、十分长明、百次咏誓、五影俱灭、十五分未熄\n\n再赴长夜 ↗\n继续无尽守夜\n前往余烬之庭\n返回营地\n分享归途\n火光未熄，归途仍在。\nEMBERFALL",
+  "responsive": {
+    "width": 390,
+    "height": 844,
+    "documentClientWidth": 375,
+    "documentScrollWidth": 375,
+    "panelClientWidth": 349,
+    "panelScrollWidth": 349,
+    "checks": [
+      "codex search returns matching fusion",
+      "resonance/reaction details expand",
+      "fusion offer identifies consumed secondary",
+      "completed fusion shows materials already forged",
+      "no undefined/NaN"
+    ],
+    "consoleWarningsOrErrors": []
+  },
+  "collisionFixture": {
+    "before": {
+      "method": "50 stationary collision samples: 180 durable poisoned/frozen targets, two real fusion casts before each sample, unchanged game collision path. Cast time excluded. This is a CPU fixture, not a normal run or hardware FPS guarantee.",
+      "source": "D:/AI项目/网页/outputs/emberfall-effects-baseline/games/emberfall/flux/entry.js",
+      "samples": 50,
+      "collisionQueries": 150,
+      "synergyCallsFromVisuals": 18000,
+      "medianMs": 13.143200000000093,
+      "p95Ms": 18.887100000000032,
+      "visualOnlyFlags": [
+        false,
+        false
+      ]
+    },
+    "after": {
+      "method": "50 stationary collision samples: 180 durable poisoned/frozen targets, two real fusion casts before each sample, unchanged game collision path. Cast time excluded. This is a CPU fixture, not a normal run or hardware FPS guarantee.",
+      "source": "current checkout",
+      "samples": 50,
+      "collisionQueries": 50,
+      "synergyCallsFromVisuals": 0,
+      "medianMs": 0.07260000000002265,
+      "p95Ms": 0.21300000000002228,
+      "visualOnlyFlags": [
+        true,
+        true
+      ]
+    }
+  },
+  "drawFixture": {
+    "method": "static stopped-combat pressure snapshot; 180 enemies; 120 browser draw CPU calls after warmup; no complete update/GPU/FPS guarantee",
+    "viewport": [
+      1280,
+      900
+    ],
+    "sixFusionsFine": {
+      "medianMs": 11.7,
+      "p95Ms": 14.9,
+      "bullets": 66,
+      "fills": 2
+    },
+    "fieldsNanoFine": {
+      "medianMs": 9.6,
+      "p95Ms": 12,
+      "bullets": 30,
+      "fills": 3
+    },
+    "fieldsNanoSimple": {
+      "medianMs": 8.9,
+      "p95Ms": 11.2,
+      "bullets": 30,
+      "fills": 3
+    },
+    "retainedFailure": "first static fixture screenshot was blank because there was no dedicated draw loop; fixed, reloaded and remeasured; blank screenshot excluded"
+  },
+  "sourceHashes": {
+    "src\\Evolution.js": "bf5d49d891b18b667cd727b09bdb26b36a018f4a6b58b2596e1e5f1e0a221070",
+    "src\\SynergySystem.js": "6970338e926fee058faca31ddc27f135294532ed5046288e7a9973714b8fb30d",
+    "src\\Enemy.js": "1a4953f369291f86be25e592829fe11fc6379594d998c26295a5d7c74c70a09e",
+    "src\\CollisionSystem.js": "8927b10580fcedbb630739aae76680fce3902198926c4995c5d713465ee17f2d",
+    "src\\FacetedArt.js": "79678c08cb178571bf340a25d46aa98cbb0a23dddebfb91e7d6998f5388887fe",
+    "src\\WeaponArt.js": "13af5f54caa887b4585733f37f3a06469fd6106b3c8232681c783ba46802cf92",
+    "src\\Progression.js": "946fadc5fcc034ebb1495a960b434fe3ee43dabc41832f7206257536c1cbb33b"
+  },
+  "limitations": [
+    "small deterministic engine sample is not a win-rate or all-build balance certification",
+    "one medium-growth browser victory does not establish zero-growth experience",
+    "static draw CPU and collision-only fixture do not establish complete-frame FPS",
+    "no physical phone touch certification"
+  ]
+}

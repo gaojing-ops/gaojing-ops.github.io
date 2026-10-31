@@ -9,7 +9,7 @@ function installCollisionSystem(Game) {
 		// 网格已在 update() 开头构建，此处无需重建
 
 		for (const b of this.bullets) {
-			if (!b.active) continue;
+			if (!b.active || b.visualOnly) continue;
 
 			// 只检查附近的敌人 (使用独立的子弹专用查询数组防止被 onHit/Synergy 的嵌套查询冲刷)
 			if (!this._bulletNearbyArr) this._bulletNearbyArr = [];
@@ -91,7 +91,7 @@ function installCollisionSystem(Game) {
 					if (!b.active) break;
 				}
 			}
-			if (!b.active) continue;
+			if (!b.active || b.visualOnly) continue;
 			for (const boss of this.bosses) {
 				if (!boss.active || (b._hitSet && b._hitSet.has(boss))) continue;
 				const dx = b.x - boss.x, dy = b.y - boss.y;

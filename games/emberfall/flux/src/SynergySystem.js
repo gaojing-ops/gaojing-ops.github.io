@@ -9,6 +9,16 @@
  * 毒火协同 (ToxicBurn): 中毒敌人被火系攻击 → 剧毒燃烧
  */
 
+const SYNERGY_RULES = [
+    { id:'evaporation', name:'霜烬迸裂', elements:['plasma','cryo'], desc:'赤焰命中冻结敌人，引发范围爆裂并消耗其冻结。' },
+    { id:'shatter', name:'碎霜引雷', elements:['flux','cryo'], desc:'雷光命中冻结敌人，向至多三名附近敌人连雷并消耗冻结。' },
+    { id:'toxicBurn', name:'荆焰续燃', elements:['plasma','toxic'], desc:'赤焰命中中毒敌人，按毒层留下持续三秒的灼伤。' },
+    { id:'voidPoison', name:'幽荆溃散', elements:['void','toxic'], desc:'幽影命中中毒敌人，引爆并消耗其毒层。' },
+    { id:'voidFreeze', name:'月影凝霜', elements:['void','cryo'], desc:'幽影命中冻结敌人，造成额外伤害并延长冻结至多三点六秒；更长的已有冻结保持原值。' },
+    { id:'poisonChain', name:'引雷传荆', elements:['flux','toxic'], desc:'雷光命中中毒敌人，向至多四名附近敌人传递毒层。' },
+    { id:'cryoPoison', name:'寒荆裂响', elements:['cryo','toxic'], desc:'寒霜命中中毒敌人，按毒层爆裂并冻结附近敌人。' },
+];
+
 class SynergySystem {
     constructor(game) {
         this.game = game;
@@ -43,6 +53,7 @@ class SynergySystem {
             this._activeSetBonuses = null;
         }
         this._activeResonances = {};
+        p.plagueSpread = !!p.getPassiveLevel?.('plague_spread');
 
         // 统计每种元素的武器数量
         const elementCounts = {};
@@ -196,10 +207,7 @@ class SynergySystem {
             extraDamage += this._triggerCryoPoison(enemy, baseDamage);
         }
 
-        // 奥术师协同加成：所有协同伤害额外 +synergyBonus%
-        if (extraDamage > 0 && this.game.player.synergyBonus) {
-            extraDamage *= (1 + this.game.player.synergyBonus);
-        }
+        // Each reaction applies the character bonus to its actual damage once.
 
         return extraDamage;
     }
@@ -207,11 +215,15 @@ class SynergySystem {
     /**
      * 蒸发爆炸 - 冻结敌人被火击中后爆炸
      */
+    _damage(amount) { return amount * (1 + (this.game.player.synergyBonus || 0)); }
+
     _triggerEvaporation(enemy, baseDamage) {
         const area = (this.game.player && this.game.player.area) || 1;
         const radius = 135 * area;
-        const explosionDamage = baseDamage * 1.5;
+        const explosionDamage = this._damage(baseDamage * 1.5);
         const radiusSq = radius * radius;
+
+        enemy.takeDamage(explosionDamage, 'synergy');
 
         // 范围伤害
         for (const e of this.game.enemies) {
@@ -219,7 +231,7 @@ class SynergySystem {
             const dx = e.x - enemy.x;
             const dy = e.y - enemy.y;
             if (dx * dx + dy * dy < radiusSq) {
-                e.takeDamage(explosionDamage);
+                e.takeDamage(explosionDamage, 'synergy');
             }
         }
 
@@ -248,7 +260,7 @@ class SynergySystem {
      * 闪电链 - 电击冻结敌人后弹射
      */
     _triggerShatter(enemy, baseDamage) {
-        const chainDamage = baseDamage * 0.8;
+        const chainDamage = this._damage(baseDamage * 0.8);
         const area = (this.game.player && this.game.player.area) || 1;
         const chainRange = 210 * area;
         const maxChains = 3;
@@ -275,7 +287,7 @@ class SynergySystem {
 
             if (!nearest) break;
 
-            nearest.takeDamage(chainDamage);
+            nearest.takeDamage(chainDamage, 'synergy');
             hitEnemies.add(nearest);
 
             // 闪电连线视觉效果（简化）
@@ -308,7 +320,7 @@ class SynergySystem {
     _triggerToxicBurn(enemy, baseDamage) {
         // 基于中毒层数的额外伤害
         const stacks = Math.min(50, enemy.poisonStacks || 0);
-        const burnDamage = baseDamage * 0.5 + stacks * 5;
+        const burnDamage = this._damage(baseDamage * 0.5 + stacks * 5);
 
         // 应用持续燃烧
         enemy.burning = Math.max(enemy.burning || 0, 3); // 3秒燃烧
@@ -333,9 +345,9 @@ class SynergySystem {
      */
     _triggerVoidPoison(enemy, baseDamage) {
         const stacks = Math.min(50, enemy.poisonStacks || 0);
-        const burstDamage = stacks * 8; // 每层毒素 8 点瞬间伤害
+        const burstDamage = this._damage(stacks * 8); // 每层毒素 8 点瞬间伤害
 
-        enemy.takeDamage(burstDamage);
+        enemy.takeDamage(burstDamage, 'synergy');
         enemy.poisoned = 0;
         enemy.poisonStacks = 0;
 
@@ -357,9 +369,10 @@ class SynergySystem {
      */
     _triggerVoidFreeze(enemy, baseDamage) {
         // 延长冻结时间
-        enemy.frozen += 2;
+        enemy.frozen = Math.max(enemy.frozen || 0, Math.min(3.6, (enemy.frozen || 0) + 2));
         // 造成基于冻结时间的伤害
-        const freezeDamage = baseDamage * 1.5;
+        const freezeDamage = this._damage(baseDamage * 1.5);
+        enemy.takeDamage(freezeDamage, 'synergy');
 
         // 视觉效果
         if (this.game.particles) {
@@ -379,7 +392,7 @@ class SynergySystem {
     _triggerPoisonChain(enemy, baseDamage) {
         const area = (this.game.player && this.game.player.area) || 1;
         const chainRange = 180 * area;
-        const chainDamage = baseDamage * 0.6;
+        const chainDamage = this._damage(baseDamage * 0.6);
         const stacks = Math.min(50, enemy.poisonStacks || 1);
         let chains = 0;
 
@@ -388,7 +401,7 @@ class SynergySystem {
             const dx = e.x - enemy.x;
             const dy = e.y - enemy.y;
             if (dx * dx + dy * dy < chainRange * chainRange) {
-                e.takeDamage(chainDamage);
+                e.takeDamage(chainDamage, 'synergy');
                 // 传递毒素
                 e.poisoned = Math.max(e.poisoned || 0, 2);
                 e.poisonStacks = (e.poisonStacks || 0) + stacks;
@@ -415,7 +428,8 @@ class SynergySystem {
         const area = (this.game.player && this.game.player.area) || 1;
         const radius = 125 * area;
         const stacks = Math.min(50, enemy.poisonStacks || 0);
-        const explosionDamage = baseDamage + stacks * 3;
+        const explosionDamage = this._damage(baseDamage + stacks * 3);
+        enemy.takeDamage(explosionDamage, 'synergy');
         const radiusSq = radius * radius;
 
         for (const e of this.game.enemies) {
@@ -423,7 +437,7 @@ class SynergySystem {
             const dx = e.x - enemy.x;
             const dy = e.y - enemy.y;
             if (dx * dx + dy * dy < radiusSq) {
-                e.takeDamage(explosionDamage * 0.5);
+                e.takeDamage(explosionDamage * 0.5, 'synergy');
                 e.frozen = Math.max(e.frozen || 0, 1.5); // 冻结周围敌人
             }
         }
@@ -475,4 +489,4 @@ const ELEMENTS = {
     toxic: { name: '毒素', color: '#88ff00', synergies: ['plasma'] },
 };
 
-module.exports = { SynergySystem, ELEMENTS };
+module.exports = { SynergySystem, ELEMENTS, SYNERGY_RULES };

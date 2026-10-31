@@ -278,8 +278,25 @@ function pigment(color){
  pigments.set(color,value);return value;
 }
 function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
- const d=pigment(color),s=Math.max(.5,size);c.save();c.translate(x,y);c.rotate(angle);
- if(evolved){c.save();c.globalAlpha*=.13;const points=[];for(let i=0;i<8;i++)points.push([Math.cos(i*TAU/8)*s*2,Math.sin(i*TAU/8)*s*2]);poly(c,points,d.main);c.restore();}
+ const d=pigment(color),radius=Math.max(.5,size);let s=radius;c.save();c.translate(x,y);c.rotate(angle);
+ if(shape==='orbital_beam'||shape==='zero_domain'){
+  c.save();c.globalAlpha*=.55;c.strokeStyle=d.main;c.lineWidth=1.5;c.beginPath();c.arc(0,0,s,0,TAU);c.stroke();
+  gem(c,0,0,Math.min(24,s*.2),d.dark,d.light);
+  if(shape==='orbital_beam')line(c,[[0,-Math.min(s,180)],[0,Math.min(s,180)]],d.light,3);
+  else for(let i=0;i<6;i++){const a=i*TAU/6;line(c,[[Math.cos(a)*Math.min(s,55)*.65,Math.sin(a)*Math.min(s,55)*.65],[Math.cos(a)*Math.min(s,55),Math.sin(a)*Math.min(s,55)]],d.light,2);}
+  c.restore();c.restore();return;
+ }
+
+ if(shape==='singularity'){
+  c.save();c.globalAlpha*=.4;c.strokeStyle=d.main;c.lineWidth=1.5;c.beginPath();c.arc(0,0,s,0,TAU);c.stroke();
+  const core=Math.min(28,s*.6);gem(c,0,0,core,d.dark,d.light);for(let i=0;i<4;i++){const a=i*TAU/4;line(c,[[Math.cos(a)*core*1.4,Math.sin(a)*core*1.4],[Math.cos(a+.4)*s*.75,Math.sin(a+.4)*s*.75]],d.main,1.5);}
+  c.restore();c.restore();return;
+ }
+ if(radius>48){
+  c.save();c.globalAlpha*=.24;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,radius,0,TAU);c.stroke();c.restore();
+  s=24; // Keep the full hit boundary, with a compact readable projectile core.
+ }
+ if(evolved&&radius<48){c.save();c.globalAlpha*=.13;const points=[];for(let i=0;i<8;i++)points.push([Math.cos(i*TAU/8)*s*2,Math.sin(i*TAU/8)*s*2]);poly(c,points,d.main);c.restore();}
  if(['bolt','rocket','sting','needle','arrow'].includes(shape)){
   c.save();c.globalAlpha*=.26;poly(c,[[-s*3.2,0],[-s,-s*.7],[s*.3,0],[-s,s*.7]],d.dark);c.restore();
   poly(c,[[s*1.8,0],[-s,-s*.65],[-s*.45,0],[-s,s*.65]],d.main);poly(c,[[s*1.8,0],[-s,-s*.65],[-s*.45,0]],d.light);
@@ -293,11 +310,11 @@ function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
  else{gem(c,0,0,s*1.3,d.main,d.light);}
  c.restore();
 }
-function drawArea(c,x,y,r,color,time=0){
- const d=pigment(color);c.save();c.translate(x,y);c.globalAlpha*=.18;
- const points=[];for(let i=0;i<12;i++){const a=i*TAU/12,k=i%3===0?.84:.96;points.push([Math.cos(a)*r*k,Math.sin(a)*r*k]);}poly(c,points,d.main);
- c.globalAlpha*=2;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,r,0,TAU);c.stroke();
- for(let i=0;i<4;i++){const a=i*TAU/4+time*.06;gem(c,Math.cos(a)*r*.78,Math.sin(a)*r*.78,Math.min(7,r*.08),d.main,d.light);}
+function drawArea(c,x,y,r,color,time=0,opacity=.18,details=true){
+ const d=pigment(color);c.save();c.translate(x,y);
+ if(opacity>0){c.save();c.globalAlpha*=opacity;const points=[];for(let i=0;i<12;i++){const a=i*TAU/12,k=i%3===0?.84:.96;points.push([Math.cos(a)*r*k,Math.sin(a)*r*k]);}poly(c,points,d.main);c.restore();}
+ c.globalAlpha*=.36;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,r,0,TAU);c.stroke();
+ if(details)for(let i=0;i<4;i++){const a=i*TAU/4+time*.06;gem(c,Math.cos(a)*r*.78,Math.sin(a)*r*.78,Math.min(7,r*.08),d.main,d.light);}
  c.restore();
 }
 function drawGem(c,x,y,size){c.save();gem(c,x,y,size,'#b7d976','#eff2bd');c.restore();}

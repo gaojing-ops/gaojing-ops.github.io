@@ -249,7 +249,7 @@ function checkEvolutions(player) {
     const evolvable = [];
     for (const w of player.weapons) {
         const def = w.def;
-        if (!def || w.evolved) continue;
+        if (!def || def.isFusion) continue;
         if (w.level < def.maxLevel) continue;
 
         // 1. 检查双武器融合 (Union)
@@ -259,13 +259,13 @@ function checkEvolutions(player) {
             const reqWeapon = player.weapons.find(subW => subW.id === unionRecipe.requireWeapon);
             if (reqWeapon && reqWeapon.level >= (reqWeapon.def ? reqWeapon.def.maxLevel : 6)) {
                 evolvable.push({ weaponId: w.id, recipe: unionRecipe, isUnion: true, consumeId: unionRecipe.requireWeapon });
-                continue; // 如果触发了双拼，就不走普通被动进化了
+                // Ordinary awakening remains a separate choice while building toward fusion.
             }
         }
 
         // 2. 检查普通被动进化
         const recipe = EVOLUTION_RECIPES[w.id];
-        if (!recipe) continue;
+        if (!recipe || w.evolved) continue;
 
         if (player.hasPassive(recipe.requirePassive)) {
             evolvable.push({ weaponId: w.id, recipe });
@@ -303,7 +303,7 @@ function isEvolutionUnlocked(weaponId, isUnion, player, game) {
         case 'poisonKills':
             return game.poisonKills >= cond.count;
         case 'bossKills':
-            return game.bossWave >= cond.count;
+            return (game.bossKills || 0) >= cond.count;
         case 'healed':
             return (player.totalHealed || 0) >= cond.count;
         case 'gemsCollected':
@@ -342,7 +342,7 @@ function getEvolutionProgress(weaponId, isUnion, player, game) {
             current = game.poisonKills;
             break;
         case 'bossKills':
-            current = game.bossWave;
+            current = game.bossKills || 0;
             break;
         case 'healed':
             current = player.totalHealed || 0;
@@ -372,12 +372,23 @@ function useEvolutionCore(weaponId, player) {
  * 执行进化
  */
 function evolveWeapon(weapon, recipe, consumeId = null) {
+    const p = weapon.game && weapon.game.player;
+    const isUnion = !!consumeId;
+    const expected = isUnion ? UNION_RECIPES[weapon.id] : EVOLUTION_RECIPES[weapon.id];
+    if (!p || expected !== recipe || !p.weapons.includes(weapon) || weapon.level < weapon.def.maxLevel
+        || !isEvolutionUnlocked(weapon.id, isUnion, p, weapon.game)) return false;
+    if (isUnion) {
+        const secondary = p.weapons.find(w => w !== weapon && w.id === recipe.requireWeapon);
+        if (consumeId !== recipe.requireWeapon || !secondary || secondary.level < secondary.def.maxLevel) return false;
+    } else if (weapon.evolved || !p.hasPassive(recipe.requirePassive)) return false;
     if (recipe.resultId) {
         // [神兵融合]：完全替换为全新的武器 ID 和定义
         const { WEAPON_DEFS } = require('./Weapons');
         const newDef = WEAPON_DEFS[recipe.resultId];
         if (!newDef) { console.warn('[Evolution] unknown resultId:', recipe.resultId); return; }
         weapon.evolved = true;
+        weapon._evolutionBonuses = null; // Fusion uses its own definition, not the previous awakening multiplier.
+        weapon._clones.length = weapon._orbList.length = weapon._firePools.length = weapon._acidPools.length = weapon._gravityZones.length = weapon._nanoSwarm.length = 0;
         weapon.id = recipe.resultId;
         weapon.def = newDef;
         weapon.level = 1; // 融合武器固定为1级或满级
@@ -413,6 +424,8 @@ function evolveWeapon(weapon, recipe, consumeId = null) {
         }
     }
 
+    if (weapon.game && weapon.game.synergy) weapon.game.synergy.check();
+
     // 进化视觉反馈
     if (weapon.game) {
         weapon.game.triggerHitPause(0.1);
@@ -423,6 +436,7 @@ function evolveWeapon(weapon, recipe, consumeId = null) {
             weapon.game.particles.levelUp(weapon.game.player.x, weapon.game.player.y);
         }
     }
+    return true;
 }
 
 /** 获取进化后的伤害倍率 */

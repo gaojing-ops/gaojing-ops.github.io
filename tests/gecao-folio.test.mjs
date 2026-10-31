@@ -12,7 +12,7 @@ const storage=new Map();
 globalThis.wx={getStorageSync:k=>storage.get(k)||'',setStorageSync:(k,v)=>storage.set(k,v),createCanvas:()=>({getContext:()=>context}),createOffscreenCanvas:()=>({getContext:()=>context}),createImage:()=>({}),getSystemInfoSync:()=>({screenWidth:1000,screenHeight:620,pixelRatio:1,safeArea:{top:0,bottom:620}}),onTouchStart(){},onTouchMove(){},onTouchEnd(){},onTouchCancel(){}};
 function catalogs(){
  const get=(mod,key)=>require('./src/'+mod)[key];
- return {pantheon:require('./src/Pantheon'),weaponType:get('Weapons','Weapon'),petType:get('Pet','Pet'),weapons:get('WeaponData','weapons'),passives:get('WeaponData','passives'),evolution:get('Evolution','EVOLUTION_RECIPES'),skills:get('SkillSystem','SKILL_DEFS'),characters:get('Character','CHARACTERS'),meta:get('MetaSystem','META_UPGRADES'),talents:require('./src/TalentTree'),skins:get('Skins','SKINS'),pets:get('Pet','PET_TYPES'),auras:get('Auras','AURA_TYPES'),relics:Object.fromEntries(get('Relic','RELIC_DEFS').map(row=>[row.id,row])),achievements:get('AchievementSystem','ACHIEVEMENT_DEFS'),builds:require('./src/BuildPreset'),bosses:require('./src/BossData'),enemies:get('Enemy','TYPES'),stages:get('StageSystem','STAGE_CONFIGS'),speed:require('./src/scenes/SpeedRunScene'),events:Object.fromEntries(get('EventSystem','EVENT_DEFS').map(row=>[row.id,row])),curses:get('CurseSystem','CURSE_DEFS')};
+ return {pantheon:require('./src/Pantheon'),weaponType:get('Weapons','Weapon'),petType:get('Pet','Pet'),weapons:get('WeaponData','weapons'),passives:get('WeaponData','passives'),evolution:get('Evolution','EVOLUTION_RECIPES'),unions:get('Evolution','UNION_RECIPES'),progression:require('./src/Progression'),skills:get('SkillSystem','SKILL_DEFS'),characters:get('Character','CHARACTERS'),meta:get('MetaSystem','META_UPGRADES'),talents:require('./src/TalentTree'),skins:get('Skins','SKINS'),pets:get('Pet','PET_TYPES'),auras:get('Auras','AURA_TYPES'),relics:Object.fromEntries(get('Relic','RELIC_DEFS').map(row=>[row.id,row])),achievements:get('AchievementSystem','ACHIEVEMENT_DEFS'),builds:require('./src/BuildPreset'),bosses:require('./src/BossData'),enemies:get('Enemy','TYPES'),stages:get('StageSystem','STAGE_CONFIGS'),speed:require('./src/scenes/SpeedRunScene'),events:Object.fromEntries(get('EventSystem','EVENT_DEFS').map(row=>[row.id,row])),curses:get('CurseSystem','CURSE_DEFS')};
 }
 function environment(fullArt=false){
  storage.clear();const nodes=new Map();let root;
@@ -74,6 +74,22 @@ test('web upgrade and chest choices invoke each original reward exactly once',()
  e.sm.switchTo('upgrade',{options:[{type:'chest_gold',id:'gold',name:'金币',desc:'+236 芯片',_value:236}],previews:[],chestMode:true,game:e.game});e.sync();
  assert.match(e.root.html,/余烬中的馈赠/);const before=e.game.meta.data.chips;e.click('选择 1');assert.equal(e.game.meta.data.chips,before+236);
  assert.match(optionCopy({type:'passive',id:'armor',desc:'护甲 3 → 4 (伤害-4)'},e.catalogs).desc,/3 → 4/);
+});
+
+test('codex, pause and real fusion choices explain live materials, boss deaths and the consumed weapon',()=>{
+ const e=environment(),g=e.game;g.startWithCharacter('tracer',[]);g._tutorialStep=-1;g.player.weapons=[];
+ for(const id of ['plasma_arc','pulse_ring']){const w=new e.catalogs.weaponType(g,id);w.level=6;g.player.weapons.push(w);}
+ g.bossWave=8;g.bossKills=0;g.isPaused=true;e.sm.switchTo('playing');e.sync();e.click('流派之途');
+ assert.match(e.root.html,/黎明天罚/);assert.match(e.root.html,/击败首领 0 \/ 5/);assert.match(e.root.html,/吸收「回声焰环」|吸收「.*」/);
+ g.bossKills=5;e.click('流派之途');assert.match(e.root.html,/已就绪/);
+ g.isPaused=false;g.upgradeSystem._weightedPick=pool=>pool;
+ const option=g.upgradeSystem.generateOptions().options.find(o=>o.isUnion&&o.weaponId==='plasma_arc');assert.ok(option);
+ e.sm.switchTo('upgrade',{options:[option],previews:[],game:g});e.sync();assert.match(e.root.html,/神兵融合/);assert.match(e.root.html,/空出一格武器位/);assert.doesNotMatch(e.root.html,/union_plasma_arc|pulse_ring/);
+ e.click('选择 1');assert.equal(g.player.weapons.length,1);assert.equal(g.player.weapons[0].id,'fusion_orbital_cannon');
+ g.isPaused=true;e.sm.switchTo('playing');e.sync();e.click('流派之途');
+ assert.match(e.root.html,/材料已炼成/);assert.match(e.root.html,/已完成融合/);assert.doesNotMatch(e.root.html,/0\/6 级|将吸收/);
+ e.sm.switchTo('compendium');e.sync();e.click('流派与融合');assert.match(e.root.html,/七种触发方式/);assert.match(e.root.html,/已成型/);
+ const hint=optionCopy({type:'weapon_new',id:'napalm'},e.catalogs,g).detail;assert.match(hint,/选择后形成 2 件赤焰共鸣/);
 });
 
 test('stage/boss rewards, pause, equipment and final results all use the web panels',()=>{
@@ -154,7 +170,12 @@ test('pause settings, empty damage records and real result data keep valid nativ
  e.click('行旅设置');
  assert.match(e.root.html,/data-icon="bell"/);assert.match(e.root.html,/data-icon="eye"/);
  for(const [,attrs] of e.root.html.matchAll(/<article\s+([^>]+)>/g))assert.doesNotMatch(attrs,/<|&lt;canvas/,'canvas markup cannot become a card class');
- e.click('光影：');assert.equal(e.game.qualityLevel,0);e.click('光影：');assert.equal(e.game.qualityLevel,1);
+ e.click('光影：');assert.equal(e.game.qualityLevel,0);assert.equal(e.game.autoQuality,false);
+ assert.equal(JSON.parse(storage.get('flux_settings')).autoQuality,false);
+ e.game.isPaused=false;e.game.spawnTimer=e.game.bossTimer=999;for(let i=0;i<120;i++)e.game.update(1/60);
+ assert.equal(e.game.qualityLevel,0,'manual quality is not raised after fixed-step updates');e.game.isPaused=true;e.sync();
+ e.click('光影：');assert.equal(e.game.qualityLevel,1);e.click('自动光影：');assert.equal(e.game.autoQuality,true);
+ assert.equal(JSON.parse(storage.get('flux_settings')).autoQuality,true);
  e.game.isPaused=false;e.game.time=143;e.game.endGame();e.sync();
  assert.match(e.root.html,/folio-loadout/);assert.match(e.root.html,/data-icon="flux_bolt"/);assert.match(e.root.html,/引路烛/);
  assert.doesNotMatch(e.root.html,/undefined|NaN|芯片|金币|LV\./);

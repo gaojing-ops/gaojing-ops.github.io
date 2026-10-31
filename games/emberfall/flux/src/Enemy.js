@@ -466,12 +466,10 @@ class Enemy {
         if (this.invincibleTimer > 0) this.invincibleTimer -= dt;
 
         // Frozen: Cannot move
-        if (this.frozen > 0) {
+        const frozenThisFrame = this.frozen > 0;
+        if (frozenThisFrame) {
             this.frozen -= dt;
             if (this.frozen < 0) this.frozen = 0;
-            // Frozen enemies don't update movement
-            if (this.flashTimer > 0) this.flashTimer -= dt;
-            return;
         }
 
         // Poisoned: Damage over time
@@ -512,6 +510,9 @@ class Enemy {
             if (this.burnTickTimer <= 0 && this.burnDamage > 0) {
                 this.burnTickTimer = 0.5;
                 const burnDmg = this.burnDamage * 0.5;
+                const dealtBurn = Math.min(Math.max(0, this.hp), burnDmg);
+                this.game.player.totalDamage = (this.game.player.totalDamage || 0) + dealtBurn;
+                if (this.game._weaponDamageStats) this.game._weaponDamageStats.burn = (this.game._weaponDamageStats.burn || 0) + dealtBurn;
                 this.hp -= burnDmg;
                 this.game.spawnDamageNumber(this.x, this.y - this.radius, Math.ceil(burnDmg), '#ff6600');
                 this.flashTimer = 0.05;
@@ -529,6 +530,11 @@ class Enemy {
                     { count: 1, speed: 40, life: 0.3, color: '#ff6600', size: 2 }
                 );
             }
+        }
+
+        if (frozenThisFrame) {
+            if (this.flashTimer > 0) this.flashTimer -= dt;
+            return; // Control stops movement and attacks, not poison/burn timers.
         }
 
         // ─── Movement ───

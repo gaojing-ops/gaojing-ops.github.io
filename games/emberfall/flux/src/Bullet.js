@@ -11,6 +11,7 @@ class Bullet {
         this.vx = vx; this.vy = vy;
         this.speed = opts.speed || 400;
         this.damage = damage;
+        this.visualOnly = !!opts.visualOnly;
         this.radius = opts.radius || 5;
         this._baseRadius = this.radius; // 用于 bolt 抖动
         this.color = opts.color || '#ffcc00';
@@ -228,6 +229,10 @@ class Bullet {
     }
 
     draw(ctx) {
+        if (this.visualOnly) {
+            drawBullet(ctx, this.x, this.y, this.radius, this.color, this.shape, 0, 0, false);
+            return; // The domain already has a range outline; no legacy filled halo or inflated radius.
+        }
         // 简化拖尾绘制（减少状态切换）
         if (this.historyCount > 1) {
             const startIdx = (this.historyHead - this.historyCount + this.maxHistory) % this.maxHistory;
@@ -245,8 +250,8 @@ class Bullet {
         }
 
         // 终极武器外发光（无 shadowBlur）
-        if (this.evolved) {
-            ctx.globalAlpha = 0.3;
+        if (this.evolved && this.radius < 48) {
+            ctx.globalAlpha = 0.1;
             ctx.fillStyle = this.color;
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
@@ -261,7 +266,7 @@ class Bullet {
         }
 
         // 终极武器使用稍大尺寸，但不给 glowIntensity（避免 drawBullet 里的 shadowBlur）
-        const drawSize = this.evolved ? this.radius * 1.3 : this.radius;
+        const drawSize = this.evolved && this.radius < 48 ? this.radius * 1.3 : this.radius;
         drawBullet(ctx, this.x, this.y, drawSize, this.color, this.shape, drawAngle, 0, this.evolved);
     }
 }

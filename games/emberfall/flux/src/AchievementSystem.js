@@ -11,7 +11,7 @@ const ACHIEVEMENT_DEFS = [
 	{ id: 'survive_10', name: '不朽者', desc: '存活 10 分钟', type: 'runtime', check: (game) => game.time >= 600 , chips: 20},
 	{ id: 'combo_20', name: '连杀大师', desc: '达成 20 连杀', type: 'runtime', check: (game) => game.killCombo >= 20 , chips: 10},
 	{ id: 'level_10', name: '战力提升', desc: '达到 10 级', type: 'runtime', check: (game) => game.player.level >= 10 , chips: 10},
-	{ id: 'boss_slayer', name: 'Boss 猎手', desc: '击杀一个 Boss', type: 'runtime', check: (game) => game.bossWave >= 1 && game.bosses.length === 0 , chips: 20},
+	{ id: 'boss_slayer', name: 'Boss 猎手', desc: '击杀一个 Boss', type: 'runtime', check: (game) => (game.bossKills || 0) >= 1 , chips: 20},
 	{ id: 'collector', name: '收藏家', desc: '同时拥有 4 把武器', type: 'runtime', check: (game) => game.player.weapons.length >= 4 , chips: 10},
 	{ id: 'victory', name: '通关者', desc: '存活 20 分钟通关', type: 'runtime', check: (game) => game.victoryTriggered , chips: 50},
 
@@ -19,14 +19,14 @@ const ACHIEVEMENT_DEFS = [
 	{ id: 'freeze_50', name: '冰冻新手', desc: '单局冻结击杀 50 个敌人', type: 'runtime', check: (game) => game.frozenKills >= 50 , chips: 20},
 	{ id: 'freeze_200', name: '霜寒使者', desc: '单局冻结击杀 200 个敌人', type: 'runtime', check: (game) => game.frozenKills >= 200 , chips: 50},
 	{ id: 'cryomancer_win', name: '冰霜术士', desc: '使用 Cryomancer 通关', type: 'runtime', check: (game) => game.victoryTriggered && game.player.characterId === 'cryomancer' , chips: 50},
-	{ id: 'ice_boss', name: '冰封泰坦', desc: '使用 Cryomancer 击杀 3 个 Boss', type: 'runtime', check: (game) => game.player.characterId === 'cryomancer' && game.bossWave >= 3 , chips: 50},
+	{ id: 'ice_boss', name: '冰封泰坦', desc: '使用 Cryomancer 击杀 3 个 Boss', type: 'runtime', check: (game) => game.player.characterId === 'cryomancer' && (game.bossKills || 0) >= 3 , chips: 50},
 	{ id: 'shatter_master', name: '碎冰大师', desc: '单局应用 100 次冻结效果', type: 'runtime', check: (game) => game.totalFreezeApplies >= 100 , chips: 30},
 
 	// Toxic 系列成就
 	{ id: 'poison_50', name: '毒素新手', desc: '单局毒杀 50 个敌人', type: 'runtime', check: (game) => game.poisonKills >= 50 , chips: 20},
 	{ id: 'poison_200', name: '瘟疫使者', desc: '单局毒杀 200 个敌人', type: 'runtime', check: (game) => game.poisonKills >= 200 , chips: 50},
 	{ id: 'biohazard_win', name: '生化猎手', desc: '使用 Biohazard 通关', type: 'runtime', check: (game) => game.victoryTriggered && game.player.characterId === 'biohazard' , chips: 50},
-	{ id: 'toxic_boss', name: '腐蚀之源', desc: '使用 Biohazard 击杀 3 个 Boss', type: 'runtime', check: (game) => game.player.characterId === 'biohazard' && game.bossWave >= 3 , chips: 50},
+	{ id: 'toxic_boss', name: '腐蚀之源', desc: '使用 Biohazard 击杀 3 个 Boss', type: 'runtime', check: (game) => game.player.characterId === 'biohazard' && (game.bossKills || 0) >= 3 , chips: 50},
 	{ id: 'plague_master', name: '瘟疫大师', desc: '单局应用 100 次中毒效果', type: 'runtime', check: (game) => game.totalPoisonApplies >= 100 , chips: 30},
 
 	// 元素协同成就
@@ -55,8 +55,8 @@ const ACHIEVEMENT_DEFS = [
 	{ id: 'max_weapon', name: '满级武装', desc: '一把武器达到 8 级', type: 'runtime', check: (game) => game.player.weapons.some(w => w.level >= 8) , chips: 50},
 
 	// Boss猎手
-	{ id: 'boss_3', name: '精英猎人', desc: '单局击杀 3 个 Boss', type: 'runtime', check: (game) => game.bossWave >= 3 , chips: 50},
-	{ id: 'boss_5', name: 'Boss 终结者', desc: '单局击杀 5 个 Boss', type: 'runtime', check: (game) => game.bossWave >= 5 , chips: 80},
+	{ id: 'boss_3', name: '精英猎人', desc: '单局击杀 3 个 Boss', type: 'runtime', check: (game) => (game.bossKills || 0) >= 3 , chips: 50},
+	{ id: 'boss_5', name: 'Boss 终结者', desc: '单局击杀 5 个 Boss', type: 'runtime', check: (game) => (game.bossKills || 0) >= 5 , chips: 80},
 	{ id: 'time_boss', name: '时空猎手', desc: '击杀时空裂隙 Boss', type: 'runtime', check: (game) => game.defeatedBosses && game.defeatedBosses.includes('时空裂隙') , chips: 80},
 	{ id: 'mech_boss', name: '机械克星', desc: '击杀机械统帅 Boss', type: 'runtime', check: (game) => game.defeatedBosses && game.defeatedBosses.includes('机械统帅') , chips: 80},
 

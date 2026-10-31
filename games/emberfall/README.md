@@ -23,7 +23,7 @@
 
 修改导入模块后执行 `node scripts/build-gecao.mjs`，确定性生成浏览器模块包。仅使用 Node 标准库，无需安装依赖。不要直接编辑生成的 `flux/bundle.mjs`。
 
-测试：`node --test tests/gecao.test.mjs tests/gecao-browser.test.mjs tests/gecao-folio.test.mjs tests/gecao-art.test.mjs tests/gecao-battle-art.test.mjs`。旧试炼测试继续保留。
+测试：`node --test tests/gecao.test.mjs tests/gecao-browser.test.mjs tests/gecao-folio.test.mjs tests/gecao-art.test.mjs tests/gecao-battle-art.test.mjs tests/gecao-progression.test.mjs`。旧试炼测试继续保留。
 
 ## 最新实玩修复
 
@@ -36,3 +36,5 @@
 - 二十分钟长局复查补上逐风者/狂刃后期增伤保底、冻结时长上限及青萝中毒跳伤加成；统一禁疗与实际治疗统计，燃命灯芯实现真实伤害翻倍和完整禁疗代价。最新结果、成长条件与复现命令见 [长局复查记录](../../docs/EMBERFALL_LONGNIGHT_BALANCE_2026-10-31.md)。
 
 - 零成长与中等成长复查：补上开局随身武器强化机会，按章节展开机制怪和高压事件；修复随行弹幕方向判断，近身自爆改为可撤离的余爆预警。测试档条件、保留的失败及前中后期记录见 [新手长局复查](../../docs/EMBERFALL_ONBOARDING_BALANCE_2026-10-31.md)。
+
+- 流派、觉醒与融合复查：图鉴「流派与融合」、暂停「流派之途」展示 21 条觉醒、6 条融合的材料/试炼进度及 5 系共鸣、7 种协同条件。普通觉醒后仍可融合，首领条件统计真实击败数，融合重新计算共鸣且不继承旧觉醒倍率。法师协同加成、冻结期间毒/灼伤跳伤及领域绘制已修正。手动选择精细/简约后保持该档，也可重新开启自动光影。测试方法、正常长局和性能采样边界见 [构筑与特效复查](../../docs/EMBERFALL_BUILDS_EFFECTS_2026-10-31.md)。
