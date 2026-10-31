@@ -14,9 +14,8 @@ function installChestSystem(Game) {
 		// Boss Rush 模式下不打开宝箱UI（防止 isRunning=false 阻塞 BossRushMode.update）
 		if (this.bossRushMode) {
 			const p = this.player;
-			const heal = Math.floor(p.maxHp * 0.3);
-			p.hp = Math.min(p.maxHp, p.hp + heal);
-			p.totalHealed = (p.totalHealed || 0) + heal;
+			const heal = p.heal(Math.floor(p.maxHp * 0.3));
+
 			this.spawnDamageNumber(p.x, p.y - 40, '+' + heal + ' HP', '#44ff88');
 			return;
 		}
@@ -36,7 +35,7 @@ function installChestSystem(Game) {
 		});
 
 		// 治疗
-		pool.push({
+		if (p.canHeal) pool.push({
 			type: 'chest_heal', id: 'chest_heal',
 			name: '\u2764 \u6CBB\u7597',
 			desc: '\u6062\u590D 30% \u6700\u5927\u751F\u547D',
@@ -154,9 +153,8 @@ function installChestSystem(Game) {
 				break;
 			case 'chest_heal': {
 				SFX.sfxUpgrade();
-				const heal = Math.floor(p.maxHp * 0.3);
-				p.hp = Math.min(p.maxHp, p.hp + heal);
-				p.totalHealed += heal;
+				const heal = p.heal(Math.floor(p.maxHp * 0.3));
+
 				this.spawnDamageNumber(p.x, p.y - 40, '+' + heal + ' HP', '#44ff88');
 				break;
 			}

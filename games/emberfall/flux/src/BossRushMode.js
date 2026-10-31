@@ -6,15 +6,15 @@ const { safeRoundRect: _safeRoundRect } = require('./CanvasUtils');
 
 // 增益池定义
 const BUFF_DEFS = [
-	{ id: 'heal_full',    name: '紧急修复',   desc: 'HP 全回',            icon: '❤',  apply: (p) => { p.hp = p.maxHp; } },
+	{ id: 'heal_full',    name: '紧急修复',   desc: 'HP 全回',            icon: '❤',  apply: (p) => { p.heal(p.maxHp); } },
 	{ id: 'damage_up',   name: '伤害超载',   desc: '伤害永久 +20%',      icon: '⚡', apply: (p) => { p.bonusMight = (p.bonusMight || 0) + 0.20; } },
 	{ id: 'cdr_up',      name: '冷却压缩',   desc: '武器冷却永久 -15%',  icon: '⏱', apply: (p) => { p.bonusCdr = (p.bonusCdr || 0) + 0.15; } },
-	{ id: 'hp_up',       name: '生命扩容',   desc: '最大 HP 永久 +30',   icon: '💚', apply: (p) => { p.maxHp += 30; p.hp = Math.min(p.hp + 30, p.maxHp); } },
+	{ id: 'hp_up',       name: '生命扩容',   desc: '最大 HP 永久 +30',   icon: '💚', apply: (p) => { p.maxHp += 30; p.heal(30); } },
 	{ id: 'armor_up',    name: '护甲锻造',   desc: '护甲永久 +10',       icon: '🛡', apply: (p) => { p.bonusArmor = (p.bonusArmor || 0) + 10; } },
 	{ id: 'speed_up',    name: '超速芯片',   desc: '移速永久 +15%',      icon: '💨', apply: (p) => { p.bonusSpeed = (p.bonusSpeed || 0) + 0.15; } },
 	{ id: 'pickup_up',   name: '磁力增强',   desc: '拾取范围永久 +30%',  icon: '🧲', apply: (p) => { p.bonusPickup = (p.bonusPickup || 0) + 0.30; } },
 	{ id: 'weapon_lvl',  name: '武器进化',   desc: '所有武器 +1 级',     icon: '⚔',  apply: (p, game) => { for (const w of p.weapons) w.level = Math.min((w.level || 1) + 1, 8); } },
-	{ id: 'heal_half',   name: '战地急救',   desc: 'HP 回复 50%',        icon: '💊', apply: (p) => { p.hp = Math.min(p.maxHp, p.hp + p.maxHp * 0.5); } },
+	{ id: 'heal_half',   name: '战地急救',   desc: 'HP 回复 50%',        icon: '💊', apply: (p) => { p.heal(p.maxHp * 0.5); } },
 ];
 
 // 10 波 Boss 序列（wave 索引 0~9 对应 boss wave 参数 1~10）

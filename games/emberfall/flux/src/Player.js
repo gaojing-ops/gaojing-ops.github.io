@@ -38,6 +38,7 @@ class Player {
 
         // Toxic passive bonuses
         this.bonusToxicDmg = 0;     // +toxic damage %
+        this._skillPower = null;
         this.corrosionBonus = 0;    // +damage to poisoned enemies %
         this.plagueSpread = false;  // Poison spreads on death
 
@@ -104,9 +105,15 @@ class Player {
     }
 
     get might() {
+        const total = this._mightAtBonus(this.bonusMight);
+        const power = this._skillPower;
+        return power ? Math.max(total, this._mightAtBonus(this.bonusMight - power.bonus) * (1 + power.floor)) : total;
+    }
+
+    _mightAtBonus(bonus) {
         // 递减公式：bonusMight 边际递减，防止大量meta/天赋叠爆
         // +50% → 实际+38%, +100% → 实际+59%, +117% → 实际+67%
-        const diminished = this.bonusMight / (1 + this.bonusMight * 0.4);
+        const diminished = bonus / (1 + bonus * 0.4);
         let total = this.baseMight + diminished;
         // 添加角色特性加成
         if (this.traitHandler) {
@@ -138,6 +145,7 @@ class Player {
             const combo = (this.game && this.game.killCombo) || 0;
             total *= (1 + Math.min(combo * 0.02, 0.5));
         }
+        if (this.relicFlags?.overloadCore) total *= 2;
         return total;
     }
     get speed() {
@@ -154,7 +162,18 @@ class Player {
     get projSpeed() { return 1 + this.bonusProjSpeed; }
     get regen() { return this.bonusRegen; }
 
+    get canHeal() { return this.hp > 0 && !this.game._runSettled && !this.game.curseNoHeal && !this.relicFlags?.overloadCore; }
+
+    heal(amount) {
+        if (!this.canHeal || !Number.isFinite(amount) || amount <= 0) return 0;
+        const actual = Math.max(0, Math.min(amount, this.maxHp - this.hp));
+        this.hp += actual;
+        this.totalHealed = (this.totalHealed || 0) + actual;
+        return actual;
+    }
+
     reset() {
+        this._skillPower = null;
         this.x = this.game.width / 2;
         this.y = this.game.height / 2;
         this.maxHp = this.baseMaxHp;
@@ -304,9 +323,7 @@ class Player {
         // Regen (诅咒: 禁止回血, 遗物: 过载核心也禁止回血)
         const noHeal = this.game.curseNoHeal || (this.relicFlags && this.relicFlags.overloadCore);
         if (this.regen > 0 && !noHeal) {
-            const healed = Math.min(this.maxHp - this.hp, this.regen * dt);
-            this.hp += healed;
-            if (healed > 0) this.totalHealed += healed;
+            this.heal(this.regen * dt);
         }
 
         // Update weapons
@@ -563,9 +580,7 @@ class Player {
         this.level++;
         this.maxXp = Math.floor(16 + this.level * 14 + Math.pow(this.level, 1.78) * 6.5);
         // 诅咒: 禁止回血时跳过升级回血
-        if (!this.game.curseNoHeal) {
-            this.hp = Math.min(this.maxHp, this.hp + Math.max(10, Math.floor(this.maxHp * 0.12)));
-        }
+        this.heal(Math.max(10, Math.floor(this.maxHp * 0.12)));
         if (this.game.particles) this.game.particles.levelUp(this.x, this.y);
         this.game.triggerScreenPulse('#00ffcc', 0.6);
         sfxLevelUp();

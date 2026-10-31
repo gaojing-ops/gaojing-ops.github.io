@@ -150,7 +150,7 @@ export function mountFlux(runtime,platform){
   // retain unprocessed time within a sane cap, and yield between bounded batches.
   pendingTime=Math.min(MAX_CATCHUP_SECONDS,pendingTime+elapsed);
   const deadline=catchUp?Infinity:performance.now()+MAX_STEP_MS;
-  setSoundSuppressed(true);
+  if(inBackground()||pendingTime>.25)setSoundSuppressed(true);
   try{
    for(let count=0;pendingTime>1e-9&&count<MAX_STEPS_PER_TICK&&mayAdvance();count++){
     const dt=Math.min(1/60,pendingTime);pendingTime-=dt;step(dt);
@@ -176,7 +176,9 @@ export function mountFlux(runtime,platform){
   if(disposed)return;
   if(document.hidden){raf=requestAnimationFrame(frame);return;}
   try{
-   if(!(unfocused&&idleEnabled()))advance(timestamp);
+   // Embedded/occluded windows may throttle RAF without a visibility event.
+   // Helpers still use bounded 60 Hz steps and retain the elapsed interval.
+   if(!(unfocused&&idleEnabled()))advance(timestamp,idleEnabled());
    renderScene();
   }catch(error){runtimeError(error);}
   raf=requestAnimationFrame(frame);

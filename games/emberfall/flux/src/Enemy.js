@@ -481,7 +481,10 @@ class Enemy {
             if (this.poisonTickTimer <= 0) {
                 // Deal poison damage based on stacks (capped at 50)
                 const cappedStacks = Math.min(this.poisonStacks, 50);
-                const poisonDmg = cappedStacks * 2;
+                const poisonDmg = cappedStacks * 2 * (1 + (this.game.player.bonusToxicDmg || 0));
+                const dealt = Math.min(Math.max(0, this.hp), poisonDmg);
+                this.game.player.totalDamage = (this.game.player.totalDamage || 0) + dealt;
+                if (this.game._weaponDamageStats) this.game._weaponDamageStats.poison = (this.game._weaponDamageStats.poison || 0) + dealt;
                 this.hp -= poisonDmg;
                 this.game.spawnDamageNumber(this.x, this.y - this.radius, Math.ceil(poisonDmg), '#88ff00');
                 this.poisonTickTimer = 0.5; // Tick every 0.5s

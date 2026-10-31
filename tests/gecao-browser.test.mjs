@@ -22,10 +22,10 @@ function environment(width=0){
  const input={active:false,vector:{x:0,y:0},getVector(){return this.vector;},_end(){this.active=false;this.vector={x:0,y:0};}};
  const game={resize(w,h){this.width=w;this.height=h;},input,isRunning:true,isPaused:false,_tutorialStep:-1,time:0,player:{level:1,kills:0},draw(){},update(dt){this.updates=(this.updates||0)+1;this.cooldown=(this.cooldown||5)-dt;},_handleTouchInput(){},lastTime:null};
  const sm={currentSceneName:'playing',currentScene:{},draw(){}};
- const sound={pauseBGM(){},resumeBGM(){},stopBGM(){}};
+ const mutedCalls=[],sound={isMuted:false,setMuted(value){this.isMuted=value;mutedCalls.push(value);},pauseBGM(){},resumeBGM(){},stopBGM(){}};
  const platform=createBrowserPlatform(canvas);
  mountFlux({game,sm,SFX:sound,canvas,ctx:context,info:platform.api.getSystemInfoSync(),dpr:1,CHARACTERS:{}},platform);
- return {game,sm,nodes,stored,events,windowEvents,canvas,platform,shell,timers,setTime(time){now=time;},frame(time){now=time;nextFrame(time);},timer(time){now=time;const [id,task]=timers.entries().next().value||[];assert.ok(task,'a background tick is scheduled');timers.delete(id);task.fn();}};
+ return {game,sm,nodes,stored,events,windowEvents,canvas,platform,shell,timers,sound,mutedCalls,setTime(time){now=time;},frame(time){now=time;nextFrame(time);},timer(time){now=time;const [id,task]=timers.entries().next().value||[];assert.ok(task,'a background tick is scheduled');timers.delete(id);task.fn();}};
 }
 
 test('web pause, blur, hidden tabs and tutorial freeze time and cooldowns',()=>{
@@ -71,8 +71,8 @@ test('one helper alone still pauses, and manual pause remains authoritative with
   const e=environment();Object.assign(e.game,{autoPlay,autoUpgrade});e.frame(1000);e.frame(1100);
   if(autoPlay&&autoUpgrade)e.nodes.get('pause-web').events.click[0]();
   document.hidden=true;e.events.visibilitychange();assert.equal(e.game.isPaused,true);assert.equal(e.timers.size,0);
-  e.frame(3000);assert.equal(e.game.time,.1);
-  document.hidden=false;e.events.visibilitychange();e.frame(4000);assert.equal(e.game.isPaused,true);assert.equal(e.game.time,.1);
+  const pausedTime=e.game.time;e.frame(3000);assert.equal(e.game.time,pausedTime);
+  document.hidden=false;e.events.visibilitychange();e.frame(4000);assert.equal(e.game.isPaused,true);assert.equal(e.game.time,pausedTime);
  }
 });
 
@@ -82,6 +82,20 @@ test('throttled background ticks use bounded normal steps and retain elapsed tim
  assert.equal(steps.length-before,120);assert.ok(steps.slice(before).every(dt=>dt>0&&dt<=1/60));
  e.timer(6100);e.timer(6100);assert.ok(Math.abs(e.game.time-5.1)<1e-9,'the unprocessed interval is retained');
  document.hidden=false;e.events.visibilitychange();e.frame(6100);assert.ok(Math.abs(e.game.time-5.1)<1e-9);
+});
+
+test('throttled visible helper frames retain wall time even without blur or visibility events',()=>{
+ const e=environment();e.game.autoPlay=e.game.autoUpgrade=true;const steps=[];e.game.update=dt=>steps.push(dt);
+ e.frame(0);for(let t=1000;t<=5000;t+=1000)e.frame(t);
+ assert.ok(Math.abs(e.game.time-5)<1e-9);assert.ok(steps.every(dt=>dt<=1/60));
+ e.nodes.get('pause-web').events.click[0]();e.frame(15000);assert.ok(Math.abs(e.game.time-5)<1e-9);
+});
+
+test('normal visible helper frames keep sound while large catch-up batches and background combat mute it',()=>{
+ const e=environment();e.game.autoPlay=e.game.autoUpgrade=true;e.frame(0);e.frame(16);e.frame(32);
+ assert.deepEqual(e.mutedCalls,[]);e.frame(1032);assert.deepEqual(e.mutedCalls,[true,false]);
+ e.windowEvents.blur();e.timer(2032);assert.equal(e.sound.isMuted,true);
+ e.setTime(2132);e.windowEvents.focus();assert.equal(e.sound.isMuted,false);
 });
 
 test('long background suspension caps catch-up backlog, mutes batch SFX, and unfocused visible windows still draw',()=>{
@@ -103,7 +117,7 @@ test('background simulation stops at results, manual pause, and page disposal',(
  document.hidden=true;e.events.visibilitychange();e.timer(2100);assert.ok(e.game.time<.22);assert.equal(e.timers.size,0);
  const ended=e.game.time;document.hidden=false;e.events.visibilitychange();e.frame(2200);assert.equal(e.game.time,ended);
  const p=environment();p.game.autoPlay=p.game.autoUpgrade=true;p.frame(1000);p.frame(1100);document.hidden=true;p.events.visibilitychange();const stale=p.timers.values().next().value.fn;
- p.windowEvents.pagehide();assert.equal(p.timers.size,0);stale();assert.equal(p.game.time,.1);
+ const disposedTime=p.game.time;p.windowEvents.pagehide();assert.equal(p.timers.size,0);stale();assert.equal(p.game.time,disposedTime);
 });
 
 test('browser saves use a separate prefix and retain data when storage is unavailable',()=>{

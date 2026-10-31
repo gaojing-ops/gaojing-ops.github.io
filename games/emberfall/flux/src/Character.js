@@ -322,9 +322,8 @@ class CharacterTraitHandler {
 	onPoisonedEnemyKilled(enemy) {
 		if (!this.player.poisonLeech) return;
 
-		const healAmount = 3;
-		this.player.hp = Math.min(this.player.maxHp, this.player.hp + healAmount);
-		this.player.totalHealed += healAmount;
+		const healAmount = this.player.heal(3);
+		if (healAmount <= 0) return;
 
 		// 视觉效果
 		this.player.game.spawnDamageNumber(

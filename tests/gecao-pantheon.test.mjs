@@ -183,3 +183,35 @@ test('divine healing respects the life-burning relic while maximum life still gr
  assert.ok(blessingPreview(g,{id:'boon_sap',rank:1}).warnings.some(s=>s.includes('禁疗')));
  assert.equal(blessingPreview(g,{id:'boon_sap',rank:1}).useful,false);
 });
+
+test('late offensive spells retain a bounded real increase and refresh rather than stack',()=>{
+ for(const [hero,bonus,floor,duration,speed] of [['gunner',1,.15,6,0],['berserker',.6,.1,8,.3]])for(const might of [.2,2,8,20]){
+  const g=start('ember',hero),p=g.player;p.bonusMight=might;p.bonusCdr=.7;const base=p.might,baseSpeed=p.bonusSpeed;
+  const raw=p._mightAtBonus(might+bonus);g.skillSystem.tryUse();approx(p.might,Math.max(raw,base*(1+floor)));
+  g.skillSystem.update(g.skillSystem.cooldown);g.skillSystem.tryUse();approx(p.bonusMight,might+bonus);approx(p.bonusSpeed,baseSpeed+speed);
+  assert.equal(g.skillSystem._activeEffects.filter(e=>e.key==='power').length,1);
+  assert.equal(g.skillSystem.visualEffects.filter(e=>e.kind===hero).length,1);
+  g.isPaused=true;g.skillSystem.update(100);approx(p.bonusMight,might+bonus);
+  g.isPaused=false;g.skillSystem.update(duration+.01);approx(p.bonusMight,might);approx(p.bonusSpeed,baseSpeed);approx(p.might,base);
+  g.skillSystem.cooldown=0;g.skillSystem.tryUse();g.startWithCharacter('tracer',[]);assert.equal(g.player._skillPower,null);
+ }
+});
+
+test('high freeze bonuses cannot make a single area spell or moon pulse cover its own cooldown',()=>{
+ const g=start('moon','cryomancer'),p=g.player;p.bonusFreezeDur=2.7;p.bonusCdr=.7;
+ const e=g._createEnemy(p.x+10,p.y,'Bat');e.hp=10000;g.enemies=[e];g.skillSystem.tryUse();
+ approx(e.frozen,6);assert.ok(e.frozen<=g.skillSystem.maxCooldown*.8+1e-9);
+ const tide=BLESSINGS.find(b=>b.id==='boon_tide');approx(pulseValues(g,tide,3).freeze,3.6);
+ p.bonusCdr=0;g.skillSystem.cooldown=0;e.frozen=0;g.skillSystem.tryUse();approx(e.frozen,8);
+ p.bonusFreezeDur=0;g.skillSystem.cooldown=0;e.frozen=0;g.skillSystem.tryUse();approx(e.frozen,4);
+});
+
+test('grove toxic blessings and the toxic character affect actual poison ticks once',()=>{
+ for(const [hero,ranks,mult] of [['walker',0,1],['walker',3,1.45],['biohazard',0,1.8],['biohazard',3,2.25]]){
+  const g=start('grove',hero),p=g.player;
+  for(let rank=1;rank<=ranks;rank++)g.pantheon.grant({type:'blessing',id:'boon_thorn',rank});
+  const e=g._createEnemy(p.x+300,p.y,'Bat');e.hp=e.maxHp=10000;e.poisoned=8;e.poisonStacks=10;e.poisonTickTimer=0;
+  const before=p.totalDamage;e.update(.01);approx(10000-e.hp,20*mult);assert.equal(e.poisonStacks,10);
+  approx(p.totalDamage-before,20*mult);approx(g._weaponDamageStats.poison,20*mult);
+ }
+});

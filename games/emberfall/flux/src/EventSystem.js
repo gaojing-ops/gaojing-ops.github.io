@@ -28,12 +28,11 @@ const EVENT_DEFS = [
 		name: '修复节点',
 		desc: '恢复 50% 生命值',
 		action: (game) => {
-			if (game.curseNoHeal) {
+			if (!game.player.canHeal) {
 				game.spawnDamageNumber(game.player.x, game.player.y - 30, '修复失败!', '#ff4444');
 				return;
 			}
-			const heal = game.player.maxHp * 0.5;
-			game.player.hp = Math.min(game.player.maxHp, game.player.hp + heal);
+			const heal = game.player.heal(game.player.maxHp * 0.5);
 			game.spawnDamageNumber(game.player.x, game.player.y - 30, `+${Math.floor(heal)} HP`, '#44ff88');
 		}
 	},
@@ -443,8 +442,8 @@ class EventSystem {
 				game._survivalTest = null;
 			} else if (game._survivalTest.timer <= 0) {
 				// 成功 → 全回血
-				if (!game.curseNoHeal) {
-					player.hp = player.maxHp;
+				if (player.canHeal) {
+					player.heal(player.maxHp);
 					game.spawnDamageNumber(player.x, player.y - 40, '试炼成功! HP全回', '#44ffcc');
 				} else {
 					game.spawnDamageNumber(player.x, player.y - 40, '试炼成功!', '#44ffcc');

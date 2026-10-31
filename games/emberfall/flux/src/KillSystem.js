@@ -70,7 +70,7 @@ function installKillSystem(Game) {
 		// ═══ 新被动道具效果 ═══
 		// 虚空核心：击杀回复HP
 		if (this.player.voidLeech && this.player.voidLeech > 0) {
-			this.player.hp = Math.min(this.player.maxHp, this.player.hp + this.player.voidLeech);
+			this.player.heal(this.player.voidLeech);
 		}
 
 		// 灵魂收割：累积伤害加成
@@ -122,7 +122,7 @@ function installKillSystem(Game) {
 			this.player.vampireKillCount = (this.player.vampireKillCount || 0) + 1;
 			if (this.player.vampireKillCount >= 5) {
 				this.player.vampireKillCount = 0;
-				this.player.hp = Math.min(this.player.maxHp, this.player.hp + 1);
+				this.player.heal(1);
 			}
 		}
 
@@ -238,9 +238,8 @@ function installKillSystem(Game) {
 			this.spawnDamageNumber(enemy.x, enemy.y - 40, '\u8D4F\u91D1: \u5B9D\u7BB1!', '#ffcc00', false);
 		} else if (roll < 0.5) {
 			// 回血 50%
-			const heal = Math.floor(this.player.maxHp * 0.5);
-			this.player.hp = Math.min(this.player.maxHp, this.player.hp + heal);
-			this.player.totalHealed += heal;
+			const heal = this.player.heal(Math.floor(this.player.maxHp * 0.5));
+
 			this.spawnDamageNumber(enemy.x, enemy.y - 40, '\u8D4F\u91D1: +' + heal + ' HP', '#44ff88', false);
 		} else if (roll < 0.75) {
 			// 金币

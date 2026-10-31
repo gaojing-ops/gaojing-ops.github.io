@@ -93,8 +93,8 @@ class Pet {
                 p._medicBonusArmor = 5;
                 p.bonusArmor += 5;
                 p.shieldArmorExpiry = 10;
-                p.hp = Math.min(p.maxHp, p.hp + 30); // 回复30HP
-                this.game.spawnDamageNumber(p.x, p.y - 40, '+30 HP +护盾', '#44ff88');
+                const healed = p.heal(30); // 回复30HP
+                this.game.spawnDamageNumber(p.x, p.y - 40, '+' + Math.floor(healed) + ' HP +护盾', '#44ff88');
                 if (this.game.particles) {
                     this.game.particles.emit(p.x, p.y, { count: 10, speed: 60, life: 1, color: '#44ff88', size: 4 });
                 }

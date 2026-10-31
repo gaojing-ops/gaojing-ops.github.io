@@ -22,7 +22,7 @@ const BLESSINGS=[
  row('storm','chain','鸣雷巡林','每 4 秒召雷，初始最多命中 3 名敌人，随神息成长至 6 名；每阶基础伤害 14，受伤害倍率与神息阶段加成。',{}, {pulse:'storm',interval:4}),
  row('moon','mail','月下霜衣','每阶增加 1 护甲；每点护甲提供 8% 减伤，总减伤上限 60%。',{bonusArmor:1}),
  row('moon','still','留住月光','每阶使冻结持续时间增加 15%。',{bonusFreezeDur:.15}),
- row('moon','tide','霜月止潮','每 6 秒冻结周围 150 × 范围倍率内的普通敌人，每阶持续 0.6 秒，另受冻结时长加成；首领仅减速 1 秒。',{}, {pulse:'moon',interval:6}),
+ row('moon','tide','霜月止潮','每 6 秒冻结周围 150 × 范围倍率内的普通敌人，每阶持续 0.6 秒，另受冻结时长加成，单次最高 3.6 秒；首领仅减速 1 秒。',{}, {pulse:'moon',interval:6}),
  row('grove','root','烬土新芽','每阶使生命上限增加 12，并恢复至多 12 生命。',{}, {health:12}),
  row('grove','sap','枝间回春','每阶增加每秒 0.25 生命恢复。',{bonusRegen:.25}),
  row('grove','thorn','春荆藏锋','每阶使毒素伤害增加 15%。',{bonusToxicDmg:.15}),
@@ -42,7 +42,7 @@ function pulseValues(game,def,rank=1){
  return {radius:(kind==='ember'?130:kind==='storm'?420:150)*p.area,
   damage:(kind==='ember'?12:kind==='storm'?14:kind==='dawn'?10:0)*rank*p.might*stage.power,
   healing:kind==='dawn'?rank*2*stage.power:0,
-  freeze:kind==='moon'?.6*rank*(1+(p.bonusFreezeDur||0)):0,
+  freeze:kind==='moon'?Math.min(3.6,.6*rank*(1+(p.bonusFreezeDur||0))):0,
   targets:kind==='storm'?3+stage.tier:null,stage};
 }
 const healingBlocked=game=>!!(game.curseNoHeal||game.player.relicFlags?.overloadCore);
@@ -81,7 +81,7 @@ function preferBlessing(game,options){
 function applyStats(game,def,opening=false){
  const p=game.player;for(const [key,value] of Object.entries(def.stats||{}))p[key]=(p[key]||0)+value;
  if(def.dash)p.dashMaxCooldown=Math.max(.9,p.dashMaxCooldown*def.dash);
- if(def.health){p.maxHp+=def.health;if(opening){p.hp=Math.min(p.maxHp,p.hp+def.health);}else if(!healingBlocked(game)){const healed=Math.min(def.health,p.maxHp-p.hp);p.hp+=healed;p.totalHealed+=healed;}}
+ if(def.health){p.maxHp+=def.health;if(opening){p.hp=Math.min(p.maxHp,p.hp+def.health);}else if(!healingBlocked(game)){p.heal(def.health);}}
 }
 class Pantheon{
  constructor(game,id){this.game=game;this.patron=Object.hasOwn(DEITIES,id)?id:null;this.ranks={};this.timers={};this.effects=[];this.metrics={};if(this.patron)applyStats(game,DEITIES[id],true);}
@@ -117,7 +117,7 @@ class Pantheon{
     metric.controlled++;
    }else{const before=Math.max(0,target.hp||0)+Math.max(0,target.shield||0);target.takeDamage(values.damage,def.id);const after=Math.max(0,target.hp||0)+Math.max(0,target.shield||0);metric.damage+=Math.max(0,before-after);}
   }
-  if(kind==='dawn'&&!healingBlocked(g)){const healed=Math.max(0,Math.min(p.maxHp-p.hp,values.healing));p.hp+=healed;p.totalHealed+=healed;metric.healing+=healed;}
+  if(kind==='dawn'&&!healingBlocked(g)){metric.healing+=p.heal(values.healing);}
   this.effects.push(effect);this.effects=this.effects.slice(-20);
  }
 }
