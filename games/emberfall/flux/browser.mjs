@@ -11,10 +11,16 @@ export function createBrowserPlatform(canvas){
  const offscreen=(width=1,height=1)=>{const c=document.createElement('canvas');themeCanvas(c);c.width=width;c.height=height;return c;};
  const getDimensions=()=>{
   const shell=canvas.closest?.('#game-shell'),width=shell?.clientWidth||0;
-  if(width<=760)return {width:WIDTH,height:HEIGHT};
   const full=document.fullscreenElement===shell,w=Math.min(1280,width);
+  const header=document.querySelector?.('.site-header')?.getBoundingClientRect?.().height||(width<=620?120:78);
+  const toolbar=document.querySelector?.('.game-toolbar')?.getBoundingClientRect?.().height||56;
+  const available=window.innerHeight?window.innerHeight-(full?toolbar:header+toolbar+24):0;
+  if(width<=620){
+   const height=width>0&&available>0?Math.max(full?320:460,Math.min(HEIGHT,Math.floor(available*WIDTH/width))):HEIGHT;
+   return {width:WIDTH,height};
+  }
   const h=full?Math.max(320,Math.min(900,Math.round(((window.innerHeight||720)-58)*w/width))):Math.max(560,Math.min(720,Math.round(w*.62)));
-  return {width:w,height:h};
+  return {width:w,height:!full&&available>0?Math.min(h,Math.max(320,Math.floor(available*w/width))):h};
  };
  const api={
   getSystemInfoSync:()=>{const {width,height}=getDimensions();return {screenWidth:width,screenHeight:height,pixelRatio:Math.min(window.devicePixelRatio||1,2),platform:'browser',safeArea:{top:0,bottom:height,left:0,right:width}};},

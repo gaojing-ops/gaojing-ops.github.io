@@ -694,6 +694,10 @@ function drawDamageNumber(ctx, x, y, text, alpha, color = '#fff', scale = 1, glo
     ctx.font = glow ? 'bold 16px sans-serif' : 'bold 14px sans-serif';
     ctx.fillStyle = glow ? '#fff' : color;
     ctx.textAlign = 'center';
+    ctx.strokeStyle = '#06120c';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    ctx.strokeText(text, 0, 0);
     ctx.fillText(text, 0, 0);
     ctx.restore();
 }

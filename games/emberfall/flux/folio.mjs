@@ -34,7 +34,13 @@ export function createFolio(runtime,platform,hooks={}){
   return `<article class="folio-card ${esc(state)}">${media||icon('rune')}<div class="folio-card-body">${meta?`<div class="folio-card-meta">${meta}</div>`:''}<h3>${esc(title)}</h3><p>${esc(description)}</p>${extra}</div>${action?`<div class="folio-card-action">${action}</div>`:''}</article>`;
  }
  const grid=content=>`<div class="folio-grid">${content}</div>`;
- function stats(rows){return `<dl class="folio-stats">${rows.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>`;}
+ function stats(rows){return `<dl class="folio-stats">${rows.map(([label,value])=>{
+  const hp=label==='生命'?String(value).match(/^([\d.]+)\s*\/\s*([\d.]+)$/):null;
+  const ratio=hp?Math.max(0,Math.min(1,Number(hp[1])/Math.max(1,Number(hp[2])))):0;
+  const bar=hp?`<span class="folio-health-track ${ratio<.3?'is-low':''}" aria-hidden="true"><span style="width:${ratio*100}%"></span></span>`:'';
+  return `<div><dt>${esc(label)}</dt><dd>${esc(value)}${bar}</dd></div>`;
+ }).join('')}</dl>`;}
+
  function tabs(rows){return `<nav class="folio-tabs" aria-label="手札分类">${rows.map(([id,label])=>`<button type="button" data-action="${act(()=>{tab=id;query='';message='';})}" aria-pressed="${tab===id}">${esc(label)}</button>`).join('')}</nav>`;}
  function header(kicker,title,description,back=true){return `<header class="folio-header"><div><span class="folio-kicker">${esc(kicker)}</span><h2>${esc(title)}</h2><p>${esc(description)}</p></div>${back?button('返回营地 ↗',()=>sm.switchTo('title'),false,'quiet'):''}</header>`;}
  function portrait(kind,id,skin=''){return `<canvas class="folio-portrait" width="120" height="120" data-portrait="${esc(id)}" data-skin="${esc(skin)}" data-kind="${kind}" aria-hidden="true"></canvas>`;}

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {createFolio,optionCopy,chooseUpgrade} from '../games/emberfall/flux/folio.mjs';
 import {LORE,entry,registerLore,text,TRAITS} from '../games/emberfall/flux/lore.mjs';
-import {themeColor,themedContext} from '../games/emberfall/flux/theme.mjs';
+import {themeColor,themedContext,combatUILayout} from '../games/emberfall/flux/theme.mjs';
 const require=createRequire(new URL('../games/emberfall/flux/entry.js',import.meta.url));
 const gradient={addColorStop(){}},draws=[];
 const context=new Proxy({globalAlpha:1,measureText:value=>({width:String(value).length*7}),fillText:value=>draws.push(value),createRadialGradient:()=>({...gradient}),createLinearGradient:()=>({...gradient})},{get:(o,k)=>o[k]??(()=>{}),set:(o,k,v)=>(o[k]=v,true)});
@@ -105,6 +105,26 @@ test('speed trial victory shows its own goal, real statistics and records withou
  e.click('查阅疾行纪录');assert.equal(e.sm.currentSceneName,'speedRun');
 });
 
+test('combat HUD panels and control labels remain separate and inside phone, desktop and short fullscreen canvases',()=>{
+ const overlaps=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+ for(const [w,h] of [[320,320],[390,320],[320,844],[390,844],[768,560],[1280,720],[1280,320]]){
+  const l=combatUILayout(w,h),controls=[l.dash,l.skill].map(({cx,cy,r})=>({x:cx-43,y:cy-r,w:86,h:r*2+28}));
+  const boxes=[l.health,l.mode,l.pause,...controls];
+  for(const b of boxes){assert.ok(b.x>=0&&b.y>=0&&b.x+b.w<=w&&b.y+b.h<=h,`${w}x${h}: on canvas`);}
+  for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++)assert.equal(overlaps(boxes[i],boxes[j]),false,`${w}x${h}: HUD/control overlap ${i},${j}`);
+ }
+});
+
+test('readable combat controls keep their real hit targets, cooldowns and paused low-health display',()=>{
+ const e=environment(true),g=e.game;g.resize(390,844);g.startWithCharacter('walker',[]);g._tutorialStep=-1;e.sm.switchTo('playing');
+ g.player.hp=25;g.player.xp=10;g.player.maxXp=200;g.update(.016);
+ const values=()=>JSON.stringify([g.player.hp,g.player.xp,g.player.level,g.skillSystem.cooldown,g.player.dashCooldown]);
+ const before=values();g.draw();assert.equal(values(),before,'drawing does not alter health, experience or cooldowns');
+ const skill=g.skillSystem.btnRect;assert.equal(skill.w,64);assert.equal(g.skillSystem.onTouchEnd(skill.x+skill.w/2,skill.y+skill.h/2),true);assert.ok(g.skillSystem.cooldown>0);
+ const dash=g.dashBtnRect;assert.equal(dash.w,64);assert.equal(g._handleTouchInput(dash.cx,dash.cy,g.input),true);assert.ok(g.player.dashCooldown>0);
+ g.isPaused=true;e.sync();assert.match(e.root.html,/folio-health-track is-low/);assert.match(e.root.html,/25 \/ 150/);
+});
+
 test('deployed entry, every web module and both stylesheets share one release version',()=>{
  const page=new URL('../games/emberfall/index.html',import.meta.url),html=readFileSync(page,'utf8');
  const map=JSON.parse(html.match(/<script type="importmap" id="emberfall-imports">([\s\S]*?)<\/script>/)[1]).imports;
@@ -160,6 +180,18 @@ test('stone notifications wrap long text without mutating timers, rewards or ran
  Math.random=()=>{throw Error('notification consumed combat RNG');};draws.length=0;
  try{for(const w of [390,1000]){g.achievements.draw(context,w,844);g.eventSystem.draw(context,w,844);g.eventEnhancer.draw(context,w,844);}}finally{Math.random=random;}
  assert.equal(fields(),before);assert.doesNotMatch(draws.join(''),/芯片|数据暴雨|🏆|HP|XP/);assert.ok(draws.some(line=>line.includes('血月临林')));
+});
+
+test('new runs retain readable event and blood-moon panels when their source systems are replaced',()=>{
+ const e=environment(true),g=e.game;
+ for(let run=0;run<2;run++){
+  g.startWithCharacter('walker',[]);g._tutorialStep=-1;g.resize(390,728);e.sm.switchTo('playing');
+  g.eventEnhancer.activeEvents=[{type:'bloodMoon',timer:45}];g._weaponSurge={timer:20};
+  g.eventSystem.eventBanner={text:'不沾尘誓 — 坚持 15 秒不受伤，成功后恢复全部生命。',timer:2};
+  const before=JSON.stringify([g.eventEnhancer.activeEvents,g._weaponSurge,g.eventSystem.eventBanner,g.player.hp]);
+  draws.length=0;g.draw();assert.ok(draws.some(v=>v.includes('血月临林')));assert.ok(draws.some(v=>v.includes('焰盛')));assert.ok(draws.some(v=>v.includes('不沾尘誓')));
+  assert.equal(JSON.stringify([g.eventEnhancer.activeEvents,g._weaponSurge,g.eventSystem.eventBanner,g.player.hp]),before);
+ }
 });
 
 test('all nine real active skills render through native combat art without changing their effects',()=>{
