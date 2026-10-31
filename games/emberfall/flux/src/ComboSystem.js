@@ -156,38 +156,51 @@ function installComboSystem(GameClass) {
 		this.radiationPulse = { x: p.x, y: p.y, r: radius, a: 0.6, color: '#ff6600' };
 	};
 
-	// 清屏冲击波
+	// 75连杀冲击波：震退并重创身边近距离敌人，吸引周围经验球（不清空全屏敌人）
 	GameClass.prototype._screenClear = function () {
 		const p = this.player;
-		const damage = 100 * p.might;
+		const damage = 55 * p.might;
+		const radius = 240;
+		const radiusSq = radius * radius;
 
-		// 所有敌人受到大量伤害
 		for (const e of this.enemies) {
-			if (e.active) {
+			if (!e.active) continue;
+			const dx = e.x - p.x;
+			const dy = e.y - p.y;
+			const dSq = dx * dx + dy * dy;
+			if (dSq < radiusSq) {
+				const d = Math.sqrt(dSq) || 1;
+				const resist = e.knockbackResist || 0;
+				e.knockbackVx = (dx / d) * 280 * (1 - resist);
+				e.knockbackVy = (dy / d) * 280 * (1 - resist);
 				e.takeDamage(damage);
 			}
 		}
 
-		// Boss也受到伤害
 		for (const b of this.bosses) {
-			if (b.active) {
+			if (!b.active) continue;
+			const dx = b.x - p.x;
+			const dy = b.y - p.y;
+			if (dx * dx + dy * dy < radiusSq) {
 				b.takeDamage(damage * 0.5);
 			}
 		}
 
-		// 收集所有宝石
+		const pullSq = 360 * 360;
 		for (const g of this.gems) {
 			if (g.active) {
-				p.gainXp(g.value);
-				g.active = false;
+				const dx = g.x - p.x;
+				const dy = g.y - p.y;
+				if (dx * dx + dy * dy < pullSq) {
+					g.magnetized = true;
+				}
 			}
 		}
 
-		// 大范围视觉特效
 		if (this.particles) {
-			this.particles.emit(p.x, p.y, { count: 50, speed: 400, life: 0.6, color: '#ff00ff', size: 8 });
+			this.particles.emit(p.x, p.y, { count: 40, speed: 320, life: 0.5, color: '#ff44ff', size: 6 });
 		}
-		this.radiationPulse = { x: p.x, y: p.y, r: 500, a: 0.8, color: '#ff00ff' };
+		this.radiationPulse = { x: p.x, y: p.y, r: radius, a: 0.75, color: '#ff44ff' };
 	};
 }
 

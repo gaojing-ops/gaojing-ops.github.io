@@ -4738,38 +4738,51 @@ function installComboSystem(GameClass) {
 		this.radiationPulse = { x: p.x, y: p.y, r: radius, a: 0.6, color: '#ff6600' };
 	};
 
-	// 清屏冲击波
+	// 75连杀冲击波：震退并重创身边近距离敌人，吸引周围经验球（不清空全屏敌人）
 	GameClass.prototype._screenClear = function () {
 		const p = this.player;
-		const damage = 100 * p.might;
+		const damage = 55 * p.might;
+		const radius = 240;
+		const radiusSq = radius * radius;
 
-		// 所有敌人受到大量伤害
 		for (const e of this.enemies) {
-			if (e.active) {
+			if (!e.active) continue;
+			const dx = e.x - p.x;
+			const dy = e.y - p.y;
+			const dSq = dx * dx + dy * dy;
+			if (dSq < radiusSq) {
+				const d = Math.sqrt(dSq) || 1;
+				const resist = e.knockbackResist || 0;
+				e.knockbackVx = (dx / d) * 280 * (1 - resist);
+				e.knockbackVy = (dy / d) * 280 * (1 - resist);
 				e.takeDamage(damage);
 			}
 		}
 
-		// Boss也受到伤害
 		for (const b of this.bosses) {
-			if (b.active) {
+			if (!b.active) continue;
+			const dx = b.x - p.x;
+			const dy = b.y - p.y;
+			if (dx * dx + dy * dy < radiusSq) {
 				b.takeDamage(damage * 0.5);
 			}
 		}
 
-		// 收集所有宝石
+		const pullSq = 360 * 360;
 		for (const g of this.gems) {
 			if (g.active) {
-				p.gainXp(g.value);
-				g.active = false;
+				const dx = g.x - p.x;
+				const dy = g.y - p.y;
+				if (dx * dx + dy * dy < pullSq) {
+					g.magnetized = true;
+				}
 			}
 		}
 
-		// 大范围视觉特效
 		if (this.particles) {
-			this.particles.emit(p.x, p.y, { count: 50, speed: 400, life: 0.6, color: '#ff00ff', size: 8 });
+			this.particles.emit(p.x, p.y, { count: 40, speed: 320, life: 0.5, color: '#ff44ff', size: 6 });
 		}
-		this.radiationPulse = { x: p.x, y: p.y, r: 500, a: 0.8, color: '#ff00ff' };
+		this.radiationPulse = { x: p.x, y: p.y, r: radius, a: 0.75, color: '#ff44ff' };
 	};
 }
 
@@ -8869,7 +8882,7 @@ class Game {
 
 	_closeUpgrade() {
 		this.isRunning = true;
-		this.spawnTimer = Math.max(this.spawnTimer, 1.5); // 防止升级后瞬间涌入大量敌人
+		this.spawnTimer = Math.max(this.spawnTimer, 0.35); // 升级后平滑衔接刷怪
 		this.lastTime = null; // Let mainLoop resync with rAF timestamp
 		try {
 			this.synergy.check();
@@ -9096,8 +9109,8 @@ class Game {
 		// 敌人更新：远处敌人降频更新（不移除，保持割草体验）
 		const playerX = this.player.x;
 		const playerY = this.player.y;
-		const nearDistSq = 400 * 400; // 近距离阈值
-		const farDistSq = 800 * 800;  // 超远距离阈值
+		const nearDistSq = 780 * 780; // 覆盖桌面端全屏视口，保证屏内怪物全速行动
+		const farDistSq = 1200 * 1200; // 超远距离阈值
 		// 时间停止技能：敌人不移动
 		const enemyDt = (this._timeStopTimer > 0) ? 0 : dt;
 
@@ -10342,6 +10355,7 @@ class Gem {
         this.radius = 4 + Math.min(this.value, 20) * 0.15;
         this.active = true;
         this.collecting = false; // 是否正在被磁吸
+        this.magnetized = false;
     }
 
     update(dt) {
@@ -10352,7 +10366,7 @@ class Gem {
         const pickupSq = p.pickup * p.pickup;
 
         // 范围外提前返回，跳过 sqrt
-        if (dSq >= pickupSq) {
+        if (dSq >= pickupSq && !this.magnetized) {
             this.collecting = false;
             return;
         }
@@ -10360,7 +10374,7 @@ class Gem {
 
         // Magnet - optimized
         if (d > 1) {
-            const mag = 500 * (1 - d / p.pickup);
+            const mag = this.magnetized ? 620 : 500 * (1 - d / p.pickup);
             this.x += (dx / d) * mag * dt;
             this.y += (dy / d) * mag * dt;
             this.collecting = true;
@@ -12916,24 +12930,34 @@ class Pickup {
             case 'magnet':
                 // Pull all gems
                 for (const g of this.game.gems) {
-                    g.x = p.x + (Math.random() - 0.5) * 10;
-                    g.y = p.y + (Math.random() - 0.5) * 10;
+                    if (g.active) g.magnetized = true;
                 }
                 this.game.spawnDamageNumber(p.x, p.y - 30, 'MAGNET!', '#4444ff');
                 break;
-            case 'bomb':
-                // Kill all visible enemies
-                let killCount = 0;
+            case 'bomb': {
+                // 范围爆破：对周围 260px 内敌人造成高额爆炸伤害并震退，不再全图清屏
+                const blastR = 260;
+                const blastSq = blastR * blastR;
+                const blastDmg = 90 * (p.might || 1);
                 for (const e of this.game.enemies) {
-                    if (e.active && !e.isElite) {
-                        e.takeDamage(9999);
-                        killCount++;
+                    if (!e.active) continue;
+                    const edx = e.x - p.x;
+                    const edy = e.y - p.y;
+                    const dSq = edx * edx + edy * edy;
+                    if (dSq < blastSq) {
+                        const d = Math.sqrt(dSq) || 1;
+                        const resist = e.knockbackResist || 0;
+                        e.knockbackVx = (edx / d) * 260 * (1 - resist);
+                        e.knockbackVy = (edy / d) * 260 * (1 - resist);
+                        e.takeDamage(blastDmg);
                     }
                 }
-                this.game.shakeAmount = 10;
-                this.game.shakeDuration = 0.5;
-                this.game.spawnDamageNumber(p.x, p.y - 30, 'BOOM!', '#000');
+                this.game.radiationPulse = { x: p.x, y: p.y, r: blastR, a: 0.8, color: '#ff8844' };
+                this.game.shakeAmount = 8;
+                this.game.shakeDuration = 0.35;
+                this.game.spawnDamageNumber(p.x, p.y - 30, '烈焰爆破!', '#ffaa44');
                 break;
+            }
             case 'potion':
                 // Heal (诅咒: 禁止回血时无效)
                 if (this.game.curseNoHeal) {
@@ -13322,7 +13346,7 @@ class Player {
         this.totalXp = 0;            // 累计获得经验
 
         this.hp = 100; this.maxHp = 100;
-        this.level = 1; this.xp = 0; this.maxXp = 128; // 100 + 1*20 + 1^1.8 * 8
+        this.level = 1; this.xp = 0; this.maxXp = 32; // 平滑前期升级曲线
         this.kills = 0;
 
         // Weapons
@@ -13800,7 +13824,7 @@ class Player {
 
     levelUp() {
         this.level++;
-        this.maxXp = Math.floor(100 + this.level * 20 + Math.pow(this.level, 1.8) * 8);
+        this.maxXp = Math.floor(16 + this.level * 14 + Math.pow(this.level, 1.78) * 6.5);
         // 诅咒: 禁止回血时跳过升级回血
         if (!this.game.curseNoHeal) {
             this.hp = Math.min(this.maxHp, this.hp + Math.max(10, Math.floor(this.maxHp * 0.12)));
@@ -21437,7 +21461,7 @@ function installSpawnSystem(Game) {
 	const _scratchAffixes = _allAffixIds.slice(); // 一次性分配
 
 	/**
-	 * 在玩家周围刷怪环上生成一个敌人（含类型选择、精英词缀、群怪追加）
+	 * 在玩家周围视口边缘生成敌人（含全图鉴怪池梯度解锁、章节群落加权、精英词缀、群怪追加）
 	 */
 	Game.prototype._spawnEnemy = function (hpMult = 1, dmgMult = 1, spread = 0) {
 		// 全局敌人上限（防止后期帧率崩溃）
@@ -21445,81 +21469,126 @@ function installSpawnSystem(Game) {
 		if (this.enemies.length >= enemyLimit) return;
 
 		const angle = Math.random() * Math.PI * 2;
-		const dist = Math.max(this.width, this.height) / 2 + 80 + spread;
-		const x = this.player.x + fastCos(angle) * dist;
-		const y = this.player.y + fastSin(angle) * dist;
+		const cosA = fastCos(angle);
+		const sinA = fastSin(angle);
+		const halfW = (this.width || 800) / 2 + 42;
+		const halfH = (this.height || 600) / 2 + 42;
+		const edgeDist = Math.min(
+			Math.abs(cosA) > 0.001 ? halfW / Math.abs(cosA) : 9999,
+			Math.abs(sinA) > 0.001 ? halfH / Math.abs(sinA) : 9999
+		);
+		const dist = edgeDist + (spread % 90);
+		const x = this.player.x + cosA * dist;
+		const y = this.player.y + sinA * dist;
 
 		let type = 'Bat';
 		const t = this.time;
 		const style = this.mapManager ? this.mapManager.style : 'CyberGrid';
 
-		// ─── 核心生成池 (随时间推移逐渐解锁更多类型) ───
+		// ─── 核心生成池 (覆盖全 32 种常规/精英机制怪，随时间平滑解锁) ───
 		let pool = [];
-		if (t > 900) { // 15分钟
-			pool = ['Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'FrostWisp', 'SlimeGlob', 'CyberSpider', 'GlitchEntity', 'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner', 'FrostTitan', 'PlagueSource', 'IronGolem', 'VoidLeech'];
-		} else if (t > 780) { // 13分钟
-			pool = ['Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'FrostWisp', 'SlimeGlob', 'CyberSpider', 'GlitchEntity', 'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner', 'FrostTitan', 'PlagueSource', 'IronGolem'];
-		} else if (t > 660) { // 11分钟
-			pool = ['Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'FrostWisp', 'SlimeGlob', 'CyberSpider', 'GlitchEntity', 'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner', 'FrostTitan', 'VoidLeech'];
-		} else if (t > 540) { // 9分钟
-			pool = ['Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'FrostWisp', 'SlimeGlob', 'CyberSpider', 'GlitchEntity', 'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner'];
-		} else if (t > 420) { // 7分钟
-			pool = ['Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Turret', 'LaserDrone', 'SpiralCaster', 'ChainGunner'];
-		} else if (t > 300) { // 5分钟
-			pool = ['Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Turret', 'ChainGunner'];
-		} else if (t > 240) { // 4分钟
-			pool = ['Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'CyberSpider'];
-		} else if (t > 180) { // 3分钟
-			pool = ['Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'FrostWisp', 'SlimeGlob', 'Turret', 'ChainGunner'];
-		} else if (t > 120) { // 2分钟
-			pool = ['Bat', 'Skeleton', 'Ghost', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler'];
-		} else if (t > 60) { // 1分钟
-			pool = ['Bat', 'SwarmDrone', 'Skeleton', 'Ghost', 'DataWorm'];
-		} else if (t > 30) { // 30秒
-			pool = ['Bat', 'SwarmDrone', 'FireFly', 'Skeleton'];
-		} else {
-			pool = ['Bat'];
+		if (t > 660) { // 11分钟+：全图鉴满编（含巨型母体、霜岩巨人、瘟疫母巢、铸铁魔像）
+			pool = [
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
+				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
+				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
+				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech',
+				'FrostTitan', 'PlagueSource', 'IronGolem', 'RoyalSlime'
+			];
+		} else if (t > 420) { // 7～11分钟
+			pool = [
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
+				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
+				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
+				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech',
+				'FrostTitan', 'PlagueSource', 'IronGolem'
+			];
+		} else if (t > 240) { // 4～7分钟（第二章起）
+			pool = [
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
+				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
+				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
+				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech', 'IronGolem'
+			];
+		} else if (t > 150) { // 2.5～4分钟
+			pool = [
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
+				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'Assassin',
+				'Turret', 'LaserDrone', 'ScatterGun', 'ChainGunner',
+				'ShieldBearer', 'Charger', 'Healer'
+			];
+		} else if (t > 90) { // 1.5～2.5分钟
+			pool = [
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'Crawler', 'WarpMite',
+				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom',
+				'Turret', 'LaserDrone', 'ShieldBearer', 'Healer'
+			];
+		} else if (t > 45) { // 45～90秒
+			pool = [
+				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'SwarmDrone', 'Crawler',
+				'SlimeGlob', 'FrostWisp', 'DataWorm', 'Turret', 'Splitter', 'WarpMite', 'LaserDrone'
+			];
+		} else if (t > 18) { // 18～45秒
+			pool = [
+				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly', 'SwarmDrone',
+				'Crawler', 'SlimeGlob', 'FrostWisp', 'Splitter'
+			];
+		} else { // 0～18秒：开局即有 5 种不同形态与移速的林间怪物组合
+			pool = ['Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly'];
 		}
 
-		// ─── 群落专属加权机制 ───
-		// 根据不同地图风格，强行混入大量专属怪物（只要时间>60s，即第二阶段开始）
+		// ─── 章节群落专属加权机制（开局 15 秒后生效，凸显各章生态特色）───
 		let biomeWeights = [];
-		if (t > 60) {
+		if (t > 15) {
 			switch (style) {
-				case 'ToxicSwamp': // 腐化沼泽
+				case 'ToxicSwamp': // 第二章 · 腐根沼泽
 					biomeWeights = [
 						{ type: 'SlimeGlob', weight: 3 },
+						{ type: 'Crawler', weight: 2 },
+						{ type: 'Bomber', weight: 2 },
+						{ type: 'Healer', weight: 2 },
 						{ type: 'PlagueSource', weight: 2 },
-						{ type: 'Crawler', weight: 3 }
+						{ type: 'RoyalSlime', weight: 1 }
 					];
 					break;
-				case 'CryoRealm': // 冰封领域
+				case 'CryoRealm': // 第三章 · 霜裂遗迹
 					biomeWeights = [
-						{ type: 'FrostWisp', weight: 4 },
+						{ type: 'FrostWisp', weight: 3 },
+						{ type: 'Splitter', weight: 2 },
+						{ type: 'ShieldPriest', weight: 2 },
+						{ type: 'ScatterGun', weight: 2 },
 						{ type: 'FrostTitan', weight: 2 }
 					];
 					break;
-				case 'VoidNebula': // 虚空裂缝
+				case 'VoidNebula': // 第四章 · 虚渊墓境
 					biomeWeights = [
 						{ type: 'VoidLeech', weight: 3 },
-						{ type: 'WarpMite', weight: 3 },
-						{ type: 'Ghost', weight: 2 }
+						{ type: 'WarpMite', weight: 2 },
+						{ type: 'Phantom', weight: 3 },
+						{ type: 'Assassin', weight: 2 },
+						{ type: 'SpiralCaster', weight: 2 }
 					];
 					break;
-				case 'Matrix': // 核心矩阵
+				case 'Matrix': // 第五章 · 黎明圣城
 					biomeWeights = [
-						{ type: 'LaserDrone', weight: 3 },
+						{ type: 'LaserDrone', weight: 2 },
 						{ type: 'Turret', weight: 2 },
 						{ type: 'ChainGunner', weight: 2 },
-						{ type: 'GlitchEntity', weight: 2 }
+						{ type: 'MortarDrone', weight: 2 },
+						{ type: 'GlitchEntity', weight: 2 },
+						{ type: 'IronGolem', weight: 2 }
 					];
 					break;
-				case 'CyberGrid': // 数据荒原
+				case 'CyberGrid': // 第一章 · 灰烬林地
 				default:
 					biomeWeights = [
-						{ type: 'DataWorm', weight: 3 },
-						{ type: 'SwarmDrone', weight: 3 },
-						{ type: 'LaserDrone', weight: 1 }
+						{ type: 'Skeleton', weight: 2 },
+						{ type: 'CyberSpider', weight: 2 },
+						{ type: 'Ghost', weight: 2 },
+						{ type: 'DataWorm', weight: 2 },
+						{ type: 'Turret', weight: 1.5 },
+						{ type: 'ShieldBearer', weight: 1.5 },
+						{ type: 'Charger', weight: 1 }
 					];
 					break;
 			}
@@ -21527,18 +21596,15 @@ function installSpawnSystem(Game) {
 
 		// 构建加权随机池
 		let weightedPool = [];
-		// 1. 基础池：每个存在于当前时间段 pool 中的怪物，基础权重为 1
 		for (const p of pool) {
 			weightedPool.push({ type: p, weight: 1 });
 		}
-		// 2. 注入群落专属权重（叠加）
 		for (const bw of biomeWeights) {
-			// 如果这个怪物尚未在主池中解锁，我们允许它通过群落特性“提前”少量出现，或者随主池解锁而变多
 			const existing = weightedPool.find(x => x.type === bw.type);
 			if (existing) {
 				existing.weight += bw.weight;
-			} else if (t > 120) { // 至少2分钟后才允许越级生成专属怪
-				weightedPool.push({ type: bw.type, weight: bw.weight * 0.5 }); // 提早出场时权重减半
+			} else if (t > 60) {
+				weightedPool.push({ type: bw.type, weight: bw.weight * 0.6 });
 			}
 		}
 
@@ -21559,13 +21625,12 @@ function installSpawnSystem(Game) {
 		if (t > 60 && enemy.behavior !== 'shooter' && enemy.behavior !== 'spiral_shooter'
 			&& enemy.behavior !== 'mortar' && enemy.behavior !== 'burst_shooter') {
 			const speedMult = 1 + Math.min(0.8, (t / 60 - 1) * 0.055);
-			// 1分=+0%, 5分=+22%, 10分=+50%, 15分=+77%, 16分+封顶80%
 			enemy.speed = (enemy.speed || 80) * speedMult;
 		}
 
 		// 后期弱敌人强化：>10分钟，弱敌人有几率变为强化版
 		if (t > 600 && (type === 'Bat' || type === 'SwarmDrone' || type === 'Hornet' || type === 'FireFly' || type === 'Crawler')) {
-			if (Math.random() < 0.4) { // 40%概率强化
+			if (Math.random() < 0.4) {
 				enemy.hp *= 3;
 				enemy.maxHp = enemy.hp;
 				enemy.damage = Math.ceil(enemy.damage * 1.5);
@@ -21573,51 +21638,37 @@ function installSpawnSystem(Game) {
 			}
 		}
 
-		// [NEW] 盗宝地精随机生成 (2分钟之后开始，低概率)
-		if (t > 120 && Math.random() < 0.005) {
-			// 一次只允许场上存在极少数量的盗宝地精，防止滥发奖励
+		// 盗宝地精随机生成 (90秒之后开始，低概率)
+		if (t > 90 && Math.random() < 0.005) {
 			let goblinCount = 0;
 			for (const e of this.enemies) {
 				if (e.active && e.type === 'LootGoblin') goblinCount++;
 			}
-			if (goblinCount < 1) { // 场上最多同时只存在1只
+			if (goblinCount < 1) {
 				const goblin = this.enemyPool.get().reset(this, x, y, 'LootGoblin', { hpMult: hpMult * 1.5 });
 				this.enemies.push(goblin);
 				this.spawnDamageNumber(x, y, '💰 盗宝地精出现! 💰', '#ffcc00');
-				// 给玩家预警
 				this.triggerScreenPulse('#ffcc0033', 0.5);
 			}
 		}
 
-		// 快速群怪额外生成
+		// 快速群怪额外生成（适度控制群怪数量，避免挤占中大型怪名额）
 		let extraCount = 0;
 		const tMinutes = t / 60;
 		if (type === 'SwarmDrone' || type === 'Hornet' || type === 'FireFly') {
-			extraCount = 3 + Math.floor(tMinutes * 0.3); // 更多群怪
+			extraCount = 1 + Math.floor(tMinutes * 0.25);
 		} else if (type === 'Crawler') {
-			extraCount = 1 + Math.floor(tMinutes * 0.2); // 爬虫稍少
-		} else if (type === 'Turret' || type === 'LaserDrone' || type === 'ScatterGun'
-			|| type === 'SpiralCaster' || type === 'MortarDrone' || type === 'ChainGunner') {
-			// 远程敌人保持距离（用平方距离避免 sqrt）
-			const rdx = enemy.x - this.player.x, rdy = enemy.y - this.player.y;
-			const distToPlayerSq = rdx * rdx + rdy * rdy;
-			if (distToPlayerSq < (dist * 0.8) * (dist * 0.8)) {
-				const pushAngle = Math.atan2(enemy.y - this.player.y, enemy.x - this.player.x);
-				enemy.x = this.player.x + fastCos(pushAngle) * (dist + Math.random() * 100);
-				enemy.y = this.player.y + fastSin(pushAngle) * (dist + Math.random() * 100);
-			}
+			extraCount = 1 + Math.floor(tMinutes * 0.15);
 		}
 
 		if (this.curseEliteMult > 1 && type !== 'SwarmDrone' && type !== 'Hornet' && type !== 'FireFly') {
 			const eliteChance = 0.05 * this.curseEliteMult;
 			if (Math.random() < eliteChance) {
-				// 使用新的词缀系统
-				const affixCount = Math.random() < 0.3 ? 2 : 1; // 30%概率双词缀
+				const affixCount = Math.random() < 0.3 ? 2 : 1;
 				const affixes = this._rollEnemyAffixes(affixCount);
 				enemy.applyEliteAffixes(affixes);
 			}
 		} else if (type !== 'SwarmDrone' && type !== 'Hornet' && type !== 'FireFly' && type !== 'MiniSpider' && type !== 'ToxicBlob') {
-			// 基础精英率（提升前期压力，从6%起步，随时间增加）
 			const baseEliteChance = Math.min(0.20, 0.04 + this.time / 5000);
 			if (Math.random() < baseEliteChance) {
 				const affixes = this._rollEnemyAffixes(1);
@@ -21650,15 +21701,12 @@ function installSpawnSystem(Game) {
 	};
 
 	// 随机选择敌人词缀
-	// [BUG-R3-7 FIX] 使用复用数组 Fisher-Yates 局部 shuffle，零 GC
 	Game.prototype._rollEnemyAffixes = function (count) {
-		// 恢复 scratch 数组到初始状态
 		for (let i = 0; i < _allAffixIds.length; i++) _scratchAffixes[i] = _allAffixIds[i];
 		const len = _allAffixIds.length;
 		const selected = [];
 		for (let i = 0; i < count && i < len; i++) {
 			const j = i + Math.floor(Math.random() * (len - i));
-			// 交换
 			const tmp = _scratchAffixes[i];
 			_scratchAffixes[i] = _scratchAffixes[j];
 			_scratchAffixes[j] = tmp;

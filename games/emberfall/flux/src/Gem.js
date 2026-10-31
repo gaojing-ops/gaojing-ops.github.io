@@ -9,6 +9,7 @@ class Gem {
         this.radius = 4 + Math.min(this.value, 20) * 0.15;
         this.active = true;
         this.collecting = false; // 是否正在被磁吸
+        this.magnetized = false;
     }
 
     update(dt) {
@@ -19,7 +20,7 @@ class Gem {
         const pickupSq = p.pickup * p.pickup;
 
         // 范围外提前返回，跳过 sqrt
-        if (dSq >= pickupSq) {
+        if (dSq >= pickupSq && !this.magnetized) {
             this.collecting = false;
             return;
         }
@@ -27,7 +28,7 @@ class Gem {
 
         // Magnet - optimized
         if (d > 1) {
-            const mag = 500 * (1 - d / p.pickup);
+            const mag = this.magnetized ? 620 : 500 * (1 - d / p.pickup);
             this.x += (dx / d) * mag * dt;
             this.y += (dy / d) * mag * dt;
             this.collecting = true;

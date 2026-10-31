@@ -706,7 +706,7 @@ class Game {
 
 	_closeUpgrade() {
 		this.isRunning = true;
-		this.spawnTimer = Math.max(this.spawnTimer, 1.5); // 防止升级后瞬间涌入大量敌人
+		this.spawnTimer = Math.max(this.spawnTimer, 0.35); // 升级后平滑衔接刷怪
 		this.lastTime = null; // Let mainLoop resync with rAF timestamp
 		try {
 			this.synergy.check();
@@ -933,8 +933,8 @@ class Game {
 		// 敌人更新：远处敌人降频更新（不移除，保持割草体验）
 		const playerX = this.player.x;
 		const playerY = this.player.y;
-		const nearDistSq = 400 * 400; // 近距离阈值
-		const farDistSq = 800 * 800;  // 超远距离阈值
+		const nearDistSq = 780 * 780; // 覆盖桌面端全屏视口，保证屏内怪物全速行动
+		const farDistSq = 1200 * 1200; // 超远距离阈值
 		// 时间停止技能：敌人不移动
 		const enemyDt = (this._timeStopTimer > 0) ? 0 : dt;
 

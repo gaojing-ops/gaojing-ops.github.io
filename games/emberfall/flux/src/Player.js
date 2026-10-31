@@ -79,7 +79,7 @@ class Player {
         this.totalXp = 0;            // 累计获得经验
 
         this.hp = 100; this.maxHp = 100;
-        this.level = 1; this.xp = 0; this.maxXp = 128; // 100 + 1*20 + 1^1.8 * 8
+        this.level = 1; this.xp = 0; this.maxXp = 32; // 平滑前期升级曲线
         this.kills = 0;
 
         // Weapons
@@ -557,7 +557,7 @@ class Player {
 
     levelUp() {
         this.level++;
-        this.maxXp = Math.floor(100 + this.level * 20 + Math.pow(this.level, 1.8) * 8);
+        this.maxXp = Math.floor(16 + this.level * 14 + Math.pow(this.level, 1.78) * 6.5);
         // 诅咒: 禁止回血时跳过升级回血
         if (!this.game.curseNoHeal) {
             this.hp = Math.min(this.maxHp, this.hp + Math.max(10, Math.floor(this.maxHp * 0.12)));

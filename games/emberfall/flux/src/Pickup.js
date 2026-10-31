@@ -90,24 +90,34 @@ class Pickup {
             case 'magnet':
                 // Pull all gems
                 for (const g of this.game.gems) {
-                    g.x = p.x + (Math.random() - 0.5) * 10;
-                    g.y = p.y + (Math.random() - 0.5) * 10;
+                    if (g.active) g.magnetized = true;
                 }
                 this.game.spawnDamageNumber(p.x, p.y - 30, 'MAGNET!', '#4444ff');
                 break;
-            case 'bomb':
-                // Kill all visible enemies
-                let killCount = 0;
+            case 'bomb': {
+                // 范围爆破：对周围 260px 内敌人造成高额爆炸伤害并震退，不再全图清屏
+                const blastR = 260;
+                const blastSq = blastR * blastR;
+                const blastDmg = 90 * (p.might || 1);
                 for (const e of this.game.enemies) {
-                    if (e.active && !e.isElite) {
-                        e.takeDamage(9999);
-                        killCount++;
+                    if (!e.active) continue;
+                    const edx = e.x - p.x;
+                    const edy = e.y - p.y;
+                    const dSq = edx * edx + edy * edy;
+                    if (dSq < blastSq) {
+                        const d = Math.sqrt(dSq) || 1;
+                        const resist = e.knockbackResist || 0;
+                        e.knockbackVx = (edx / d) * 260 * (1 - resist);
+                        e.knockbackVy = (edy / d) * 260 * (1 - resist);
+                        e.takeDamage(blastDmg);
                     }
                 }
-                this.game.shakeAmount = 10;
-                this.game.shakeDuration = 0.5;
-                this.game.spawnDamageNumber(p.x, p.y - 30, 'BOOM!', '#000');
+                this.game.radiationPulse = { x: p.x, y: p.y, r: blastR, a: 0.8, color: '#ff8844' };
+                this.game.shakeAmount = 8;
+                this.game.shakeDuration = 0.35;
+                this.game.spawnDamageNumber(p.x, p.y - 30, '烈焰爆破!', '#ffaa44');
                 break;
+            }
             case 'potion':
                 // Heal (诅咒: 禁止回血时无效)
                 if (this.game.curseNoHeal) {
