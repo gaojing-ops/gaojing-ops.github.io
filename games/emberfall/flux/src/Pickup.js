@@ -95,10 +95,12 @@ class Pickup {
                 this.game.spawnDamageNumber(p.x, p.y - 30, 'MAGNET!', '#4444ff');
                 break;
             case 'bomb': {
-                // 范围爆破：对周围 260px 内敌人造成高额爆炸伤害并震退，不再全图清屏
-                const blastR = 260;
+                // 范围爆破：震退周围 250px 内敌人并击破贴身最多 16 只怪，不再清空全屏
+                const innerSq = 160 * 160;
+                const blastR = 250;
                 const blastSq = blastR * blastR;
-                const blastDmg = 90 * (p.might || 1);
+                const blastDmg = 75 * (p.might || 1);
+                let lethalHits = 0;
                 for (const e of this.game.enemies) {
                     if (!e.active) continue;
                     const edx = e.x - p.x;
@@ -107,9 +109,14 @@ class Pickup {
                     if (dSq < blastSq) {
                         const d = Math.sqrt(dSq) || 1;
                         const resist = e.knockbackResist || 0;
-                        e.knockbackVx = (edx / d) * 260 * (1 - resist);
-                        e.knockbackVy = (edy / d) * 260 * (1 - resist);
-                        e.takeDamage(blastDmg);
+                        e.knockbackVx = (edx / d) * 300 * (1 - resist);
+                        e.knockbackVy = (edy / d) * 300 * (1 - resist);
+                        if (dSq < innerSq && lethalHits < 16) {
+                            lethalHits++;
+                            e.takeDamage(blastDmg);
+                        } else if (e.hp > 2) {
+                            e.takeDamage(Math.min(e.hp - 1, blastDmg * 0.4));
+                        }
                     }
                 }
                 this.game.radiationPulse = { x: p.x, y: p.y, r: blastR, a: 0.8, color: '#ff8844' };
@@ -158,12 +165,26 @@ class Pickup {
                 this._collectCooldown = 3; // 3秒冷却防止连续触发
                 break;
             case 'teleporter':
-                // 传送门：随机传送
-                const angle = Math.random() * Math.PI * 2;
-                const teleportDist = 200 + Math.random() * 200;
-                p.x += fastCos(angle) * teleportDist;
-                p.y += fastSin(angle) * teleportDist;
-                this.game.spawnDamageNumber(p.x, p.y - 30, '🌀 传送!', '#aa44ff');
+                // 裂隙法阵：付与相位疾行与短暂无敌，并震退贴身怪物（避免镜头瞬移导致全屏怪物突兀跳变）
+                this.game.playerInvincible = Math.max(this.game.playerInvincible || 0, 2.5);
+                if (!this.game._speedBurst) {
+                    this.game._speedBurst = { timer: 4, speedBonus: 0.35 };
+                    p.bonusSpeed = (p.bonusSpeed || 0) + 0.35;
+                } else {
+                    this.game._speedBurst.timer = Math.max(this.game._speedBurst.timer, 4);
+                }
+                for (const e of this.game.enemies) {
+                    if (!e.active) continue;
+                    const edx = e.x - p.x;
+                    const edy = e.y - p.y;
+                    const edSq = edx * edx + edy * edy;
+                    if (edSq < 180 * 180 && edSq > 0.01) {
+                        const ed = Math.sqrt(edSq);
+                        e.knockbackVx = (edx / ed) * 280;
+                        e.knockbackVy = (edy / ed) * 280;
+                    }
+                }
+                this.game.spawnDamageNumber(p.x, p.y - 30, '🌀 裂隙相位! 疾行无敌', '#aa44ff');
                 if (this.game.particles) {
                     this.game.particles.emit(p.x, p.y, { count: 20, speed: 150, life: 0.4, color: '#aa44ff', size: 5 });
                 }

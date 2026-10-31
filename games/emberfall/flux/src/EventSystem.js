@@ -100,8 +100,7 @@ const EVENT_DEFS = [
 			let count = 0;
 			for (const g of game.gems) {
 				if (g.active) {
-					g.x = game.player.x + (Math.random() - 0.5) * 60;
-					g.y = game.player.y + (Math.random() - 0.5) * 60;
+					g.magnetized = true;
 					count++;
 				}
 			}
@@ -159,7 +158,7 @@ const EVENT_DEFS = [
 			const angle = Math.random() * Math.PI * 2;
 			const x = game.player.x + fastCos(angle) * 300;
 			const y = game.player.y + fastSin(angle) * 300;
-			const types = ['Skeleton', 'Ghost', 'OrcWarrior', 'CrystalGolem'];
+			const types = ['Skeleton', 'Ghost', 'Charger', 'ShieldBearer', 'IronGolem'];
 			const type = types[Math.floor(Math.random() * types.length)];
 			const enemy = game._createEnemy(x, y, type);
 			if (enemy) {
@@ -198,7 +197,7 @@ const EVENT_DEFS = [
 				const a = (i / 8) * Math.PI * 2;
 				const ex = game.player.x + fastCos(a) * 350;
 				const ey = game.player.y + fastSin(a) * 350;
-				const types = ['Bat', 'Zombie', 'PoisonCrawler'];
+				const types = ['Bat', 'Skeleton', 'Crawler', 'CyberSpider', 'SlimeGlob'];
 				const e = game._createEnemy(ex, ey, types[Math.floor(Math.random() * types.length)]);
 				if (e) game.enemies.push(e);
 			}
@@ -233,7 +232,7 @@ const EVENT_DEFS = [
 			const angle = Math.random() * Math.PI * 2;
 			const x = game.player.x + fastCos(angle) * 400;
 			const y = game.player.y + fastSin(angle) * 400;
-			const types = ['Ghost', 'CrystalGolem', 'EliteKnight'];
+			const types = ['Charger', 'IronGolem', 'FrostTitan', 'PlagueSource', 'ShieldBearer'];
 			const type = types[Math.floor(Math.random() * types.length)];
 			const enemy = game._createEnemy(x, y, type);
 			if (enemy) {
@@ -295,7 +294,8 @@ const EVENT_DEFS = [
 			const angle = Math.random() * Math.PI * 2;
 			const x = game.player.x + fastCos(angle) * 500;
 			const y = game.player.y + fastSin(angle) * 500;
-			const hunter = game._createEnemy(x, y, 'VoidHunter');
+			const hunterTypes = ['Assassin', 'Phantom', 'VoidLeech'];
+			const hunter = game._createEnemy(x, y, hunterTypes[Math.floor(Math.random() * hunterTypes.length)]);
 			if (hunter) {
 				hunter.hp = 200; hunter.maxHp = 200;
 				hunter.speed *= 1.5; hunter.radius = 18;

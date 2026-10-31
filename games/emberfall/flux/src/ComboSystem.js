@@ -156,24 +156,31 @@ function installComboSystem(GameClass) {
 		this.radiationPulse = { x: p.x, y: p.y, r: radius, a: 0.6, color: '#ff6600' };
 	};
 
-	// 75连杀冲击波：震退并重创身边近距离敌人，吸引周围经验球（不清空全屏敌人）
+	// 75连杀冲击波：震退身边包围圈并击破贴身最多12只怪，不清空全屏怪群
 	GameClass.prototype._screenClear = function () {
 		const p = this.player;
-		const damage = 55 * p.might;
-		const radius = 240;
-		const radiusSq = radius * radius;
+		const damage = 45 * p.might;
+		const innerRadiusSq = 135 * 135;
+		const outerRadius = 220;
+		const outerRadiusSq = outerRadius * outerRadius;
+		let lethalHits = 0;
 
 		for (const e of this.enemies) {
 			if (!e.active) continue;
 			const dx = e.x - p.x;
 			const dy = e.y - p.y;
 			const dSq = dx * dx + dy * dy;
-			if (dSq < radiusSq) {
+			if (dSq < outerRadiusSq) {
 				const d = Math.sqrt(dSq) || 1;
 				const resist = e.knockbackResist || 0;
-				e.knockbackVx = (dx / d) * 280 * (1 - resist);
-				e.knockbackVy = (dy / d) * 280 * (1 - resist);
-				e.takeDamage(damage);
+				e.knockbackVx = (dx / d) * 320 * (1 - resist);
+				e.knockbackVy = (dy / d) * 320 * (1 - resist);
+				if (dSq < innerRadiusSq && lethalHits < 12) {
+					lethalHits++;
+					e.takeDamage(damage);
+				} else if (e.hp > 2) {
+					e.takeDamage(Math.min(e.hp - 1, damage * 0.35));
+				}
 			}
 		}
 
@@ -181,18 +188,20 @@ function installComboSystem(GameClass) {
 			if (!b.active) continue;
 			const dx = b.x - p.x;
 			const dy = b.y - p.y;
-			if (dx * dx + dy * dy < radiusSq) {
+			if (dx * dx + dy * dy < outerRadiusSq) {
 				b.takeDamage(damage * 0.5);
 			}
 		}
 
-		const pullSq = 360 * 360;
+		const pullSq = 220 * 220;
+		let pulled = 0;
 		for (const g of this.gems) {
-			if (g.active) {
+			if (g.active && pulled < 18) {
 				const dx = g.x - p.x;
 				const dy = g.y - p.y;
 				if (dx * dx + dy * dy < pullSq) {
 					g.magnetized = true;
+					pulled++;
 				}
 			}
 		}
@@ -200,7 +209,7 @@ function installComboSystem(GameClass) {
 		if (this.particles) {
 			this.particles.emit(p.x, p.y, { count: 40, speed: 320, life: 0.5, color: '#ff44ff', size: 6 });
 		}
-		this.radiationPulse = { x: p.x, y: p.y, r: radius, a: 0.75, color: '#ff44ff' };
+		this.radiationPulse = { x: p.x, y: p.y, r: outerRadius, a: 0.75, color: '#ff44ff' };
 	};
 }
 

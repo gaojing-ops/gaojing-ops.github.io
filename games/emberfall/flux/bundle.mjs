@@ -4738,24 +4738,31 @@ function installComboSystem(GameClass) {
 		this.radiationPulse = { x: p.x, y: p.y, r: radius, a: 0.6, color: '#ff6600' };
 	};
 
-	// 75连杀冲击波：震退并重创身边近距离敌人，吸引周围经验球（不清空全屏敌人）
+	// 75连杀冲击波：震退身边包围圈并击破贴身最多12只怪，不清空全屏怪群
 	GameClass.prototype._screenClear = function () {
 		const p = this.player;
-		const damage = 55 * p.might;
-		const radius = 240;
-		const radiusSq = radius * radius;
+		const damage = 45 * p.might;
+		const innerRadiusSq = 135 * 135;
+		const outerRadius = 220;
+		const outerRadiusSq = outerRadius * outerRadius;
+		let lethalHits = 0;
 
 		for (const e of this.enemies) {
 			if (!e.active) continue;
 			const dx = e.x - p.x;
 			const dy = e.y - p.y;
 			const dSq = dx * dx + dy * dy;
-			if (dSq < radiusSq) {
+			if (dSq < outerRadiusSq) {
 				const d = Math.sqrt(dSq) || 1;
 				const resist = e.knockbackResist || 0;
-				e.knockbackVx = (dx / d) * 280 * (1 - resist);
-				e.knockbackVy = (dy / d) * 280 * (1 - resist);
-				e.takeDamage(damage);
+				e.knockbackVx = (dx / d) * 320 * (1 - resist);
+				e.knockbackVy = (dy / d) * 320 * (1 - resist);
+				if (dSq < innerRadiusSq && lethalHits < 12) {
+					lethalHits++;
+					e.takeDamage(damage);
+				} else if (e.hp > 2) {
+					e.takeDamage(Math.min(e.hp - 1, damage * 0.35));
+				}
 			}
 		}
 
@@ -4763,18 +4770,20 @@ function installComboSystem(GameClass) {
 			if (!b.active) continue;
 			const dx = b.x - p.x;
 			const dy = b.y - p.y;
-			if (dx * dx + dy * dy < radiusSq) {
+			if (dx * dx + dy * dy < outerRadiusSq) {
 				b.takeDamage(damage * 0.5);
 			}
 		}
 
-		const pullSq = 360 * 360;
+		const pullSq = 220 * 220;
+		let pulled = 0;
 		for (const g of this.gems) {
-			if (g.active) {
+			if (g.active && pulled < 18) {
 				const dx = g.x - p.x;
 				const dy = g.y - p.y;
 				if (dx * dx + dy * dy < pullSq) {
 					g.magnetized = true;
+					pulled++;
 				}
 			}
 		}
@@ -4782,7 +4791,7 @@ function installComboSystem(GameClass) {
 		if (this.particles) {
 			this.particles.emit(p.x, p.y, { count: 40, speed: 320, life: 0.5, color: '#ff44ff', size: 6 });
 		}
-		this.radiationPulse = { x: p.x, y: p.y, r: radius, a: 0.75, color: '#ff44ff' };
+		this.radiationPulse = { x: p.x, y: p.y, r: outerRadius, a: 0.75, color: '#ff44ff' };
 	};
 }
 
@@ -6853,8 +6862,7 @@ const EVENT_DEFS = [
 			let count = 0;
 			for (const g of game.gems) {
 				if (g.active) {
-					g.x = game.player.x + (Math.random() - 0.5) * 60;
-					g.y = game.player.y + (Math.random() - 0.5) * 60;
+					g.magnetized = true;
 					count++;
 				}
 			}
@@ -6912,7 +6920,7 @@ const EVENT_DEFS = [
 			const angle = Math.random() * Math.PI * 2;
 			const x = game.player.x + fastCos(angle) * 300;
 			const y = game.player.y + fastSin(angle) * 300;
-			const types = ['Skeleton', 'Ghost', 'OrcWarrior', 'CrystalGolem'];
+			const types = ['Skeleton', 'Ghost', 'Charger', 'ShieldBearer', 'IronGolem'];
 			const type = types[Math.floor(Math.random() * types.length)];
 			const enemy = game._createEnemy(x, y, type);
 			if (enemy) {
@@ -6951,7 +6959,7 @@ const EVENT_DEFS = [
 				const a = (i / 8) * Math.PI * 2;
 				const ex = game.player.x + fastCos(a) * 350;
 				const ey = game.player.y + fastSin(a) * 350;
-				const types = ['Bat', 'Zombie', 'PoisonCrawler'];
+				const types = ['Bat', 'Skeleton', 'Crawler', 'CyberSpider', 'SlimeGlob'];
 				const e = game._createEnemy(ex, ey, types[Math.floor(Math.random() * types.length)]);
 				if (e) game.enemies.push(e);
 			}
@@ -6986,7 +6994,7 @@ const EVENT_DEFS = [
 			const angle = Math.random() * Math.PI * 2;
 			const x = game.player.x + fastCos(angle) * 400;
 			const y = game.player.y + fastSin(angle) * 400;
-			const types = ['Ghost', 'CrystalGolem', 'EliteKnight'];
+			const types = ['Charger', 'IronGolem', 'FrostTitan', 'PlagueSource', 'ShieldBearer'];
 			const type = types[Math.floor(Math.random() * types.length)];
 			const enemy = game._createEnemy(x, y, type);
 			if (enemy) {
@@ -7048,7 +7056,8 @@ const EVENT_DEFS = [
 			const angle = Math.random() * Math.PI * 2;
 			const x = game.player.x + fastCos(angle) * 500;
 			const y = game.player.y + fastSin(angle) * 500;
-			const hunter = game._createEnemy(x, y, 'VoidHunter');
+			const hunterTypes = ['Assassin', 'Phantom', 'VoidLeech'];
+			const hunter = game._createEnemy(x, y, hunterTypes[Math.floor(Math.random() * hunterTypes.length)]);
 			if (hunter) {
 				hunter.hp = 200; hunter.maxHp = 200;
 				hunter.speed *= 1.5; hunter.radius = 18;
@@ -9138,6 +9147,44 @@ class Game {
 			}
 		}
 
+		// ─── 敌人防重叠挤压（防止数十只怪叠在同一个像素点上像只有一只怪）───
+		if (enemyDt > 0) {
+			const len = this.enemies.length;
+			for (let i = 0; i < len; i++) {
+				const e1 = this.enemies[i];
+				if (!e1.active) continue;
+				const r1 = e1.radius || 10;
+				for (let j = i + 1; j < len; j++) {
+					const e2 = this.enemies[j];
+					if (!e2.active) continue;
+					const minDist = (r1 + (e2.radius || 10)) * 0.85;
+					const sdx = e2.x - e1.x;
+					if (sdx > minDist || sdx < -minDist) continue;
+					const sdy = e2.y - e1.y;
+					if (sdy > minDist || sdy < -minDist) continue;
+					const dSq = sdx * sdx + sdy * sdy;
+					if (dSq < minDist * minDist) {
+						if (dSq > 0.001) {
+							const d = Math.sqrt(dSq);
+							const overlap = (minDist - d) * 0.35;
+							const nx = (sdx / d) * overlap;
+							const ny = (sdy / d) * overlap;
+							e1.x -= nx;
+							e1.y -= ny;
+							e2.x += nx;
+							e2.y += ny;
+						} else {
+							const a = ((i * 7 + j * 13) % 16) * (Math.PI / 8);
+							e1.x -= fastCos(a) * 2;
+							e1.y -= fastSin(a) * 2;
+							e2.x += fastCos(a) * 2;
+							e2.y += fastSin(a) * 2;
+						}
+					}
+				}
+			}
+		}
+
 		for (const g of this.gems) g.update(dt);
 		for (const p of this.pickups) p.update(dt);
 		for (const boss of this.bosses) boss.update(dt);
@@ -10034,7 +10081,8 @@ class Game {
 		const p = this.player;
 		const maxDist = Math.max(this.width, this.height) * 1.5;
 		const maxDistSq = maxDist * maxDist;
-		const spawnDist = Math.max(this.width, this.height) / 2 + 80;
+		const halfW = (this.width || 800) / 2 + 42;
+		const halfH = (this.height || 600) / 2 + 42;
 
 		// 玩家移动方向（用于将敌人传送到前方）
 		const vec = this.input.vector;
@@ -10044,6 +10092,7 @@ class Game {
 		);
 		const hasDirection = (vec.x || 0) !== 0 || (vec.y || 0) !== 0;
 
+		let recycledRegular = 0;
 		for (let i = 0; i < this.enemies.length; i++) {
 			const e = this.enemies[i];
 			if (!e.active) continue;
@@ -10052,19 +10101,39 @@ class Game {
 			const dx = e.x - p.x;
 			const dy = e.y - p.y;
 			if (dx * dx + dy * dy > maxDistSq) {
-				// 传送到刷怪环：玩家移动方向 ± 随机偏转
+				// 普通小怪直接回收到对象池并按当前时间/章节重刷，避免早期低级怪一直被满血复刻
+				if (!e.isElite && e.type !== 'LootGoblin') {
+					e.active = false;
+					recycledRegular++;
+					continue;
+				}
+				// 精英怪保留但传送到当前视口边缘前方
 				const angle = hasDirection
 					? moveAngle + (Math.random() - 0.5) * Math.PI
 					: Math.random() * Math.PI * 2;
-				e.x = p.x + fastCos(angle) * spawnDist;
-				e.y = p.y + fastSin(angle) * spawnDist;
-				// 满血复活
-				e.hp = e.maxHp;
+				const cosA = fastCos(angle);
+				const sinA = fastSin(angle);
+				const edgeDist = Math.min(
+					Math.abs(cosA) > 0.001 ? halfW / Math.abs(cosA) : 9999,
+					Math.abs(sinA) > 0.001 ? halfH / Math.abs(sinA) : 9999
+				);
+				e.x = p.x + cosA * (edgeDist + 24);
+				e.y = p.y + sinA * (edgeDist + 24);
 				e.frozen = 0;
 				e.poisoned = 0;
 				e.poisonStacks = 0;
 				e.knockbackVx = 0;
 				e.knockbackVy = 0;
+			}
+		}
+		if (recycledRegular > 0) {
+			this._compactEnemies();
+			const tMinutes = this.time / 60;
+			const hpMult = this.endlessMode ? 25 * Math.pow(1.35, this.endlessWave) : Math.pow(25, tMinutes / 20);
+			const dmgMult = this.endlessMode ? 12 * Math.pow(1.2, this.endlessWave) : Math.pow(12, tMinutes / 20);
+			const respawnCount = Math.min(recycledRegular, 12);
+			for (let i = 0; i < respawnCount; i++) {
+				this._spawnEnemy(hpMult, dmgMult, i * 24);
 			}
 		}
 	}
@@ -12935,10 +13004,12 @@ class Pickup {
                 this.game.spawnDamageNumber(p.x, p.y - 30, 'MAGNET!', '#4444ff');
                 break;
             case 'bomb': {
-                // 范围爆破：对周围 260px 内敌人造成高额爆炸伤害并震退，不再全图清屏
-                const blastR = 260;
+                // 范围爆破：震退周围 250px 内敌人并击破贴身最多 16 只怪，不再清空全屏
+                const innerSq = 160 * 160;
+                const blastR = 250;
                 const blastSq = blastR * blastR;
-                const blastDmg = 90 * (p.might || 1);
+                const blastDmg = 75 * (p.might || 1);
+                let lethalHits = 0;
                 for (const e of this.game.enemies) {
                     if (!e.active) continue;
                     const edx = e.x - p.x;
@@ -12947,9 +13018,14 @@ class Pickup {
                     if (dSq < blastSq) {
                         const d = Math.sqrt(dSq) || 1;
                         const resist = e.knockbackResist || 0;
-                        e.knockbackVx = (edx / d) * 260 * (1 - resist);
-                        e.knockbackVy = (edy / d) * 260 * (1 - resist);
-                        e.takeDamage(blastDmg);
+                        e.knockbackVx = (edx / d) * 300 * (1 - resist);
+                        e.knockbackVy = (edy / d) * 300 * (1 - resist);
+                        if (dSq < innerSq && lethalHits < 16) {
+                            lethalHits++;
+                            e.takeDamage(blastDmg);
+                        } else if (e.hp > 2) {
+                            e.takeDamage(Math.min(e.hp - 1, blastDmg * 0.4));
+                        }
                     }
                 }
                 this.game.radiationPulse = { x: p.x, y: p.y, r: blastR, a: 0.8, color: '#ff8844' };
@@ -12998,12 +13074,26 @@ class Pickup {
                 this._collectCooldown = 3; // 3秒冷却防止连续触发
                 break;
             case 'teleporter':
-                // 传送门：随机传送
-                const angle = Math.random() * Math.PI * 2;
-                const teleportDist = 200 + Math.random() * 200;
-                p.x += fastCos(angle) * teleportDist;
-                p.y += fastSin(angle) * teleportDist;
-                this.game.spawnDamageNumber(p.x, p.y - 30, '🌀 传送!', '#aa44ff');
+                // 裂隙法阵：付与相位疾行与短暂无敌，并震退贴身怪物（避免镜头瞬移导致全屏怪物突兀跳变）
+                this.game.playerInvincible = Math.max(this.game.playerInvincible || 0, 2.5);
+                if (!this.game._speedBurst) {
+                    this.game._speedBurst = { timer: 4, speedBonus: 0.35 };
+                    p.bonusSpeed = (p.bonusSpeed || 0) + 0.35;
+                } else {
+                    this.game._speedBurst.timer = Math.max(this.game._speedBurst.timer, 4);
+                }
+                for (const e of this.game.enemies) {
+                    if (!e.active) continue;
+                    const edx = e.x - p.x;
+                    const edy = e.y - p.y;
+                    const edSq = edx * edx + edy * edy;
+                    if (edSq < 180 * 180 && edSq > 0.01) {
+                        const ed = Math.sqrt(edSq);
+                        e.knockbackVx = (edx / ed) * 280;
+                        e.knockbackVy = (edy / ed) * 280;
+                    }
+                }
+                this.game.spawnDamageNumber(p.x, p.y - 30, '🌀 裂隙相位! 疾行无敌', '#aa44ff');
                 if (this.game.particles) {
                     this.game.particles.emit(p.x, p.y, { count: 20, speed: 150, life: 0.4, color: '#aa44ff', size: 5 });
                 }
@@ -13408,8 +13498,9 @@ class Player {
         return total;
     }
     get speed() {
-        let s = this.baseSpeed * (1 + this.bonusSpeed);
-        if (this.slowed > 0) s *= this.slowAmount;
+        const bonus = Number.isFinite(this.bonusSpeed) ? this.bonusSpeed : 0;
+        let s = this.baseSpeed * (1 + bonus);
+        if (this.slowed > 0 && Number.isFinite(this.slowAmount)) s *= this.slowAmount;
         return s;
     }
     get cdr() { return Math.min(this.bonusCdr, 0.50); }
@@ -21466,7 +21557,35 @@ function installSpawnSystem(Game) {
 	Game.prototype._spawnEnemy = function (hpMult = 1, dmgMult = 1, spread = 0) {
 		// 全局敌人上限（防止后期帧率崩溃）
 		const enemyLimit = 180;
-		if (this.enemies.length >= enemyLimit) return;
+		if (this.enemies.length >= enemyLimit) {
+			// 达到场上上限时，优先替换视野外最远的旧普通怪，防止早期低级怪占满名额导致新怪种刷不出
+			const px = this.player.x;
+			const py = this.player.y;
+			const viewHalfW = (this.width || 800) * 0.52;
+			const viewHalfH = (this.height || 600) * 0.52;
+			let farthestIdx = -1;
+			let farthestDistSq = 0;
+			for (let i = 0; i < this.enemies.length; i++) {
+				const oldE = this.enemies[i];
+				if (!oldE.active || oldE.isElite || oldE === this._bountyTarget || oldE.type === 'LootGoblin') continue;
+				const odx = oldE.x - px;
+				const ody = oldE.y - py;
+				if (Math.abs(odx) <= viewHalfW && Math.abs(ody) <= viewHalfH) continue;
+				const dSq = odx * odx + ody * ody;
+				if (dSq > farthestDistSq) {
+					farthestDistSq = dSq;
+					farthestIdx = i;
+				}
+			}
+			if (farthestIdx >= 0) {
+				const removed = this.enemies[farthestIdx];
+				removed.active = false;
+				this.enemyPool.release(removed);
+				this.enemies.splice(farthestIdx, 1);
+			} else {
+				return;
+			}
+		}
 
 		const angle = Math.random() * Math.PI * 2;
 		const cosA = fastCos(angle);
@@ -21487,7 +21606,7 @@ function installSpawnSystem(Game) {
 
 		// ─── 核心生成池 (覆盖全 32 种常规/精英机制怪，随时间平滑解锁) ───
 		let pool = [];
-		if (t > 660) { // 11分钟+：全图鉴满编（含巨型母体、霜岩巨人、瘟疫母巢、铸铁魔像）
+		if (t > 240) { // 4分钟+：全图鉴满编（含巨型母体、霜岩巨人、瘟疫母巢、铸铁魔像）
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
@@ -21495,43 +21614,28 @@ function installSpawnSystem(Game) {
 				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech',
 				'FrostTitan', 'PlagueSource', 'IronGolem', 'RoyalSlime'
 			];
-		} else if (t > 420) { // 7～11分钟
-			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
-				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
-				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
-				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech',
-				'FrostTitan', 'PlagueSource', 'IronGolem'
-			];
-		} else if (t > 240) { // 4～7分钟（第二章起）
-			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
-				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
-				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
-				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech', 'IronGolem'
-			];
 		} else if (t > 150) { // 2.5～4分钟
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
-				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'Assassin',
-				'Turret', 'LaserDrone', 'ScatterGun', 'ChainGunner',
-				'ShieldBearer', 'Charger', 'Healer'
+				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
+				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
+				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech', 'IronGolem', 'FrostTitan'
 			];
 		} else if (t > 90) { // 1.5～2.5分钟
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'Crawler', 'WarpMite',
-				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom',
-				'Turret', 'LaserDrone', 'ShieldBearer', 'Healer'
+				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
+				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech'
 			];
 		} else if (t > 45) { // 45～90秒
 			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'SwarmDrone', 'Crawler',
-				'SlimeGlob', 'FrostWisp', 'DataWorm', 'Turret', 'Splitter', 'WarpMite', 'LaserDrone'
+				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'SwarmDrone', 'Hornet', 'Crawler',
+				'SlimeGlob', 'FrostWisp', 'DataWorm', 'Turret', 'Splitter', 'WarpMite', 'LaserDrone', 'Bomber', 'ShieldBearer', 'Phantom'
 			];
 		} else if (t > 18) { // 18～45秒
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly', 'SwarmDrone',
-				'Crawler', 'SlimeGlob', 'FrostWisp', 'Splitter'
+				'Crawler', 'SlimeGlob', 'FrostWisp', 'Splitter', 'DataWorm', 'Turret'
 			];
 		} else { // 0～18秒：开局即有 5 种不同形态与移速的林间怪物组合
 			pool = ['Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly'];
@@ -21603,8 +21707,8 @@ function installSpawnSystem(Game) {
 			const existing = weightedPool.find(x => x.type === bw.type);
 			if (existing) {
 				existing.weight += bw.weight;
-			} else if (t > 60) {
-				weightedPool.push({ type: bw.type, weight: bw.weight * 0.6 });
+			} else if (t > 25) {
+				weightedPool.push({ type: bw.type, weight: bw.weight * 0.65 });
 			}
 		}
 
@@ -21655,9 +21759,7 @@ function installSpawnSystem(Game) {
 		// 快速群怪额外生成（适度控制群怪数量，避免挤占中大型怪名额）
 		let extraCount = 0;
 		const tMinutes = t / 60;
-		if (type === 'SwarmDrone' || type === 'Hornet' || type === 'FireFly') {
-			extraCount = 1 + Math.floor(tMinutes * 0.25);
-		} else if (type === 'Crawler') {
+		if ((type === 'SwarmDrone' || type === 'Hornet' || type === 'FireFly' || type === 'Crawler') && Math.random() < 0.45) {
 			extraCount = 1 + Math.floor(tMinutes * 0.15);
 		}
 

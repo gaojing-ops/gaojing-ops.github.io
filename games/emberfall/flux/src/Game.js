@@ -962,6 +962,44 @@ class Game {
 			}
 		}
 
+		// ─── 敌人防重叠挤压（防止数十只怪叠在同一个像素点上像只有一只怪）───
+		if (enemyDt > 0) {
+			const len = this.enemies.length;
+			for (let i = 0; i < len; i++) {
+				const e1 = this.enemies[i];
+				if (!e1.active) continue;
+				const r1 = e1.radius || 10;
+				for (let j = i + 1; j < len; j++) {
+					const e2 = this.enemies[j];
+					if (!e2.active) continue;
+					const minDist = (r1 + (e2.radius || 10)) * 0.85;
+					const sdx = e2.x - e1.x;
+					if (sdx > minDist || sdx < -minDist) continue;
+					const sdy = e2.y - e1.y;
+					if (sdy > minDist || sdy < -minDist) continue;
+					const dSq = sdx * sdx + sdy * sdy;
+					if (dSq < minDist * minDist) {
+						if (dSq > 0.001) {
+							const d = Math.sqrt(dSq);
+							const overlap = (minDist - d) * 0.35;
+							const nx = (sdx / d) * overlap;
+							const ny = (sdy / d) * overlap;
+							e1.x -= nx;
+							e1.y -= ny;
+							e2.x += nx;
+							e2.y += ny;
+						} else {
+							const a = ((i * 7 + j * 13) % 16) * (Math.PI / 8);
+							e1.x -= fastCos(a) * 2;
+							e1.y -= fastSin(a) * 2;
+							e2.x += fastCos(a) * 2;
+							e2.y += fastSin(a) * 2;
+						}
+					}
+				}
+			}
+		}
+
 		for (const g of this.gems) g.update(dt);
 		for (const p of this.pickups) p.update(dt);
 		for (const boss of this.bosses) boss.update(dt);
@@ -1858,7 +1896,8 @@ class Game {
 		const p = this.player;
 		const maxDist = Math.max(this.width, this.height) * 1.5;
 		const maxDistSq = maxDist * maxDist;
-		const spawnDist = Math.max(this.width, this.height) / 2 + 80;
+		const halfW = (this.width || 800) / 2 + 42;
+		const halfH = (this.height || 600) / 2 + 42;
 
 		// 玩家移动方向（用于将敌人传送到前方）
 		const vec = this.input.vector;
@@ -1868,6 +1907,7 @@ class Game {
 		);
 		const hasDirection = (vec.x || 0) !== 0 || (vec.y || 0) !== 0;
 
+		let recycledRegular = 0;
 		for (let i = 0; i < this.enemies.length; i++) {
 			const e = this.enemies[i];
 			if (!e.active) continue;
@@ -1876,19 +1916,39 @@ class Game {
 			const dx = e.x - p.x;
 			const dy = e.y - p.y;
 			if (dx * dx + dy * dy > maxDistSq) {
-				// 传送到刷怪环：玩家移动方向 ± 随机偏转
+				// 普通小怪直接回收到对象池并按当前时间/章节重刷，避免早期低级怪一直被满血复刻
+				if (!e.isElite && e.type !== 'LootGoblin') {
+					e.active = false;
+					recycledRegular++;
+					continue;
+				}
+				// 精英怪保留但传送到当前视口边缘前方
 				const angle = hasDirection
 					? moveAngle + (Math.random() - 0.5) * Math.PI
 					: Math.random() * Math.PI * 2;
-				e.x = p.x + fastCos(angle) * spawnDist;
-				e.y = p.y + fastSin(angle) * spawnDist;
-				// 满血复活
-				e.hp = e.maxHp;
+				const cosA = fastCos(angle);
+				const sinA = fastSin(angle);
+				const edgeDist = Math.min(
+					Math.abs(cosA) > 0.001 ? halfW / Math.abs(cosA) : 9999,
+					Math.abs(sinA) > 0.001 ? halfH / Math.abs(sinA) : 9999
+				);
+				e.x = p.x + cosA * (edgeDist + 24);
+				e.y = p.y + sinA * (edgeDist + 24);
 				e.frozen = 0;
 				e.poisoned = 0;
 				e.poisonStacks = 0;
 				e.knockbackVx = 0;
 				e.knockbackVy = 0;
+			}
+		}
+		if (recycledRegular > 0) {
+			this._compactEnemies();
+			const tMinutes = this.time / 60;
+			const hpMult = this.endlessMode ? 25 * Math.pow(1.35, this.endlessWave) : Math.pow(25, tMinutes / 20);
+			const dmgMult = this.endlessMode ? 12 * Math.pow(1.2, this.endlessWave) : Math.pow(12, tMinutes / 20);
+			const respawnCount = Math.min(recycledRegular, 12);
+			for (let i = 0; i < respawnCount; i++) {
+				this._spawnEnemy(hpMult, dmgMult, i * 24);
 			}
 		}
 	}

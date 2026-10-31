@@ -141,8 +141,9 @@ class Player {
         return total;
     }
     get speed() {
-        let s = this.baseSpeed * (1 + this.bonusSpeed);
-        if (this.slowed > 0) s *= this.slowAmount;
+        const bonus = Number.isFinite(this.bonusSpeed) ? this.bonusSpeed : 0;
+        let s = this.baseSpeed * (1 + bonus);
+        if (this.slowed > 0 && Number.isFinite(this.slowAmount)) s *= this.slowAmount;
         return s;
     }
     get cdr() { return Math.min(this.bonusCdr, 0.50); }
