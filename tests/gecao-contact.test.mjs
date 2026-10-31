@@ -7,7 +7,44 @@ const context=new Proxy({}, {get:(o,k)=>o[k]??(k==='measureText'?()=>({width:100
 const canvas=()=>({width:390,height:844,getContext:()=>context});
 globalThis.wx={getStorageSync:()=>'',setStorageSync(){},getSystemInfoSync:()=>({screenWidth:390,screenHeight:844,pixelRatio:1,safeArea:{top:0,bottom:844}}),createCanvas:canvas,createOffscreenCanvas:canvas,createImage:()=>({}),onTouchStart(){},onTouchMove(){},onTouchEnd(){},onTouchCancel(){}};
 const Game=require('./src/Game');
+const Boss=require('./src/Boss');
 function game(){const g=new Game(canvas());g.startWithCharacter('tracer',[]);g._tutorialStep=-1;return g;}
+
+test('real boss update plus collisions apply one time-scaled contact hit and one thorn return',()=>{
+ for(const fps of [30,60,144]){
+  const g=game(),p=g.player;p.hp=p.maxHp=1000;p.bonusArmor=3;p.thornDamage=.25;
+  const boss=new Boss(g,1);Object.assign(boss,{x:p.x,y:p.y,speed:0,damage:12,hp:10000,maxHp:10000,skillTimer:999,_behaviorTimer:999});
+  g.bosses=[boss];g.enemies=[];g._getNearbyEnemies=()=>[];
+  for(let i=0;i<fps*2;i++){boss.update(1/fps);g._checkCollisions(1/fps);}
+  const expected=12*1.5*2*(1-p.armor);
+  assert.ok(Math.abs(1000-p.hp-expected)<1e-8,`actual boss contact ${fps} fps`);
+  assert.ok(Math.abs(10000-boss.hp-expected*.25)<1e-8,'forge thorns reach boss contact');
+ }
+});
+
+test('boss beams retain their DPS at different frame rates without reflecting ranged damage',()=>{
+ for(const [type,rate] of [['laserSweep',18],['deathRay',35]])for(const fps of [30,60,144]){
+  const g=game(),p=g.player;p.hp=p.maxHp=1000;p.bonusArmor=3;p.thornDamage=.25;
+  const boss=new Boss(g,1);boss.x=p.x-100;boss.y=p.y;const oldHp=boss.hp;
+  const eff={type,angle:0,rotSpeed:0,rotateSpeed:0,_hitCooldown:999};
+  for(let i=0;i<fps*2;i++)boss._updateSustainedEffect(eff,1/fps);
+  assert.ok(Math.abs(1000-p.hp-rate*2*(1-p.armor))<1e-8,`${type} ${fps} fps`);assert.equal(boss.hp,oldHp);
+ }
+});
+
+test('frost slows actual boss movement, expires on time and does not multiply freeze with slow',()=>{
+ const g=game(),p=g.player;p.x=1000;p.y=0;const b=new Boss(g,1);
+ Object.assign(b,{x:0,y:0,speed:100,skillTimer:999,_behaviorTimer:999,slowed:.5,slowAmount:.6});
+ b.update(.25);assert.ok(Math.abs(b.x-15)<.01);b.update(.25);assert.ok(Math.abs(b.x-30)<.01);assert.equal(b.slowed,0);
+ b.update(.25);assert.ok(Math.abs(b.x-55)<.01);
+ b.slowed=1;b.frozen=1;const x=b.x;b.update(.2);assert.ok(Math.abs(b.x-x-10)<.01,'strongest movement penalty wins');
+});
+
+test('dead bosses cannot pay rewards twice and divine damage keeps its identity in both damage records',()=>{
+ const g=game(),b=new Boss(g,1);let deaths=0;b._onDeath=()=>deaths++;b.hp=10;
+ const before=g.player.totalDamage;b.takeDamage(10,'boon_chain');b.takeDamage(10,'boon_chain');
+ assert.equal(deaths,1);assert.equal(g.player.totalDamage-before,10);assert.equal(g._weaponDamageStats.boon_chain,10);assert.equal(b._damageLog.boon_chain,10);
+});
 
 test('normal and boss contact damage and thorns remain equal at 30, 60 and 144 fps',()=>{
  for(const boss of [false,true])for(const fps of [30,60,144]){

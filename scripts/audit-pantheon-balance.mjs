@@ -1,0 +1,44 @@
+// Real engine, ordinary starter stats and normal helpers. Simulation, not browser play.
+import {createRequire} from 'node:module';
+import {writeFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+import {pathToFileURL} from 'node:url';
+import {resolve} from 'node:path';
+const flags=Object.fromEntries(process.argv.slice(2).map(arg=>{const [key,...v]=arg.replace(/^--/,'').split('=');return [key,v.join('=')];}));
+const require=createRequire(flags.source?pathToFileURL(resolve(flags.source)):new URL('../games/emberfall/flux/entry.js',import.meta.url));
+const gradient={addColorStop(){}},ctx=new Proxy({}, {get:(o,k)=>o[k]??(k==='measureText'?()=>({width:100}):k.startsWith('create')?()=>gradient:()=>{}),set:(o,k,v)=>(o[k]=v,true)});
+const canvas=()=>({width:1000,height:620,getContext:()=>ctx});
+let now=0;Object.defineProperty(globalThis,'performance',{configurable:true,value:{now:()=>now}});
+globalThis.wx={getStorageSync:()=>'',setStorageSync(){},getSystemInfoSync:()=>({screenWidth:1000,screenHeight:620,pixelRatio:1,safeArea:{top:0,bottom:620}}),createCanvas:canvas,createOffscreenCanvas:canvas,createImage:()=>({}),onTouchStart(){},onTouchMove(){},onTouchEnd(){},onTouchCancel(){}};
+globalThis.browserCanvas=canvas();
+const {DEITIES}=require('./src/Pantheon');
+const gods=flags.gods?flags.gods.split(','):['none',...Object.keys(DEITIES)],seeds=(flags.seeds||'42').split(',').map(Number),heroes=(flags.heroes||'tracer').split(',');
+const seconds=Number(flags.seconds||1202),step=Number(flags.dt||1/30),rows=[];
+const originalRandom=Math.random;
+try{
+ for(const hero of heroes)for(const patron of gods)for(const originalSeed of seeds){
+  let rng=originalSeed>>>0;Math.random=()=>{rng=(Math.imul(1664525,rng)+1013904223)>>>0;return rng/4294967296;};
+  now=0;delete require.cache[require.resolve('./entry.js')];
+  const {game:g,sm}=require('./entry.js');g.resize(Number(flags.width||1000),Number(flags.height||620));g.selectedPatron=patron==='none'?null:patron;
+  g.startWithCharacter(hero,[]);g._tutorialStep=-1;g.autoPlay=g.autoUpgrade=true;sm.switchTo('playing');
+  const checkpoints=[],bosses=new Map(),boonChoices=[],originalGrant=g.pantheon.grant.bind(g.pantheon);
+  g.pantheon.grant=option=>{const result=originalGrant(option);if(result)boonChoices.push({time:+g.time.toFixed(2),level:g.player.level,id:option.id,rank:option.rank});return result;};
+  let frames=0,peak=0,minHp=1,rewards=0,next=60;
+  const snap=()=>({time:Math.round(g.time),level:g.player.level,kills:g.player.kills,hp:+Math.max(0,g.player.hp).toFixed(1),maxHp:g.player.maxHp,might:+g.player.might.toFixed(3),armor:g.player.armor,area:+g.player.area.toFixed(2),heal:+g.player.totalHealed.toFixed(1),damage:Math.round(g.player.totalDamage),boons:{...g.pantheon.ranks},weapons:g.player.weapons.map(w=>({id:w.id,level:w.level,evolved:w.evolved}))});
+  while(!g._runSettled&&g.player.hp>0&&g.time<seconds){
+   if(!g.isRunning){if(sm.currentSceneName==='upgrade'&&sm.currentScene.options?.length)sm.currentScene.onSelect(sm.currentScene.options[0]);else if(g.stageSystem?.state==='reward')g.stageSystem.applyReward(0);else break;rewards++;}
+   g.time+=step;now=g.time*1000;g.frameDt=step;g.update(step);frames++;
+   for(const b of g.bosses){if(!bosses.has(b))bosses.set(b,{name:b.name,start:+g.time.toFixed(2),hp:b.maxHp});}
+   for(const [b,record] of bosses)if(!b.active&&record.end===undefined)record.end=+g.time.toFixed(2);
+   if(g.stageSystem?.state==='reward'){g.stageSystem.applyReward(0);rewards++;}
+   for(const value of [g.player.x,g.player.y,g.player.hp,g.player.maxHp,g.player.might])assert.ok(Number.isFinite(value),`${patron}: non-finite player`);
+   peak=Math.max(peak,g.enemies.length);minHp=Math.min(minHp,Math.max(0,g.player.hp/g.player.maxHp));
+   if(g.time>=next){checkpoints.push(snap());next+=next<240?180:240;}
+   if(frames%900===0)g.draw();
+   assert.ok(frames<seconds/step+500,'simulation stalled');
+  }
+  const row={hero,patron,seed:originalSeed,dt:step,width:g.width,time:+g.time.toFixed(2),victory:!!sm.scenes.gameOver.data?.victory,dead:g.player.hp<=0,scene:sm.currentSceneName,chapter:(g.stageSystem?.currentStage||0)+1,...snap(),minHp:+minHp.toFixed(3),peak,rewards,boonChoices,bySource:g._weaponDamageStats,divine:g.pantheon.metrics||{},bosses:[...bosses.values()].map(b=>({...b,seconds:b.end===undefined?null:+(b.end-b.start).toFixed(2)})),checkpoints};
+  rows.push(row);console.log(JSON.stringify({hero,patron,seed:originalSeed,time:row.time,victory:row.victory,kills:row.kills,level:row.level,boons:boonChoices.length,bosses:row.bosses.length,minHp:row.minHp}));
+  if(flags.out)writeFileSync(flags.out,JSON.stringify({method:'engine simulation, starter stats, normal helpers, no forced rewards or invulnerability',seconds,rows},null,2));
+ }
+}finally{Math.random=originalRandom;}

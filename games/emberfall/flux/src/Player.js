@@ -549,7 +549,7 @@ class Player {
 
     gainXp(amount) {
         // 诅咒: 经验衰减，bonusXp 额外倍率
-        const xpMult = (this.game.curseXpMult || 1) * (1 + (this.bonusXp || 0));
+        const xpMult = (this.game.curseXpMult || 1) * (1 + (this.bonusXp || 0)) * (this.relicFlags?.xpBoost ? 1.25 : 1);
         const actualXp = amount * xpMult;
         this.xp += actualXp;
         this.totalXp = (this.totalXp || 0) + actualXp; // 统计追踪

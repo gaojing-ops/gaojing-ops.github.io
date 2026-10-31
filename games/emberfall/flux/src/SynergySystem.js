@@ -424,7 +424,7 @@ class SynergySystem {
             const dy = e.y - enemy.y;
             if (dx * dx + dy * dy < radiusSq) {
                 e.takeDamage(explosionDamage * 0.5);
-                e.frozen = 1.5; // 冻结周围敌人
+                e.frozen = Math.max(e.frozen || 0, 1.5); // 冻结周围敌人
             }
         }
 

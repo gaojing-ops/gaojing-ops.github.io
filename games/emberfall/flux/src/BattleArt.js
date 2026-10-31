@@ -58,6 +58,7 @@ function drawBossActor(c,b){
  c.font='700 14px "Microsoft YaHei",sans-serif';c.textAlign='center';const titleW=Math.max(w,c.measureText(b.name).width+16);c.fillStyle='#07140ff0';c.fillRect(b.x-titleW/2,y-29,titleW,22);c.fillStyle='#fff0c3';c.fillText(b.name,b.x,y-12);
  c.font='700 10px Georgia,serif';c.lineWidth=3;c.strokeStyle='#07140f';const hp=`${Math.ceil(b.hp)} / ${b.maxHp}`;c.strokeText(hp,b.x,y+9);c.fillStyle='#fff9df';c.fillText(hp,b.x,y+9);
  for(let i=0;i<(b.phase||1);i++)diamond(c,b.x+(i-((b.phase||1)-1)/2)*9,y+23,3,b.phase===3?DANGER:GOLD);
+ if(b.slowed>0){ring(c,b.x,b.y+b.radius*.55,b.radius*1.25,'#addce8',.7,.4);F.drawIcon(c,'snow',b.x+b.radius-5,b.y-b.radius*1.5,19);}
  if(b.shield>0)ring(c,b.x,b.y-b.radius*.45,b.radius*1.55,'#a8bbb5',.75,1.25,8);c.restore();return true;
 }
 function drawEnemyGround(c,e){if(e.behavior==='charger'&&e._chargeState==='aiming')lineWarning(c,e.x,e.y,e._chargeAngle,Math.max(8,e.radius*2),800);}

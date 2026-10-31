@@ -577,7 +577,7 @@ class Weapon {
             const dx = en.x - p.x, dy = en.y - p.y;
             if (dx * dx + dy * dy < radiusSq) {
                 en.takeDamage(dmg);
-                en.frozen = 6; // 瓒呴暱纭帶
+                en.frozen = Math.max(en.frozen || 0, 6); // 瓒呴暱纭帶
                 en.poisoned = 6;
                 en.poisonStacks = (en.poisonStacks || 0) + 10;
             }
@@ -673,7 +673,7 @@ class Weapon {
             const dx = e.x - p.x, dy = e.y - p.y;
             if (dx * dx + dy * dy < radiusSq) {
                 e.takeDamage(dmg, this.id);
-                e.frozen = 3;
+                e.frozen = Math.max(e.frozen || 0, 3);
                 e.poisoned = 5;
                 e.poisonStacks = (e.poisonStacks || 0) + 8;
             }
@@ -925,7 +925,7 @@ class Weapon {
     _fireIceShard(p, enemies) {
         const baseAngle = this._getAimAngle(p, enemies, 600);
         const count = 3 + Math.floor(this.level / 2) + p.bonusProjectile;
-        const freezeDur = 0.5 + p.bonusFreezeDur;
+        const freezeDur = 0.5 * (1 + p.bonusFreezeDur);
         const areaMult = Math.min(1.6, p.area || 1);
 
         for (let i = 0; i < count; i++) {
@@ -950,7 +950,7 @@ class Weapon {
     _fireGlacialNova(p) {
         const radius = Math.min((85 + this.level * 10) * p.area * (this.evolved ? 1.35 : 1), 230);
         const radiusSq = radius * radius;
-        const freezeDur = 1.0 + p.bonusFreezeDur * 2;
+        const freezeDur = 1.0 * (1 + p.bonusFreezeDur);
 
         // Freeze enemies in range (使用空间网格优化)
         const nearbyNova = this.game._getNearbyEnemies(p.x, p.y, radius);
@@ -960,7 +960,7 @@ class Weapon {
             const dy = e.y - p.y;
             if (dx * dx + dy * dy < radiusSq) {
                 e.takeDamage(this.damage, this.id);
-                e.frozen = freezeDur;
+                e.frozen = Math.max(e.frozen || 0, freezeDur);
             }
         }
         for (const b of this.game.bosses) {

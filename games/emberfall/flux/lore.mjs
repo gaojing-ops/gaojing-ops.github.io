@@ -103,7 +103,7 @@ nano_swarm|万萤腐夜|毒萤飞遍战场，持续腐蚀敌群。
 tracer|烛火越夜|借烛照的余火穿过敌阵：持续 1.5 秒，额外移动速度 +200%，期间免受伤害。
 walker|炉誓不退|以余铸的炉火立下铁誓：持续 5 秒，护甲 +15，反伤比例增加 50 个百分点。
 gunner|逐风破晓|循乘岚的羽声瞄准黑潮：持续 6 秒，伤害加成增加 100 个百分点。
-cryomancer|霜月止潮|向凝月借一轮霜月，唤起覆盖身边战场的寒霜，范围随视野与范围加成扩大。普通敌人冻结 4 秒、随后减速；生命充足者受到 35 × 伤害倍率的冲击。首领减速 3 秒。
+cryomancer|霜月止潮|向凝月借一轮霜月，唤起覆盖身边战场的寒霜，范围随视野与范围加成扩大。普通敌人基础冻结 4 秒（受冻结时长加成）、随后减速；生命充足者受到 35 × 伤害倍率的冲击。首领减速 3 秒。
 biohazard|荆萝漫夜|借青萝的荆枝，让半径 440 × 范围倍率内的普通敌人增加 8 秒中毒与 10 层毒素（范围上限 640，层数上限 50）；范围内首领受到 45 × 伤害倍率的伤害。
 berserker|燃烬破晓|以残火燃刃，承烛照之誓：持续 8 秒，移动速度 +30%，伤害加成增加 60 个百分点。
 arcane|星夜织咒|沿玄瞳的星轨立即重置武器冷却，并在 6 秒内增加 50 个百分点的冷却缩减。
@@ -399,4 +399,12 @@ export function text(value=''){
  if(cache.size>1800)cache.clear();cache.set(raw,result);return result;
 }
 export function entry(kind,id,source={}){return LORE[kind]?.[id]||{name:text(source.name||source.resultName||id),desc:text(source.desc||source.resultDesc||'')};}
+export function damageSource(id,catalogs){
+ const boon=catalogs.pantheon?.BLESSINGS.find(b=>b.id===id);
+ if(boon)return {name:`${boon.name} · ${catalogs.pantheon.DEITIES[boon.deity].name}`,icon:'god_'+boon.deity};
+ const hero=({skill_cryo:'cryomancer',skill_bio:'biohazard'})[id];
+ if(hero)return {name:entry('skills',hero,catalogs.skills[hero]).name+' · 咏誓',icon:'skill_'+hero};
+ if(id==='_other'||id==='_rest')return {name:id==='_rest'?'其余伤害':'咏誓与连携',icon:'rune'};
+ return {name:entry('weapons',id,catalogs.weapons[id]||{}).name,icon:id};
+}
 export const ELEMENT_NAMES={flux:'雷光',void:'幽影',plasma:'赤焰',cryo:'寒霜',toxic:'荆毒',kinetic:'骨刃',melee:'近战'};

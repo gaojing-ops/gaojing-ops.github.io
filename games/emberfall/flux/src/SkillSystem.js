@@ -74,7 +74,7 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87
 		color: '#addce8',
 		use: (game) => {
 			const p = game.player;
-			const freezeDur = 4;
+			const freezeDur = 4 * (1 + (p.bonusFreezeDur || 0));
 			const maxR = Math.max(540, Math.hypot(game.width || 800, game.height || 600) * 0.58) * (p.area || 1);
 			const maxRSq = maxR * maxR;
 			const novaDmg = (p.might || 1) * 35;

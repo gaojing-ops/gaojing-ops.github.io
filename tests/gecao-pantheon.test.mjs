@@ -8,7 +8,7 @@ const context=new Proxy({measureText:value=>({width:String(value).length*7}),str
 const canvas=()=>({width:1000,height:620,getContext:()=>context});
 globalThis.wx={getStorageSync:()=>'',setStorageSync(){},getSystemInfoSync:()=>({screenWidth:1000,screenHeight:620,pixelRatio:1,safeArea:{top:0,bottom:620}}),createCanvas:canvas,createOffscreenCanvas:canvas,createImage:()=>({}),onTouchStart(){},onTouchMove(){},onTouchEnd(){},onTouchCancel(){}};
 const Game=require('./src/Game');
-const {DEITIES,BLESSINGS,Pantheon}=require('./src/Pantheon');
+const {DEITIES,BLESSINGS,Pantheon,divineStage,pulseValues,blessingPreview,preferBlessing}=require('./src/Pantheon');
 const {SKILL_ART,drawNightMagic,drawIcon,makeSkillEffect}=require('./src/NightMagic');
 const {CHARACTERS}=require('./src/Character');
 function start(patron='ember',hero='tracer'){
@@ -110,4 +110,76 @@ test('area spell visuals use the same original skill radii including the viewpor
  for(const [id,radius] of [['cryomancer',Math.max(540,Math.hypot(g.width,g.height)*.58)*1.5],['biohazard',640],['assassin',247.5]]){
   g.player.characterId=id;approx(makeSkillEffect(g,{x:0,y:0}).radius,radius);
  }
+});
+
+test('divine growth is bounded at 20/40/60 levels and retains late damage, healing and lightning reach',()=>{
+ const g=start(),fire=BLESSINGS.find(b=>b.id==='boon_breath'),storm=BLESSINGS.find(b=>b.id==='boon_chain'),dawn=BLESSINGS.find(b=>b.id==='boon_bell');
+ for(const [level,power,targets] of [[1,1,3],[19,1,3],[20,1.5,4],[40,2,5],[60,2.5,6],[200,2.5,6]]){
+  g.player.level=level;assert.equal(divineStage(level).power,power);approx(pulseValues(g,fire,3).damage,36*g.player.might*power);assert.equal(pulseValues(g,storm,3).targets,targets);approx(pulseValues(g,dawn,3).healing,6*power);
+ }
+ const frost=BLESSINGS.find(b=>b.id==='boon_tide');g.player.level=200;approx(pulseValues(g,frost,3).freeze,1.8);
+});
+
+test('real divine contribution records ignore immunity, overkill, full-health healing and paused time',()=>{
+ const g=start(),p=g.player;p.level=60;p.hp=p.maxHp-1;
+ const immune={x:p.x,y:p.y,active:true,hp:100,shield:0,takeDamage(){}},target={x:p.x+5,y:p.y,active:true,hp:5,shield:0,takeDamage(n){this.hp-=n;}};
+ g.enemies=[immune,target];g.bosses=[];grant(g,'boon_bell');g.pantheon.update(8);
+ assert.deepEqual(g.pantheon.metrics.boon_bell,{casts:1,hits:2,damage:5,healing:1,controlled:0});
+ const before=JSON.stringify(g.pantheon.metrics);g.isPaused=true;g.pantheon.update(100);assert.equal(JSON.stringify(g.pantheon.metrics),before);
+ g.startWithCharacter('tracer',[]);assert.deepEqual(g.pantheon.metrics,{});
+});
+
+test('divine previews use actual diminishing returns and caps without changing the player',()=>{
+ const g=start('moon'),p=g.player;p.bonusArmor=8;p.bonusCdr=.8;
+ const before=JSON.stringify([p.hp,p.bonusArmor,p.bonusCdr,p.bonusMight,p.totalHealed]);
+ for(const id of ['boon_mail','boon_chant','boon_coal','boon_thorn','boon_still']){
+  const preview=blessingPreview(g,{id,rank:1});assert.ok(preview.lines.length);
+  if(id==='boon_mail'){assert.ok(preview.warnings.some(s=>s.includes('已达上限')));assert.equal(preview.useful,false);}
+  if(id==='boon_chant'){assert.equal(preview.useful,false);assert.ok(preview.warnings.length);}
+  if(id==='boon_thorn'||id==='boon_still')assert.equal(preview.useful,false);
+ }
+ assert.equal(JSON.stringify([p.hp,p.bonusArmor,p.bonusCdr,p.bonusMight,p.totalHealed]),before);
+});
+
+test('helper leaves early weapon growth intact and avoids capped or irrelevant god choices',()=>{
+ const g=start('moon'),p=g.player,boon={type:'blessing',id:'boon_mail',deity:'moon',rank:1};
+ p.level=3;p.weapons[0].level=3;assert.equal(preferBlessing(g,[boon]),null);
+ p.level=6;assert.equal(preferBlessing(g,[boon]),boon);p.bonusArmor=8;assert.equal(preferBlessing(g,[boon]),null);
+ assert.equal(preferBlessing(g,[{type:'blessing',id:'boon_still',deity:'moon',rank:1}]),null);
+ p.hp=p.maxHp*.2;const root={type:'blessing',id:'boon_root',deity:'grove',rank:1};assert.equal(preferBlessing(g,[root]),root);
+ g.curseNoHeal=true;assert.equal(preferBlessing(g,[root]),null);
+});
+
+test('the same freeze percentage applies to frost projectiles, nova, active spell and moon pulse',()=>{
+ const g=start('moon','cryomancer'),p=g.player;p.bonusFreezeDur=.5;
+ const {Weapon}=require('./src/Weapons');const ice=new Weapon(g,'ice_shard');ice._fireIceShard(p,[]);assert.ok(g.bullets.length>0);approx(g.bullets[0].freezeDur,.75);
+ const e=g._createEnemy(p.x+10,p.y,'Bat');e.hp=1e6;g.enemies=[e];g._getNearbyEnemies=()=>[e];
+ new Weapon(g,'glacial_nova')._fireGlacialNova(p);approx(e.frozen,1.5);
+ e.frozen=0;g.skillSystem.tryUse();approx(e.frozen,6);
+ new Weapon(g,'glacial_nova')._fireGlacialNova(p);approx(e.frozen,6,'weaker nova never shortens an active spell');
+ const random=Math.random;Math.random=()=>0;
+ try{g._checkCollisions(1/60);}finally{Math.random=random;}
+ approx(e.frozen,6,'weaker projectile never shortens an active spell');
+ approx(pulseValues(g,BLESSINGS.find(b=>b.id==='boon_tide'),1).freeze,.9);
+});
+
+test('night experience, relic and curse bonuses apply once on actual killed-enemy gems',()=>{
+ const g=start('night'),p=g.player;p.maxXp=1e9;g.particles.emit=()=>{};
+ for(const [bonus,relic,curse,expected] of [[.1,false,1,22],[.18,false,1,23.6],[.18,true,1,29.5],[.18,true,.5,14.75]]){
+  p.bonusXp=bonus;p.relicFlags={xpBoost:relic};g.curseXpMult=curse;g._gemChainCount=0;
+  const enemy=g._createEnemy(p.x,p.y,'Bat');enemy.xpValue=20;g.enemies=[enemy];g.gems=[];
+  const before=p.totalXp;enemy.die();assert.equal(g.gems.length,1);assert.equal(g.gems[0].value,20,'the drop is not pre-multiplied');
+  g.gems[0].update(1/60);approx(p.totalXp-before,expected);
+ }
+});
+
+test('divine healing respects the life-burning relic while maximum life still grows',()=>{
+ const g=start('dawn'),p=g.player;p.relicFlags={overloadCore:true};p.hp=10;
+ const total=p.totalHealed,max=p.maxHp;
+ g.pantheon.grant({type:'blessing',id:'boon_vigil',rank:1});
+ assert.equal(p.maxHp,max+10);assert.equal(p.hp,10);
+ g.pantheon.grant({type:'blessing',id:'boon_bell',rank:1});g.pantheon.update(8);
+ assert.equal(p.hp,10);assert.equal(p.totalHealed,total);assert.equal(g.pantheon.metrics.boon_bell.healing,0);
+ assert.ok(blessingPreview(g,{id:'boon_sap',rank:1}).warnings.some(s=>s.includes('禁疗')));
+ assert.equal(blessingPreview(g,{id:'boon_sap',rank:1}).useful,false);
 });

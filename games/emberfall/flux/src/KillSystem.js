@@ -41,10 +41,7 @@ function installKillSystem(Game) {
 		if (this.timeRift) xp = Math.floor(xp * this.timeRift.xpMult);
 		if (this._xpSurge) xp = Math.floor(xp * this._xpSurge.mult);
 		if (this._densitySurge && this._densitySurge.xpMult) xp = Math.floor(xp * this._densitySurge.xpMult);
-		// 章节奖励：永久经验加成
-		if (this.player.bonusXp) xp = Math.floor(xp * (1 + this.player.bonusXp));
-		// 遗物：经验增幅器 +25%
-		if (this.player.relicFlags && this.player.relicFlags.xpBoost) xp = Math.floor(xp * 1.25);
+		// Player-wide experience bonuses are applied once when collecting the gem.
 
 		// 事件掉落加成（血月等）
 		const eventDropMult = this.eventEnhancer ? this.eventEnhancer.getDropMultiplier() : 1;

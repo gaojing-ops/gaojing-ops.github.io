@@ -2,7 +2,7 @@
 // 移除所有 DOM 操作，UI 交给 SceneManager + Canvas 场景
 
 const Input = require('./Input');
-const { Pantheon } = require('./Pantheon');
+const { Pantheon, preferBlessing } = require('./Pantheon');
 const Player = require('./Player');
 const { Enemy } = require('./Enemy');
 const { Weapon } = require('./Weapons');
@@ -673,7 +673,7 @@ class Game {
 			
 			// 优先级3：遗物是极其稀有的全局乘区加成，必选
 			if (!pick) pick = options.find(o => o.type === 'relic');
-			if (!pick) pick = options.find(o => o.type === 'blessing' && o.deity === this.pantheon?.patron);
+			if (!pick) pick = preferBlessing(this, options);
 			
 			// 优先级4：有协同标签的选项（进化就绪/解锁进化），有极高收益
 			if (!pick) pick = options.find(o => o.synergy);
