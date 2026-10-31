@@ -123,12 +123,13 @@ function installCollisionSystem(Game) {
 					actualDamage *= 1.5;
 				}
 
-				if (p.takeDamage(actualDamage, e)) { // 传入敌人用于反伤
+				if (p.takeDamage(actualDamage, e, true)) { // 持续接触伤害保留 dt 后的小数
+					if (this._runSettled) return;
 					if (this.eventSystem) this.eventSystem.onPlayerHit();
 
 					// 吸血词缀：敌人攻击时回复HP
 					if (e.vampiricAffix) {
-						const healAmount = Math.ceil(actualDamage * 0.3);
+						const healAmount = actualDamage * 0.3;
 						e.hp = Math.min(e.maxHp, e.hp + healAmount);
 						if (this.particles && Math.random() < 0.2) {
 							this.particles.emit(e.x, e.y - e.radius, { count: 3, speed: 30, life: 0.3, color: '#cc0044', size: 2 });
@@ -155,7 +156,8 @@ function installCollisionSystem(Game) {
 				if (this.playerInvincible > 0) continue; // Skip immediately if invincible
 				// Boss接触伤害更高（×1.5）
 				const bossDamage = boss.damage * dt * 1.5 * (this.curseEnemyDamageMult || 1);
-				if (p.takeDamage(bossDamage, boss)) {
+				if (p.takeDamage(bossDamage, boss, true)) {
+					if (this._runSettled) return;
 					if (this.eventSystem) this.eventSystem.onPlayerHit();
 
 					// Frost armor: 冰冻Boss（概率更低）
@@ -176,6 +178,7 @@ function installCollisionSystem(Game) {
 			if (dx * dx + dy * dy < rSumEb * rSumEb) {
 				if (this.playerInvincible > 0) { eb.active = false; continue; }
 				p.takeDamage(eb.damage);
+				if (this._runSettled) return;
 				if (this.eventSystem) this.eventSystem.onPlayerHit();
 				eb.active = false;
 			}

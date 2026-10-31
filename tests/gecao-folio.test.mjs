@@ -96,6 +96,15 @@ test('the themed battle HUD, boss entrance and skill controls draw without chang
  assert.notEqual(themeColor('#00ffcc'),'#00ffcc');assert.equal(themeColor('#e59d51'),'#e59d51');
 });
 
+test('speed trial victory shows its own goal, real statistics and records without the normal-mode endless action',()=>{
+ const e=environment();e.game.startWithCharacter('engineer',[]);e.game._tutorialStep=-1;e.sm.switchTo('playing');
+ e.game.isSpeedRunMode=true;e.game.time=65;e.game.player.kills=518;e.game.player.totalXp=1234;e.game.player.totalHealed=25;
+ e.game._speedRunWinPending={timer:0,elapsedMs:64400};e.game.update(.016);e.sync();
+ assert.match(e.root.html,/疾行已成/);assert.match(e.root.html,/击败 500 名敌人/);assert.match(e.root.html,/1,234/);assert.match(e.root.html,/>25</);
+ assert.doesNotMatch(e.root.html,/继续无尽守夜|你把火光带过了整片长夜/);
+ e.click('查阅疾行纪录');assert.equal(e.sm.currentSceneName,'speedRun');
+});
+
 test('deployed entry, every web module and both stylesheets share one release version',()=>{
  const page=new URL('../games/emberfall/index.html',import.meta.url),html=readFileSync(page,'utf8');
  const map=JSON.parse(html.match(/<script type="importmap" id="emberfall-imports">([\s\S]*?)<\/script>/)[1]).imports;

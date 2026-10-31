@@ -71,9 +71,11 @@ class UpgradeSystem {
 				const w = p.weapons.find(w => w.id === id);
 				// 确保等级不超过最大值
 				if (w.level < def.maxLevel) {
-					const base = def.baseDamage || 10;
-					const dmgNow = Math.floor(base * (1 + (w.level - 1) * 0.33));
-					const dmgNext = Math.floor(base * (1 + w.level * 0.33));
+					// Preview the real getter without mutating the equipped weapon.
+					const next = Object.create(w);
+					next.level = w.level + 1;
+					const dmgNow = w.damage;
+					const dmgNext = next.damage;
 					const opt = {
 						type: 'weapon_up', id, name: def.name,
 						desc: `LV.${w.level}→${w.level + 1}  伤害: ${dmgNow}→${dmgNext}`,
@@ -125,10 +127,10 @@ class UpgradeSystem {
 					if (hpRatio < 0.3) weight = 20; // 危险时高权重
 					else if (hpRatio < 0.5) weight = 15;
 					else if (hpRatio < 0.7) weight = 10;
-					// 显示当前护甲和预期减伤
-					const currentArmor = p.armor;
-					const nextArmor = currentArmor + 1;
-					desc = `护甲 ${currentArmor} → ${nextArmor} (伤害-${nextArmor})`;
+					// Armor is percentage mitigation, not flat damage subtraction.
+					const current = Math.round(p.armor * 100);
+					const next = Math.round(Math.min(0.6, (p.bonusArmor + def.perLevel) * 0.08) * (this.game.curseArmorBreak ? 0.5 : 1) * 100);
+					desc = `护甲 +${def.perLevel} · 减伤 ${current}% → ${next}%`;
 				}
 
 				// ═══ 协同标签：解锁进化 ═══

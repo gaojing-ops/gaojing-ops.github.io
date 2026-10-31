@@ -549,7 +549,7 @@ class Weapon {
             }
         }
 
-        this.game.spawnDamageNumber(targetX, targetY - 100, '鈽勶笍 澶╃綒杞ㄩ亾鐐?', '#ffdd00', true);
+        this.game.spawnDamageNumber(targetX, targetY - 100, '黎明天罚!', '#ffdd00', true);
 
         // 剧烈屏幕物理特效
         this.game.shakeAmount = 25;
@@ -594,7 +594,7 @@ class Weapon {
             }
         }
 
-        this.game.spawnDamageNumber(p.x, p.y - 100, '鉂勶笍 缁濆闆跺害娉ユ布!', '#66ffff', true);
+        this.game.spawnDamageNumber(p.x, p.y - 100, '霜腐幽潭!', '#66ffff', true);
         if (this.game.triggerScreenPulse) this.game.triggerScreenPulse('#66ffff77', 0.8);
         this.game.shakeAmount = 10;
         this.game.shakeDuration = 0.5;
@@ -630,7 +630,7 @@ class Weapon {
             evolved: true,
         }));
 
-        this.game.spawnDamageNumber(p.x, p.y - 80, '馃寑 铏氱┖濂囩偣鏋?', '#aa44ff', true);
+        this.game.spawnDamageNumber(p.x, p.y - 80, '吞星之瞳!', '#aa44ff', true);
         if (this.game.triggerScreenPulse) this.game.triggerScreenPulse('#330066aa', 0.4);
         this.game.shakeAmount = 8;
         this.game.shakeDuration = 0.4;

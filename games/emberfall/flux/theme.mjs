@@ -98,7 +98,7 @@ export function installWebHUD(runtime){
   ctx.strokeStyle='#71825777';ctx.strokeRect(x,y+14,bw,7);
   ctx.fillStyle='#0d1c13';ctx.fillRect(x,y+26,bw,3);ctx.fillStyle='#c2a36a';ctx.fillRect(x,y+26,bw*Math.min(1,p.xp/p.maxXp),3);
   ctx.textAlign='left';ctx.font='10px "Microsoft YaHei"';ctx.fillStyle='#a5b596';ctx.fillText(`第 ${p.level} 阶 · 击败 ${p.kills}`,x,y+47);
-  ctx.fillStyle='#b8aa7b';ctx.fillText(`护甲 ${p.armor||0} · 余烬 ${this.meta?.data.chips||0}`,x,y+64);
+  ctx.fillStyle='#b8aa7b';ctx.fillText(`减伤 ${Math.round((p.armor||0)*100)}% · 余烬 ${this.meta?.data.chips||0}`,x,y+64);
   if(p.weapons.length)stone(ctx,10,this.height-45,p.weapons.length*26+12,34);
   for(let i=0;i<p.weapons.length;i++)art.drawIcon?.(ctx,p.weapons[i].id,17+i*26,this.height-39,22);
   const buffs=[['_weaponSurge','焰盛'],['_speedBurst','疾风'],['_xpSurge','悟道'],['_armorBoost','坚壁'],['_drainField','汲魂'],['timeRift','迟暮'],['_densitySurge','黑潮']].filter(([id])=>this[id]?.timer>0);

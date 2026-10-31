@@ -240,6 +240,7 @@ class Game {
 
 	startWithCharacter(charId, curses, build, isBossRush) {
 		// 重置状态
+		this._runSettled = false;
 		this.bullets = [];
 		this.enemies = [];
 		this.gems = [];
@@ -496,6 +497,8 @@ class Game {
 	// ─── 游戏结束 ───
 
 	endGame() {
+		if (this._runSettled) return;
+		this._runSettled = true;
 		// Boss Rush 模式：玩家死亡通知 Boss Rush，不进入普通结算
 		if (this.bossRushMode) {
 			this.bossRushMode.onPlayerDied();
@@ -558,6 +561,8 @@ class Game {
 	}
 
 	victoryEnd() {
+		if (this._runSettled) return;
+		this._runSettled = true;
 		this.isRunning = false;
 		setKeepScreenOn(false);
 		this.autoPlay = false;
@@ -615,6 +620,7 @@ class Game {
 
 	enterEndlessMode() {
 		// 进入无尽模式
+		this._runSettled = false;
 		this.endlessMode = true;
 		this.endlessWave = 1;
 		this.victoryTriggered = false; // 重置以便继续游戏
@@ -733,6 +739,7 @@ class Game {
 			if (this._speedRunWinPending.timer <= 0) {
 				const pending = this._speedRunWinPending;
 				this._speedRunWinPending = null;
+				this._runSettled = true;
 				this.isRunning = false;
 				SFX.stopBGM();
 				let earnedChips = 0;
@@ -743,6 +750,7 @@ class Game {
 				const { formatTime } = require('./scenes/SpeedRunScene');
 				if (this.sceneManager) this.sceneManager.switchTo('gameOver', {
 					victory: true,
+					speedRun: true,
 					time: '速通 ' + formatTime(pending.elapsedMs),
 					timeSeconds: Math.floor(this.time),
 					kills: this.player.kills,
@@ -752,6 +760,9 @@ class Game {
 					newAchievements: this.achievements ? this.achievements.getNewAchievements() : [],
 					highestCombo: this.highestCombo || 0,
 					totalDamage: this.player.totalDamage || 0,
+					totalHealed: this.player.totalHealed || 0,
+					totalXp: this.player.totalXp || 0,
+					gemsCollected: this.player.totalGemsCollected || 0,
 					weapons: this.player.weapons.map(w => ({
 						name: (w.def && w.def.name) || w.id,
 						level: w.level,
@@ -776,6 +787,8 @@ class Game {
 		if (this.stageSystem) {
 			this.stageSystem.update(dt);
 		}
+		// A chapter/boss reward or final result can stop the run mid-frame.
+		if (!this.isRunning) return;
 
 		// ─── 地图交互元素更新 ───
 
@@ -851,6 +864,7 @@ class Game {
 		}
 
 		this.player.update(dt);
+		if (this._runSettled) return;
 
 		// 诅咒: 生命衰减
 		if (this.curseHealthDecay && this.player.hp > 1) {
@@ -960,6 +974,7 @@ class Game {
 				e.x -= dx * invD * e.speed * enemyDt * 0.5;
 				e.y -= dy * invD * e.speed * enemyDt * 0.5;
 			}
+			if (this._runSettled) return;
 		}
 
 		// ─── 敌人防重叠挤压（防止数十只怪叠在同一个像素点上像只有一只怪）───
@@ -1001,8 +1016,8 @@ class Game {
 		}
 
 		for (const g of this.gems) g.update(dt);
-		for (const p of this.pickups) p.update(dt);
-		for (const boss of this.bosses) boss.update(dt);
+		for (const p of this.pickups) { p.update(dt); if (this._runSettled) return; }
+		for (const boss of this.bosses) { boss.update(dt); if (this._runSettled) return; }
 
 		// Boss 弹幕
 		for (const eb of this.enemyBullets) {
@@ -1023,6 +1038,7 @@ class Game {
 					const dy = this.player.y - mw.y;
 					if (dx * dx + dy * dy < mw.radius * mw.radius) {
 						this.player.takeDamage(mw.damage);
+						if (this._runSettled) return;
 					}
 					// 爆炸视觉
 					if (this.particles) {
@@ -1041,6 +1057,7 @@ class Game {
 
 		// 碰撞检测
 		this._checkCollisions(dt);
+		if (this._runSettled) return;
 
 		// 事件系统更新
 		this.eventSystem.update(dt);
