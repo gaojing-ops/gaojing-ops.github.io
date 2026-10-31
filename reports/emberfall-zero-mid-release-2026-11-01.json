@@ -19,7 +19,7 @@
     "auras": []
   },
   "method": "Normal real-time browser play, normal UI selection and both helpers, random rewards; isolated stores; no forced in-run equipment/counters/time, no invulnerability. Running tabs retain their source. Explicitly stopped baselines are not wins or losses.",
-  "eventCaptureLimit": "events capture ordinary evolve/chest_evolution choices only. Union results are confirmed by actual inventory snapshots and the visible build-path UI; event id text alone does not prove fusion.",
+  "eventCaptureLimit": "events capture evolve (including union_* IDs) and chest_evolution. Fusion is confirmed by actual before/after inventory and consumed material, not the word evolution alone. Corrected prior explanation: union_ice_shard was captured at 505.7598333332423 seconds.",
   "fusionObservations": [
     {
       "record": "release-complete-mid-cryo-long",
@@ -33,7 +33,8 @@
       "visibleGuide": "寒毒结界: 已成型; 腐枝吐息已被吸收; 冻结击败2050/30",
       "guideAtSeconds": 533.85,
       "directDamageAtSeconds862": 328044,
-      "lastBossDirectDamageAtSeconds862": 3231
+      "lastBossDirectDamageAtSeconds862": 3231,
+      "exactEventSeconds": 505.7598333332423
     }
   ],
   "performanceLimit": "0.5ms-bucket JavaScript update/draw CPU observations from concurrent tabs, not GPU or solo-game FPS. Raw bins retained locally and omitted here.",

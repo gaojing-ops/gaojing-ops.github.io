@@ -302,7 +302,7 @@ class Boss {
                 const bossCount = this.game.defeatedBosses ? this.game.defeatedBosses.length : 1;
                 const dropChance = bossCount <= 1 ? 1.0 : 0.4;
                 if (Math.random() < dropChance) {
-                    const relics = getRandomRelics(p, 1);
+                    const relics = getRandomRelics(p, 1, { automatic: true });
                     if (relics.length > 0) {
                         const relic = relics[0];
                         grantRelic(p, relic);

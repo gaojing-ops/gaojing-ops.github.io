@@ -667,7 +667,7 @@ class Game {
 			const p = this.player;
 			const hpRatio = p.hp / p.maxHp;
 			const canSacrificeHealing = !p.canHeal || (hpRatio >= 0.8 && p.regen <= 0.25 && !p.poisonLeech && !p.voidLeech && !p.weapons.some(w => w.id === 'soul_drain' || w.id === 'radiation_field' && w.evolved));
-			const usable = options.filter(o => (p.canHeal || !['heal', 'chest_heal'].includes(o.type)) && (o.type !== 'relic' || o.id !== 'overload_core' || canSacrificeHealing));
+			const usable = options.filter(o => (p.canHeal || !['heal', 'chest_heal'].includes(o.type)) && (o.type !== 'relic' || o.id !== 'overload_core' || canSacrificeHealing) && (o.type !== 'relic' || o.id !== 'greed_protocol'));
 			const autoOptions = usable.length ? usable : options;
 			let pick = null;
 
@@ -1438,8 +1438,10 @@ class Game {
 		}
 
 		// ═══ 层3: 敌弹躲避 ═══
-		const bulletAvoidR = 100;
+		// Fast watchers need time to react before crossing a shot.
+		const bulletAvoidR = 100 + Math.min(80, Math.max(0, p.speed - 200) * 0.25);
 		const bulletAvoidRSq = bulletAvoidR * bulletAvoidR;
+		let urgentDash = null;
 		for (const eb of this.enemyBullets) {
 			if (!eb.active) continue;
 			const dx = p.x - eb.x, dy = p.y - eb.y;
@@ -1448,7 +1450,8 @@ class Game {
 				const d = Math.sqrt(dSq);
 				// 判断子弹是否朝我飞来（点积检测）
 				const bvx = eb.vx || 0, bvy = eb.vy || 0;
-				const dot = dx * bvx + dy * bvy;
+				const rvx = bvx - input.vector.x * p.speed, rvy = bvy - input.vector.y * p.speed;
+				const dot = dx * rvx + dy * rvy;
 				if (bvx * bvx + bvy * bvy <= 2500) {
 					// Mines and slow hazards remain dangerous even when stationary or
 					// drifting away: the watcher can walk into their contact radius.
@@ -1459,18 +1462,24 @@ class Game {
 				} else if (dSq > 0 && dot > 0) { // dx/dy 从子弹指向玩家；正点积才是迎面飞来
 					const pushForce = Math.pow((bulletAvoidR - d) / bulletAvoidR, 2) * 10.0;
 					// 往子弹飞行方向的垂直方向闪避
-					const cross = dx * bvy - dy * bvx;
+					const cross = dx * rvy - dy * rvx;
 					const escDir = cross >= 0 ? 1 : -1;
-					const bMag = Math.sqrt(bvx * bvx + bvy * bvy) || 1;
-					forceX += (bvy / bMag) * escDir * pushForce;
-					forceY += (-bvx / bMag) * escDir * pushForce;
+					const bMag = Math.sqrt(rvx * rvx + rvy * rvy) || 1;
+					forceX += (rvy / bMag) * escDir * pushForce;
+					forceY += (-rvx / bMag) * escDir * pushForce;
+					const impactTime = dot / (bMag * bMag);
+					const missX = dx - rvx * impactTime, missY = dy - rvy * impactTime;
+					const hitRadius = p.radius + (eb.radius || 5) + 6;
+					if (impactTime <= 0.2 && missX * missX + missY * missY < hitRadius * hitRadius &&
+						(!urgentDash || impactTime < urgentDash.remaining)) {
+						urgentDash = { remaining: impactTime, angle: Math.atan2(-rvx * escDir, rvy * escDir) };
+					}
 				}
 			}
 		}
 
 		// Ground warnings (mortar shells and death blasts) share the visible fuse.
 		// Resolve a zero-distance escape deterministically instead of normalizing 0.
-		let urgentDash = null;
 		for (const w of this.mortarWarnings || []) {
 			if (!w.active) continue;
 			const dx = p.x - w.x, dy = p.y - w.y;
