@@ -674,11 +674,12 @@ function drawBossGround(c,b){
 }
 function drawBossActor(c,b){
  if(!F.drawBoss(c,b))return false;
- const w=Math.max(105,b.radius*3.4),x=b.x-w/2,y=b.y-b.radius*2.05-12,pct=Math.max(0,Math.min(1,b.hp/b.maxHp));
- c.save();c.lineWidth=1;c.fillStyle=INK;c.fillRect(x-3,y-3,w+6,13);c.strokeStyle='#7f825c';c.strokeRect(x-3,y-3,w+6,13);
- c.fillStyle=pct>.7?'#cddf91':pct>.35?GOLD:DANGER;c.fillRect(x,y,w*pct,6);c.fillStyle=INK;for(const mark of [.35,.7])c.fillRect(x+w*mark-1,y,2,6);
- c.font='12px "SimSun",serif';c.textAlign='center';c.fillStyle=BONE;c.fillText(b.name,b.x,y-9);
- for(let i=0;i<(b.phase||1);i++)diamond(c,b.x+(i-((b.phase||1)-1)/2)*9,y+17,3,b.phase===3?DANGER:GOLD);
+ const w=Math.max(132,b.radius*3.8),x=b.x-w/2,y=b.y-b.radius*2.05-12,pct=Math.max(0,Math.min(1,b.hp/b.maxHp));
+ c.save();c.lineWidth=1.5;c.fillStyle='#07140f';c.fillRect(x-4,y-4,w+8,19);c.strokeStyle='#e7ce99';c.strokeRect(x-4,y-4,w+8,19);
+ c.fillStyle=pct>.35?'#edbd78':'#ed8c74';c.fillRect(x,y,w*pct,10);c.fillStyle=INK;for(const mark of [.35,.7])c.fillRect(x+w*mark-1,y,2,10);
+ c.font='700 14px "Microsoft YaHei",sans-serif';c.textAlign='center';const titleW=Math.max(w,c.measureText(b.name).width+16);c.fillStyle='#07140ff0';c.fillRect(b.x-titleW/2,y-29,titleW,22);c.fillStyle='#fff0c3';c.fillText(b.name,b.x,y-12);
+ c.font='700 10px Georgia,serif';c.lineWidth=3;c.strokeStyle='#07140f';const hp=`${Math.ceil(b.hp)} / ${b.maxHp}`;c.strokeText(hp,b.x,y+9);c.fillStyle='#fff9df';c.fillText(hp,b.x,y+9);
+ for(let i=0;i<(b.phase||1);i++)diamond(c,b.x+(i-((b.phase||1)-1)/2)*9,y+23,3,b.phase===3?DANGER:GOLD);
  if(b.shield>0)ring(c,b.x,b.y-b.radius*.45,b.radius*1.55,'#a8bbb5',.75,1.25,8);c.restore();return true;
 }
 function drawEnemyGround(c,e){if(e.behavior==='charger'&&e._chargeState==='aiming')lineWarning(c,e.x,e.y,e._chargeAngle,Math.max(8,e.radius*2),800);}
@@ -15064,6 +15065,10 @@ function drawDamageNumber(ctx, x, y, text, alpha, color = '#fff', scale = 1, glo
     ctx.font = glow ? 'bold 16px sans-serif' : 'bold 14px sans-serif';
     ctx.fillStyle = glow ? '#fff' : color;
     ctx.textAlign = 'center';
+    ctx.strokeStyle = '#06120c';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    ctx.strokeText(text, 0, 0);
     ctx.fillText(text, 0, 0);
     ctx.restore();
 }

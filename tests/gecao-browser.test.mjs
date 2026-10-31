@@ -159,3 +159,13 @@ test('fullscreen keeps the logical aspect ratio aligned with the available viewp
  assert.equal(e.game.width,1280);assert.equal(e.game.height,681);
  assert.equal(e.platform.api.getSystemInfoSync().safeArea.bottom,681);
 });
+
+test('portrait and short desktop canvases fit the viewport while pointer input follows the resized logical area',()=>{
+ const e=environment(390);window.innerHeight=844;e.windowEvents.resize();
+ assert.equal(e.game.height,644);assert.equal(e.canvas.height,644);
+ let touch;e.platform.listeners.start.push(event=>{touch=event.touches[0];});
+ e.canvas.events.pointerdown[0]({button:0,pointerId:1,clientX:117.5,clientY:221,preventDefault(){}});
+ assert.equal(touch.clientX,195);assert.equal(touch.clientY,322);
+ e.shell.clientWidth=1000;window.innerHeight=500;e.windowEvents.resize();
+ assert.equal(e.game.height,342);assert.equal(e.game.width,1000);
+});
