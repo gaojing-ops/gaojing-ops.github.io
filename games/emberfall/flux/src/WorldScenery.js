@@ -1,7 +1,7 @@
 // First-version courtyard and independent scenery. No movement or combat rules here.
 const TAU=Math.PI*2,SIZE=512,CACHE_LIMIT=16;
 const PALETTES={
- CyberGrid:{base:'#142420',patch:['#1b2f27','#24372b'],stone:['#263630','#283931','#2b3932','#23332c'],tree:['#19372d','#244838'],accentColor:'#c5d394'},
+ CyberGrid:{base:'#142420',patch:['#1b2f27','#24372b'],stone:['#334b41','#3b5145','#3e5449','#30473c'],tree:['#19372d','#244838'],accentColor:'#c5d394'},
  ToxicSwamp:{base:'#1b261c',patch:['#253323','#303d24'],stone:['#323b2c','#35402d','#3a432e','#2c382b'],tree:['#283d25','#3e5130'],accentColor:'#c5d68b'},
  CryoRealm:{base:'#17282e',patch:['#213640','#2c4149'],stone:['#34464a','#3a4d50','#405359','#2e4148'],tree:['#294446','#3a5c5d'],accentColor:'#b5d8da'},
  VoidNebula:{base:'#221f2d',patch:['#302a3b','#3a3043'],stone:['#3b3546','#423a4a','#473d50','#352e40'],tree:['#332c43','#4b4058'],accentColor:'#cbb5d9'},
@@ -39,7 +39,7 @@ class WorldScenery{
         if(random()<.13) continue;
         ground.beginPath();ground.arc(cx,cy,r+27,a,b);ground.arc(cx,cy,r-27,b,a,true);ground.closePath();
         ground.fillStyle=p.stone[Math.floor(random()*4)];ground.fill();
-        ground.strokeStyle='#344239';ground.lineWidth=1;ground.stroke();
+        ground.strokeStyle='#526754';ground.lineWidth=1;ground.stroke();
       }
     }
     ground.strokeStyle='#41645150';ground.lineWidth=2;ground.beginPath();ground.arc(cx,cy,374,0,TAU);ground.stroke();
