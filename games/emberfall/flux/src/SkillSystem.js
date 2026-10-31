@@ -203,8 +203,8 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		color: '#8800ff',
 		use: (game) => {
 			const p = game.player;
-			// 找最近敌人
-			let closest = null, closestDist = Infinity;
+			// 找视野内最近敌人（限制最大瞬移半径 320px，防止瞬移到视野外导致全屏怪物突兀跳变）
+			let closest = null, closestDist = 320 * 320;
 			for (const e of game.enemies) {
 				if (!e.active) continue;
 				const dx = e.x - p.x, dy = e.y - p.y;

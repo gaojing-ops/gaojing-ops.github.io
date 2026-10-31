@@ -89,63 +89,84 @@ class DestinyShrine {
     }
 
     _eventGood() {
-        // 大吉：天降满地的满级宝箱/经验，瞬间成型。
-        this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 120, '【大吉】天降横财！！', '#ffcc00', true);
+        // 大吉：天降宝箱与神恩冲击（仅净化神龛周围最多 12 只普通小怪，避免全屏怪瞬间消失）
+        const p = this.game.player;
+        this.game.spawnDamageNumber(p.x, p.y - 120, '【大吉】天降横财！！', '#ffcc00', true);
 
-        // 秒杀所有普通敌人，变成红宝石
+        const purifyRadiusSq = 210 * 210;
+        let purified = 0;
         for (const e of this.game.enemies) {
-            if (e.active) {
-                e.hp = 0;
-                // 先回调再标记死亡，确保 onEnemyKilled 中的 active 检查不被绕过
-                this.game.onEnemyKilled(e);
-                e.active = false;
-                if (this.game.particles) this.game.particles.emit(e.x, e.y, { count: 3, speed: 50, life: 0.3, color: '#ff0000', size: 3 });
-                this.game.spawnGem(e.x, e.y, 50);
+            if (!e.active) continue;
+            const dx = e.x - p.x;
+            const dy = e.y - p.y;
+            const dSq = dx * dx + dy * dy;
+            if (dSq < purifyRadiusSq) {
+                const d = Math.sqrt(dSq) || 1;
+                e.knockbackVx = (dx / d) * 280;
+                e.knockbackVy = (dy / d) * 280;
+                if (!e.isElite && purified < 12) {
+                    purified++;
+                    e.hp = 0;
+                    this.game.onEnemyKilled(e);
+                    e.active = false;
+                    if (this.game.particles) this.game.particles.emit(e.x, e.y, { count: 4, speed: 60, life: 0.3, color: '#ffcc00', size: 3 });
+                    this.game.spawnGem(e.x, e.y, 20);
+                }
             }
         }
 
-        // 生成 3 个宝箱
-        for (let i = 0; i < 3; i++) {
-            const cx = this.game.player.x + (Math.random() - 0.5) * 200;
-            const cy = this.game.player.y + (Math.random() - 0.5) * 200;
+        // 生成 2 个宝箱与周围散落经验晶石
+        for (let i = 0; i < 2; i++) {
+            const cx = p.x + (Math.random() - 0.5) * 180;
+            const cy = p.y + (Math.random() - 0.5) * 180;
             this.game.spawnPickup(cx, cy, 'chest');
+        }
+        for (let i = 0; i < 12; i++) {
+            const gx = p.x + (Math.random() - 0.5) * 260;
+            const gy = p.y + (Math.random() - 0.5) * 260;
+            this.game.spawnGem(gx, gy, 15);
         }
     }
 
     _eventBad() {
-        // 大凶：猩红狂潮
-        this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 120, '【大凶】猩红狂潮！！', '#ff0000', true);
+        // 大凶：猩红狂潮（强化周围怪物并召唤一队精锐，避免全图怪移速翻倍不可躲避）
+        const p = this.game.player;
+        this.game.spawnDamageNumber(p.x, p.y - 120, '【大凶】猩红狂潮！！', '#ff0000', true);
         this.game.triggerScreenPulse('#ff000066', 2.0);
 
-        // 敌人狂暴化（加速+加血）
+        const rageRadiusSq = 320 * 320;
         for (const e of this.game.enemies) {
-            if (e.active) {
-                e.speed *= 2.0;
-                e.maxHp *= 3.0;
-                e.hp = e.maxHp;
-                e.hasRageAura = true; // 变红光环标记
-                e.radius *= 1.2;
+            if (e.active && !e.hasRageAura) {
+                const dx = e.x - p.x;
+                const dy = e.y - p.y;
+                if (dx * dx + dy * dy < rageRadiusSq) {
+                    e.speed *= 1.25;
+                    e.maxHp = Math.ceil(e.maxHp * 1.5);
+                    e.hp = e.maxHp;
+                    e.hasRageAura = true;
+                    e.radius *= 1.15;
+                }
             }
         }
 
-        // 临时提高刷怪倍率 (通过 EventSystem 或直接在游戏里控制，暂时使用简单方法：刷出大量精英怪)
-        for (let i = 0; i < 30; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const dist = 500 + Math.random() * 200;
-            const ex = this.game.player.x + fastCos(angle) * dist;
-            const ey = this.game.player.y + fastSin(angle) * dist;
+        // 刷出 8 只猩红精英守卫
+        const types = ['Assassin', 'Bomber', 'ShieldBearer', 'Splitter', 'Phantom', 'FrostTitan', 'Charger'];
+        for (let i = 0; i < 8 && this.game.enemies.length < 195; i++) {
+            const angle = (i / 8) * Math.PI * 2 + Math.random() * 0.3;
+            const dist = 360 + Math.random() * 80;
+            const ex = p.x + fastCos(angle) * dist;
+            const ey = p.y + fastSin(angle) * dist;
 
-            const types = ['Assassin', 'Bomber', 'ShieldBearer', 'Splitter', 'Phantom', 'FrostTitan'];
             const type = types[Math.floor(Math.random() * types.length)];
             let en = this.game.enemyPool.get();
             if (!en) continue;
             en.reset(this.game, ex, ey, type);
             en.isElite = true;
-            en.speed *= 1.5;
-            en.maxHp *= 2;
+            en.speed *= 1.25;
+            en.maxHp *= 1.8;
             en.hp = en.maxHp;
-            en.radius *= 1.3; // 修正：应用到 radius 才会实际变大
-            en.hasRageAura = true; // 变红光环标记
+            en.radius *= 1.25;
+            en.hasRageAura = true;
             this.game.enemies.push(en);
         }
     }

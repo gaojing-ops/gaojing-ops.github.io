@@ -5065,63 +5065,84 @@ class DestinyShrine {
     }
 
     _eventGood() {
-        // 大吉：天降满地的满级宝箱/经验，瞬间成型。
-        this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 120, '【大吉】天降横财！！', '#ffcc00', true);
+        // 大吉：天降宝箱与神恩冲击（仅净化神龛周围最多 12 只普通小怪，避免全屏怪瞬间消失）
+        const p = this.game.player;
+        this.game.spawnDamageNumber(p.x, p.y - 120, '【大吉】天降横财！！', '#ffcc00', true);
 
-        // 秒杀所有普通敌人，变成红宝石
+        const purifyRadiusSq = 210 * 210;
+        let purified = 0;
         for (const e of this.game.enemies) {
-            if (e.active) {
-                e.hp = 0;
-                // 先回调再标记死亡，确保 onEnemyKilled 中的 active 检查不被绕过
-                this.game.onEnemyKilled(e);
-                e.active = false;
-                if (this.game.particles) this.game.particles.emit(e.x, e.y, { count: 3, speed: 50, life: 0.3, color: '#ff0000', size: 3 });
-                this.game.spawnGem(e.x, e.y, 50);
+            if (!e.active) continue;
+            const dx = e.x - p.x;
+            const dy = e.y - p.y;
+            const dSq = dx * dx + dy * dy;
+            if (dSq < purifyRadiusSq) {
+                const d = Math.sqrt(dSq) || 1;
+                e.knockbackVx = (dx / d) * 280;
+                e.knockbackVy = (dy / d) * 280;
+                if (!e.isElite && purified < 12) {
+                    purified++;
+                    e.hp = 0;
+                    this.game.onEnemyKilled(e);
+                    e.active = false;
+                    if (this.game.particles) this.game.particles.emit(e.x, e.y, { count: 4, speed: 60, life: 0.3, color: '#ffcc00', size: 3 });
+                    this.game.spawnGem(e.x, e.y, 20);
+                }
             }
         }
 
-        // 生成 3 个宝箱
-        for (let i = 0; i < 3; i++) {
-            const cx = this.game.player.x + (Math.random() - 0.5) * 200;
-            const cy = this.game.player.y + (Math.random() - 0.5) * 200;
+        // 生成 2 个宝箱与周围散落经验晶石
+        for (let i = 0; i < 2; i++) {
+            const cx = p.x + (Math.random() - 0.5) * 180;
+            const cy = p.y + (Math.random() - 0.5) * 180;
             this.game.spawnPickup(cx, cy, 'chest');
+        }
+        for (let i = 0; i < 12; i++) {
+            const gx = p.x + (Math.random() - 0.5) * 260;
+            const gy = p.y + (Math.random() - 0.5) * 260;
+            this.game.spawnGem(gx, gy, 15);
         }
     }
 
     _eventBad() {
-        // 大凶：猩红狂潮
-        this.game.spawnDamageNumber(this.game.player.x, this.game.player.y - 120, '【大凶】猩红狂潮！！', '#ff0000', true);
+        // 大凶：猩红狂潮（强化周围怪物并召唤一队精锐，避免全图怪移速翻倍不可躲避）
+        const p = this.game.player;
+        this.game.spawnDamageNumber(p.x, p.y - 120, '【大凶】猩红狂潮！！', '#ff0000', true);
         this.game.triggerScreenPulse('#ff000066', 2.0);
 
-        // 敌人狂暴化（加速+加血）
+        const rageRadiusSq = 320 * 320;
         for (const e of this.game.enemies) {
-            if (e.active) {
-                e.speed *= 2.0;
-                e.maxHp *= 3.0;
-                e.hp = e.maxHp;
-                e.hasRageAura = true; // 变红光环标记
-                e.radius *= 1.2;
+            if (e.active && !e.hasRageAura) {
+                const dx = e.x - p.x;
+                const dy = e.y - p.y;
+                if (dx * dx + dy * dy < rageRadiusSq) {
+                    e.speed *= 1.25;
+                    e.maxHp = Math.ceil(e.maxHp * 1.5);
+                    e.hp = e.maxHp;
+                    e.hasRageAura = true;
+                    e.radius *= 1.15;
+                }
             }
         }
 
-        // 临时提高刷怪倍率 (通过 EventSystem 或直接在游戏里控制，暂时使用简单方法：刷出大量精英怪)
-        for (let i = 0; i < 30; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const dist = 500 + Math.random() * 200;
-            const ex = this.game.player.x + fastCos(angle) * dist;
-            const ey = this.game.player.y + fastSin(angle) * dist;
+        // 刷出 8 只猩红精英守卫
+        const types = ['Assassin', 'Bomber', 'ShieldBearer', 'Splitter', 'Phantom', 'FrostTitan', 'Charger'];
+        for (let i = 0; i < 8 && this.game.enemies.length < 195; i++) {
+            const angle = (i / 8) * Math.PI * 2 + Math.random() * 0.3;
+            const dist = 360 + Math.random() * 80;
+            const ex = p.x + fastCos(angle) * dist;
+            const ey = p.y + fastSin(angle) * dist;
 
-            const types = ['Assassin', 'Bomber', 'ShieldBearer', 'Splitter', 'Phantom', 'FrostTitan'];
             const type = types[Math.floor(Math.random() * types.length)];
             let en = this.game.enemyPool.get();
             if (!en) continue;
             en.reset(this.game, ex, ey, type);
             en.isElite = true;
-            en.speed *= 1.5;
-            en.maxHp *= 2;
+            en.speed *= 1.25;
+            en.maxHp *= 1.8;
             en.hp = en.maxHp;
-            en.radius *= 1.3; // 修正：应用到 radius 才会实际变大
-            en.hasRageAura = true; // 变红光环标记
+            en.radius *= 1.25;
+            en.hasRageAura = true;
             this.game.enemies.push(en);
         }
     }
@@ -20855,8 +20876,8 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		color: '#8800ff',
 		use: (game) => {
 			const p = game.player;
-			// 找最近敌人
-			let closest = null, closestDist = Infinity;
+			// 找视野内最近敌人（限制最大瞬移半径 320px，防止瞬移到视野外导致全屏怪物突兀跳变）
+			let closest = null, closestDist = 320 * 320;
 			for (const e of game.enemies) {
 				if (!e.active) continue;
 				const dx = e.x - p.x, dy = e.y - p.y;
@@ -21604,11 +21625,11 @@ function installSpawnSystem(Game) {
 		const t = this.time;
 		const style = this.mapManager ? this.mapManager.style : 'CyberGrid';
 
-		// ─── 核心生成池 (覆盖全 32 种常规/精英机制怪，随时间平滑解锁) ───
+		// ─── 核心生成池 (覆盖全 33 种常规/精英机制怪，随时间平滑解锁) ───
 		let pool = [];
 		if (t > 240) { // 4分钟+：全图鉴满编（含巨型母体、霜岩巨人、瘟疫母巢、铸铁魔像）
 			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
 				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech',
@@ -21616,26 +21637,26 @@ function installSpawnSystem(Game) {
 			];
 		} else if (t > 150) { // 2.5～4分钟
 			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
 				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech', 'IronGolem', 'FrostTitan'
 			];
 		} else if (t > 90) { // 1.5～2.5分钟
 			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'Crawler', 'WarpMite',
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech'
 			];
 		} else if (t > 45) { // 45～90秒
 			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'SwarmDrone', 'Hornet', 'Crawler',
+				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'SwarmDrone', 'Hornet', 'Crawler', 'ToxicBlob',
 				'SlimeGlob', 'FrostWisp', 'DataWorm', 'Turret', 'Splitter', 'WarpMite', 'LaserDrone', 'Bomber', 'ShieldBearer', 'Phantom'
 			];
 		} else if (t > 18) { // 18～45秒
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly', 'SwarmDrone',
-				'Crawler', 'SlimeGlob', 'FrostWisp', 'Splitter', 'DataWorm', 'Turret'
+				'Crawler', 'ToxicBlob', 'SlimeGlob', 'FrostWisp', 'Splitter', 'DataWorm', 'Turret'
 			];
 		} else { // 0～18秒：开局即有 5 种不同形态与移速的林间怪物组合
 			pool = ['Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly'];
@@ -21818,7 +21839,9 @@ function installSpawnSystem(Game) {
 	};
 
 	Game.prototype.spawnEnemyAt = function (x, y, type) {
-		this.enemies.push(this.enemyPool.get().reset(this, x, y, type));
+		const enemy = this.enemyPool.get().reset(this, x, y, type);
+		this.enemies.push(enemy);
+		return enemy;
 	};
 }
 

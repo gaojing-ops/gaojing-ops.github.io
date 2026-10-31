@@ -63,11 +63,11 @@ function installSpawnSystem(Game) {
 		const t = this.time;
 		const style = this.mapManager ? this.mapManager.style : 'CyberGrid';
 
-		// ─── 核心生成池 (覆盖全 32 种常规/精英机制怪，随时间平滑解锁) ───
+		// ─── 核心生成池 (覆盖全 33 种常规/精英机制怪，随时间平滑解锁) ───
 		let pool = [];
 		if (t > 240) { // 4分钟+：全图鉴满编（含巨型母体、霜岩巨人、瘟疫母巢、铸铁魔像）
 			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
 				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech',
@@ -75,26 +75,26 @@ function installSpawnSystem(Game) {
 			];
 		} else if (t > 150) { // 2.5～4分钟
 			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite',
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
 				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech', 'IronGolem', 'FrostTitan'
 			];
 		} else if (t > 90) { // 1.5～2.5分钟
 			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'Crawler', 'WarpMite',
+				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech'
 			];
 		} else if (t > 45) { // 45～90秒
 			pool = [
-				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'SwarmDrone', 'Hornet', 'Crawler',
+				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'SwarmDrone', 'Hornet', 'Crawler', 'ToxicBlob',
 				'SlimeGlob', 'FrostWisp', 'DataWorm', 'Turret', 'Splitter', 'WarpMite', 'LaserDrone', 'Bomber', 'ShieldBearer', 'Phantom'
 			];
 		} else if (t > 18) { // 18～45秒
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly', 'SwarmDrone',
-				'Crawler', 'SlimeGlob', 'FrostWisp', 'Splitter', 'DataWorm', 'Turret'
+				'Crawler', 'ToxicBlob', 'SlimeGlob', 'FrostWisp', 'Splitter', 'DataWorm', 'Turret'
 			];
 		} else { // 0～18秒：开局即有 5 种不同形态与移速的林间怪物组合
 			pool = ['Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly'];
@@ -277,7 +277,9 @@ function installSpawnSystem(Game) {
 	};
 
 	Game.prototype.spawnEnemyAt = function (x, y, type) {
-		this.enemies.push(this.enemyPool.get().reset(this, x, y, type));
+		const enemy = this.enemyPool.get().reset(this, x, y, type);
+		this.enemies.push(enemy);
+		return enemy;
 	};
 }
 
