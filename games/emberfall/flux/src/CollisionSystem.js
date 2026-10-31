@@ -74,7 +74,7 @@ function installCollisionSystem(Game) {
 
 					// Apply status effects from bullet
 					if (b.freezeChance && Math.random() < b.freezeChance) {
-						e.frozen = b.freezeDur || 1;
+						e.frozen = Math.max(e.frozen || 0, b.freezeDur || 1);
 						this.totalFreezeApplies++;
 					}
 					if (b.slowAmount && b.slowAmount < 1) {
@@ -138,7 +138,7 @@ function installCollisionSystem(Game) {
 
 					// Frost armor: freeze enemies that damage player
 					if (p.frostArmorActive && Math.random() < 0.3) {
-						e.frozen = 1.5;
+						e.frozen = Math.max(e.frozen || 0, 1.5);
 						if (this.particles) {
 							this.particles.emit(e.x, e.y, { count: 3, speed: 50, life: 0.3, color: '#66ccff', size: 3 });
 						}
@@ -162,7 +162,7 @@ function installCollisionSystem(Game) {
 
 					// Frost armor: 冰冻Boss（概率更低）
 					if (p.frostArmorActive && Math.random() < 0.15) {
-						boss.frozen = 1.0;
+						boss.frozen = Math.max(boss.frozen || 0, 1.0);
 						if (this.particles) {
 							this.particles.emit(boss.x, boss.y, { count: 5, speed: 50, life: 0.3, color: '#66ccff', size: 3 });
 						}

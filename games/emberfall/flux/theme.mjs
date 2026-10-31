@@ -1,4 +1,4 @@
-import {text} from './lore.mjs';
+import {text,damageSource} from './lore.mjs';
 const colorCache=new Map(),contexts=new WeakMap();
 export function themeColor(value){
  if(typeof value!=='string')return value;if(colorCache.has(value))return colorCache.get(value);
@@ -43,12 +43,12 @@ export function themeCanvas(canvas){
 }
 
 export function combatUILayout(width,height){
- const narrow=width<600,compact=height<420,r=compact?28:32;
- return {narrow,health:{x:10,y:10,w:narrow?width-(compact?76:20):288,h:118},
-  mode:{x:narrow?10:width-238,y:narrow?138:10,w:narrow?width-(compact?120:76):226,h:58},
+ const narrow=width<600,compact=height<420,short=narrow&&compact,r=compact?28:32;
+ return {narrow,short,health:{x:10,y:10,w:narrow?width-(compact?76:20):288,h:short?90:118},
+  mode:{x:narrow?10:width-238,y:narrow?(short?106:138):10,w:narrow?width-(compact?120:76):226,h:short?42:58},
   pause:{x:width-56,y:narrow?(compact?10:145):82,w:44,h:44},
   dash:{cx:width-54,cy:height-(compact?60:66),r},
-  skill:{cx:width-54,cy:height-(compact?148:164),r},comboY:narrow?226:164};
+  skill:{cx:width-54,cy:height-(compact?148:164),r},comboY:narrow?(short?164:226):164};
 }
 
 export function installWebHUD(runtime){
@@ -93,7 +93,7 @@ export function installWebHUD(runtime){
  const wrap=(ctx,value,width)=>{const lines=[];let line='';for(const char of text(value)){if(char==='\n'||ctx.measureText(line+char).width>width){lines.push(line);line=char==='\n'?'':char;}else line+=char;}if(line)lines.push(line);return lines;};
  const statusLines=(ctx,w)=>{
   const rows=(game.eventEnhancer?.activeEvents||[]).filter(e=>e.type==='bloodMoon').map(e=>`血月临林 · ${Math.ceil(e.timer)} 秒`);
-  const oath=game.pantheon;if(oath?.patron)rows.unshift(`${catalogs.pantheon?.DEITIES[oath.patron]?.name||'诸神'}祈誓 · ${Object.values(oath.ranks).reduce((a,b)=>a+b,0)} 阶神赐`);
+  const oath=game.pantheon;if(oath?.patron)rows.unshift(`${catalogs.pantheon?.DEITIES[oath.patron]?.name||'诸神'}祈誓 · ${Object.values(oath.ranks).reduce((a,b)=>a+b,0)} 阶神赐 · ${catalogs.pantheon?.divineStage(game.player.level).name||'初火'}`);
   if(game.eventEnhancer?.reaperCount>0)rows.push(`索魂者已现 · ${game.eventEnhancer.reaperCount}`);
   const buffs=[['_weaponSurge','焰盛'],['_speedBurst','疾风'],['_xpSurge','悟道'],['_armorBoost','坚壁'],['_drainField','汲魂'],['timeRift','迟暮'],['_densitySurge','黑潮']].filter(([id])=>game[id]?.timer>0);
   if(buffs.length)rows.push(buffs.map(([id,label])=>`${label} ${Math.ceil(game[id].timer)}秒`).join(' · '));
@@ -113,7 +113,8 @@ export function installWebHUD(runtime){
  };
  const drawCombatNotices=function(ctx,w){
   const lines=statusLines(ctx,w);if(!lines.length)return;
-  const narrow=w<600,x=10,y=narrow?204:138,bw=narrow?(game.height<420?w-120:w-20):288;
+  const narrow=w<600,short=narrow&&game.height<420,x=10,y=short?game.height-100:narrow?204:138,bw=narrow?(game.height<420?w-120:w-20):288;
+  if(short&&lines.length>2){lines.splice(2);lines[1]+=' …';}
   ctx.save();stone(ctx,x,y,bw,12+lines.length*20);ctx.textAlign='left';ctx.font='600 12px "Microsoft YaHei"';ctx.fillStyle='#f5edcd';lines.forEach((row,i)=>ctx.fillText(row,x+12,y+20+i*20));ctx.restore();
  };
  if(game.achievements)game.achievements.draw=drawAchievementToast;
@@ -130,9 +131,9 @@ export function installWebHUD(runtime){
   ctx.fillStyle=low?'#ed8a71':'#b9d96e';ctx.fillRect(barX+1,box.y+35,(barW-2)*hp,14);
   ctx.strokeStyle=low?'#ffc3aa':'#deedb4';ctx.lineWidth=1.5;ctx.strokeRect(barX,box.y+34,barW,16);
   ctx.fillStyle='#040e09';ctx.fillRect(barX,box.y+57,barW,8);ctx.fillStyle='#a7dce1';ctx.fillRect(barX,box.y+57,barW*Math.max(0,Math.min(1,p.xp/p.maxXp)),8);
-  ctx.textAlign='left';ctx.font='600 14px "Microsoft YaHei",sans-serif';ctx.fillStyle='#edf2dd';ctx.fillText(`第 ${p.level} 阶 · 击败 ${p.kills.toLocaleString('zh-CN')}`,box.x+12,box.y+88);
-  ctx.font='600 12px "Microsoft YaHei",sans-serif';ctx.fillStyle='#e9d69c';ctx.fillText(`减伤 ${Math.round((p.armor||0)*100)}%`,box.x+12,box.y+107);
-  ctx.textAlign='right';ctx.fillStyle='#fff0bd';ctx.fillText(`余烬 ${(this.meta?.data.chips||0).toLocaleString('zh-CN')}`,right,box.y+107);
+  ctx.textAlign='left';ctx.font=`600 ${layout.short?12:14}px "Microsoft YaHei",sans-serif`;ctx.fillStyle='#edf2dd';ctx.fillText(`第 ${p.level} 阶 · 击败 ${p.kills.toLocaleString('zh-CN')}`,box.x+12,box.y+(layout.short?81:88));
+  ctx.font='600 12px "Microsoft YaHei",sans-serif';ctx.fillStyle='#e9d69c';if(layout.short)ctx.textAlign='right';ctx.fillText(`减伤 ${Math.round((p.armor||0)*100)}%`,layout.short?right:box.x+12,box.y+(layout.short?81:107));
+  if(!layout.short){ctx.textAlign='right';ctx.fillStyle='#fff0bd';ctx.fillText(`余烬 ${(this.meta?.data.chips||0).toLocaleString('zh-CN')}`,right,box.y+107);}
   if(p.weapons.length)stone(ctx,10,this.height-45,p.weapons.length*26+12,34);
   for(let i=0;i<p.weapons.length;i++)art.drawIcon?.(ctx,p.weapons[i].id,17+i*26,this.height-39,22);
   if(!layout.narrow){ctx.textAlign='center';ctx.font='12px "Microsoft YaHei"';outlined(ctx,'WASD 移动    SPACE 闪避    E 咏誓    P 暂停',this.width/2,this.height-18,'#e3eed0');}
@@ -143,20 +144,20 @@ export function installWebHUD(runtime){
   const {x,y,w,h}=rect;ctx.save();stone(ctx,x,y,w,h,true);ctx.fillStyle='#ffe1a0';ctx.fillRect(x+14,y+12,4,20);ctx.fillRect(x+25,y+12,4,20);ctx.restore();
  };
  const modePlate=(ctx,w,title,detail,ratio)=>{
-  const {x,y,w:bw,h}=combatUILayout(w,game.height).mode;
+  const {x,y,w:bw,h}=combatUILayout(w,game.height).mode,short=h<50;
   ctx.save();stone(ctx,x,y,bw,h);ctx.textAlign='left';ctx.font='700 13px "Microsoft YaHei"';ctx.fillStyle='#fff0bc';ctx.fillText(title,x+12,y+21);
-  ctx.textAlign='right';ctx.font='700 13px Georgia,serif';ctx.fillStyle='#fff4d4';ctx.fillText(detail,x+bw-12,y+40);
-  ctx.fillStyle='#07130c';ctx.fillRect(x+12,y+47,bw-24,5);ctx.fillStyle='#f1cc80';ctx.fillRect(x+12,y+47,(bw-24)*Math.max(0,Math.min(1,ratio)),5);ctx.restore();
+  ctx.textAlign='right';ctx.font='700 13px Georgia,serif';ctx.fillStyle='#fff4d4';ctx.fillText(detail,x+bw-12,y+(short?21:40));
+  ctx.fillStyle='#07130c';ctx.fillRect(x+12,y+(short?31:47),bw-24,5);ctx.fillStyle='#f1cc80';ctx.fillRect(x+12,y+(short?31:47),(bw-24)*Math.max(0,Math.min(1,ratio)),5);ctx.restore();
  };
  game._drawSpeedRunHUD=function(){const target=catalogs.speed.KILL_TARGET,elapsed=Math.max(0,this.time-(this.speedRunStartTime||0));modePlate(this.ctx,this.width,'疾行试炼',`${this.speedRunKills||0}/${target} · ${catalogs.speed.formatTime(elapsed*1000)}`,(this.speedRunKills||0)/target);};
  game._drawBossDamagePanel=function(){
   const display=this._bossDamageDisplay;if(!display)return;
   // This timer was advanced by the original draw callback; retain its lifetime.
   display.timer-=(this.frameDt||.016);if(display.timer<=0){this._bossDamageDisplay=null;return;}
-  const rows=Object.entries(display.log).filter(([,value])=>value>0).sort((a,b)=>b[1]-a[1]);if(!rows.length)return;
-  const ctx=this.ctx,bw=Math.min(360,this.width-40),x=(this.width-bw)/2,y=138,total=rows.reduce((sum,[,value])=>sum+value,0);
+  const all=Object.entries(display.log).filter(([,value])=>value>0).sort((a,b)=>b[1]-a[1]);if(!all.length||this.height<500)return;const rows=all.slice(0,5);if(all.length>5)rows.push(['_rest',all.slice(5).reduce((sum,[,value])=>sum+value,0)]);
+  const ctx=this.ctx,bw=Math.min(360,this.width-40),x=(this.width-bw)/2,y=Math.min(this.height-(42+rows.length*29)-45,Math.max(this.height*.34,combatUILayout(this.width,this.height).comboY+40)),total=rows.reduce((sum,[,value])=>sum+value,0);
   ctx.save();ctx.globalAlpha=Math.min(1,display.timer*2);stone(ctx,x,y,bw,42+rows.length*29,true);ctx.textAlign='left';ctx.fillStyle='#ddc58c';ctx.font='15px "SimSun",serif';ctx.fillText(text(display.bossName)+' · 锋芒记录',x+14,y+25);
-  rows.forEach(([id,value],i)=>{const py=y+43+i*29;art.drawIcon?.(ctx,id,x+12,py-6,21);ctx.font='11px "Microsoft YaHei"';ctx.fillStyle='#b9c3a6';ctx.fillText(id==='_other'?'其他':text(catalogs.weapons[id]?.name||id),x+42,py+8);ctx.textAlign='right';ctx.fillText(Math.round(value/total*100)+'%',x+bw-13,py+8);ctx.textAlign='left';ctx.fillStyle='#ad9c69';ctx.fillRect(x+42,py+15,(bw-90)*value/rows[0][1],2);});ctx.restore();
+  rows.forEach(([id,value],i)=>{const py=y+43+i*29;art.drawIcon?.(ctx,damageSource(id,catalogs).icon,x+12,py-6,21);ctx.font='11px "Microsoft YaHei"';ctx.fillStyle='#edf0d6';ctx.fillText(damageSource(id,catalogs).name,x+42,py+8);ctx.textAlign='right';ctx.fillText(Math.round(value/total*100)+'%',x+bw-13,py+8);ctx.textAlign='left';ctx.fillStyle='#ad9c69';ctx.fillRect(x+42,py+15,(bw-90)*value/rows[0][1],2);});ctx.restore();
  };
  game._drawBossEntrance=function(){
   const be=this._bossEntrance;if(!be||be.timer<=0)return;

@@ -48,6 +48,8 @@ class Boss {
         this.active = true;
         this.flashTimer = 0;
         this.frozen = 0; // 冻结状态
+        this.slowed = 0; this.slowAmount = 1;
+        this._deathHandled = false;
 
         // 在屏幕外生成
         const angle = Math.random() * Math.PI * 2;
@@ -94,6 +96,15 @@ class Boss {
             moveDt = dt * 0.5;
         }
 
+        // Moon blessings and frost skills slow movement, never attack timers.
+        // Freeze and slow use the stronger penalty rather than multiplying.
+        if (this.slowed > 0) {
+            const duration = Math.min(dt, this.slowed);
+            const factor = Math.max(0.25, Math.min(1, this.slowAmount || 0.6));
+            moveDt = Math.min(moveDt, dt - duration * (1 - factor));
+            this.slowed = Math.max(0, this.slowed - dt);
+        }
+
         // 移动AI行为切换计时器（用原始 dt，不受冻结影响）
         this._behaviorTimer -= dt;
         if (this._behaviorTimer <= 0) {
@@ -128,10 +139,8 @@ class Boss {
             }
         }
 
-        // 接触伤害
-        if (dSq < (this.radius + p.radius) * (this.radius + p.radius)) {
-            p.takeDamage(this.damage * dt);
-        }
+        // Contact damage is owned by CollisionSystem: one time-scaled hit,
+        // including armor, curse multipliers and the attacker's thorn return.
 
         // 技能计时
         this.skillTimer -= dt;
@@ -161,7 +170,7 @@ class Boss {
     }
 
     takeDamage(amount, weaponId = null) {
-        if (!Number.isFinite(amount)) return;
+        if (!this.active || this.hp <= 0 || !Number.isFinite(amount) || amount <= 0) return;
 
         // 护盾吸收
         if (this.shield > 0) {
@@ -185,7 +194,7 @@ class Boss {
             let wId = String(weaponId);
             if (wId.includes('_')) {
                 const WEAPONS = require('./Weapons').WEAPON_DEFS || {};
-                if (!WEAPONS[wId]) {
+                if (!WEAPONS[wId] && !wId.startsWith('boon_') && !wId.startsWith('skill_')) {
                     wId = wId.split('_')[0]; // fallback
                 }
             }
@@ -194,6 +203,13 @@ class Boss {
             this._damageLog['_other'] = (this._damageLog['_other'] || 0) + amount;
         }
 
+        // Boss damage belongs in the same run totals as normal enemy damage.
+        // Exclude the boss's own overcharge self-damage.
+        if (!String(weaponId || '').startsWith('_')) {
+            const p = this.game.player;
+            p.totalDamage = (p.totalDamage || 0) + amount;
+            if (weaponId && this.game._weaponDamageStats) this.game._weaponDamageStats[weaponId] = (this.game._weaponDamageStats[weaponId] || 0) + amount;
+        }
         this.hp -= amount;
         this.flashTimer = 0.08;
         this.game.spawnDamageNumber(this.x, this.y - this.radius - 10, Math.ceil(amount), '#ff8800');
@@ -212,6 +228,8 @@ class Boss {
     }
 
     _onDeath() {
+        if (this._deathHandled) return;
+        this._deathHandled = true;
         if (this.game.particles) this.game.particles.bossExplosion(this.x, this.y, this.color);
 
         // 触发 Boss 伤害来源面板
@@ -1649,7 +1667,7 @@ class Boss {
                     while (ad > Math.PI) ad -= Math.PI * 2;
                     while (ad < -Math.PI) ad += Math.PI * 2;
                     if (Math.abs(ad) < 0.13) { // ~7° 波束半宽
-                        p.takeDamage(18 * dt);
+                        p.takeDamage(18 * dt, null, true);
                         if (eff._hitCooldown <= 0) {
                             this.game.shakeAmount = 2;
                             this.game.shakeDuration = 0.05;
@@ -1670,7 +1688,7 @@ class Boss {
                     while (ad > Math.PI) ad -= Math.PI * 2;
                     while (ad < -Math.PI) ad += Math.PI * 2;
                     if (Math.abs(ad) < 0.22) { // 宽阔的射线区域 (~25度)
-                        p.takeDamage(35 * dt); // 很高的持续倍率
+                        p.takeDamage(35 * dt, null, true); // 很高的持续倍率
                         if (eff._hitCooldown <= 0) {
                             this.game.shakeAmount = 4;
                             this.game.shakeDuration = 0.1;

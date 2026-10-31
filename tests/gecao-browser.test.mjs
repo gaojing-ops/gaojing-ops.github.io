@@ -169,3 +169,9 @@ test('portrait and short desktop canvases fit the viewport while pointer input f
  e.shell.clientWidth=1000;window.innerHeight=500;e.windowEvents.resize();
  assert.equal(e.game.height,342);assert.equal(e.game.width,1000);
 });
+
+test('a narrow desktop sidebar also fits without the old 460-high phone minimum',()=>{
+ const e=environment(574);window.innerHeight=720;e.windowEvents.resize();
+ assert.equal(e.game.width,390);assert.equal(e.game.height,353);
+ assert.ok(e.game.height*574/390<=720-120-56-24);
+});

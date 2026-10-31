@@ -107,11 +107,12 @@ test('speed trial victory shows its own goal, real statistics and records withou
 
 test('combat HUD panels and control labels remain separate and inside phone, desktop and short fullscreen canvases',()=>{
  const overlaps=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
- for(const [w,h] of [[320,320],[390,320],[320,844],[390,844],[768,560],[1280,720],[1280,320]]){
+ for(const [w,h] of [[320,320],[390,320],[390,372],[320,844],[390,844],[768,560],[1280,720],[1280,320]]){
   const l=combatUILayout(w,h),controls=[l.dash,l.skill].map(({cx,cy,r})=>({x:cx-43,y:cy-r,w:86,h:r*2+28}));
   const boxes=[l.health,l.mode,l.pause,...controls];
   for(const b of boxes){assert.ok(b.x>=0&&b.y>=0&&b.x+b.w<=w&&b.y+b.h<=h,`${w}x${h}: on canvas`);}
   for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++)assert.equal(overlaps(boxes[i],boxes[j]),false,`${w}x${h}: HUD/control overlap ${i},${j}`);
+  if(l.short){assert.ok(l.mode.y+l.mode.h<h/2,'short HUD leaves the player at screen center visible');assert.ok(l.health.h<=90);}
  }
 });
 
@@ -213,4 +214,15 @@ test('divine codex, fourth upgrade, paused oath and result all show actual run b
  assert.equal(options.length,4);const boon=options.find(o=>o.type==='blessing');e.sm.switchTo('upgrade',{options,previews:[],game:e.game});e.sync();assert.match(e.root.html,/神明赐福/);e.click('选择 4');assert.equal(e.game.pantheon.ranks[boon.id],1);
  e.game.isPaused=true;e.sync();e.click('祈誓与神赐');assert.match(e.root.html,/乘岚/);assert.match(e.root.html,new RegExp(boon.name));
  e.game.isPaused=false;e.game.endGame();e.sync();assert.match(e.root.html,/乘岚/);assert.match(e.root.html,new RegExp(boon.name));
+});
+
+test('divine offers show capped actual values and paused records expose real stats and damage sources',()=>{
+ const e=environment(true),g=e.game;g.selectedPatron='ember';g.startWithCharacter('tracer',[]);g._tutorialStep=-1;
+ g.player.bonusArmor=8;g.player.bonusCdr=.8;
+ const option={type:'blessing',id:'boon_mail',name:'月下霜衣',desc:'护甲 +1',deity:'moon',rank:1};
+ e.sm.switchTo('upgrade',{options:[option],previews:[],game:g});e.sync();assert.match(e.root.html,/实际减伤 60% → 60%/);assert.match(e.root.html,/已达上限/);
+ e.sm.switchTo('playing');g.player.level=60;g.enemies=[g._createEnemy(g.player.x+10,g.player.y,'Bat')];g.enemies[0].hp=1000;
+ g.pantheon.grant({type:'blessing',id:'boon_breath',rank:1});g.pantheon.update(5);g.isPaused=true;e.sync();e.click('当前属性');assert.match(e.root.html,/武器冷却缩减/);assert.match(e.root.html,/70%/);
+ e.click('祈誓与神赐');assert.match(e.root.html,/已触发 1 次/);assert.match(e.root.html,/实际伤害/);assert.match(e.root.html,/神息「破晓」/);
+ e.click('锋芒记录');assert.match(e.root.html,/余火吐息 · 烛照/);assert.doesNotMatch(e.root.html,/>boon_breath</);
 });

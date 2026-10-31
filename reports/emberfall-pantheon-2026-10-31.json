@@ -1,0 +1,2466 @@
+{
+  "date": "2026-10-31",
+  "limits": "Fixed seeds and one 1000x620 helper-controlled engineer build are regression evidence, not an estimated player win rate or proof of equal patron strength. Candidate and release sets differ by the final freeze-refresh and life-burning relic healing corrections. No invulnerability or forced rewards. Victory uses the actual settled result.",
+  "runs": [
+    {
+      "source_stage": "base_764a212",
+      "method": "engine simulation, starter stats, normal helpers, no forced rewards or invulnerability",
+      "cases": 27,
+      "victories": 0,
+      "rows": [
+        {
+          "hero": "engineer",
+          "patron": "none",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 137,
+          "victory": false,
+          "chapter": 1,
+          "level": 19,
+          "kills": 999,
+          "boons": {},
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 115.35,
+              "hp": 2668,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "none",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 397,
+          "victory": false,
+          "chapter": 2,
+          "level": 35,
+          "kills": 4279,
+          "boons": {},
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 117.87,
+              "hp": 2685,
+              "end": 142.37,
+              "seconds": 24.5
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 241.38,
+              "hp": 8769,
+              "end": 298.67,
+              "seconds": 57.29
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 371.2,
+              "hp": 23872,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "none",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 107,
+          "victory": false,
+          "chapter": 1,
+          "level": 15,
+          "kills": 725,
+          "boons": {},
+          "bosses": [],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "ember",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 208,
+          "victory": false,
+          "chapter": 1,
+          "level": 24,
+          "kills": 1580,
+          "boons": {
+            "boon_bell": 1,
+            "boon_tide": 1,
+            "boon_coal": 2,
+            "boon_breath": 1,
+            "boon_wildfire": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 117.25,
+              "hp": 2681,
+              "end": 137.5,
+              "seconds": 20.25
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "ember",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 146,
+          "victory": false,
+          "chapter": 1,
+          "level": 21,
+          "kills": 1112,
+          "boons": {
+            "boon_still": 1,
+            "boon_wildfire": 3
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 112.6,
+              "hp": 2650,
+              "end": 128.87,
+              "seconds": 16.27
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "ember",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 126,
+          "victory": false,
+          "chapter": 1,
+          "level": 16,
+          "kills": 941,
+          "boons": {
+            "boon_chant": 1,
+            "boon_breath": 1,
+            "boon_vigil": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 114.07,
+              "hp": 2659,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "storm",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 628,
+          "victory": false,
+          "chapter": 3,
+          "level": 56,
+          "kills": 11695,
+          "boons": {
+            "boon_thorn": 1,
+            "boon_omen": 3,
+            "boon_edge": 3,
+            "boon_mail": 1,
+            "boon_return": 1,
+            "boon_chain": 2
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 114.52,
+              "hp": 2662,
+              "end": 138.57,
+              "seconds": 24.05
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 228.23,
+              "hp": 8486,
+              "end": 290.33,
+              "seconds": 62.1
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 358.57,
+              "hp": 23131,
+              "end": 422.62,
+              "seconds": 64.05
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 494.15,
+              "hp": 63736,
+              "end": 584.87,
+              "seconds": 90.72
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "storm",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 138,
+          "victory": false,
+          "chapter": 1,
+          "level": 16,
+          "kills": 1000,
+          "boons": {
+            "boon_edge": 2,
+            "boon_vigil": 1,
+            "boon_chain": 2
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 113.88,
+              "hp": 2658,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "storm",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 247,
+          "victory": false,
+          "chapter": 2,
+          "level": 29,
+          "kills": 2330,
+          "boons": {
+            "boon_chain": 1,
+            "boon_root": 1,
+            "boon_omen": 3
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 112.67,
+              "hp": 2650,
+              "end": 142.53,
+              "seconds": 29.86
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 219.07,
+              "hp": 8294,
+              "end": 231.82,
+              "seconds": 12.75
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "moon",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 586,
+          "victory": false,
+          "chapter": 3,
+          "level": 52,
+          "kills": 9419,
+          "boons": {
+            "boon_mail": 1,
+            "boon_thorn": 1,
+            "boon_still": 2,
+            "boon_tide": 2,
+            "boon_chain": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 121.57,
+              "hp": 2710,
+              "end": 145.72,
+              "seconds": 24.15
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 248.48,
+              "hp": 8926,
+              "end": 341.9,
+              "seconds": 93.42
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 415.35,
+              "hp": 26654,
+              "end": 441.53,
+              "seconds": 26.18
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 543.6,
+              "hp": 72110,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "moon",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 285,
+          "victory": false,
+          "chapter": 2,
+          "level": 30,
+          "kills": 2525,
+          "boons": {
+            "boon_mail": 2,
+            "boon_bell": 1,
+            "boon_tide": 1,
+            "boon_still": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 118.32,
+              "hp": 2688,
+              "end": 156.55,
+              "seconds": 38.23
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 241.03,
+              "hp": 8762,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "moon",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 136,
+          "victory": false,
+          "chapter": 1,
+          "level": 16,
+          "kills": 1019,
+          "boons": {
+            "boon_bell": 1,
+            "boon_mail": 2,
+            "boon_tide": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 111.85,
+              "hp": 2645,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "grove",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 274,
+          "victory": false,
+          "chapter": 2,
+          "level": 26,
+          "kills": 2234,
+          "boons": {
+            "boon_root": 2,
+            "boon_thorn": 2,
+            "boon_tide": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 120.92,
+              "hp": 2705,
+              "end": 161.8,
+              "seconds": 40.88
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 249.7,
+              "hp": 8953,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "grove",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 168,
+          "victory": false,
+          "chapter": 1,
+          "level": 21,
+          "kills": 1296,
+          "boons": {
+            "boon_root": 3,
+            "boon_thorn": 2
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 113.65,
+              "hp": 2657,
+              "end": 166.13,
+              "seconds": 52.48
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "grove",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 85,
+          "victory": false,
+          "chapter": 1,
+          "level": 12,
+          "kills": 570,
+          "boons": {
+            "boon_bell": 1,
+            "boon_sap": 1
+          },
+          "bosses": [],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "forge",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 144,
+          "victory": false,
+          "chapter": 1,
+          "level": 20,
+          "kills": 1367,
+          "boons": {
+            "boon_return": 2,
+            "boon_thorn": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 122.22,
+              "hp": 2714,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "forge",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 132,
+          "victory": false,
+          "chapter": 1,
+          "level": 20,
+          "kills": 1002,
+          "boons": {
+            "boon_return": 2,
+            "boon_twins": 1,
+            "boon_omen": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 113.32,
+              "hp": 2654,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "forge",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 88,
+          "victory": false,
+          "chapter": 1,
+          "level": 12,
+          "kills": 604,
+          "boons": {
+            "boon_bell": 1,
+            "boon_return": 1
+          },
+          "bosses": [],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "night",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 143,
+          "victory": false,
+          "chapter": 1,
+          "level": 18,
+          "kills": 1128,
+          "boons": {
+            "boon_gather": 3,
+            "boon_lore": 1,
+            "boon_coal": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 110.78,
+              "hp": 2638,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "night",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 262,
+          "victory": false,
+          "chapter": 2,
+          "level": 29,
+          "kills": 2170,
+          "boons": {
+            "boon_chant": 3,
+            "boon_carry": 1,
+            "boon_gather": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 117,
+              "hp": 2679,
+              "end": 154.73,
+              "seconds": 37.73
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 236.07,
+              "hp": 8654,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "night",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 145,
+          "victory": false,
+          "chapter": 1,
+          "level": 19,
+          "kills": 977,
+          "boons": {
+            "boon_chant": 2,
+            "boon_vigil": 2,
+            "boon_lore": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 118.32,
+              "hp": 2688,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "dawn",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 615,
+          "victory": false,
+          "chapter": 3,
+          "level": 51,
+          "kills": 10214,
+          "boons": {
+            "boon_root": 1,
+            "boon_evade": 1,
+            "boon_vigil": 3,
+            "boon_bell": 3,
+            "boon_promise": 2
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 113.97,
+              "hp": 2659,
+              "end": 131.22,
+              "seconds": 17.25
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 232.73,
+              "hp": 8582,
+              "end": 287.88,
+              "seconds": 55.15
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 358.25,
+              "hp": 23113,
+              "end": 453.38,
+              "seconds": 95.13
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 526.85,
+              "hp": 69157,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "dawn",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 141,
+          "victory": false,
+          "chapter": 1,
+          "level": 24,
+          "kills": 1566,
+          "boons": {
+            "boon_bell": 3,
+            "boon_still": 1,
+            "boon_vigil": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 123.13,
+              "hp": 2720,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "dawn",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 133,
+          "victory": false,
+          "chapter": 1,
+          "level": 16,
+          "kills": 965,
+          "boons": {
+            "boon_bell": 1,
+            "boon_vigil": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 114.15,
+              "hp": 2660,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "wind",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 140,
+          "victory": false,
+          "chapter": 1,
+          "level": 18,
+          "kills": 1031,
+          "boons": {
+            "boon_promise": 1,
+            "boon_stride": 2,
+            "boon_mail": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 111.67,
+              "hp": 2644,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "wind",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 887,
+          "victory": false,
+          "chapter": 4,
+          "level": 94,
+          "kills": 25925,
+          "boons": {
+            "boon_evade": 3,
+            "boon_still": 1,
+            "boon_carry": 3,
+            "boon_stride": 3,
+            "boon_thorn": 2,
+            "boon_sap": 1,
+            "boon_root": 1,
+            "boon_coal": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 117.23,
+              "hp": 2680,
+              "end": 142.25,
+              "seconds": 25.02
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 237.18,
+              "hp": 8678,
+              "end": 256.82,
+              "seconds": 19.64
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 357.55,
+              "hp": 23072,
+              "end": 421.75,
+              "seconds": 64.2
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 495.57,
+              "hp": 63961,
+              "end": 556.5,
+              "seconds": 60.93
+            },
+            {
+              "name": "腐根母巢",
+              "start": 634.78,
+              "hp": 118532,
+              "end": 694.27,
+              "seconds": 59.49
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 773.13,
+              "hp": 183125,
+              "end": 828.55,
+              "seconds": 55.42
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "wind",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 134,
+          "victory": false,
+          "chapter": 1,
+          "level": 19,
+          "kills": 922,
+          "boons": {
+            "boon_bell": 1,
+            "boon_evade": 1,
+            "boon_carry": 2
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 116.32,
+              "hp": 2674,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        }
+      ]
+    },
+    {
+      "source_stage": "candidate_before_freeze_refresh_and_relic_heal_fix",
+      "method": "engine simulation, starter stats, normal helpers, no forced rewards or invulnerability",
+      "cases": 27,
+      "victories": 1,
+      "rows": [
+        {
+          "hero": "engineer",
+          "patron": "none",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 879,
+          "victory": false,
+          "chapter": 4,
+          "level": 91,
+          "kills": 28230,
+          "boons": {},
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 112.65,
+              "hp": 2650,
+              "end": 119.78,
+              "seconds": 7.13
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 218.43,
+              "hp": 8281,
+              "end": 228.77,
+              "seconds": 10.34
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 327.6,
+              "hp": 21410,
+              "end": 354.12,
+              "seconds": 26.52
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 441.1,
+              "hp": 55830,
+              "end": 471.72,
+              "seconds": 30.62
+            },
+            {
+              "name": "腐根母巢",
+              "start": 561.15,
+              "hp": 98629,
+              "end": 585.25,
+              "seconds": 24.1
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 685.23,
+              "hp": 147044,
+              "end": 722.72,
+              "seconds": 37.49
+            },
+            {
+              "name": "古铜统帅",
+              "start": 810.92,
+              "hp": 646837,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "none",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 104,
+          "victory": false,
+          "chapter": 1,
+          "level": 14,
+          "kills": 717,
+          "boons": {},
+          "bosses": [],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "none",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 813,
+          "victory": false,
+          "chapter": 4,
+          "level": 109,
+          "kills": 23049,
+          "boons": {},
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 116.98,
+              "hp": 2679,
+              "end": 151.3,
+              "seconds": 34.32
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 234.28,
+              "hp": 8615,
+              "end": 279.97,
+              "seconds": 45.69
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 350.18,
+              "hp": 22652,
+              "end": 393.55,
+              "seconds": 43.37
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 467.77,
+              "hp": 59673,
+              "end": 508.38,
+              "seconds": 40.61
+            },
+            {
+              "name": "腐根母巢",
+              "start": 585.98,
+              "hp": 104937,
+              "end": 684.37,
+              "seconds": 98.39
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 758.35,
+              "hp": 176490,
+              "end": 788.03,
+              "seconds": 29.68
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "ember",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 264,
+          "victory": false,
+          "chapter": 2,
+          "level": 34,
+          "kills": 3240,
+          "boons": {
+            "boon_promise": 1,
+            "boon_wildfire": 1,
+            "boon_breath": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 115.03,
+              "hp": 2666,
+              "end": 135.97,
+              "seconds": 20.94
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 236.75,
+              "hp": 8669,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_breath": {
+              "casts": 15,
+              "hits": 7,
+              "damage": 168.16730605527493,
+              "healing": 0,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "ember",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 153,
+          "victory": false,
+          "chapter": 1,
+          "level": 18,
+          "kills": 1159,
+          "boons": {
+            "boon_still": 1,
+            "boon_thorn": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 107.35,
+              "hp": 2615,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "ember",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 104,
+          "victory": false,
+          "chapter": 1,
+          "level": 14,
+          "kills": 766,
+          "boons": {
+            "boon_chain": 1,
+            "boon_breath": 1,
+            "boon_coal": 1
+          },
+          "bosses": [],
+          "divine": {
+            "boon_chain": {
+              "casts": 19,
+              "hits": 57,
+              "damage": 852.6536310577147,
+              "healing": 0,
+              "controlled": 0
+            },
+            "boon_breath": {
+              "casts": 13,
+              "hits": 15,
+              "damage": 130.67319400977846,
+              "healing": 0,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "storm",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 1084,
+          "victory": false,
+          "chapter": 5,
+          "level": 244,
+          "kills": 52007,
+          "boons": {
+            "boon_omen": 3,
+            "boon_twins": 1,
+            "boon_edge": 3,
+            "boon_chain": 3,
+            "boon_tide": 1,
+            "boon_stride": 2,
+            "boon_vigil": 1,
+            "boon_return": 1,
+            "boon_gather": 1,
+            "boon_carry": 1,
+            "boon_breath": 1,
+            "boon_sap": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 113.58,
+              "hp": 2656,
+              "end": 156.28,
+              "seconds": 42.7
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 225.1,
+              "hp": 8420,
+              "end": 293.87,
+              "seconds": 68.77
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 360.1,
+              "hp": 23220,
+              "end": 429.22,
+              "seconds": 69.12
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 497.75,
+              "hp": 64311,
+              "end": 583.6,
+              "seconds": 85.85
+            },
+            {
+              "name": "腐根母巢",
+              "start": 658.13,
+              "hp": 125647,
+              "end": 735.37,
+              "seconds": 77.24
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 810.05,
+              "hp": 200804,
+              "end": 869.28,
+              "seconds": 59.23
+            },
+            {
+              "name": "古铜统帅",
+              "start": 945.68,
+              "hp": 905540,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_chain": {
+              "casts": 122,
+              "hits": 654,
+              "damage": 80948.16402052126,
+              "healing": 0,
+              "controlled": 0
+            },
+            "boon_tide": {
+              "casts": 63,
+              "hits": 1953,
+              "damage": 0,
+              "healing": 0,
+              "controlled": 1953
+            },
+            "boon_breath": {
+              "casts": 20,
+              "hits": 1607,
+              "damage": 273501.8311966451,
+              "healing": 0,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "storm",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 55,
+          "victory": false,
+          "chapter": 1,
+          "level": 9,
+          "kills": 397,
+          "boons": {
+            "boon_edge": 2
+          },
+          "bosses": [],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "storm",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 856,
+          "victory": false,
+          "chapter": 4,
+          "level": 96,
+          "kills": 26309,
+          "boons": {
+            "boon_vigil": 1,
+            "boon_omen": 3,
+            "boon_edge": 3,
+            "boon_chain": 3,
+            "boon_gather": 1,
+            "boon_stride": 1,
+            "boon_lore": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 116.05,
+              "hp": 2673,
+              "end": 142.22,
+              "seconds": 26.17
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 235.6,
+              "hp": 8644,
+              "end": 246,
+              "seconds": 10.4
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 341.43,
+              "hp": 22163,
+              "end": 348.53,
+              "seconds": 7.1
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 449.28,
+              "hp": 56982,
+              "end": 462.78,
+              "seconds": 13.5
+            },
+            {
+              "name": "腐根母巢",
+              "start": 570.12,
+              "hp": 100861,
+              "end": 599.83,
+              "seconds": 29.71
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 694.5,
+              "hp": 150486,
+              "end": 724.28,
+              "seconds": 29.78
+            },
+            {
+              "name": "古铜统帅",
+              "start": 814.47,
+              "hp": 652595,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_chain": {
+              "casts": 96,
+              "hits": 493,
+              "damage": 50204.353817502466,
+              "healing": 0,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "moon",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 919,
+          "victory": false,
+          "chapter": 4,
+          "level": 98,
+          "kills": 29477,
+          "boons": {
+            "boon_twins": 1,
+            "boon_vigil": 1,
+            "boon_still": 3,
+            "boon_tide": 3,
+            "boon_lore": 1,
+            "boon_return": 1,
+            "boon_sap": 1,
+            "boon_mail": 2,
+            "boon_gather": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 118.67,
+              "hp": 2690,
+              "end": 136.23,
+              "seconds": 17.56
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 239.57,
+              "hp": 8730,
+              "end": 280.12,
+              "seconds": 40.55
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 360.08,
+              "hp": 23219,
+              "end": 375.28,
+              "seconds": 15.2
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 481.67,
+              "hp": 61780,
+              "end": 537.48,
+              "seconds": 55.81
+            },
+            {
+              "name": "腐根母巢",
+              "start": 614.42,
+              "hp": 112656,
+              "end": 693.28,
+              "seconds": 78.86
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 769.87,
+              "hp": 181638,
+              "end": 810.25,
+              "seconds": 40.38
+            },
+            {
+              "name": "古铜统帅",
+              "start": 900.32,
+              "hp": 808577,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_tide": {
+              "casts": 43,
+              "hits": 493,
+              "damage": 0,
+              "healing": 0,
+              "controlled": 493
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "moon",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 1023,
+          "victory": false,
+          "chapter": 5,
+          "level": 170,
+          "kills": 41296,
+          "boons": {
+            "boon_mail": 3,
+            "boon_still": 3,
+            "boon_tide": 3,
+            "boon_lore": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 119.27,
+              "hp": 2694,
+              "end": 157.2,
+              "seconds": 37.93
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 244.88,
+              "hp": 8846,
+              "end": 270.22,
+              "seconds": 25.34
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 361.75,
+              "hp": 23316,
+              "end": 372.13,
+              "seconds": 10.38
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 479.63,
+              "hp": 61467,
+              "end": 503.78,
+              "seconds": 24.15
+            },
+            {
+              "name": "腐根母巢",
+              "start": 605.97,
+              "hp": 110304,
+              "end": 629.33,
+              "seconds": 23.36
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 733.63,
+              "hp": 165929,
+              "end": 772.05,
+              "seconds": 38.42
+            },
+            {
+              "name": "古铜统帅",
+              "start": 858.6,
+              "hp": 728606,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_tide": {
+              "casts": 49,
+              "hits": 1097,
+              "damage": 0,
+              "healing": 0,
+              "controlled": 1097
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "moon",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 129,
+          "victory": false,
+          "chapter": 1,
+          "level": 18,
+          "kills": 988,
+          "boons": {
+            "boon_bell": 1,
+            "boon_mail": 2,
+            "boon_coal": 1,
+            "boon_tide": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 113.98,
+              "hp": 2659,
+              "end": 125.25,
+              "seconds": 11.27
+            }
+          ],
+          "divine": {
+            "boon_bell": {
+              "casts": 11,
+              "hits": 2,
+              "damage": 11.95703125,
+              "healing": 6,
+              "controlled": 0
+            },
+            "boon_tide": {
+              "casts": 10,
+              "hits": 5,
+              "damage": 0,
+              "healing": 0,
+              "controlled": 5
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "grove",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 1010,
+          "victory": false,
+          "chapter": 5,
+          "level": 144,
+          "kills": 29983,
+          "boons": {
+            "boon_root": 3,
+            "boon_stride": 1,
+            "boon_sap": 3,
+            "boon_thorn": 3,
+            "boon_promise": 1,
+            "boon_lore": 1,
+            "boon_wildfire": 1,
+            "boon_omen": 2,
+            "boon_gather": 1,
+            "boon_chant": 2,
+            "boon_bell": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 115.9,
+              "hp": 2672,
+              "end": 133.95,
+              "seconds": 18.05
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 231.12,
+              "hp": 8548,
+              "end": 271.35,
+              "seconds": 40.23
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 347.52,
+              "hp": 22502,
+              "end": 397.33,
+              "seconds": 49.81
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 468.7,
+              "hp": 59812,
+              "end": 501.58,
+              "seconds": 32.88
+            },
+            {
+              "name": "腐根母巢",
+              "start": 593.48,
+              "hp": 106920,
+              "end": 718.82,
+              "seconds": 125.34
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 795.33,
+              "hp": 193561,
+              "end": 841.47,
+              "seconds": 46.14
+            },
+            {
+              "name": "古铜统帅",
+              "start": 920.63,
+              "hp": 850645,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_bell": {
+              "casts": 9,
+              "hits": 222,
+              "damage": 21448.77731738349,
+              "healing": 0,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "grove",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 1200,
+          "victory": true,
+          "chapter": 5,
+          "level": 368,
+          "kills": 75580,
+          "boons": {
+            "boon_root": 3,
+            "boon_sap": 3,
+            "boon_tide": 3,
+            "boon_thorn": 3,
+            "boon_gather": 3,
+            "boon_edge": 3,
+            "boon_omen": 3,
+            "boon_evade": 3,
+            "boon_chant": 3,
+            "boon_coal": 3,
+            "boon_mail": 3,
+            "boon_bell": 3,
+            "boon_promise": 3,
+            "boon_lore": 3,
+            "boon_still": 3,
+            "boon_carry": 3,
+            "boon_breath": 3,
+            "boon_stride": 3,
+            "boon_anvil": 3,
+            "boon_wildfire": 3,
+            "boon_twins": 1,
+            "boon_return": 3,
+            "boon_chain": 3,
+            "boon_vigil": 3
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 116.15,
+              "hp": 2673,
+              "end": 122.1,
+              "seconds": 5.95
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 233.65,
+              "hp": 8602,
+              "end": 245.18,
+              "seconds": 11.53
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 344.63,
+              "hp": 22340,
+              "end": 366.92,
+              "seconds": 22.29
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 452.33,
+              "hp": 57418,
+              "end": 474.57,
+              "seconds": 22.24
+            },
+            {
+              "name": "腐根母巢",
+              "start": 563.03,
+              "hp": 99093,
+              "end": 586.27,
+              "seconds": 23.24
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 681.63,
+              "hp": 145729,
+              "end": 708.33,
+              "seconds": 26.7
+            },
+            {
+              "name": "古铜统帅",
+              "start": 801.33,
+              "hp": 631545,
+              "end": 956.53,
+              "seconds": 155.2
+            },
+            {
+              "name": "深渊守望者",
+              "start": 1024.8,
+              "hp": 1323937,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_tide": {
+              "casts": 107,
+              "hits": 2620,
+              "damage": 0,
+              "healing": 0,
+              "controlled": 2620
+            },
+            "boon_bell": {
+              "casts": 23,
+              "hits": 1805,
+              "damage": 420288.275760359,
+              "healing": 0,
+              "controlled": 0
+            },
+            "boon_chain": {
+              "casts": 28,
+              "hits": 168,
+              "damage": 79083.1170945499,
+              "healing": 0,
+              "controlled": 0
+            },
+            "boon_breath": {
+              "casts": 22,
+              "hits": 1453,
+              "damage": 635903.9677697261,
+              "healing": 0,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "grove",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 149,
+          "victory": false,
+          "chapter": 1,
+          "level": 19,
+          "kills": 1124,
+          "boons": {
+            "boon_bell": 1,
+            "boon_root": 2,
+            "boon_sap": 1,
+            "boon_still": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 113.35,
+              "hp": 2655,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_bell": {
+              "casts": 13,
+              "hits": 18,
+              "damage": 147.4230769230769,
+              "healing": 16,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "forge",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 133,
+          "victory": false,
+          "chapter": 1,
+          "level": 17,
+          "kills": 922,
+          "boons": {
+            "boon_return": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 118,
+              "hp": 2686,
+              "end": 132.68,
+              "seconds": 14.68
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "forge",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 956,
+          "victory": false,
+          "chapter": 4,
+          "level": 110,
+          "kills": 36470,
+          "boons": {
+            "boon_return": 3,
+            "boon_root": 1,
+            "boon_carry": 1,
+            "boon_anvil": 3,
+            "boon_twins": 1,
+            "boon_coal": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 115.7,
+              "hp": 2670,
+              "end": 124.5,
+              "seconds": 8.8
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 232.95,
+              "hp": 8587,
+              "end": 249.08,
+              "seconds": 16.13
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 350.42,
+              "hp": 22665,
+              "end": 372.97,
+              "seconds": 22.55
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 470.32,
+              "hp": 60054,
+              "end": 491.87,
+              "seconds": 21.55
+            },
+            {
+              "name": "腐根母巢",
+              "start": 598.62,
+              "hp": 108299,
+              "end": 640.28,
+              "seconds": 41.66
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 730.52,
+              "hp": 164643,
+              "end": 762.7,
+              "seconds": 32.18
+            },
+            {
+              "name": "古铜统帅",
+              "start": 862.25,
+              "hp": 735275,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "forge",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 347,
+          "victory": false,
+          "chapter": 2,
+          "level": 33,
+          "kills": 3867,
+          "boons": {
+            "boon_bell": 1,
+            "boon_return": 1,
+            "boon_twins": 1,
+            "boon_anvil": 2,
+            "boon_still": 1,
+            "boon_carry": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 113.13,
+              "hp": 2653,
+              "end": 122.67,
+              "seconds": 9.54
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 225.18,
+              "hp": 8422,
+              "end": 253.9,
+              "seconds": 28.72
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 335.55,
+              "hp": 21839,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_bell": {
+              "casts": 29,
+              "hits": 11,
+              "damage": 130.425,
+              "healing": 28.319999999999723,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "night",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 109,
+          "victory": false,
+          "chapter": 1,
+          "level": 17,
+          "kills": 745,
+          "boons": {
+            "boon_gather": 1,
+            "boon_mail": 1
+          },
+          "bosses": [],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "night",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 754,
+          "victory": false,
+          "chapter": 4,
+          "level": 70,
+          "kills": 16135,
+          "boons": {
+            "boon_lore": 1,
+            "boon_chant": 1,
+            "boon_thorn": 1,
+            "boon_anvil": 1,
+            "boon_coal": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 115.62,
+              "hp": 2670,
+              "end": 157.88,
+              "seconds": 42.26
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 235.55,
+              "hp": 8643,
+              "end": 255.72,
+              "seconds": 20.17
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 350.07,
+              "hp": 22645,
+              "end": 388.5,
+              "seconds": 38.43
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 469.37,
+              "hp": 59912,
+              "end": 484.7,
+              "seconds": 15.33
+            },
+            {
+              "name": "腐根母巢",
+              "start": 598.02,
+              "hp": 108137,
+              "end": 653.85,
+              "seconds": 55.83
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 733.97,
+              "hp": 166067,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "night",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 851,
+          "victory": false,
+          "chapter": 4,
+          "level": 95,
+          "kills": 22262,
+          "boons": {
+            "boon_gather": 3,
+            "boon_still": 1,
+            "boon_carry": 1,
+            "boon_lore": 3,
+            "boon_tide": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 114.48,
+              "hp": 2662,
+              "end": 279.82,
+              "seconds": 165.34
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 345.2,
+              "hp": 11364,
+              "end": 369.77,
+              "seconds": 24.57
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 461.93,
+              "hp": 29941,
+              "end": 512.45,
+              "seconds": 50.52
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 588.65,
+              "hp": 80693,
+              "end": 674.53,
+              "seconds": 85.88
+            },
+            {
+              "name": "腐根母巢",
+              "start": 752.35,
+              "hp": 158964,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_tide": {
+              "casts": 7,
+              "hits": 140,
+              "damage": 0,
+              "healing": 0,
+              "controlled": 140
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "dawn",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 132,
+          "victory": false,
+          "chapter": 1,
+          "level": 17,
+          "kills": 975,
+          "boons": {
+            "boon_vigil": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 114.3,
+              "hp": 2661,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "dawn",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 664,
+          "victory": false,
+          "chapter": 3,
+          "level": 65,
+          "kills": 12039,
+          "boons": {
+            "boon_twins": 1,
+            "boon_vigil": 3,
+            "boon_bell": 3,
+            "boon_promise": 3,
+            "boon_omen": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 113.68,
+              "hp": 2657,
+              "end": 119.55,
+              "seconds": 5.87
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 230.83,
+              "hp": 8542,
+              "end": 256.18,
+              "seconds": 25.35
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 342.75,
+              "hp": 22236,
+              "end": 358.6,
+              "seconds": 15.85
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 459.43,
+              "hp": 58444,
+              "end": 476.75,
+              "seconds": 17.32
+            },
+            {
+              "name": "腐根母巢",
+              "start": 588.45,
+              "hp": 105585,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_bell": {
+              "casts": 41,
+              "hits": 289,
+              "damage": 5033.406533928655,
+              "healing": 7.695000000000022,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "dawn",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 894,
+          "victory": false,
+          "chapter": 4,
+          "level": 96,
+          "kills": 24552,
+          "boons": {
+            "boon_breath": 2,
+            "boon_vigil": 3,
+            "boon_promise": 3,
+            "boon_bell": 3,
+            "boon_edge": 2,
+            "boon_lore": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 111.13,
+              "hp": 2640,
+              "end": 147.5,
+              "seconds": 36.37
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 233.17,
+              "hp": 8591,
+              "end": 250.08,
+              "seconds": 16.91
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 348.5,
+              "hp": 22557,
+              "end": 394.47,
+              "seconds": 45.97
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 468.97,
+              "hp": 59852,
+              "end": 552.02,
+              "seconds": 83.05
+            },
+            {
+              "name": "腐根母巢",
+              "start": 629.47,
+              "hp": 116969,
+              "end": 718.67,
+              "seconds": 89.2
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 791.93,
+              "hp": 191925,
+              "end": 874.88,
+              "seconds": 82.95
+            }
+          ],
+          "divine": {
+            "boon_breath": {
+              "casts": 111,
+              "hits": 792,
+              "damage": 38744.02033160403,
+              "healing": 0,
+              "controlled": 0
+            },
+            "boon_bell": {
+              "casts": 39,
+              "hits": 733,
+              "damage": 36654.78914496622,
+              "healing": 62.20133333333453,
+              "controlled": 0
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "wind",
+          "seed": 42,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 130,
+          "victory": false,
+          "chapter": 1,
+          "level": 16,
+          "kills": 896,
+          "boons": {
+            "boon_carry": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 114.42,
+              "hp": 2662,
+              "seconds": null
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "wind",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 806,
+          "victory": false,
+          "chapter": 4,
+          "level": 73,
+          "kills": 19309,
+          "boons": {
+            "boon_evade": 2,
+            "boon_return": 1,
+            "boon_stride": 2,
+            "boon_thorn": 1,
+            "boon_carry": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 119.35,
+              "hp": 2695,
+              "end": 145.75,
+              "seconds": 26.4
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 240.45,
+              "hp": 8749,
+              "end": 303.57,
+              "seconds": 63.12
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 374.03,
+              "hp": 24042,
+              "end": 458.5,
+              "seconds": 84.47
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 532.17,
+              "hp": 70081,
+              "end": 569.83,
+              "seconds": 37.66
+            },
+            {
+              "name": "腐根母巢",
+              "start": 664.07,
+              "hp": 127522,
+              "end": 745.13,
+              "seconds": 81.06
+            }
+          ],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "wind",
+          "seed": 7,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 148,
+          "victory": false,
+          "chapter": 1,
+          "level": 20,
+          "kills": 1067,
+          "boons": {
+            "boon_stride": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 117.2,
+              "hp": 2680,
+              "end": 142.78,
+              "seconds": 25.58
+            }
+          ],
+          "divine": {}
+        }
+      ]
+    },
+    {
+      "source_stage": "release_engine",
+      "method": "engine simulation, starter stats, normal helpers, no forced rewards or invulnerability",
+      "cases": 3,
+      "victories": 0,
+      "rows": [
+        {
+          "hero": "engineer",
+          "patron": "storm",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 55,
+          "victory": false,
+          "chapter": 1,
+          "level": 9,
+          "kills": 397,
+          "boons": {
+            "boon_edge": 2
+          },
+          "bosses": [],
+          "divine": {}
+        },
+        {
+          "hero": "engineer",
+          "patron": "moon",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 566,
+          "victory": false,
+          "chapter": 3,
+          "level": 47,
+          "kills": 8635,
+          "boons": {
+            "boon_mail": 2,
+            "boon_tide": 2
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 119.92,
+              "hp": 2699,
+              "end": 156.35,
+              "seconds": 36.43
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 245.48,
+              "hp": 8860,
+              "end": 277.55,
+              "seconds": 32.07
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 368.87,
+              "hp": 23734,
+              "end": 402.1,
+              "seconds": 33.23
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 494.55,
+              "hp": 63799,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_tide": {
+              "casts": 18,
+              "hits": 75,
+              "damage": 0,
+              "healing": 0,
+              "controlled": 75
+            }
+          }
+        },
+        {
+          "hero": "engineer",
+          "patron": "grove",
+          "seed": 123,
+          "dt": 0.016666666666666666,
+          "width": 1000,
+          "time": 1082,
+          "victory": false,
+          "chapter": 5,
+          "level": 455,
+          "kills": 64862,
+          "boons": {
+            "boon_root": 3,
+            "boon_sap": 3,
+            "boon_thorn": 3,
+            "boon_carry": 3,
+            "boon_evade": 2,
+            "boon_chant": 2,
+            "boon_gather": 1,
+            "boon_breath": 1,
+            "boon_promise": 3,
+            "boon_twins": 1,
+            "boon_lore": 3,
+            "boon_chain": 3,
+            "boon_mail": 2,
+            "boon_omen": 1,
+            "boon_still": 1,
+            "boon_stride": 1
+          },
+          "bosses": [
+            {
+              "name": "熔心破坏者",
+              "start": 116.15,
+              "hp": 2673,
+              "end": 122.1,
+              "seconds": 5.95
+            },
+            {
+              "name": "虚渊巨人",
+              "start": 236.08,
+              "hp": 8654,
+              "end": 243.93,
+              "seconds": 7.85
+            },
+            {
+              "name": "烬鳞九头蛇",
+              "start": 346.8,
+              "hp": 22462,
+              "end": 369.2,
+              "seconds": 22.4
+            },
+            {
+              "name": "霜冠泰坦",
+              "start": 462.03,
+              "hp": 58825,
+              "end": 488.95,
+              "seconds": 26.92
+            },
+            {
+              "name": "腐根母巢",
+              "start": 586.43,
+              "hp": 105054,
+              "end": 634.63,
+              "seconds": 48.2
+            },
+            {
+              "name": "星蚀裂隙",
+              "start": 714.48,
+              "hp": 158183,
+              "end": 746.73,
+              "seconds": 32.25
+            },
+            {
+              "name": "古铜统帅",
+              "start": 838.35,
+              "hp": 692688,
+              "seconds": null
+            }
+          ],
+          "divine": {
+            "boon_breath": {
+              "casts": 32,
+              "hits": 1591,
+              "damage": 167585.6599136752,
+              "healing": 0,
+              "controlled": 0
+            },
+            "boon_chain": {
+              "casts": 25,
+              "hits": 150,
+              "damage": 52344.5082261808,
+              "healing": 0,
+              "controlled": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -16,7 +16,7 @@ export function createBrowserPlatform(canvas){
   const toolbar=document.querySelector?.('.game-toolbar')?.getBoundingClientRect?.().height||56;
   const available=window.innerHeight?window.innerHeight-(full?toolbar:header+toolbar+24):0;
   if(width<=620){
-   const height=width>0&&available>0?Math.max(full?320:460,Math.min(HEIGHT,Math.floor(available*WIDTH/width))):HEIGHT;
+   const height=width>0&&available>0?Math.max(320,Math.min(HEIGHT,Math.floor(available*WIDTH/width))):HEIGHT;
    return {width:WIDTH,height};
   }
   const h=full?Math.max(320,Math.min(900,Math.round(((window.innerHeight||720)-58)*w/width))):Math.max(560,Math.min(720,Math.round(w*.62)));

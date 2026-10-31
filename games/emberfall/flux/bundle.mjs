@@ -680,6 +680,7 @@ function drawBossActor(c,b){
  c.font='700 14px "Microsoft YaHei",sans-serif';c.textAlign='center';const titleW=Math.max(w,c.measureText(b.name).width+16);c.fillStyle='#07140ff0';c.fillRect(b.x-titleW/2,y-29,titleW,22);c.fillStyle='#fff0c3';c.fillText(b.name,b.x,y-12);
  c.font='700 10px Georgia,serif';c.lineWidth=3;c.strokeStyle='#07140f';const hp=`${Math.ceil(b.hp)} / ${b.maxHp}`;c.strokeText(hp,b.x,y+9);c.fillStyle='#fff9df';c.fillText(hp,b.x,y+9);
  for(let i=0;i<(b.phase||1);i++)diamond(c,b.x+(i-((b.phase||1)-1)/2)*9,y+23,3,b.phase===3?DANGER:GOLD);
+ if(b.slowed>0){ring(c,b.x,b.y+b.radius*.55,b.radius*1.25,'#addce8',.7,.4);F.drawIcon(c,'snow',b.x+b.radius-5,b.y-b.radius*1.5,19);}
  if(b.shield>0)ring(c,b.x,b.y-b.radius*.45,b.radius*1.55,'#a8bbb5',.75,1.25,8);c.restore();return true;
 }
 function drawEnemyGround(c,e){if(e.behavior==='charger'&&e._chargeState==='aiming')lineWarning(c,e.x,e.y,e._chargeAngle,Math.max(8,e.radius*2),800);}
@@ -766,6 +767,8 @@ class Boss {
         this.active = true;
         this.flashTimer = 0;
         this.frozen = 0; // 冻结状态
+        this.slowed = 0; this.slowAmount = 1;
+        this._deathHandled = false;
 
         // 在屏幕外生成
         const angle = Math.random() * Math.PI * 2;
@@ -812,6 +815,15 @@ class Boss {
             moveDt = dt * 0.5;
         }
 
+        // Moon blessings and frost skills slow movement, never attack timers.
+        // Freeze and slow use the stronger penalty rather than multiplying.
+        if (this.slowed > 0) {
+            const duration = Math.min(dt, this.slowed);
+            const factor = Math.max(0.25, Math.min(1, this.slowAmount || 0.6));
+            moveDt = Math.min(moveDt, dt - duration * (1 - factor));
+            this.slowed = Math.max(0, this.slowed - dt);
+        }
+
         // 移动AI行为切换计时器（用原始 dt，不受冻结影响）
         this._behaviorTimer -= dt;
         if (this._behaviorTimer <= 0) {
@@ -846,10 +858,8 @@ class Boss {
             }
         }
 
-        // 接触伤害
-        if (dSq < (this.radius + p.radius) * (this.radius + p.radius)) {
-            p.takeDamage(this.damage * dt);
-        }
+        // Contact damage is owned by CollisionSystem: one time-scaled hit,
+        // including armor, curse multipliers and the attacker's thorn return.
 
         // 技能计时
         this.skillTimer -= dt;
@@ -879,7 +889,7 @@ class Boss {
     }
 
     takeDamage(amount, weaponId = null) {
-        if (!Number.isFinite(amount)) return;
+        if (!this.active || this.hp <= 0 || !Number.isFinite(amount) || amount <= 0) return;
 
         // 护盾吸收
         if (this.shield > 0) {
@@ -903,7 +913,7 @@ class Boss {
             let wId = String(weaponId);
             if (wId.includes('_')) {
                 const WEAPONS = require('./Weapons').WEAPON_DEFS || {};
-                if (!WEAPONS[wId]) {
+                if (!WEAPONS[wId] && !wId.startsWith('boon_') && !wId.startsWith('skill_')) {
                     wId = wId.split('_')[0]; // fallback
                 }
             }
@@ -912,6 +922,13 @@ class Boss {
             this._damageLog['_other'] = (this._damageLog['_other'] || 0) + amount;
         }
 
+        // Boss damage belongs in the same run totals as normal enemy damage.
+        // Exclude the boss's own overcharge self-damage.
+        if (!String(weaponId || '').startsWith('_')) {
+            const p = this.game.player;
+            p.totalDamage = (p.totalDamage || 0) + amount;
+            if (weaponId && this.game._weaponDamageStats) this.game._weaponDamageStats[weaponId] = (this.game._weaponDamageStats[weaponId] || 0) + amount;
+        }
         this.hp -= amount;
         this.flashTimer = 0.08;
         this.game.spawnDamageNumber(this.x, this.y - this.radius - 10, Math.ceil(amount), '#ff8800');
@@ -930,6 +947,8 @@ class Boss {
     }
 
     _onDeath() {
+        if (this._deathHandled) return;
+        this._deathHandled = true;
         if (this.game.particles) this.game.particles.bossExplosion(this.x, this.y, this.color);
 
         // 触发 Boss 伤害来源面板
@@ -2367,7 +2386,7 @@ class Boss {
                     while (ad > Math.PI) ad -= Math.PI * 2;
                     while (ad < -Math.PI) ad += Math.PI * 2;
                     if (Math.abs(ad) < 0.13) { // ~7° 波束半宽
-                        p.takeDamage(18 * dt);
+                        p.takeDamage(18 * dt, null, true);
                         if (eff._hitCooldown <= 0) {
                             this.game.shakeAmount = 2;
                             this.game.shakeDuration = 0.05;
@@ -2388,7 +2407,7 @@ class Boss {
                     while (ad > Math.PI) ad -= Math.PI * 2;
                     while (ad < -Math.PI) ad += Math.PI * 2;
                     if (Math.abs(ad) < 0.22) { // 宽阔的射线区域 (~25度)
-                        p.takeDamage(35 * dt); // 很高的持续倍率
+                        p.takeDamage(35 * dt, null, true); // 很高的持续倍率
                         if (eff._hitCooldown <= 0) {
                             this.game.shakeAmount = 4;
                             this.game.shakeDuration = 0.1;
@@ -4468,7 +4487,7 @@ function installCollisionSystem(Game) {
 
 					// Apply status effects from bullet
 					if (b.freezeChance && Math.random() < b.freezeChance) {
-						e.frozen = b.freezeDur || 1;
+						e.frozen = Math.max(e.frozen || 0, b.freezeDur || 1);
 						this.totalFreezeApplies++;
 					}
 					if (b.slowAmount && b.slowAmount < 1) {
@@ -4532,7 +4551,7 @@ function installCollisionSystem(Game) {
 
 					// Frost armor: freeze enemies that damage player
 					if (p.frostArmorActive && Math.random() < 0.3) {
-						e.frozen = 1.5;
+						e.frozen = Math.max(e.frozen || 0, 1.5);
 						if (this.particles) {
 							this.particles.emit(e.x, e.y, { count: 3, speed: 50, life: 0.3, color: '#66ccff', size: 3 });
 						}
@@ -4556,7 +4575,7 @@ function installCollisionSystem(Game) {
 
 					// Frost armor: 冰冻Boss（概率更低）
 					if (p.frostArmorActive && Math.random() < 0.15) {
-						boss.frozen = 1.0;
+						boss.frozen = Math.max(boss.frozen || 0, 1.0);
 						if (this.particles) {
 							this.particles.emit(boss.x, boss.y, { count: 5, speed: 50, life: 0.3, color: '#66ccff', size: 3 });
 						}
@@ -8221,7 +8240,7 @@ module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawIcon,draw
 // 移除所有 DOM 操作，UI 交给 SceneManager + Canvas 场景
 
 const Input = require('./Input');
-const { Pantheon } = require('./Pantheon');
+const { Pantheon, preferBlessing } = require('./Pantheon');
 const Player = require('./Player');
 const { Enemy } = require('./Enemy');
 const { Weapon } = require('./Weapons');
@@ -8892,7 +8911,7 @@ class Game {
 			
 			// 优先级3：遗物是极其稀有的全局乘区加成，必选
 			if (!pick) pick = options.find(o => o.type === 'relic');
-			if (!pick) pick = options.find(o => o.type === 'blessing' && o.deity === this.pantheon?.patron);
+			if (!pick) pick = preferBlessing(this, options);
 			
 			// 优先级4：有协同标签的选项（进化就绪/解锁进化），有极高收益
 			if (!pick) pick = options.find(o => o.synergy);
@@ -11974,10 +11993,7 @@ function installKillSystem(Game) {
 		if (this.timeRift) xp = Math.floor(xp * this.timeRift.xpMult);
 		if (this._xpSurge) xp = Math.floor(xp * this._xpSurge.mult);
 		if (this._densitySurge && this._densitySurge.xpMult) xp = Math.floor(xp * this._densitySurge.xpMult);
-		// 章节奖励：永久经验加成
-		if (this.player.bonusXp) xp = Math.floor(xp * (1 + this.player.bonusXp));
-		// 遗物：经验增幅器 +25%
-		if (this.player.relicFlags && this.player.relicFlags.xpBoost) xp = Math.floor(xp * 1.25);
+		// Player-wide experience bonuses are applied once when collecting the gem.
 
 		// 事件掉落加成（血月等）
 		const eventDropMult = this.eventEnhancer ? this.eventEnhancer.getDropMultiplier() : 1;
@@ -12689,13 +12705,13 @@ const row=(deity,id,name,desc,stats={},extra={})=>({deity,id:'boon_'+id,name,des
 const BLESSINGS=[
  row('ember','coal','余炭长明','每阶使伤害加成增加 6 个百分点。',{bonusMight:.06}),
  row('ember','wildfire','沿灯燎原','每阶使攻击范围增加 8%。',{bonusArea:.08}),
- row('ember','breath','余火吐息','每 5 秒灼烧周围 130 × 范围倍率内的敌人；每阶造成 12 × 伤害倍率的伤害。',{}, {pulse:'ember',interval:5}),
+ row('ember','breath','余火吐息','每 5 秒灼烧周围 130 × 范围倍率内的敌人；每阶基础伤害 12，受伤害倍率与神息阶段加成。',{}, {pulse:'ember',interval:5}),
  row('wind','stride','归途轻履','每阶使移动速度增加 6%。',{bonusSpeed:.06}),
  row('wind','evade','借风一跃','每阶将闪避冷却再缩短 10%，最低 0.9 秒。',{}, {dash:.9}),
  row('wind','carry','风携余烬','每阶使拾取范围增加 15%、投射物速度增加 6%。',{bonusPickup:.15,bonusProjSpeed:.06}),
  row('storm','omen','惊雷之签','每阶使对普通与精英敌人的暴击率增加 4 个百分点。',{luckyChance:.04}),
  row('storm','edge','雷枝裂夜','每阶使对普通与精英敌人的暴击倍率增加 0.2。',{criticalDamage:.2}),
- row('storm','chain','鸣雷巡林','每 4 秒召雷，击中附近最多 3 名敌人；每阶造成 14 × 伤害倍率的伤害。',{}, {pulse:'storm',interval:4}),
+ row('storm','chain','鸣雷巡林','每 4 秒召雷，初始最多命中 3 名敌人，随神息成长至 6 名；每阶基础伤害 14，受伤害倍率与神息阶段加成。',{}, {pulse:'storm',interval:4}),
  row('moon','mail','月下霜衣','每阶增加 1 护甲；每点护甲提供 8% 减伤，总减伤上限 60%。',{bonusArmor:1}),
  row('moon','still','留住月光','每阶使冻结持续时间增加 15%。',{bonusFreezeDur:.15}),
  row('moon','tide','霜月止潮','每 6 秒冻结周围 150 × 范围倍率内的普通敌人，每阶持续 0.6 秒，另受冻结时长加成；首领仅减速 1 秒。',{}, {pulse:'moon',interval:6}),
@@ -12710,15 +12726,57 @@ const BLESSINGS=[
  row('forge','twins','双芯符灯','投射物数量增加 1。此赐福仅有一阶。',{bonusProjectile:1},{maxRank:1}),
  row('dawn','vigil','残灯续明','每阶使生命上限增加 10、恢复至多 10 生命，并增加每秒 0.1 生命恢复。',{bonusRegen:.1},{health:10}),
  row('dawn','promise','未至之晨','每阶使伤害加成增加 5 个百分点、冷却缩减增加 1 个百分点。',{bonusMight:.05,bonusCdr:.01}),
- row('dawn','bell','破晓钟声','每 8 秒恢复 2 × 阶数生命，并以晨光伤及周围 150 × 范围倍率内的敌人；每阶造成 10 × 伤害倍率的伤害。',{}, {pulse:'dawn',interval:8}),
+ row('dawn','bell','破晓钟声','每 8 秒以晨光伤及周围 150 × 范围倍率内的敌人，并恢复生命；每阶基础伤害 10、基础治疗 2，受神息阶段加成，伤害另受伤害倍率加成。',{}, {pulse:'dawn',interval:8}),
 ];
+function divineStage(level=1){const tier=Math.max(0,Math.min(3,Math.floor(level/20)));return {tier,name:['初火','燃誓','长明','破晓'][tier],power:1+tier*.5,next:tier<3?(tier+1)*20:null};}
+function pulseValues(game,def,rank=1){
+ const p=game.player,stage=divineStage(p.level),kind=def.pulse;
+ return {radius:(kind==='ember'?130:kind==='storm'?420:150)*p.area,
+  damage:(kind==='ember'?12:kind==='storm'?14:kind==='dawn'?10:0)*rank*p.might*stage.power,
+  healing:kind==='dawn'?rank*2*stage.power:0,
+  freeze:kind==='moon'?.6*rank*(1+(p.bonusFreezeDur||0)):0,
+  targets:kind==='storm'?3+stage.tier:null,stage};
+}
+const healingBlocked=game=>!!(game.curseNoHeal||game.player.relicFlags?.overloadCore);
+function blessingPreview(game,option){
+ const def=BLESSINGS.find(b=>b.id===option.id);if(!def)return {lines:[],warnings:[],useful:false};
+ const p=game.player,n=Object.create(p);applyStats({player:n,curseNoHeal:game.curseNoHeal},def);
+ const lines=[],warnings=[],f=x=>Number(x.toFixed(2)),pct=x=>`${f(x*100)}%`,changed=(a,b)=>Math.abs(a-b)>1e-8;
+ let useful=!!def.health||!!def.pulse;
+ const add=(key,label,before,after,format=f)=>{if(def.stats?.[key]!==undefined){lines.push(`${label} ${format(before)} → ${format(after)}`);useful||=changed(before,after);}};
+ add('bonusMight','实际伤害倍率',p.might,n.might,x=>'×'+f(x));add('bonusSpeed','移动速度',p.speed,n.speed);
+ add('bonusArmor','实际减伤',p.armor,n.armor,pct);if(def.stats.bonusArmor&&!changed(p.armor,n.armor))warnings.push('减伤已达上限，此阶护甲不再提高减伤。');
+ add('bonusArea','攻击范围倍率',p.area,n.area,x=>'×'+f(x));add('bonusPickup','拾取半径',p.pickup,n.pickup);
+ add('bonusCdr','武器冷却缩减',p.cdr,n.cdr,pct);
+ if(def.stats.bonusCdr){const before=Math.min(.7,p.bonusCdr||0),after=Math.min(.7,n.bonusCdr||0);lines.push(`咏誓冷却缩减 ${pct(before)} → ${pct(after)}`);useful||=changed(before,after);if(!changed(before,after)&&!changed(p.cdr,n.cdr))warnings.push('武器与咏誓冷却缩减均已达上限。');}
+ add('luckyChance','普通敌人暴击率',Math.min(1,p.luckyChance||0),Math.min(1,n.luckyChance||0),pct);
+ add('criticalDamage','普通敌人暴击倍率',2+(p.criticalDamage||0),2+(n.criticalDamage||0),x=>'×'+f(x));
+ add('bonusRegen','每秒恢复',healingBlocked(game)?0:p.regen,healingBlocked(game)?0:n.regen);
+ add('bonusXp','经验加成',p.bonusXp||0,n.bonusXp||0,pct);add('bonusProjSpeed','投射物速度倍率',p.projSpeed,n.projSpeed,x=>'×'+f(x));
+ add('thornDamage','接触反伤比例',p.thornDamage||0,n.thornDamage||0,pct);add('bonusProjectile','额外投射物',p.bonusProjectile,n.bonusProjectile);
+ if(def.health)lines.push(`生命上限 ${p.maxHp} → ${n.maxHp}`);
+ if(def.dash){lines.push(`闪避冷却 ${f(p.dashMaxCooldown)} → ${f(n.dashMaxCooldown)} 秒`);useful||=changed(p.dashMaxCooldown,n.dashMaxCooldown);}
+ if(def.stats.bonusToxicDmg){lines.push(`荆毒伤害加成 ${pct(p.bonusToxicDmg||0)} → ${pct(n.bonusToxicDmg||0)}`);const has=p.characterId==='biohazard'||p.weapons.some(w=>w.def.element==='toxic');useful||=has;if(!has)warnings.push('当前行装没有荆毒来源，此项暂不增加现有武器伤害。');}
+ if(def.stats.bonusFreezeDur){lines.push(`冻结时长加成 ${pct(p.bonusFreezeDur||0)} → ${pct(n.bonusFreezeDur||0)}`);const has=p.characterId==='cryomancer'||p.frostArmorActive||p.weapons.some(w=>w.def.element==='cryo')||game.pantheon?.ranks.boon_tide;useful||=!!has;if(!has)warnings.push('当前行装没有冻结来源，此项暂不影响战斗。');}
+ if(healingBlocked(game)&&(def.health||def.stats.bonusRegen||def.pulse==='dawn'))warnings.push(def.health?'禁疗中恢复无效，生命上限仍可增加。':def.pulse==='dawn'?'禁疗中晨光治疗无效，伤害仍可生效。':'禁疗中，本项恢复效果无效。');
+ if(def.pulse){const v=pulseValues(game,def,option.rank);lines.push(`神息「${v.stage.name}」· 当前半径 ${f(v.radius)}`);if(v.damage)lines.push(`当前每次每目标基础伤害 ${f(v.damage)}${v.targets?` · 最多 ${v.targets} 个目标`:''}`);if(v.freeze)lines.push(`当前普通敌人冻结 ${f(v.freeze)} 秒，首领仅减速 1 秒`);if(v.healing)lines.push(`当前每次最多恢复 ${f(v.healing)} 生命`);}
+ return {lines,warnings,useful};
+}
+function preferBlessing(game,options){
+ const p=game.player,candidates=options.filter(o=>o.type==='blessing'&&blessingPreview(game,o).useful);
+ if(!healingBlocked(game)&&p.hp/p.maxHp<.35){const heal=candidates.find(o=>{const b=BLESSINGS.find(b=>b.id===o.id);return b.health||b.stats.bonusRegen;});if(heal)return heal;}
+ // Leave early levels for the core weapon. A divine pick every six levels
+ // complements it instead of repeatedly delaying the first weapon upgrades.
+ if(p.level>=6&&p.level%6===0&&p.weapons.some(w=>w.level>=3))return candidates.find(o=>o.deity===game.pantheon?.patron)||null;
+ return null;
+}
 function applyStats(game,def,opening=false){
  const p=game.player;for(const [key,value] of Object.entries(def.stats||{}))p[key]=(p[key]||0)+value;
  if(def.dash)p.dashMaxCooldown=Math.max(.9,p.dashMaxCooldown*def.dash);
- if(def.health){p.maxHp+=def.health;if(opening){p.hp=Math.min(p.maxHp,p.hp+def.health);}else if(!game.curseNoHeal){const healed=Math.min(def.health,p.maxHp-p.hp);p.hp+=healed;p.totalHealed+=healed;}}
+ if(def.health){p.maxHp+=def.health;if(opening){p.hp=Math.min(p.maxHp,p.hp+def.health);}else if(!healingBlocked(game)){const healed=Math.min(def.health,p.maxHp-p.hp);p.hp+=healed;p.totalHealed+=healed;}}
 }
 class Pantheon{
- constructor(game,id){this.game=game;this.patron=Object.hasOwn(DEITIES,id)?id:null;this.ranks={};this.timers={};this.effects=[];if(this.patron)applyStats(game,DEITIES[id],true);}
+ constructor(game,id){this.game=game;this.patron=Object.hasOwn(DEITIES,id)?id:null;this.ranks={};this.timers={};this.effects=[];this.metrics={};if(this.patron)applyStats(game,DEITIES[id],true);}
  offer(banished=[]){
   const pool=BLESSINGS.filter(b=>(this.ranks[b.id]||0)<b.maxRank&&!banished.includes(b.id));if(!pool.length||!this.patron)return null;
   const kin=pool.filter(b=>b.deity===this.patron),choices=kin.length&&Math.random()<.5?kin:pool;
@@ -12739,21 +12797,23 @@ class Pantheon{
   }
  }
  pulse(def,rank){
-  const g=this.game,p=g.player,kind=def.pulse,radius=(kind==='ember'?130:kind==='storm'?420:150)*p.area;
+  const g=this.game,p=g.player,kind=def.pulse,values=pulseValues(g,def,rank),radius=values.radius;
   const targets=[...g.enemies,...g.bosses].filter(e=>e.active&&Math.hypot(e.x-p.x,e.y-p.y)<=radius).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y));
-  const hits=kind==='storm'?targets.slice(0,3):targets;
+  const hits=kind==='storm'?targets.slice(0,values.targets):targets;
+  const metric=this.metrics[def.id]||={casts:0,hits:0,damage:0,healing:0,controlled:0};metric.casts++;metric.hits+=hits.length;
   const effect={kind,deity:def.deity,x:p.x,y:p.y,radius,age:0,life:kind==='moon'?1:.8,points:hits.map(e=>({x:e.x,y:e.y}))};
   for(const target of hits){
    if(kind==='moon'){
     if(g.bosses.includes(target)){target.slowed=Math.max(target.slowed||0,1);target.slowAmount=.6;}
-    else target.frozen=Math.max(target.frozen||0,.6*rank*(1+(p.bonusFreezeDur||0)));
-   }else target.takeDamage((kind==='ember'?12:kind==='storm'?14:10)*rank*p.might,def.id);
+    else target.frozen=Math.max(target.frozen||0,values.freeze);
+    metric.controlled++;
+   }else{const before=Math.max(0,target.hp||0)+Math.max(0,target.shield||0);target.takeDamage(values.damage,def.id);const after=Math.max(0,target.hp||0)+Math.max(0,target.shield||0);metric.damage+=Math.max(0,before-after);}
   }
-  if(kind==='dawn'&&!g.curseNoHeal){const healed=Math.max(0,Math.min(p.maxHp-p.hp,rank*2));p.hp+=healed;p.totalHealed+=healed;}
+  if(kind==='dawn'&&!healingBlocked(g)){const healed=Math.max(0,Math.min(p.maxHp-p.hp,values.healing));p.hp+=healed;p.totalHealed+=healed;metric.healing+=healed;}
   this.effects.push(effect);this.effects=this.effects.slice(-20);
  }
 }
-module.exports={DEITIES,BLESSINGS,Pantheon};
+module.exports={DEITIES,BLESSINGS,Pantheon,divineStage,pulseValues,blessingPreview,preferBlessing};
 
 },{}],
 "src/ParticleSystem.js":[function(require,module,exports){
@@ -14140,7 +14200,7 @@ class Player {
 
     gainXp(amount) {
         // 诅咒: 经验衰减，bonusXp 额外倍率
-        const xpMult = (this.game.curseXpMult || 1) * (1 + (this.bonusXp || 0));
+        const xpMult = (this.game.curseXpMult || 1) * (1 + (this.bonusXp || 0)) * (this.relicFlags?.xpBoost ? 1.25 : 1);
         const actualXp = amount * xpMult;
         this.xp += actualXp;
         this.totalXp = (this.totalXp || 0) + actualXp; // 统计追踪
@@ -20969,7 +21029,7 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87
 		color: '#addce8',
 		use: (game) => {
 			const p = game.player;
-			const freezeDur = 4;
+			const freezeDur = 4 * (1 + (p.bonusFreezeDur || 0));
 			const maxR = Math.max(540, Math.hypot(game.width || 800, game.height || 600) * 0.58) * (p.area || 1);
 			const maxRSq = maxR * maxR;
 			const novaDmg = (p.might || 1) * 35;
@@ -23090,7 +23150,7 @@ class SynergySystem {
             const dy = e.y - enemy.y;
             if (dx * dx + dy * dy < radiusSq) {
                 e.takeDamage(explosionDamage * 0.5);
-                e.frozen = 1.5; // 冻结周围敌人
+                e.frozen = Math.max(e.frozen || 0, 1.5); // 冻结周围敌人
             }
         }
 
@@ -25369,7 +25429,7 @@ class Weapon {
             const dx = en.x - p.x, dy = en.y - p.y;
             if (dx * dx + dy * dy < radiusSq) {
                 en.takeDamage(dmg);
-                en.frozen = 6; // 瓒呴暱纭帶
+                en.frozen = Math.max(en.frozen || 0, 6); // 瓒呴暱纭帶
                 en.poisoned = 6;
                 en.poisonStacks = (en.poisonStacks || 0) + 10;
             }
@@ -25465,7 +25525,7 @@ class Weapon {
             const dx = e.x - p.x, dy = e.y - p.y;
             if (dx * dx + dy * dy < radiusSq) {
                 e.takeDamage(dmg, this.id);
-                e.frozen = 3;
+                e.frozen = Math.max(e.frozen || 0, 3);
                 e.poisoned = 5;
                 e.poisonStacks = (e.poisonStacks || 0) + 8;
             }
@@ -25717,7 +25777,7 @@ class Weapon {
     _fireIceShard(p, enemies) {
         const baseAngle = this._getAimAngle(p, enemies, 600);
         const count = 3 + Math.floor(this.level / 2) + p.bonusProjectile;
-        const freezeDur = 0.5 + p.bonusFreezeDur;
+        const freezeDur = 0.5 * (1 + p.bonusFreezeDur);
         const areaMult = Math.min(1.6, p.area || 1);
 
         for (let i = 0; i < count; i++) {
@@ -25742,7 +25802,7 @@ class Weapon {
     _fireGlacialNova(p) {
         const radius = Math.min((85 + this.level * 10) * p.area * (this.evolved ? 1.35 : 1), 230);
         const radiusSq = radius * radius;
-        const freezeDur = 1.0 + p.bonusFreezeDur * 2;
+        const freezeDur = 1.0 * (1 + p.bonusFreezeDur);
 
         // Freeze enemies in range (使用空间网格优化)
         const nearbyNova = this.game._getNearbyEnemies(p.x, p.y, radius);
@@ -25752,7 +25812,7 @@ class Weapon {
             const dy = e.y - p.y;
             if (dx * dx + dy * dy < radiusSq) {
                 e.takeDamage(this.damage, this.id);
-                e.frozen = freezeDur;
+                e.frozen = Math.max(e.frozen || 0, freezeDur);
             }
         }
         for (const b of this.game.bosses) {

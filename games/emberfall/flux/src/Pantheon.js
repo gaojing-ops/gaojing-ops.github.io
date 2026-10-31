@@ -13,13 +13,13 @@ const row=(deity,id,name,desc,stats={},extra={})=>({deity,id:'boon_'+id,name,des
 const BLESSINGS=[
  row('ember','coal','余炭长明','每阶使伤害加成增加 6 个百分点。',{bonusMight:.06}),
  row('ember','wildfire','沿灯燎原','每阶使攻击范围增加 8%。',{bonusArea:.08}),
- row('ember','breath','余火吐息','每 5 秒灼烧周围 130 × 范围倍率内的敌人；每阶造成 12 × 伤害倍率的伤害。',{}, {pulse:'ember',interval:5}),
+ row('ember','breath','余火吐息','每 5 秒灼烧周围 130 × 范围倍率内的敌人；每阶基础伤害 12，受伤害倍率与神息阶段加成。',{}, {pulse:'ember',interval:5}),
  row('wind','stride','归途轻履','每阶使移动速度增加 6%。',{bonusSpeed:.06}),
  row('wind','evade','借风一跃','每阶将闪避冷却再缩短 10%，最低 0.9 秒。',{}, {dash:.9}),
  row('wind','carry','风携余烬','每阶使拾取范围增加 15%、投射物速度增加 6%。',{bonusPickup:.15,bonusProjSpeed:.06}),
  row('storm','omen','惊雷之签','每阶使对普通与精英敌人的暴击率增加 4 个百分点。',{luckyChance:.04}),
  row('storm','edge','雷枝裂夜','每阶使对普通与精英敌人的暴击倍率增加 0.2。',{criticalDamage:.2}),
- row('storm','chain','鸣雷巡林','每 4 秒召雷，击中附近最多 3 名敌人；每阶造成 14 × 伤害倍率的伤害。',{}, {pulse:'storm',interval:4}),
+ row('storm','chain','鸣雷巡林','每 4 秒召雷，初始最多命中 3 名敌人，随神息成长至 6 名；每阶基础伤害 14，受伤害倍率与神息阶段加成。',{}, {pulse:'storm',interval:4}),
  row('moon','mail','月下霜衣','每阶增加 1 护甲；每点护甲提供 8% 减伤，总减伤上限 60%。',{bonusArmor:1}),
  row('moon','still','留住月光','每阶使冻结持续时间增加 15%。',{bonusFreezeDur:.15}),
  row('moon','tide','霜月止潮','每 6 秒冻结周围 150 × 范围倍率内的普通敌人，每阶持续 0.6 秒，另受冻结时长加成；首领仅减速 1 秒。',{}, {pulse:'moon',interval:6}),
@@ -34,15 +34,57 @@ const BLESSINGS=[
  row('forge','twins','双芯符灯','投射物数量增加 1。此赐福仅有一阶。',{bonusProjectile:1},{maxRank:1}),
  row('dawn','vigil','残灯续明','每阶使生命上限增加 10、恢复至多 10 生命，并增加每秒 0.1 生命恢复。',{bonusRegen:.1},{health:10}),
  row('dawn','promise','未至之晨','每阶使伤害加成增加 5 个百分点、冷却缩减增加 1 个百分点。',{bonusMight:.05,bonusCdr:.01}),
- row('dawn','bell','破晓钟声','每 8 秒恢复 2 × 阶数生命，并以晨光伤及周围 150 × 范围倍率内的敌人；每阶造成 10 × 伤害倍率的伤害。',{}, {pulse:'dawn',interval:8}),
+ row('dawn','bell','破晓钟声','每 8 秒以晨光伤及周围 150 × 范围倍率内的敌人，并恢复生命；每阶基础伤害 10、基础治疗 2，受神息阶段加成，伤害另受伤害倍率加成。',{}, {pulse:'dawn',interval:8}),
 ];
+function divineStage(level=1){const tier=Math.max(0,Math.min(3,Math.floor(level/20)));return {tier,name:['初火','燃誓','长明','破晓'][tier],power:1+tier*.5,next:tier<3?(tier+1)*20:null};}
+function pulseValues(game,def,rank=1){
+ const p=game.player,stage=divineStage(p.level),kind=def.pulse;
+ return {radius:(kind==='ember'?130:kind==='storm'?420:150)*p.area,
+  damage:(kind==='ember'?12:kind==='storm'?14:kind==='dawn'?10:0)*rank*p.might*stage.power,
+  healing:kind==='dawn'?rank*2*stage.power:0,
+  freeze:kind==='moon'?.6*rank*(1+(p.bonusFreezeDur||0)):0,
+  targets:kind==='storm'?3+stage.tier:null,stage};
+}
+const healingBlocked=game=>!!(game.curseNoHeal||game.player.relicFlags?.overloadCore);
+function blessingPreview(game,option){
+ const def=BLESSINGS.find(b=>b.id===option.id);if(!def)return {lines:[],warnings:[],useful:false};
+ const p=game.player,n=Object.create(p);applyStats({player:n,curseNoHeal:game.curseNoHeal},def);
+ const lines=[],warnings=[],f=x=>Number(x.toFixed(2)),pct=x=>`${f(x*100)}%`,changed=(a,b)=>Math.abs(a-b)>1e-8;
+ let useful=!!def.health||!!def.pulse;
+ const add=(key,label,before,after,format=f)=>{if(def.stats?.[key]!==undefined){lines.push(`${label} ${format(before)} → ${format(after)}`);useful||=changed(before,after);}};
+ add('bonusMight','实际伤害倍率',p.might,n.might,x=>'×'+f(x));add('bonusSpeed','移动速度',p.speed,n.speed);
+ add('bonusArmor','实际减伤',p.armor,n.armor,pct);if(def.stats.bonusArmor&&!changed(p.armor,n.armor))warnings.push('减伤已达上限，此阶护甲不再提高减伤。');
+ add('bonusArea','攻击范围倍率',p.area,n.area,x=>'×'+f(x));add('bonusPickup','拾取半径',p.pickup,n.pickup);
+ add('bonusCdr','武器冷却缩减',p.cdr,n.cdr,pct);
+ if(def.stats.bonusCdr){const before=Math.min(.7,p.bonusCdr||0),after=Math.min(.7,n.bonusCdr||0);lines.push(`咏誓冷却缩减 ${pct(before)} → ${pct(after)}`);useful||=changed(before,after);if(!changed(before,after)&&!changed(p.cdr,n.cdr))warnings.push('武器与咏誓冷却缩减均已达上限。');}
+ add('luckyChance','普通敌人暴击率',Math.min(1,p.luckyChance||0),Math.min(1,n.luckyChance||0),pct);
+ add('criticalDamage','普通敌人暴击倍率',2+(p.criticalDamage||0),2+(n.criticalDamage||0),x=>'×'+f(x));
+ add('bonusRegen','每秒恢复',healingBlocked(game)?0:p.regen,healingBlocked(game)?0:n.regen);
+ add('bonusXp','经验加成',p.bonusXp||0,n.bonusXp||0,pct);add('bonusProjSpeed','投射物速度倍率',p.projSpeed,n.projSpeed,x=>'×'+f(x));
+ add('thornDamage','接触反伤比例',p.thornDamage||0,n.thornDamage||0,pct);add('bonusProjectile','额外投射物',p.bonusProjectile,n.bonusProjectile);
+ if(def.health)lines.push(`生命上限 ${p.maxHp} → ${n.maxHp}`);
+ if(def.dash){lines.push(`闪避冷却 ${f(p.dashMaxCooldown)} → ${f(n.dashMaxCooldown)} 秒`);useful||=changed(p.dashMaxCooldown,n.dashMaxCooldown);}
+ if(def.stats.bonusToxicDmg){lines.push(`荆毒伤害加成 ${pct(p.bonusToxicDmg||0)} → ${pct(n.bonusToxicDmg||0)}`);const has=p.characterId==='biohazard'||p.weapons.some(w=>w.def.element==='toxic');useful||=has;if(!has)warnings.push('当前行装没有荆毒来源，此项暂不增加现有武器伤害。');}
+ if(def.stats.bonusFreezeDur){lines.push(`冻结时长加成 ${pct(p.bonusFreezeDur||0)} → ${pct(n.bonusFreezeDur||0)}`);const has=p.characterId==='cryomancer'||p.frostArmorActive||p.weapons.some(w=>w.def.element==='cryo')||game.pantheon?.ranks.boon_tide;useful||=!!has;if(!has)warnings.push('当前行装没有冻结来源，此项暂不影响战斗。');}
+ if(healingBlocked(game)&&(def.health||def.stats.bonusRegen||def.pulse==='dawn'))warnings.push(def.health?'禁疗中恢复无效，生命上限仍可增加。':def.pulse==='dawn'?'禁疗中晨光治疗无效，伤害仍可生效。':'禁疗中，本项恢复效果无效。');
+ if(def.pulse){const v=pulseValues(game,def,option.rank);lines.push(`神息「${v.stage.name}」· 当前半径 ${f(v.radius)}`);if(v.damage)lines.push(`当前每次每目标基础伤害 ${f(v.damage)}${v.targets?` · 最多 ${v.targets} 个目标`:''}`);if(v.freeze)lines.push(`当前普通敌人冻结 ${f(v.freeze)} 秒，首领仅减速 1 秒`);if(v.healing)lines.push(`当前每次最多恢复 ${f(v.healing)} 生命`);}
+ return {lines,warnings,useful};
+}
+function preferBlessing(game,options){
+ const p=game.player,candidates=options.filter(o=>o.type==='blessing'&&blessingPreview(game,o).useful);
+ if(!healingBlocked(game)&&p.hp/p.maxHp<.35){const heal=candidates.find(o=>{const b=BLESSINGS.find(b=>b.id===o.id);return b.health||b.stats.bonusRegen;});if(heal)return heal;}
+ // Leave early levels for the core weapon. A divine pick every six levels
+ // complements it instead of repeatedly delaying the first weapon upgrades.
+ if(p.level>=6&&p.level%6===0&&p.weapons.some(w=>w.level>=3))return candidates.find(o=>o.deity===game.pantheon?.patron)||null;
+ return null;
+}
 function applyStats(game,def,opening=false){
  const p=game.player;for(const [key,value] of Object.entries(def.stats||{}))p[key]=(p[key]||0)+value;
  if(def.dash)p.dashMaxCooldown=Math.max(.9,p.dashMaxCooldown*def.dash);
- if(def.health){p.maxHp+=def.health;if(opening){p.hp=Math.min(p.maxHp,p.hp+def.health);}else if(!game.curseNoHeal){const healed=Math.min(def.health,p.maxHp-p.hp);p.hp+=healed;p.totalHealed+=healed;}}
+ if(def.health){p.maxHp+=def.health;if(opening){p.hp=Math.min(p.maxHp,p.hp+def.health);}else if(!healingBlocked(game)){const healed=Math.min(def.health,p.maxHp-p.hp);p.hp+=healed;p.totalHealed+=healed;}}
 }
 class Pantheon{
- constructor(game,id){this.game=game;this.patron=Object.hasOwn(DEITIES,id)?id:null;this.ranks={};this.timers={};this.effects=[];if(this.patron)applyStats(game,DEITIES[id],true);}
+ constructor(game,id){this.game=game;this.patron=Object.hasOwn(DEITIES,id)?id:null;this.ranks={};this.timers={};this.effects=[];this.metrics={};if(this.patron)applyStats(game,DEITIES[id],true);}
  offer(banished=[]){
   const pool=BLESSINGS.filter(b=>(this.ranks[b.id]||0)<b.maxRank&&!banished.includes(b.id));if(!pool.length||!this.patron)return null;
   const kin=pool.filter(b=>b.deity===this.patron),choices=kin.length&&Math.random()<.5?kin:pool;
@@ -63,18 +105,20 @@ class Pantheon{
   }
  }
  pulse(def,rank){
-  const g=this.game,p=g.player,kind=def.pulse,radius=(kind==='ember'?130:kind==='storm'?420:150)*p.area;
+  const g=this.game,p=g.player,kind=def.pulse,values=pulseValues(g,def,rank),radius=values.radius;
   const targets=[...g.enemies,...g.bosses].filter(e=>e.active&&Math.hypot(e.x-p.x,e.y-p.y)<=radius).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y));
-  const hits=kind==='storm'?targets.slice(0,3):targets;
+  const hits=kind==='storm'?targets.slice(0,values.targets):targets;
+  const metric=this.metrics[def.id]||={casts:0,hits:0,damage:0,healing:0,controlled:0};metric.casts++;metric.hits+=hits.length;
   const effect={kind,deity:def.deity,x:p.x,y:p.y,radius,age:0,life:kind==='moon'?1:.8,points:hits.map(e=>({x:e.x,y:e.y}))};
   for(const target of hits){
    if(kind==='moon'){
     if(g.bosses.includes(target)){target.slowed=Math.max(target.slowed||0,1);target.slowAmount=.6;}
-    else target.frozen=Math.max(target.frozen||0,.6*rank*(1+(p.bonusFreezeDur||0)));
-   }else target.takeDamage((kind==='ember'?12:kind==='storm'?14:10)*rank*p.might,def.id);
+    else target.frozen=Math.max(target.frozen||0,values.freeze);
+    metric.controlled++;
+   }else{const before=Math.max(0,target.hp||0)+Math.max(0,target.shield||0);target.takeDamage(values.damage,def.id);const after=Math.max(0,target.hp||0)+Math.max(0,target.shield||0);metric.damage+=Math.max(0,before-after);}
   }
-  if(kind==='dawn'&&!g.curseNoHeal){const healed=Math.max(0,Math.min(p.maxHp-p.hp,rank*2));p.hp+=healed;p.totalHealed+=healed;}
+  if(kind==='dawn'&&!healingBlocked(g)){const healed=Math.max(0,Math.min(p.maxHp-p.hp,values.healing));p.hp+=healed;p.totalHealed+=healed;metric.healing+=healed;}
   this.effects.push(effect);this.effects=this.effects.slice(-20);
  }
 }
-module.exports={DEITIES,BLESSINGS,Pantheon};
+module.exports={DEITIES,BLESSINGS,Pantheon,divineStage,pulseValues,blessingPreview,preferBlessing};
