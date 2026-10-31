@@ -185,15 +185,8 @@ export function installWebHUD(runtime){
   }
  };
  if(catalogs.weaponType&&art.drawArea){
-  catalogs.weaponType.prototype.drawGroundEffects=function(ctx){
-   for(const pool of this._firePools)art.drawArea(ctx,pool.x,pool.y,pool.radius,'#ff6600',this.game.time);
-   for(const pool of this._acidPools)art.drawArea(ctx,pool.x,pool.y,pool.radius,pool.isHolyWater?'#88ddff':'#88ff00',this.game.time);
-  };
-  catalogs.weaponType.prototype.drawEffects=function(ctx){
-   const p=this.game.player;if(!p)return;
-   for(const clone of this._clones){const x=p.x+Math.cos(clone.angle)*clone.dist,y=p.y+Math.sin(clone.angle)*clone.dist;art.drawHero(ctx,p.characterId,x,y,13,clone.angle,true,this.game.time,.28);}
-   for(const orb of this._orbList)art.drawProjectile(ctx,orb.x,orb.y,orb.radius,'#88ddff','crystal',this.game.time*.4,this.evolved);
-  };
+  catalogs.weaponType.prototype.drawGroundEffects=function(ctx){art.drawWeaponGround(ctx,this);};
+  catalogs.weaponType.prototype.drawEffects=function(ctx){art.drawWeaponAir(ctx,this);};
  }
  if(catalogs.petType&&art.drawCompanion)catalogs.petType.prototype.draw=function(ctx){art.drawCompanion(ctx,this);};
  if(art.pigment&&game.particles)game.particles.draw=function(ctx){

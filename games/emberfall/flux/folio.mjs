@@ -4,11 +4,38 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const fmt=value=>Number(value||0).toLocaleString('zh-CN',{maximumFractionDigits:1});
 const time=value=>typeof value==='string'?value:`${String(Math.floor((value||0)/60)).padStart(2,'0')}:${String(Math.floor((value||0)%60)).padStart(2,'0')}`;
 const TYPES={weapon_new:'新获武器',weapon_up:'磨砺武器',passive:'护符',evolve:'武器觉醒',relic:'古老遗物',heal:'回春赐福'};
+export function routeCopy(route,c){
+ const weapon=id=>entry('weapons',id,c.weapons[id]).name;
+ const name=route.isUnion?weapon(route.recipe.resultId):entry('evolution',route.id,route.recipe).name;
+ const ingredients=route.complete&&route.isUnion?`${weapon(route.id)} ＋ ${weapon(route.recipe.requireWeapon)} · 材料已炼成`:`${weapon(route.id)} ${route.level}/${route.max} 级 ＋ `+(route.isUnion?`${weapon(route.recipe.requireWeapon)} ${route.secondaryLevel}/${route.secondaryMax} 级`:`${entry('passives',route.recipe.requirePassive,c.passives[route.recipe.requirePassive]).name} · ${route.passive?'已持有':'尚缺'}`);
+ const labels={kills:'击败敌人',bossKills:'击败首领',frozenKills:'冻结击败',poisonKills:'荆毒击败',healed:'实际恢复生命',gemsCollected:'收集结晶'};
+ const progress=route.progress.type==='core'?'觉醒之石已解锁试炼条件':`${labels[route.progress.type]||'试炼'} ${fmt(route.progress.current)} / ${fmt(route.progress.required)}`;
+ const cost=route.complete?(route.isUnion?`已完成融合，「${weapon(route.recipe.requireWeapon)}」已被吸收，同系共鸣按当前行装计算。`:'当前武器已觉醒，力量已融入本局行装。'):route.isUnion?`两件武器均需满级，已觉醒武器仍可融合。将吸收「${weapon(route.recipe.requireWeapon)}」，空出一格武器位，并重新计算同系共鸣。`:'武器满级并持有所需护符，再完成本局试炼；觉醒之石可解锁试炼条件。';
+ return {name,ingredients,progress,status:route.complete?'已成型':route.ready?'已就绪 · 等待强化馈赠':'准备之中',cost};
+}
+export function progressionHint(option,c,game){
+ if(!game||!c.progression||!['weapon_new','weapon_up','passive'].includes(option.type))return '';
+ const routes=c.progression.progression(game).routes.filter(r=>!r.complete&&(r.id===option.id||r.isUnion&&r.recipe.requireWeapon===option.id||option.type==='passive'&&r.recipe.requirePassive===option.id&&r.relevant));
+ const hints=routes.slice(0,2).map(r=>{const copy=routeCopy(r,c);return `${r.isUnion?'融合':'觉醒'}之途 · ${copy.name}：${copy.ingredients}；${copy.progress}`;});
+ if(option.type==='weapon_new'){
+  const snapshot=c.progression.progression(game),el=c.weapons[option.id]?.element,resonance=snapshot.resonances.find(r=>r.element===el);
+  if(resonance&&[1,2].includes(resonance.count))hints.push(`选择后形成 ${resonance.count+1} 件${ELEMENT_NAMES[el]}共鸣：${resonance.bonuses[resonance.count-1]}。`);
+  const reaction=snapshot.reactions.find(r=>!r.available&&r.elements.includes(el)&&r.elements.some(other=>other!==el&&snapshot.resonances.some(x=>x.element===other&&x.count>0)));
+  if(reaction)hints.push(`补齐「${reaction.name}」元素：${reaction.desc}`);
+ }
+ return hints.join('\n');
+}
 export function optionCopy(option,catalogs,game=null){
  if(option.type==='blessing'){const preview=game?catalogs.pantheon.blessingPreview(game,option):null;const god=catalogs.pantheon?.DEITIES[option.deity];return {name:option.name,desc:option.desc,detail:`${god?.name||'诸神'} · ${god?.title||'余烬神息'} · 第 ${option.rank} 阶${preview?'\n'+[...preview.lines,...preview.warnings].join('\n'):''}`,tag:'神明赐福'};}
+ if(option.type==='evolve'||option.type==='chest_evolution'){
+  const union=!!(option.isUnion||option._isUnion||option.consumeId),id=option.weaponId||option._weaponId||option.id;
+  const recipe=option.recipe||(union?catalogs.unions?.[id]:catalogs.evolution[id]);
+  if(recipe){const copy=entry(union?'weapons':'evolution',union?recipe.resultId:id,recipe);const secondary=option.consumeId||option._consumeId||recipe.requireWeapon;
+   return {name:copy.name,desc:copy.desc,tag:union?'神兵融合':'武器觉醒',detail:union?`吸收「${entry('weapons',secondary,catalogs.weapons[secondary]).name}」，空出一格武器位；原有同系共鸣会重新计算。`:'保留当前武器，获得其觉醒效果。'};}
+ }
  const kind=option.type==='evolve'?'evolution':option.type==='passive'?'passives':option.type==='relic'?'relics':'weapons';
   const copy=entry(kind,option.id,catalogs[kind]?.[option.id]||option);
- return {name:option.type==='heal'?'回春赐福':copy.name,desc:['weapon_up','passive','heal'].includes(option.type)?text(option.desc):copy.desc||text(option.desc),detail:option.type==='evolve'&&option.desc?.includes('融合')?text(option.desc):text(option.synergy||''),tag:TYPES[option.type]||'旅途馈赠'};
+ return {name:option.type==='heal'?'回春赐福':copy.name,desc:['weapon_up','passive','heal'].includes(option.type)?text(option.desc):copy.desc||text(option.desc),detail:progressionHint(option,catalogs,game)||text(option.synergy||''),tag:TYPES[option.type]||'旅途馈赠'};
 }
 export function chooseUpgrade(scene,option){
  if(scene.manager&&scene.manager.currentScene!==scene)return false;
@@ -58,8 +85,9 @@ export function createFolio(runtime,platform,hooks={}){
  function codex(){
   if(!tab)tab='heroes';
   let body=header('THE WATCHER’S CODEX','守夜者手札','记下林中的敌影，也记下能照亮归途的每一簇火。');
-  body+=tabs([['heroes','守夜者'],...(c.pantheon?[['gods','余烬诸神']]:[]),['weapons','武器'],['evolution','觉醒'],['passives','护符'],['relics','遗物'],['enemies','敌影'],['bosses','首领'],['events','林间际遇']])+search();
+  body+=tabs([['heroes','守夜者'],...(c.pantheon?[['gods','余烬诸神']]:[]),['weapons','武器'],...(c.progression?[['routes','流派与融合']]:[]),['evolution','觉醒'],['passives','护符'],['relics','遗物'],['enemies','敌影'],['bosses','首领'],['events','林间际遇']])+search();
   let rows='';
+  if(tab==='routes')return body+buildGuide(false);
   if(tab==='gods')return body+grid(Object.entries(c.pantheon.DEITIES).map(([id,god])=>{if(!visible({name:god.name,desc:god.title+god.gift+god.verse+c.pantheon.BLESSINGS.filter(b=>b.deity===id).map(b=>b.name+b.desc).join('')}))return '';return card(god.name+' · '+god.title,god.verse,`<p class="folio-values">开局祈誓：${esc(god.gift)}</p>${c.pantheon.BLESSINGS.filter(b=>b.deity===id).map(b=>`<div class="folio-rule"><strong>${esc(b.name)} · 最高 ${b.maxRank} 阶</strong><p>${esc(b.desc)}</p></div>`).join('')}`,'',badge('余烬诸神'),godPortrait(id));}).join(''));
   if(tab==='heroes')for(const [id,hero] of Object.entries(c.characters)){
    const skill=entry('skills',id,c.skills[id]),copy={name:hero.name,desc:skill.desc};if(!visible(copy))continue;
@@ -121,10 +149,20 @@ export function createFolio(runtime,platform,hooks={}){
   }
   return body+grid(rows);
  }
+ function buildGuide(relevantOnly){
+  const snapshot=c.progression.progression(game);
+  const routes=snapshot.routes.filter(r=>(!relevantOnly||r.relevant||r.complete)&&(!query||[routeCopy(r,c).name,routeCopy(r,c).ingredients].some(t=>t.includes(query))));
+  const routeCards=grid(routes.map(r=>{const copy=routeCopy(r,c);return card(copy.name,copy.ingredients,note(copy.progress)+note(copy.cost),'',badge(r.isUnion?'神兵融合':'武器觉醒')+badge(copy.status),icon(r.isUnion?r.recipe.resultId:r.id),r.ready?'is-owned':'');}).join('')||'<p class="folio-empty">当前行装没有可追寻的觉醒或融合配方，可在图鉴查阅全部路线。</p>');
+  return watchBanner('FOLLOW THE EMBER','从器物，到合鸣','先找缺少的材料，再把手中的火光炼成新的力量。')+
+   `<h3>觉醒与融合之途</h3>`+note('升级与章间馈赠可提升武器等级。觉醒之石解锁试炼条件后，仍需满足材料与等级要求；已就绪的配方可在强化中出现，十分钟后的宝箱也有机会提供。')+routeCards+
+   `<details class="folio-preview"><summary>同系共鸣 · 查阅当前件数与加成</summary>`+grid(snapshot.resonances.map(r=>card(ELEMENT_NAMES[r.element],`两件：${r.bonuses[0]}。三件：${r.bonuses[1]}。`,note(`当前 ${r.count} 件 · ${r.tier?r.tier+' 件共鸣已生效':'尚未共鸣'}；三件效果替代两件效果，遵守属性上限。`),'',badge('同系共鸣'),icon('ring'))).join(''))+`</details>`+
+   `<details class="folio-preview"><summary>异系协同 · 查阅七种触发方式</summary>`+note('需要先施加冻结或中毒，再用另一元素命中。仅携带两种元素不会自动触发。')+
+   grid(snapshot.reactions.map(r=>card(r.name,r.desc,note(r.elements.map(el=>ELEMENT_NAMES[el]).join(' ＋ ')),'',badge(r.available?'已具备元素 · 按条件触发':'尚缺对应元素'),icon('rune'))).join(''))+`</details>`;
+ }
  function upgrades(scene){
   let body=header(scene.chestMode?'A GIFT IN THE ASHES':'LET THE EMBER GROW',scene.chestMode?'余烬中的馈赠':scene.banishMode?'舍去一条命途':'让火光再盛一分',scene.banishMode?'选中的强化将不再出现在本次远征中。':'长夜暂歇。选一份力量，再踏入林间。',false);
   body+=`<div class="folio-choice-label"><span>01 / 选择馈赠</span><span>THE EMBER’S GIFT</span></div>`;
-  body+=grid(scene.options.map((option,i)=>{const copy=optionCopy(option,c,game);return card(copy.name,copy.desc,copy.detail?note(copy.detail):'',button(scene.banishMode?'放逐此项':`选择 ${i+1} ↗`,()=>chooseUpgrade(scene,option)),badge(copy.tag)+badge(({rare:'稀有',epic:'史诗',legendary:'传说'})[option.rarity]||''),icon(option.type==='blessing'?'god_'+option.deity:option.type==='heal'?'heart':option.type==='chest_gold'?'coin':option.type==='chest_heal'?'heart':option.id),'is-choice' );}).join(''));
+  body+=grid(scene.options.map((option,i)=>{const copy=optionCopy(option,c,game);return card(copy.name,copy.desc,copy.detail?note(copy.detail):'',button(scene.banishMode?'放逐此项':`选择 ${i+1} ↗`,()=>chooseUpgrade(scene,option)),badge(copy.tag)+badge(({rare:'稀有',epic:'史诗',legendary:'传说'})[option.rarity]||''),icon(option.isUnion||option._isUnion?(option.recipe||c.unions?.[option.weaponId||option._weaponId])?.resultId:option.type==='blessing'?'god_'+option.deity:option.type==='heal'?'heart':option.type==='chest_gold'?'coin':option.type==='chest_heal'?'heart':option.id),'is-choice' );}).join(''));
   if(!game.player.canHeal)body+=note('禁疗中，恢复生命的效果无效；生命上限加成仍可生效。');
   if(scene.previews.length)body+=`<details class="folio-preview"><summary>前路可期 · ${scene.previews.length} 条觉醒之途</summary>${grid(scene.previews.map(o=>card(text(o.name),text(o.desc),'','','',icon(o.id))).join(''))}</details>`;
   if(!scene.chestMode)body+=`<div class="folio-actions">${button(`重问命途 · ${scene.rerollCount}`,()=>scene.onReroll?.(),scene.rerollCount<=0)}${button(`暂辞馈赠 · ${scene.skipCount}`,()=>scene.onSkip?.(),scene.skipCount<=0)}${button(scene.banishMode?'取消放逐':`放逐命签 · ${scene.banishCount}`,()=>{scene.banishMode=!scene.banishMode;},scene.banishCount<=0&&!scene.banishMode)}${button(`随缘强化：${game.autoUpgrade?'开':'关'}`,()=>{game.autoUpgrade=!game.autoUpgrade;})}</div>`;
@@ -133,19 +171,20 @@ export function createFolio(runtime,platform,hooks={}){
  function pause(){
   if(!tab)tab='journey';const p=game.player;
   let body=header('REST BESIDE THE FLAME','在火光旁，歇一会儿。','时间停在这一刻。准备好时，再继续这段旅程。',false);
-  body+=tabs([['journey','远征'],['equipment','随身行装'],['damage','锋芒记录'],['attributes','当前属性'],['settings','行旅设置'],...(game.pantheon?.patron?[['blessings','祈誓与神赐']]:[])]);
+  body+=tabs([['journey','远征'],['equipment','随身行装'],...(c.progression?[['routes','流派之途']]:[]),['damage','锋芒记录'],['attributes','当前属性'],['settings','行旅设置'],...(game.pantheon?.patron?[['blessings','祈誓与神赐']]:[])]);
   if(tab==='journey')body+=watchBanner('YOUR WATCHER',c.characters[p.characterId]?.name||'守夜者','火光仍在，林间的时间为你停驻。',portrait('hero',p.characterId))+stats([['守夜时长',time(game.time)],['击败敌人',fmt(p.kills)],['当前阶位',p.level],['生命',`${Math.ceil(p.hp)} / ${p.maxHp}`]])+`<div class="folio-actions">${button('继续守夜 ↗',()=>hooks.togglePause?.(),false,'primary')}${button(`随行走位：${game.autoPlay?'开':'关'}`,()=>{game.autoPlay=!game.autoPlay;game._aiTimer=0;game._aiVector=null;})}${button(`随缘强化：${game.autoUpgrade?'开':'关'}`,()=>{game.autoUpgrade=!game.autoUpgrade;})}${button('结束本次远征',()=>game.endGame(),false,'quiet')}</div>`;
   else if(tab==='equipment'){
    const skill=entry('skills',p.characterId,c.skills[p.characterId]);body+=card(skill.name,skill.desc,note('角色咏誓 · 冷却 '+c.skills[p.characterId].cooldown+' 秒'),'','',icon('skill_'+p.characterId));
-   body+=grid(p.weapons.map(w=>{const copy=entry(w.evolved?'evolution':'weapons',w.id,w.def);return card(copy.name,copy.desc,note(`伤害 ${w.damage} · 间隔 ${Number(w.interval).toFixed(2)} 秒`),'',badge(`第 ${w.level} 级`)+badge(w.evolved?'已觉醒':'武器'),icon(w.id));}).join('')+(p.passives||[]).map(p=>{const copy=entry('passives',p.id,c.passives[p.id]);return card(copy.name,copy.desc,'','',badge(`第 ${p.level} 级`)+badge('护符'),icon(p.id));}).join('')+(p.relics||[]).map(r=>{const id=typeof r==='string'?r:r.id,copy=entry('relics',id,c.relics[id]);return card(copy.name,copy.desc,'','',badge('遗物'),icon(id));}).join(''));
+   body+=grid(p.weapons.map(w=>{const copy=entry(w.evolved?'evolution':'weapons',w.id,w.def);return card(copy.name,copy.desc,note(`伤害 ${w.damage} · 间隔 ${Number(w.interval).toFixed(2)} 秒`),'',badge(`第 ${w.level} 级`)+badge(w.def?.isFusion?'已融合':w.evolved?'已觉醒':'武器'),icon(w.id));}).join('')+(p.passives||[]).map(p=>{const copy=entry('passives',p.id,c.passives[p.id]);return card(copy.name,copy.desc,'','',badge(`第 ${p.level} 级`)+badge('护符'),icon(p.id));}).join('')+(p.relics||[]).map(r=>{const id=typeof r==='string'?r:r.id,copy=entry('relics',id,c.relics[id]);return card(copy.name,copy.desc,'','',badge('遗物'),icon(id));}).join(''));
    const slots=c.builds.PRESET_BUILDS.filter(b=>b.isCustom);body+=`<div class="folio-actions">${slots.map(slot=>button(`记下此套行装 · ${slot.id.replace('custom','')}`,()=>{c.builds.BuildPreset.saveCustomBuild(slot.id,p,game.meta);message='已记入行装手札，下次启程可沿用。';})).join('')}</div>`;
-  }else if(tab==='attributes')body+=note('以下为当前实际属性，已计入神誓、行装、临时增益、伤害递减及减伤/冷却上限。')+stats([
+  }else if(tab==='routes')body+=buildGuide(true);
+  else if(tab==='attributes')body+=note('以下为当前实际属性，已计入神誓、行装、临时增益、伤害递减及减伤/冷却上限。')+stats([
    ['实际伤害倍率','×'+fmt(p.might)],['实际减伤',fmt(p.armor*100)+'%'],['移动速度',fmt(p.speed)],['范围倍率','×'+fmt(p.area)],['武器冷却缩减',fmt(p.cdr*100)+'% / 50%'],['咏誓冷却缩减',fmt(Math.min(.7,p.bonusCdr||0)*100)+'% / 70%'],['闪避冷却',fmt(p.dashMaxCooldown)+' 秒'],['每秒恢复',(game.curseNoHeal||p.relicFlags?.overloadCore)?'禁疗中':fmt(p.regen)],['拾取半径',fmt(p.pickup)],['经验加成',fmt((p.bonusXp||0)*100)+'%'],['普通敌人暴击率',fmt(Math.min(1,p.luckyChance||0)*100)+'%'],['普通敌人暴击倍率','×'+fmt(2+(p.criticalDamage||0))],['额外投射物','+'+p.bonusProjectile],['接触反伤比例',fmt((p.thornDamage||0)*100)+'%']]);
   else if(tab==='damage'){
    const rows=Object.entries(game._weaponDamageStats||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]),total=rows.reduce((n,[,v])=>n+v,0);
    body+=stats([['总伤害',fmt(total)],['每秒伤害',fmt(total/Math.max(1,game.time))]])+(rows.length?grid(rows.map(([id,value])=>card(damageSource(id,c).name,`${fmt(value)} 伤害 · 占比 ${(value/total*100).toFixed(1)}%`,`<meter aria-label="${esc(damageSource(id,c).name)}伤害占比" min="0" max="${total}" value="${value}"></meter>`,'','',icon(damageSource(id,c).icon))).join('')):'<p class="folio-empty">尚未留下伤敌的记录。</p>');
   }else if(tab==='blessings')body+=divineRecord();
-  else body+=grid(card('营地之声','切换行旅中的音乐与音效。','',button(SFX.isMuted?'音效：关':'音效：开',()=>{SFX.toggleMute();game._saveSettings?.();}),'',icon('bell'))+card('林间光影','低画质会减少场景中的部分特效。','',button((game.qualityLevel||0)>=.8?'光影：精细':'光影：简约',()=>{game.qualityLevel=(game.qualityLevel||0)>=.8?0:1;game._saveSettings?.();}),'',icon('eye')));
+  else body+=grid(card('营地之声','切换行旅中的音乐与音效。','',button(SFX.isMuted?'音效：关':'音效：开',()=>{SFX.toggleMute();game._saveSettings?.();}),'',icon('bell'))+card('林间光影','简约会减少友方场地纹样，保留实际范围与危险预警。手动选择后保持该画质。','',button((game.qualityLevel||0)>=.8?'光影：精细':'光影：简约',()=>{game.qualityLevel=(game.qualityLevel||0)>=.8?0:1;game.autoQuality=false;game._saveSettings?.();})+button(`自动光影：${game.autoQuality?'开':'关'}`,()=>{game.autoQuality=!game.autoQuality;game._saveSettings?.();}),'',icon('eye')));
   if(tab==='journey')body+=note(game.autoPlay&&game.autoUpgrade?'挂机已就绪：继续守夜后，切换窗口或标签页将继续战斗。手动暂停仍然有效。':'同时开启随行走位与随缘强化，即可在切屏后继续战斗。');
   return body;
  }
@@ -193,7 +232,7 @@ export function createFolio(runtime,platform,hooks={}){
    const name=campVisible?'':mode();active=!!name;root.hidden=!active;canvas.parentElement.hidden=active;document.getElementById('game-shell').classList.toggle('has-folio',active);
    if(!active){if(previous&&sm.currentSceneName==='playing'&&game.isRunning&&!campVisible)document.getElementById('game-shell')?.scrollIntoView?.({block:'start',behavior:'instant'});key='';previous='';return false;}
    const entering=previous!==name;if(entering){tab='';query='';message='';previous=name;}
-   const scene=sm.currentScene,signature=JSON.stringify([name,tab,query,game.autoUpgrade,game.autoPlay,SFX.isMuted,game.qualityLevel,scene?.options,scene?.banishMode,game.meta?.data,game.bossRushMode?.state,game.stageSystem?.state,scene?.data]);
+   const scene=sm.currentScene,signature=JSON.stringify([name,tab,query,game.autoUpgrade,game.autoPlay,SFX.isMuted,game.qualityLevel,game.autoQuality,scene?.options,scene?.banishMode,game.meta?.data,game.bossRushMode?.state,game.stageSystem?.state,scene?.data]);
    if(signature!==key){
     const focus=root.contains(document.activeElement)&&document.activeElement?.matches?.('[data-search]');const caret=focus?document.activeElement.selectionStart:null;
     const top=root.scrollTop;render(name);root.scrollTop=top;key=signature;if(entering)document.getElementById('game-shell')?.scrollIntoView?.({block:'start',behavior:'instant'});

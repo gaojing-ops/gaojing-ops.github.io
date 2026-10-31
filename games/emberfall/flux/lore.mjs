@@ -400,6 +400,8 @@ export function text(value=''){
 }
 export function entry(kind,id,source={}){return LORE[kind]?.[id]||{name:text(source.name||source.resultName||id),desc:text(source.desc||source.resultDesc||'')};}
 export function damageSource(id,catalogs){
+ if(id==='synergy')return {name:'五灵协鸣',icon:'rune'};
+ if(id==='burn')return {name:'余焰灼伤',icon:'flame'};
  if(id==='poison')return {name:'荆毒余伤',icon:'leaf'};
  const boon=catalogs.pantheon?.BLESSINGS.find(b=>b.id===id);
  if(boon)return {name:`${boon.name} · ${catalogs.pantheon.DEITIES[boon.deity].name}`,icon:'god_'+boon.deity};

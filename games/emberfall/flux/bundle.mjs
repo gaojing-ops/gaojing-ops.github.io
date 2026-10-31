@@ -260,7 +260,7 @@ const ACHIEVEMENT_DEFS = [
 	{ id: 'survive_10', name: '不朽者', desc: '存活 10 分钟', type: 'runtime', check: (game) => game.time >= 600 , chips: 20},
 	{ id: 'combo_20', name: '连杀大师', desc: '达成 20 连杀', type: 'runtime', check: (game) => game.killCombo >= 20 , chips: 10},
 	{ id: 'level_10', name: '战力提升', desc: '达到 10 级', type: 'runtime', check: (game) => game.player.level >= 10 , chips: 10},
-	{ id: 'boss_slayer', name: 'Boss 猎手', desc: '击杀一个 Boss', type: 'runtime', check: (game) => game.bossWave >= 1 && game.bosses.length === 0 , chips: 20},
+	{ id: 'boss_slayer', name: 'Boss 猎手', desc: '击杀一个 Boss', type: 'runtime', check: (game) => (game.bossKills || 0) >= 1 , chips: 20},
 	{ id: 'collector', name: '收藏家', desc: '同时拥有 4 把武器', type: 'runtime', check: (game) => game.player.weapons.length >= 4 , chips: 10},
 	{ id: 'victory', name: '通关者', desc: '存活 20 分钟通关', type: 'runtime', check: (game) => game.victoryTriggered , chips: 50},
 
@@ -268,14 +268,14 @@ const ACHIEVEMENT_DEFS = [
 	{ id: 'freeze_50', name: '冰冻新手', desc: '单局冻结击杀 50 个敌人', type: 'runtime', check: (game) => game.frozenKills >= 50 , chips: 20},
 	{ id: 'freeze_200', name: '霜寒使者', desc: '单局冻结击杀 200 个敌人', type: 'runtime', check: (game) => game.frozenKills >= 200 , chips: 50},
 	{ id: 'cryomancer_win', name: '冰霜术士', desc: '使用 Cryomancer 通关', type: 'runtime', check: (game) => game.victoryTriggered && game.player.characterId === 'cryomancer' , chips: 50},
-	{ id: 'ice_boss', name: '冰封泰坦', desc: '使用 Cryomancer 击杀 3 个 Boss', type: 'runtime', check: (game) => game.player.characterId === 'cryomancer' && game.bossWave >= 3 , chips: 50},
+	{ id: 'ice_boss', name: '冰封泰坦', desc: '使用 Cryomancer 击杀 3 个 Boss', type: 'runtime', check: (game) => game.player.characterId === 'cryomancer' && (game.bossKills || 0) >= 3 , chips: 50},
 	{ id: 'shatter_master', name: '碎冰大师', desc: '单局应用 100 次冻结效果', type: 'runtime', check: (game) => game.totalFreezeApplies >= 100 , chips: 30},
 
 	// Toxic 系列成就
 	{ id: 'poison_50', name: '毒素新手', desc: '单局毒杀 50 个敌人', type: 'runtime', check: (game) => game.poisonKills >= 50 , chips: 20},
 	{ id: 'poison_200', name: '瘟疫使者', desc: '单局毒杀 200 个敌人', type: 'runtime', check: (game) => game.poisonKills >= 200 , chips: 50},
 	{ id: 'biohazard_win', name: '生化猎手', desc: '使用 Biohazard 通关', type: 'runtime', check: (game) => game.victoryTriggered && game.player.characterId === 'biohazard' , chips: 50},
-	{ id: 'toxic_boss', name: '腐蚀之源', desc: '使用 Biohazard 击杀 3 个 Boss', type: 'runtime', check: (game) => game.player.characterId === 'biohazard' && game.bossWave >= 3 , chips: 50},
+	{ id: 'toxic_boss', name: '腐蚀之源', desc: '使用 Biohazard 击杀 3 个 Boss', type: 'runtime', check: (game) => game.player.characterId === 'biohazard' && (game.bossKills || 0) >= 3 , chips: 50},
 	{ id: 'plague_master', name: '瘟疫大师', desc: '单局应用 100 次中毒效果', type: 'runtime', check: (game) => game.totalPoisonApplies >= 100 , chips: 30},
 
 	// 元素协同成就
@@ -304,8 +304,8 @@ const ACHIEVEMENT_DEFS = [
 	{ id: 'max_weapon', name: '满级武装', desc: '一把武器达到 8 级', type: 'runtime', check: (game) => game.player.weapons.some(w => w.level >= 8) , chips: 50},
 
 	// Boss猎手
-	{ id: 'boss_3', name: '精英猎人', desc: '单局击杀 3 个 Boss', type: 'runtime', check: (game) => game.bossWave >= 3 , chips: 50},
-	{ id: 'boss_5', name: 'Boss 终结者', desc: '单局击杀 5 个 Boss', type: 'runtime', check: (game) => game.bossWave >= 5 , chips: 80},
+	{ id: 'boss_3', name: '精英猎人', desc: '单局击杀 3 个 Boss', type: 'runtime', check: (game) => (game.bossKills || 0) >= 3 , chips: 50},
+	{ id: 'boss_5', name: 'Boss 终结者', desc: '单局击杀 5 个 Boss', type: 'runtime', check: (game) => (game.bossKills || 0) >= 5 , chips: 80},
 	{ id: 'time_boss', name: '时空猎手', desc: '击杀时空裂隙 Boss', type: 'runtime', check: (game) => game.defeatedBosses && game.defeatedBosses.includes('时空裂隙') , chips: 80},
 	{ id: 'mech_boss', name: '机械克星', desc: '击杀机械统帅 Boss', type: 'runtime', check: (game) => game.defeatedBosses && game.defeatedBosses.includes('机械统帅') , chips: 80},
 
@@ -457,9 +457,9 @@ module.exports.ACHIEVEMENT_DEFS = ACHIEVEMENT_DEFS;
 "src/Art.js":[function(require,module,exports){
 // Shared native art, matching the first courtyard. Gameplay IDs remain unchanged.
 const Facets=require('./FacetedArt');
-module.exports={...Facets,...require('./BattleArt'),...require('./NightMagic'),HEROES:Object.keys(Facets.HEROES),MONSTERS:Object.keys(Facets.MONSTERS)};
+module.exports={...Facets,...require('./BattleArt'),...require('./NightMagic'),...require('./WeaponArt'),HEROES:Object.keys(Facets.HEROES),MONSTERS:Object.keys(Facets.MONSTERS)};
 
-},{"./FacetedArt":"src/FacetedArt.js","./BattleArt":"src/BattleArt.js","./NightMagic":"src/NightMagic.js"}],
+},{"./FacetedArt":"src/FacetedArt.js","./BattleArt":"src/BattleArt.js","./NightMagic":"src/NightMagic.js","./WeaponArt":"src/WeaponArt.js"}],
 "src/ArtLayout.js":[function(require,module,exports){
 // Generated sprite atlas coordinates; source images are preserved.
 module.exports = {"heroes":{"width":1254,"height":1254,"columns":3,"rows":3,"rects":[[0,23,418,375],[419,0,417,398],[837,31,399,365],[0,398,418,420],[418,398,418,420],[836,401,406,413],[17,818,401,436],[418,818,418,422],[836,825,404,429]],"alpha":[0,255],"bytes":2305417},"terrain":{"width":1536,"height":1024,"columns":3,"rows":2,"rects":[[0,0,512,512],[512,0,512,512],[1024,0,512,512],[0,512,512,512],[512,512,512,512],[1024,512,512,512]],"alpha":[255,255],"bytes":3600923},"monsters":{"width":1254,"height":1254,"columns":6,"rows":6,"rects":[[0,23,216,189],[216,17,213,195],[429,0,198,212],[627,17,210,195],[837,30,202,182],[1039,5,215,207],[0,212,216,200],[216,212,213,200],[429,212,198,200],[627,212,210,200],[837,212,202,200],[1039,212,201,200],[0,412,216,195],[216,412,213,195],[429,412,198,195],[627,412,210,195],[837,412,202,195],[1039,412,215,195],[0,607,216,208],[216,607,213,208],[429,607,198,208],[627,607,210,208],[837,607,202,208],[1039,607,201,208],[0,815,216,188],[216,815,213,188],[429,815,198,188],[627,815,210,188],[837,815,202,188],[1039,815,205,188],[0,1003,216,251],[216,1003,213,251],[429,1003,198,251],[627,1003,210,251],[837,1003,202,251],[1039,1003,215,251]],"alpha":[0,255],"bytes":2790439},"bosses":{"width":1983,"height":793,"columns":5,"rows":2,"rects":[[0,0,379,392],[379,0,405,392],[784,0,420,392],[1204,0,384,392],[1588,0,395,392],[0,392,379,401],[379,392,405,401],[784,392,420,401],[1204,392,384,401],[1588,392,395,401]],"alpha":[0,255],"bytes":3244105}};
@@ -949,6 +949,7 @@ class Boss {
     _onDeath() {
         if (this._deathHandled) return;
         this._deathHandled = true;
+        this.game.bossKills = (this.game.bossKills || 0) + 1;
         if (this.game.particles) this.game.particles.bossExplosion(this.x, this.y, this.color);
 
         // 触发 Boss 伤害来源面板
@@ -3582,6 +3583,7 @@ class Bullet {
         this.vx = vx; this.vy = vy;
         this.speed = opts.speed || 400;
         this.damage = damage;
+        this.visualOnly = !!opts.visualOnly;
         this.radius = opts.radius || 5;
         this._baseRadius = this.radius; // 用于 bolt 抖动
         this.color = opts.color || '#ffcc00';
@@ -3799,6 +3801,10 @@ class Bullet {
     }
 
     draw(ctx) {
+        if (this.visualOnly) {
+            drawBullet(ctx, this.x, this.y, this.radius, this.color, this.shape, 0, 0, false);
+            return; // The domain already has a range outline; no legacy filled halo or inflated radius.
+        }
         // 简化拖尾绘制（减少状态切换）
         if (this.historyCount > 1) {
             const startIdx = (this.historyHead - this.historyCount + this.maxHistory) % this.maxHistory;
@@ -3816,8 +3822,8 @@ class Bullet {
         }
 
         // 终极武器外发光（无 shadowBlur）
-        if (this.evolved) {
-            ctx.globalAlpha = 0.3;
+        if (this.evolved && this.radius < 48) {
+            ctx.globalAlpha = 0.1;
             ctx.fillStyle = this.color;
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius * 1.5, 0, Math.PI * 2);
@@ -3832,7 +3838,7 @@ class Bullet {
         }
 
         // 终极武器使用稍大尺寸，但不给 glowIntensity（避免 drawBullet 里的 shadowBlur）
-        const drawSize = this.evolved ? this.radius * 1.3 : this.radius;
+        const drawSize = this.evolved && this.radius < 48 ? this.radius * 1.3 : this.radius;
         drawBullet(ctx, this.x, this.y, drawSize, this.color, this.shape, drawAngle, 0, this.evolved);
     }
 }
@@ -4289,7 +4295,7 @@ function installChestSystem(Game) {
 				// 只有已解锁的进化才能在宝箱中出现
 				if (isEvolutionUnlocked(weaponId, isUnion, p, this)) {
 					pool.push({
-						type: 'chest_evolution', id: 'evolution_' + weaponId,
+						type: 'chest_evolution', id: 'evolution_' + (isUnion ? 'union_' : '') + weaponId,
 						name: '⚡ ' + recipe.resultName,
 						desc: isUnion ? '双拼融合: 摧毁并吸收 ' + (WEAPON_DEFS[consumeId]?.name || consumeId) : '进化 ' + (this.player.weapons.find(w => w.id === weaponId)?.def?.name || weaponId),
 						color: recipe.resultColor, _weaponId: weaponId,
@@ -4389,10 +4395,9 @@ function installChestSystem(Game) {
 				SFX.sfxEvolve();
 				const { evolveWeapon, EVOLUTION_RECIPES, UNION_RECIPES } = require('./Evolution');
 				const w = p.weapons.find(w => w.id === option._weaponId);
-				if (w && !w.evolved) {
+				if (w && (!w.evolved || option._isUnion)) {
 					const recipe = option._isUnion ? UNION_RECIPES[option._weaponId] : EVOLUTION_RECIPES[option._weaponId];
-					if (recipe) {
-						evolveWeapon(w, recipe, option._consumeId);
+					if (recipe && evolveWeapon(w, recipe, option._consumeId)) {
 						this.spawnDamageNumber(p.x, p.y - 60, '⚡ ' + recipe.resultName, recipe.resultColor, false);
 						this.spawnDamageNumber(p.x, p.y - 40, '进化成功！', '#ffcc00', false);
 					}
@@ -4419,7 +4424,7 @@ function installCollisionSystem(Game) {
 		// 网格已在 update() 开头构建，此处无需重建
 
 		for (const b of this.bullets) {
-			if (!b.active) continue;
+			if (!b.active || b.visualOnly) continue;
 
 			// 只检查附近的敌人 (使用独立的子弹专用查询数组防止被 onHit/Synergy 的嵌套查询冲刷)
 			if (!this._bulletNearbyArr) this._bulletNearbyArr = [];
@@ -4501,7 +4506,7 @@ function installCollisionSystem(Game) {
 					if (!b.active) break;
 				}
 			}
-			if (!b.active) continue;
+			if (!b.active || b.visualOnly) continue;
 			for (const boss of this.bosses) {
 				if (!boss.active || (b._hitSet && b._hitSet.has(boss))) continue;
 				const dx = b.x - boss.x, dy = b.y - boss.y;
@@ -5678,12 +5683,10 @@ class Enemy {
         if (this.invincibleTimer > 0) this.invincibleTimer -= dt;
 
         // Frozen: Cannot move
-        if (this.frozen > 0) {
+        const frozenThisFrame = this.frozen > 0;
+        if (frozenThisFrame) {
             this.frozen -= dt;
             if (this.frozen < 0) this.frozen = 0;
-            // Frozen enemies don't update movement
-            if (this.flashTimer > 0) this.flashTimer -= dt;
-            return;
         }
 
         // Poisoned: Damage over time
@@ -5724,6 +5727,9 @@ class Enemy {
             if (this.burnTickTimer <= 0 && this.burnDamage > 0) {
                 this.burnTickTimer = 0.5;
                 const burnDmg = this.burnDamage * 0.5;
+                const dealtBurn = Math.min(Math.max(0, this.hp), burnDmg);
+                this.game.player.totalDamage = (this.game.player.totalDamage || 0) + dealtBurn;
+                if (this.game._weaponDamageStats) this.game._weaponDamageStats.burn = (this.game._weaponDamageStats.burn || 0) + dealtBurn;
                 this.hp -= burnDmg;
                 this.game.spawnDamageNumber(this.x, this.y - this.radius, Math.ceil(burnDmg), '#ff6600');
                 this.flashTimer = 0.05;
@@ -5741,6 +5747,11 @@ class Enemy {
                     { count: 1, speed: 40, life: 0.3, color: '#ff6600', size: 2 }
                 );
             }
+        }
+
+        if (frozenThisFrame) {
+            if (this.flashTimer > 0) this.flashTimer -= dt;
+            return; // Control stops movement and attacks, not poison/burn timers.
         }
 
         // ─── Movement ───
@@ -7656,7 +7667,7 @@ function checkEvolutions(player) {
     const evolvable = [];
     for (const w of player.weapons) {
         const def = w.def;
-        if (!def || w.evolved) continue;
+        if (!def || def.isFusion) continue;
         if (w.level < def.maxLevel) continue;
 
         // 1. 检查双武器融合 (Union)
@@ -7666,13 +7677,13 @@ function checkEvolutions(player) {
             const reqWeapon = player.weapons.find(subW => subW.id === unionRecipe.requireWeapon);
             if (reqWeapon && reqWeapon.level >= (reqWeapon.def ? reqWeapon.def.maxLevel : 6)) {
                 evolvable.push({ weaponId: w.id, recipe: unionRecipe, isUnion: true, consumeId: unionRecipe.requireWeapon });
-                continue; // 如果触发了双拼，就不走普通被动进化了
+                // Ordinary awakening remains a separate choice while building toward fusion.
             }
         }
 
         // 2. 检查普通被动进化
         const recipe = EVOLUTION_RECIPES[w.id];
-        if (!recipe) continue;
+        if (!recipe || w.evolved) continue;
 
         if (player.hasPassive(recipe.requirePassive)) {
             evolvable.push({ weaponId: w.id, recipe });
@@ -7710,7 +7721,7 @@ function isEvolutionUnlocked(weaponId, isUnion, player, game) {
         case 'poisonKills':
             return game.poisonKills >= cond.count;
         case 'bossKills':
-            return game.bossWave >= cond.count;
+            return (game.bossKills || 0) >= cond.count;
         case 'healed':
             return (player.totalHealed || 0) >= cond.count;
         case 'gemsCollected':
@@ -7749,7 +7760,7 @@ function getEvolutionProgress(weaponId, isUnion, player, game) {
             current = game.poisonKills;
             break;
         case 'bossKills':
-            current = game.bossWave;
+            current = game.bossKills || 0;
             break;
         case 'healed':
             current = player.totalHealed || 0;
@@ -7779,12 +7790,23 @@ function useEvolutionCore(weaponId, player) {
  * 执行进化
  */
 function evolveWeapon(weapon, recipe, consumeId = null) {
+    const p = weapon.game && weapon.game.player;
+    const isUnion = !!consumeId;
+    const expected = isUnion ? UNION_RECIPES[weapon.id] : EVOLUTION_RECIPES[weapon.id];
+    if (!p || expected !== recipe || !p.weapons.includes(weapon) || weapon.level < weapon.def.maxLevel
+        || !isEvolutionUnlocked(weapon.id, isUnion, p, weapon.game)) return false;
+    if (isUnion) {
+        const secondary = p.weapons.find(w => w !== weapon && w.id === recipe.requireWeapon);
+        if (consumeId !== recipe.requireWeapon || !secondary || secondary.level < secondary.def.maxLevel) return false;
+    } else if (weapon.evolved || !p.hasPassive(recipe.requirePassive)) return false;
     if (recipe.resultId) {
         // [神兵融合]：完全替换为全新的武器 ID 和定义
         const { WEAPON_DEFS } = require('./Weapons');
         const newDef = WEAPON_DEFS[recipe.resultId];
         if (!newDef) { console.warn('[Evolution] unknown resultId:', recipe.resultId); return; }
         weapon.evolved = true;
+        weapon._evolutionBonuses = null; // Fusion uses its own definition, not the previous awakening multiplier.
+        weapon._clones.length = weapon._orbList.length = weapon._firePools.length = weapon._acidPools.length = weapon._gravityZones.length = weapon._nanoSwarm.length = 0;
         weapon.id = recipe.resultId;
         weapon.def = newDef;
         weapon.level = 1; // 融合武器固定为1级或满级
@@ -7820,6 +7842,8 @@ function evolveWeapon(weapon, recipe, consumeId = null) {
         }
     }
 
+    if (weapon.game && weapon.game.synergy) weapon.game.synergy.check();
+
     // 进化视觉反馈
     if (weapon.game) {
         weapon.game.triggerHitPause(0.1);
@@ -7830,6 +7854,7 @@ function evolveWeapon(weapon, recipe, consumeId = null) {
             weapon.game.particles.levelUp(weapon.game.player.x, weapon.game.player.y);
         }
     }
+    return true;
 }
 
 /** 获取进化后的伤害倍率 */
@@ -8159,8 +8184,25 @@ function pigment(color){
  pigments.set(color,value);return value;
 }
 function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
- const d=pigment(color),s=Math.max(.5,size);c.save();c.translate(x,y);c.rotate(angle);
- if(evolved){c.save();c.globalAlpha*=.13;const points=[];for(let i=0;i<8;i++)points.push([Math.cos(i*TAU/8)*s*2,Math.sin(i*TAU/8)*s*2]);poly(c,points,d.main);c.restore();}
+ const d=pigment(color),radius=Math.max(.5,size);let s=radius;c.save();c.translate(x,y);c.rotate(angle);
+ if(shape==='orbital_beam'||shape==='zero_domain'){
+  c.save();c.globalAlpha*=.55;c.strokeStyle=d.main;c.lineWidth=1.5;c.beginPath();c.arc(0,0,s,0,TAU);c.stroke();
+  gem(c,0,0,Math.min(24,s*.2),d.dark,d.light);
+  if(shape==='orbital_beam')line(c,[[0,-Math.min(s,180)],[0,Math.min(s,180)]],d.light,3);
+  else for(let i=0;i<6;i++){const a=i*TAU/6;line(c,[[Math.cos(a)*Math.min(s,55)*.65,Math.sin(a)*Math.min(s,55)*.65],[Math.cos(a)*Math.min(s,55),Math.sin(a)*Math.min(s,55)]],d.light,2);}
+  c.restore();c.restore();return;
+ }
+
+ if(shape==='singularity'){
+  c.save();c.globalAlpha*=.4;c.strokeStyle=d.main;c.lineWidth=1.5;c.beginPath();c.arc(0,0,s,0,TAU);c.stroke();
+  const core=Math.min(28,s*.6);gem(c,0,0,core,d.dark,d.light);for(let i=0;i<4;i++){const a=i*TAU/4;line(c,[[Math.cos(a)*core*1.4,Math.sin(a)*core*1.4],[Math.cos(a+.4)*s*.75,Math.sin(a+.4)*s*.75]],d.main,1.5);}
+  c.restore();c.restore();return;
+ }
+ if(radius>48){
+  c.save();c.globalAlpha*=.24;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,radius,0,TAU);c.stroke();c.restore();
+  s=24; // Keep the full hit boundary, with a compact readable projectile core.
+ }
+ if(evolved&&radius<48){c.save();c.globalAlpha*=.13;const points=[];for(let i=0;i<8;i++)points.push([Math.cos(i*TAU/8)*s*2,Math.sin(i*TAU/8)*s*2]);poly(c,points,d.main);c.restore();}
  if(['bolt','rocket','sting','needle','arrow'].includes(shape)){
   c.save();c.globalAlpha*=.26;poly(c,[[-s*3.2,0],[-s,-s*.7],[s*.3,0],[-s,s*.7]],d.dark);c.restore();
   poly(c,[[s*1.8,0],[-s,-s*.65],[-s*.45,0],[-s,s*.65]],d.main);poly(c,[[s*1.8,0],[-s,-s*.65],[-s*.45,0]],d.light);
@@ -8174,11 +8216,11 @@ function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
  else{gem(c,0,0,s*1.3,d.main,d.light);}
  c.restore();
 }
-function drawArea(c,x,y,r,color,time=0){
- const d=pigment(color);c.save();c.translate(x,y);c.globalAlpha*=.18;
- const points=[];for(let i=0;i<12;i++){const a=i*TAU/12,k=i%3===0?.84:.96;points.push([Math.cos(a)*r*k,Math.sin(a)*r*k]);}poly(c,points,d.main);
- c.globalAlpha*=2;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,r,0,TAU);c.stroke();
- for(let i=0;i<4;i++){const a=i*TAU/4+time*.06;gem(c,Math.cos(a)*r*.78,Math.sin(a)*r*.78,Math.min(7,r*.08),d.main,d.light);}
+function drawArea(c,x,y,r,color,time=0,opacity=.18,details=true){
+ const d=pigment(color);c.save();c.translate(x,y);
+ if(opacity>0){c.save();c.globalAlpha*=opacity;const points=[];for(let i=0;i<12;i++){const a=i*TAU/12,k=i%3===0?.84:.96;points.push([Math.cos(a)*r*k,Math.sin(a)*r*k]);}poly(c,points,d.main);c.restore();}
+ c.globalAlpha*=.36;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,r,0,TAU);c.stroke();
+ if(details)for(let i=0;i<4;i++){const a=i*TAU/4+time*.06;gem(c,Math.cos(a)*r*.78,Math.sin(a)*r*.78,Math.min(7,r*.08),d.main,d.light);}
  c.restore();
 }
 function drawGem(c,x,y,size){c.save();gem(c,x,y,size,'#b7d976','#eff2bd');c.restore();}
@@ -8368,6 +8410,7 @@ class Game {
 		// Boss
 		this.bossTimer = 90;
 		this.bossWave = 0;
+		this.bossKills = 0;
 
 		// 地图元素生成
 		this.mapElementTimer = 30; // 每30秒生成一个地图元素
@@ -8474,6 +8517,7 @@ class Game {
 		this.spawnInterval = 1.2;
 		this.bossTimer = 90;
 		this.bossWave = 0;
+		this.bossKills = 0;
 		this.mapElementTimer = 30;
 		this.shakeAmount = 0;
 		this.shakeDuration = 0;
@@ -9893,6 +9937,7 @@ class Game {
 					SFX.sfxButton();
 				} else if (this.settingsQualityBtn && UI.hitTest(tx, ty, this.settingsQualityBtn)) {
 					this.qualityLevel = (this.qualityLevel || 0) >= 0.8 ? 0 : 1;
+					this.autoQuality = false;
 					this._saveSettings();
 					SFX.sfxButton();
 				} else if (this.settingsBackBtn && UI.hitTest(tx, ty, this.settingsBackBtn)) {
@@ -10090,6 +10135,7 @@ class Game {
 			wx.setStorageSync('flux_settings', JSON.stringify({
 				muted: SFX.isMuted,
 				quality: this.qualityLevel,
+				autoQuality: this.autoQuality,
 			}));
 		} catch (e) { }
 	}
@@ -10101,6 +10147,7 @@ class Game {
 				const s = JSON.parse(raw);
 				if (s.muted !== undefined) SFX.setMuted(s.muted);
 				if (s.quality !== undefined) this.qualityLevel = s.quality;
+				if (typeof s.autoQuality === 'boolean') this.autoQuality = s.autoQuality;
 			}
 		} catch (e) { }
 	}
@@ -14255,6 +14302,45 @@ class Player {
 module.exports = Player;
 
 },{"./Renderer":"src/Renderer.js","./SFX":"src/SFX.js","./MathLUT":"src/MathLUT.js","./Character":"src/Character.js","./Skins":"src/Skins.js","./platform":"src/platform.js","./Pet":"src/Pet.js","./Auras":"src/Auras.js"}],
+"src/Progression.js":[function(require,module,exports){
+// Read the same recipes and counters as the actual reward actions.
+const { EVOLUTION_RECIPES, UNION_RECIPES, getEvolutionProgress } = require('./Evolution');
+const { weapons } = require('./WeaponData');
+const { SYNERGY_RULES } = require('./SynergySystem');
+const RESONANCES = {
+    flux: ['武器冷却缩减 +15 个百分点', '武器冷却缩减 +25 个百分点'],
+    cryo: ['冻结时长 +15%', '冻结时长 +30%'],
+    toxic: ['荆毒伤害 +15%', '荆毒伤害 +25%，中毒敌人死亡时传染'],
+    plasma: ['攻击范围 +12%', '攻击范围 +20%'],
+    void: ['伤害加成 +10 个百分点', '每次击败恢复至多 2 生命'],
+};
+function progression(game) {
+    const p = game.player || { weapons: [], passives: [] };
+    const carried = p.weapons || [], counts = {};
+    for (const w of carried) if (w.def?.element) counts[w.def.element] = (counts[w.def.element] || 0) + 1;
+    const routes = [];
+    for (const [isUnion, recipes] of [[false, EVOLUTION_RECIPES], [true, UNION_RECIPES]]) {
+        for (const [id, recipe] of Object.entries(recipes)) {
+            const primary = carried.find(w => w.id === id);
+            const secondary = isUnion ? carried.find(w => w.id === recipe.requireWeapon) : null;
+            const passive = !isUnion && (p.passives || []).some(item => item.id === recipe.requirePassive);
+            const complete = isUnion ? carried.some(w => w.id === recipe.resultId) : !!primary?.evolved;
+            const level = primary?.level || 0, max = weapons[id].maxLevel;
+            const secondaryMax = isUnion ? weapons[recipe.requireWeapon].maxLevel : 0;
+            const progress = getEvolutionProgress(id, isUnion, p, game);
+            const materials = level >= max && (isUnion ? (secondary?.level || 0) >= secondaryMax : passive);
+            routes.push({ id, isUnion, recipe, complete, level, max, passive, secondaryLevel: secondary?.level || 0,
+                secondaryMax, relevant: !!primary || !!secondary, progress,
+                ready: !complete && materials && progress.unlocked });
+        }
+    }
+    return { routes, resonances: Object.entries(RESONANCES).map(([element, bonuses]) => ({
+        element, count: counts[element] || 0, tier: Math.min(3, (counts[element] || 0) >= 2 ? counts[element] : 0), bonuses,
+    })), reactions: SYNERGY_RULES.map(rule => ({ ...rule, available: rule.elements.every(el => counts[el] > 0) })) };
+}
+module.exports = { progression, RESONANCES };
+
+},{"./Evolution":"src/Evolution.js","./WeaponData":"src/WeaponData.js","./SynergySystem":"src/SynergySystem.js"}],
 "src/Relic.js":[function(require,module,exports){
 // ─── 遗物系统 ──────────────────────────
 // 强力局内随机道具，改变玩法规则，每局最多 3 个
@@ -15930,6 +16016,7 @@ function installRenderSystem(GameClass) {
                 throw new Error('eventSystem.drawWorld: ' + _eErr.message);
             }
 
+            this._friendlyAreaFills = 0;
             for (const w of this.player.weapons) { try { if (w.drawGroundEffects) w.drawGroundEffects(ctx); } catch (_e) { throw new Error('weapon.drawGroundEffects(' + w.id + '): ' + _e.message); } }
 
             // Hostile areas stay on the ground, below actors and foreground trees.
@@ -22758,6 +22845,16 @@ module.exports = { StageSystem, STAGE_CONFIGS };
  * 毒火协同 (ToxicBurn): 中毒敌人被火系攻击 → 剧毒燃烧
  */
 
+const SYNERGY_RULES = [
+    { id:'evaporation', name:'霜烬迸裂', elements:['plasma','cryo'], desc:'赤焰命中冻结敌人，引发范围爆裂并消耗其冻结。' },
+    { id:'shatter', name:'碎霜引雷', elements:['flux','cryo'], desc:'雷光命中冻结敌人，向至多三名附近敌人连雷并消耗冻结。' },
+    { id:'toxicBurn', name:'荆焰续燃', elements:['plasma','toxic'], desc:'赤焰命中中毒敌人，按毒层留下持续三秒的灼伤。' },
+    { id:'voidPoison', name:'幽荆溃散', elements:['void','toxic'], desc:'幽影命中中毒敌人，引爆并消耗其毒层。' },
+    { id:'voidFreeze', name:'月影凝霜', elements:['void','cryo'], desc:'幽影命中冻结敌人，造成额外伤害并延长冻结至多三点六秒；更长的已有冻结保持原值。' },
+    { id:'poisonChain', name:'引雷传荆', elements:['flux','toxic'], desc:'雷光命中中毒敌人，向至多四名附近敌人传递毒层。' },
+    { id:'cryoPoison', name:'寒荆裂响', elements:['cryo','toxic'], desc:'寒霜命中中毒敌人，按毒层爆裂并冻结附近敌人。' },
+];
+
 class SynergySystem {
     constructor(game) {
         this.game = game;
@@ -22792,6 +22889,7 @@ class SynergySystem {
             this._activeSetBonuses = null;
         }
         this._activeResonances = {};
+        p.plagueSpread = !!p.getPassiveLevel?.('plague_spread');
 
         // 统计每种元素的武器数量
         const elementCounts = {};
@@ -22945,10 +23043,7 @@ class SynergySystem {
             extraDamage += this._triggerCryoPoison(enemy, baseDamage);
         }
 
-        // 奥术师协同加成：所有协同伤害额外 +synergyBonus%
-        if (extraDamage > 0 && this.game.player.synergyBonus) {
-            extraDamage *= (1 + this.game.player.synergyBonus);
-        }
+        // Each reaction applies the character bonus to its actual damage once.
 
         return extraDamage;
     }
@@ -22956,11 +23051,15 @@ class SynergySystem {
     /**
      * 蒸发爆炸 - 冻结敌人被火击中后爆炸
      */
+    _damage(amount) { return amount * (1 + (this.game.player.synergyBonus || 0)); }
+
     _triggerEvaporation(enemy, baseDamage) {
         const area = (this.game.player && this.game.player.area) || 1;
         const radius = 135 * area;
-        const explosionDamage = baseDamage * 1.5;
+        const explosionDamage = this._damage(baseDamage * 1.5);
         const radiusSq = radius * radius;
+
+        enemy.takeDamage(explosionDamage, 'synergy');
 
         // 范围伤害
         for (const e of this.game.enemies) {
@@ -22968,7 +23067,7 @@ class SynergySystem {
             const dx = e.x - enemy.x;
             const dy = e.y - enemy.y;
             if (dx * dx + dy * dy < radiusSq) {
-                e.takeDamage(explosionDamage);
+                e.takeDamage(explosionDamage, 'synergy');
             }
         }
 
@@ -22997,7 +23096,7 @@ class SynergySystem {
      * 闪电链 - 电击冻结敌人后弹射
      */
     _triggerShatter(enemy, baseDamage) {
-        const chainDamage = baseDamage * 0.8;
+        const chainDamage = this._damage(baseDamage * 0.8);
         const area = (this.game.player && this.game.player.area) || 1;
         const chainRange = 210 * area;
         const maxChains = 3;
@@ -23024,7 +23123,7 @@ class SynergySystem {
 
             if (!nearest) break;
 
-            nearest.takeDamage(chainDamage);
+            nearest.takeDamage(chainDamage, 'synergy');
             hitEnemies.add(nearest);
 
             // 闪电连线视觉效果（简化）
@@ -23057,7 +23156,7 @@ class SynergySystem {
     _triggerToxicBurn(enemy, baseDamage) {
         // 基于中毒层数的额外伤害
         const stacks = Math.min(50, enemy.poisonStacks || 0);
-        const burnDamage = baseDamage * 0.5 + stacks * 5;
+        const burnDamage = this._damage(baseDamage * 0.5 + stacks * 5);
 
         // 应用持续燃烧
         enemy.burning = Math.max(enemy.burning || 0, 3); // 3秒燃烧
@@ -23082,9 +23181,9 @@ class SynergySystem {
      */
     _triggerVoidPoison(enemy, baseDamage) {
         const stacks = Math.min(50, enemy.poisonStacks || 0);
-        const burstDamage = stacks * 8; // 每层毒素 8 点瞬间伤害
+        const burstDamage = this._damage(stacks * 8); // 每层毒素 8 点瞬间伤害
 
-        enemy.takeDamage(burstDamage);
+        enemy.takeDamage(burstDamage, 'synergy');
         enemy.poisoned = 0;
         enemy.poisonStacks = 0;
 
@@ -23106,9 +23205,10 @@ class SynergySystem {
      */
     _triggerVoidFreeze(enemy, baseDamage) {
         // 延长冻结时间
-        enemy.frozen += 2;
+        enemy.frozen = Math.max(enemy.frozen || 0, Math.min(3.6, (enemy.frozen || 0) + 2));
         // 造成基于冻结时间的伤害
-        const freezeDamage = baseDamage * 1.5;
+        const freezeDamage = this._damage(baseDamage * 1.5);
+        enemy.takeDamage(freezeDamage, 'synergy');
 
         // 视觉效果
         if (this.game.particles) {
@@ -23128,7 +23228,7 @@ class SynergySystem {
     _triggerPoisonChain(enemy, baseDamage) {
         const area = (this.game.player && this.game.player.area) || 1;
         const chainRange = 180 * area;
-        const chainDamage = baseDamage * 0.6;
+        const chainDamage = this._damage(baseDamage * 0.6);
         const stacks = Math.min(50, enemy.poisonStacks || 1);
         let chains = 0;
 
@@ -23137,7 +23237,7 @@ class SynergySystem {
             const dx = e.x - enemy.x;
             const dy = e.y - enemy.y;
             if (dx * dx + dy * dy < chainRange * chainRange) {
-                e.takeDamage(chainDamage);
+                e.takeDamage(chainDamage, 'synergy');
                 // 传递毒素
                 e.poisoned = Math.max(e.poisoned || 0, 2);
                 e.poisonStacks = (e.poisonStacks || 0) + stacks;
@@ -23164,7 +23264,8 @@ class SynergySystem {
         const area = (this.game.player && this.game.player.area) || 1;
         const radius = 125 * area;
         const stacks = Math.min(50, enemy.poisonStacks || 0);
-        const explosionDamage = baseDamage + stacks * 3;
+        const explosionDamage = this._damage(baseDamage + stacks * 3);
+        enemy.takeDamage(explosionDamage, 'synergy');
         const radiusSq = radius * radius;
 
         for (const e of this.game.enemies) {
@@ -23172,7 +23273,7 @@ class SynergySystem {
             const dx = e.x - enemy.x;
             const dy = e.y - enemy.y;
             if (dx * dx + dy * dy < radiusSq) {
-                e.takeDamage(explosionDamage * 0.5);
+                e.takeDamage(explosionDamage * 0.5, 'synergy');
                 e.frozen = Math.max(e.frozen || 0, 1.5); // 冻结周围敌人
             }
         }
@@ -23224,7 +23325,7 @@ const ELEMENTS = {
     toxic: { name: '毒素', color: '#88ff00', synergies: ['plasma'] },
 };
 
-module.exports = { SynergySystem, ELEMENTS };
+module.exports = { SynergySystem, ELEMENTS, SYNERGY_RULES };
 
 },{}],
 "src/TalentTree.js":[function(require,module,exports){
@@ -23811,13 +23912,14 @@ class UpgradeSystem {
 
 		const evolutions = checkEvolutions(p);
 		for (const evo of evolutions) {
+			if (this.banishList.includes(evo.isUnion ? 'union_' + evo.weaponId : evo.weaponId)) continue;
 			const unlocked = isEvolutionUnlocked(evo.weaponId, evo.isUnion, p, this.game);
 			const progress = getEvolutionProgress(evo.weaponId, evo.isUnion, p, this.game);
 
 			if (unlocked) {
 				// 已解锁：正常显示
 				pool.push({
-					type: 'evolve', id: evo.weaponId,
+					type: 'evolve', id: evo.isUnion ? 'union_' + evo.weaponId : evo.weaponId, weaponId: evo.weaponId, isUnion: !!evo.isUnion,
 					name: '⚡ ' + evo.recipe.resultName,
 					desc: evo.isUnion ? '双拼融合: 吸收 ' + evo.consumeId : evo.recipe.resultDesc,
 					color: evo.recipe.resultColor,
@@ -23830,7 +23932,7 @@ class UpgradeSystem {
 				// 未解锁：显示灰色预告 + 进度
 				const progressText = `${getConditionTypeName(progress.type)}: ${progress.current}/${progress.required}`;
 				previews.push({
-					type: 'evolution_preview', id: 'preview_' + evo.weaponId,
+					type: 'evolution_preview', id: 'preview_' + (evo.isUnion ? 'union_' : '') + evo.weaponId,
 					name: '🔒 ' + evo.recipe.resultName,
 					desc: `${evo.recipe.resultDesc}\n${progressText}`,
 					color: '#666666',
@@ -23972,7 +24074,7 @@ class UpgradeSystem {
 				break;
 			}
 			case 'evolve': {
-				const w = p.weapons.find(w => w.id === option.id);
+				const w = p.weapons.find(w => w.id === (option.weaponId || option.id));
 				if (w && option.recipe) evolveWeapon(w, option.recipe, option.consumeId);
 				break;
 			}
@@ -24042,6 +24144,46 @@ class UpgradeSystem {
 module.exports = UpgradeSystem;
 
 },{"./Weapons":"src/Weapons.js","./Evolution":"src/Evolution.js","./Pet":"src/Pet.js","./Relic":"src/Relic.js","./platform":"src/platform.js"}],
+"src/WeaponArt.js":[function(require,module,exports){
+// Friendly spell geometry follows live damage objects. Drawing never consumes combat RNG.
+const F = require('./FacetedArt');
+function visible(g, x, y, r) {
+    const c = g.camera || {x: 0, y: 0};
+    return x + r >= c.x && x - r <= c.x + g.width && y + r >= c.y && y - r <= c.y + g.height;
+}
+function area(c, w, x, y, r, color) {
+    const g = w.game;
+    if (!visible(g, x, y, r)) return;
+    const count = g._friendlyAreaFills || 0;
+    g._friendlyAreaFills = count + 1;
+    F.drawArea(c, x, y, r, color, g.time, count < 3 ? (g.qualityLevel < .5 ? .035 : .075) : 0, g.qualityLevel >= .5);
+}
+function drawWeaponGround(c, w) {
+    const g = w.game, p = g.player;
+    if (!p) return;
+    for (const pool of w._firePools) area(c, w, pool.x, pool.y, pool.radius, '#ff6600');
+    for (const pool of w._acidPools) area(c, w, pool.x, pool.y, pool.radius, pool.isHolyWater ? '#88ddff' : '#88ff00');
+    for (const zone of w._gravityZones) area(c, w, zone.x, zone.y, zone.radius, '#aa44ff');
+    if (w.id === 'radiation_field') area(c, w, p.x, p.y, Math.min((75 + w.level * 8) * p.area * (w.evolved ? 1.35 : 1), 240), '#aa44ff');
+    if (w.id === 'fusion_meat_grinder') area(c, w, p.x, p.y, 145 * p.area, '#ff2288');
+    if (w.id === 'fusion_cryo_toxic') area(c, w, p.x, p.y, 220 * p.area, '#66ccff');
+}
+function drawWeaponAir(c, w) {
+    const g = w.game, p = g.player;
+    if (!p) return;
+    for (const clone of w._clones) {
+        const x = p.x + Math.cos(clone.angle) * clone.dist, y = p.y + Math.sin(clone.angle) * clone.dist;
+        if (visible(g, x, y, 30)) F.drawHero(c, p.characterId, x, y, 13, clone.angle, true, g.time, .28);
+    }
+    for (const orb of w._orbList) if (visible(g, orb.x, orb.y, orb.radius)) F.drawProjectile(c, orb.x, orb.y, orb.radius, '#88ddff', 'crystal', g.time * .4, w.evolved && g.qualityLevel >= .5);
+    for (const bot of w._nanoSwarm) if (visible(g, bot.x, bot.y, bot.hitRadius)) {
+        F.drawProjectile(c, bot.x, bot.y, 5, '#88ff00', 'sting', bot.angle + Math.PI / 2);
+        if (g.qualityLevel >= .5) { c.save(); c.globalAlpha *= .25; c.strokeStyle = '#b0cb84'; c.beginPath(); c.arc(bot.x, bot.y, bot.hitRadius, 0, Math.PI * 2); c.stroke(); c.restore(); }
+    }
+}
+module.exports = { drawWeaponGround, drawWeaponAir };
+
+},{"./FacetedArt":"src/FacetedArt.js"}],
 "src/WeaponCombos.js":[function(require,module,exports){
 // ─── 武器连携定义（从 Game.js 提取） ──────────────────────────
 // 按武器 id 排序拼接为 key，击杀时触发双武器连携效果
@@ -25448,7 +25590,7 @@ class Weapon {
             0, 0, 0, {
             color: '#ffcc00', speed: 0,
             radius: radius, pierce: 9999, homing: 0,
-            lifetime: 1.0, element: 'plasma', shape: 'orbital_beam',
+            lifetime: 1.0, element: 'plasma', shape: 'orbital_beam', visualOnly: true,
             evolved: true,
         }));
     }
@@ -25499,7 +25641,7 @@ class Weapon {
             0, 0, 0, {
             color: '#66ffcc', speed: 0,
             radius: radius, pierce: 9999, homing: 0,
-            lifetime: 3.0, element: 'cryo', shape: 'zero_domain',
+            lifetime: 3.0, element: 'cryo', shape: 'zero_domain', visualOnly: true,
             evolved: true,
         }));
     }
@@ -26469,7 +26611,7 @@ const runtime=load('entry.js');
 runtime.art=load('src/Art.js');
 const catalog=(file,key)=>load('src/'+file+'.js')[key];
 runtime.catalogs={
- weaponType:catalog('Weapons','Weapon'),weapons:catalog('WeaponData','weapons'),passives:catalog('WeaponData','passives'),evolution:catalog('Evolution','EVOLUTION_RECIPES'),
+ weaponType:catalog('Weapons','Weapon'),weapons:catalog('WeaponData','weapons'),passives:catalog('WeaponData','passives'),evolution:catalog('Evolution','EVOLUTION_RECIPES'),unions:catalog('Evolution','UNION_RECIPES'),progression:load('src/Progression.js'),
  pantheon:load('src/Pantheon.js'),skills:catalog('SkillSystem','SKILL_DEFS'),characters:catalog('Character','CHARACTERS'),
  meta:catalog('MetaSystem','META_UPGRADES'),talents:load('src/TalentTree.js'),skins:catalog('Skins','SKINS'),
  petType:catalog('Pet','Pet'),pets:catalog('Pet','PET_TYPES'),auras:catalog('Auras','AURA_TYPES'),relics:Object.fromEntries(catalog('Relic','RELIC_DEFS').map(row=>[row.id,row])),

@@ -163,13 +163,14 @@ class UpgradeSystem {
 
 		const evolutions = checkEvolutions(p);
 		for (const evo of evolutions) {
+			if (this.banishList.includes(evo.isUnion ? 'union_' + evo.weaponId : evo.weaponId)) continue;
 			const unlocked = isEvolutionUnlocked(evo.weaponId, evo.isUnion, p, this.game);
 			const progress = getEvolutionProgress(evo.weaponId, evo.isUnion, p, this.game);
 
 			if (unlocked) {
 				// 已解锁：正常显示
 				pool.push({
-					type: 'evolve', id: evo.weaponId,
+					type: 'evolve', id: evo.isUnion ? 'union_' + evo.weaponId : evo.weaponId, weaponId: evo.weaponId, isUnion: !!evo.isUnion,
 					name: '⚡ ' + evo.recipe.resultName,
 					desc: evo.isUnion ? '双拼融合: 吸收 ' + evo.consumeId : evo.recipe.resultDesc,
 					color: evo.recipe.resultColor,
@@ -182,7 +183,7 @@ class UpgradeSystem {
 				// 未解锁：显示灰色预告 + 进度
 				const progressText = `${getConditionTypeName(progress.type)}: ${progress.current}/${progress.required}`;
 				previews.push({
-					type: 'evolution_preview', id: 'preview_' + evo.weaponId,
+					type: 'evolution_preview', id: 'preview_' + (evo.isUnion ? 'union_' : '') + evo.weaponId,
 					name: '🔒 ' + evo.recipe.resultName,
 					desc: `${evo.recipe.resultDesc}\n${progressText}`,
 					color: '#666666',
@@ -324,7 +325,7 @@ class UpgradeSystem {
 				break;
 			}
 			case 'evolve': {
-				const w = p.weapons.find(w => w.id === option.id);
+				const w = p.weapons.find(w => w.id === (option.weaponId || option.id));
 				if (w && option.recipe) evolveWeapon(w, option.recipe, option.consumeId);
 				break;
 			}

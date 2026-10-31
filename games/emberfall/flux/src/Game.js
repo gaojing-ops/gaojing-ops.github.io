@@ -148,6 +148,7 @@ class Game {
 		// Boss
 		this.bossTimer = 90;
 		this.bossWave = 0;
+		this.bossKills = 0;
 
 		// 地图元素生成
 		this.mapElementTimer = 30; // 每30秒生成一个地图元素
@@ -254,6 +255,7 @@ class Game {
 		this.spawnInterval = 1.2;
 		this.bossTimer = 90;
 		this.bossWave = 0;
+		this.bossKills = 0;
 		this.mapElementTimer = 30;
 		this.shakeAmount = 0;
 		this.shakeDuration = 0;
@@ -1673,6 +1675,7 @@ class Game {
 					SFX.sfxButton();
 				} else if (this.settingsQualityBtn && UI.hitTest(tx, ty, this.settingsQualityBtn)) {
 					this.qualityLevel = (this.qualityLevel || 0) >= 0.8 ? 0 : 1;
+					this.autoQuality = false;
 					this._saveSettings();
 					SFX.sfxButton();
 				} else if (this.settingsBackBtn && UI.hitTest(tx, ty, this.settingsBackBtn)) {
@@ -1870,6 +1873,7 @@ class Game {
 			wx.setStorageSync('flux_settings', JSON.stringify({
 				muted: SFX.isMuted,
 				quality: this.qualityLevel,
+				autoQuality: this.autoQuality,
 			}));
 		} catch (e) { }
 	}
@@ -1881,6 +1885,7 @@ class Game {
 				const s = JSON.parse(raw);
 				if (s.muted !== undefined) SFX.setMuted(s.muted);
 				if (s.quality !== undefined) this.qualityLevel = s.quality;
+				if (typeof s.autoQuality === 'boolean') this.autoQuality = s.autoQuality;
 			}
 		} catch (e) { }
 	}

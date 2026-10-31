@@ -561,7 +561,7 @@ class Weapon {
             0, 0, 0, {
             color: '#ffcc00', speed: 0,
             radius: radius, pierce: 9999, homing: 0,
-            lifetime: 1.0, element: 'plasma', shape: 'orbital_beam',
+            lifetime: 1.0, element: 'plasma', shape: 'orbital_beam', visualOnly: true,
             evolved: true,
         }));
     }
@@ -612,7 +612,7 @@ class Weapon {
             0, 0, 0, {
             color: '#66ffcc', speed: 0,
             radius: radius, pierce: 9999, homing: 0,
-            lifetime: 3.0, element: 'cryo', shape: 'zero_domain',
+            lifetime: 3.0, element: 'cryo', shape: 'zero_domain', visualOnly: true,
             evolved: true,
         }));
     }
