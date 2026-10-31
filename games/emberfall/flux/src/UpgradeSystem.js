@@ -212,10 +212,23 @@ class UpgradeSystem {
 		// 遗物：量子骰子 — 升级选项变为 5 选 1
 		const pickCount = (p.relicFlags && p.relicFlags.quantumDice) ? 5 : 3;
 		const selected = this._weightedPick(pool, pickCount);
+		// Opening offers must let a new watcher strengthen a carried weapon.
+		// Reserve an option, not a reward; choosing another path remains possible.
+		if (p.level <= 12 && !selected.some(o => o.type === 'weapon_up')) {
+			const carried = this._weightedPick(pool.filter(o => o.type === 'weapon_up'), 1)[0];
+			if (carried) selected.splice(0, 1, carried);
+		}
 		// 返回可选择的选项和预览选项
 		if (p.level % 3 === 0 && this.game.pantheon) {
 			const boon = this.game.pantheon.offer(this.banishList);
-			if (boon) { if (selected.length >= 5) selected.pop(); selected.push(boon); }
+			if (boon) {
+				if (selected.length >= 5) {
+					let drop = selected.length - 1;
+					while (drop > 0 && selected[drop].type === 'weapon_up') drop--;
+					selected.splice(drop, 1);
+				}
+				selected.push(boon);
+			}
 		}
 		return { options: selected, previews };
 	}

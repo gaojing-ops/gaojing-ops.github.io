@@ -1441,7 +1441,7 @@ class Game {
 				// 判断子弹是否朝我飞来（点积检测）
 				const bvx = eb.vx || 0, bvy = eb.vy || 0;
 				const dot = dx * bvx + dy * bvy;
-				if (dot < 0) { // 子弹朝我方向运动
+				if (dot > 0) { // dx/dy 从子弹指向玩家；正点积才是迎面飞来
 					const pushForce = Math.pow((bulletAvoidR - d) / bulletAvoidR, 2) * 10.0;
 					// 往子弹飞行方向的垂直方向闪避
 					const cross = dx * bvy - dy * bvx;
@@ -1450,6 +1450,21 @@ class Game {
 					forceX += (bvy / bMag) * escDir * pushForce;
 					forceY += (-bvx / bMag) * escDir * pushForce;
 				}
+			}
+		}
+
+		// Ground warnings (mortar shells and death blasts) share the visible fuse.
+		// Resolve a zero-distance escape deterministically instead of normalizing 0.
+		for (const w of this.mortarWarnings || []) {
+			if (!w.active) continue;
+			const dx = p.x - w.x, dy = p.y - w.y;
+			const d = Math.sqrt(dx * dx + dy * dy);
+			const safeR = w.radius + p.radius + 45;
+			if (d < safeR) {
+				const push = 18 * (1 - d / safeR) + 6;
+				forceX += (d > 0 ? dx / d : 1) * push;
+				forceY += (d > 0 ? dy / d : 0) * push;
+				dangerCount += 6;
 			}
 		}
 

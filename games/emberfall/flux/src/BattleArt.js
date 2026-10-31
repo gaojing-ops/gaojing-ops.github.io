@@ -80,7 +80,7 @@ function drawHostileProjectiles(c,group,color){
  c.beginPath();for(const b of group){const r=b.radius,k=r*Math.SQRT1_2;c.moveTo(b.x,b.y-r);c.lineTo(b.x+k,b.y-k);c.lineTo(b.x+r,b.y);c.lineTo(b.x+k,b.y+k);c.lineTo(b.x,b.y+r);c.lineTo(b.x-k,b.y+k);c.lineTo(b.x-r,b.y);c.lineTo(b.x-k,b.y-k);c.closePath();}c.fill();c.stroke();
  c.fillStyle=BONE;c.beginPath();for(const b of group){const r=Math.min(2,b.radius*.38);c.moveTo(b.x,b.y-r);c.lineTo(b.x+r,b.y);c.lineTo(b.x,b.y+r);c.lineTo(b.x-r,b.y);c.closePath();}c.fill();c.restore();
 }
-function drawMortarWarnings(c,warnings,time){for(const w of warnings||[])if(w.active)circleWarning(c,w.x,w.y,w.radius,time,1-w.timer/1.5);}
+function drawMortarWarnings(c,warnings,time){for(const w of warnings||[])if(w.active)circleWarning(c,w.x,w.y,w.radius,time,1-w.timer/(w.duration||1.5));}
 function drawPulse(c,p,time){if(!p)return;c.save();c.globalAlpha*=p.a;F.drawArea(c,p.x,p.y,p.r,p.color,time);const color=F.pigment(p.color).light;for(let i=0;i<8;i++){const a=i*TAU/8;diamond(c,p.x+Math.cos(a)*p.r*.72,p.y+Math.sin(a)*p.r*.72,Math.min(7,p.r*.08),color);}c.restore();}
 function drawPlayerActor(c,p,heroDraw=F.drawHero){
  const time=p.game.time||0,aura=p.game.meta?.data.selectedAura;c.save();

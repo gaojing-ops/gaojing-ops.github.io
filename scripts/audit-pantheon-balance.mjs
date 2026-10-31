@@ -31,6 +31,9 @@ try{
   g.startWithCharacter(hero,[]);g._tutorialStep=-1;g.autoPlay=g.autoUpgrade=true;sm.switchTo('playing');
   const checkpoints=[],bosses=new Map(),boonChoices=[],originalGrant=g.pantheon.grant.bind(g.pantheon);
   g.pantheon.grant=option=>{const result=originalGrant(option);if(result)boonChoices.push({time:+g.time.toFixed(2),level:g.player.level,id:option.id,rank:option.rank});return result;};
+  const incoming={},impacts=[],growth=[],takeDamage=g.player.takeDamage.bind(g.player),gainXp=g.player.gainXp.bind(g.player);
+  g.player.takeDamage=(amount,source,continuous)=>{const before=g.player.hp,result=takeDamage(amount,source,continuous),lost=Math.max(0,before-g.player.hp);if(lost){if(!continuous&&impacts.length<100)impacts.push({time:+g.time.toFixed(3),amount:+lost.toFixed(2),caller:new Error().stack.split('\n')[2]?.trim().replace(/ \(.*/, '')});const key=source?.type||source?.name||(continuous?'terrain':'projectile-or-boss-skill');incoming[key]=(incoming[key]||0)+lost;}return result;};
+  g.player.gainXp=amount=>{const level=g.player.level;const result=gainXp(amount);if(g.player.level!==level&&g.player.level<=20)growth.push({time:+g.time.toFixed(2),level:g.player.level});return result;};
   let frames=0,peak=0,minHp=1,rewards=0,next=60;
   const snap=()=>({time:Math.round(g.time),level:g.player.level,kills:g.player.kills,hp:+Math.max(0,g.player.hp).toFixed(1),maxHp:g.player.maxHp,might:+g.player.might.toFixed(3),bonusMight:g.player.bonusMight,armor:g.player.armor,area:+g.player.area.toFixed(2),heal:+g.player.totalHealed.toFixed(1),damage:Math.round(g.player.totalDamage),skillUses:g.skillUseCount||0,divine:JSON.parse(JSON.stringify(g.pantheon.metrics)),boons:{...g.pantheon.ranks},weapons:g.player.weapons.map(w=>({id:w.id,level:w.level,evolved:w.evolved}))});
   while(!g._runSettled&&g.player.hp>0&&g.time<seconds){
@@ -45,7 +48,7 @@ try{
    if(frames%900===0)g.draw();
    assert.ok(frames<seconds/step+500,'simulation stalled');
   }
-  const row={hero,patron,seed:originalSeed,dt:step,width:g.width,time:+g.time.toFixed(2),victory:!!sm.scenes.gameOver.data?.victory,dead:g.player.hp<=0,scene:sm.currentSceneName,chapter:(g.stageSystem?.currentStage||0)+1,...snap(),minHp:+minHp.toFixed(3),peak,rewards,boonChoices,bySource:g._weaponDamageStats,divine:g.pantheon.metrics||{},bosses:[...bosses.values()].map(b=>({...b,seconds:b.end===undefined?null:+(b.end-b.start).toFixed(2)})),checkpoints};
+  const row={hero,patron,seed:originalSeed,dt:step,width:g.width,time:+g.time.toFixed(2),victory:!!sm.scenes.gameOver.data?.victory,dead:g.player.hp<=0,scene:sm.currentSceneName,chapter:(g.stageSystem?.currentStage||0)+1,...snap(),minHp:+minHp.toFixed(3),peak,rewards,boonChoices,incoming,impacts,growth,bySource:g._weaponDamageStats,divine:g.pantheon.metrics||{},bosses:[...bosses.values()].map(b=>({...b,seconds:b.end===undefined?null:+(b.end-b.start).toFixed(2)})),checkpoints};
   rows.push(row);console.log(JSON.stringify({hero,patron,seed:originalSeed,time:row.time,victory:row.victory,kills:row.kills,level:row.level,boons:boonChoices.length,bosses:row.bosses.length,minHp:row.minHp}));
   if(flags.out)writeFileSync(flags.out,JSON.stringify({method:'engine simulation, '+(campProfile?'recorded camp upgrade profile':'starter stats')+(talentProfile?' and recorded talents':'')+', normal helpers, no forced in-run rewards or invulnerability',campProfile,talentProfile,seconds,rows},null,2));
  }
