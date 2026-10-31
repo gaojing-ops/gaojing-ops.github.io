@@ -93,7 +93,7 @@
    - **75 连杀冲击波与炸弹拾取改为局部震退破围**：`ComboSystem._screenClear` 与 `Pickup` 炸弹不再无上限秒杀视野内全部小怪，改为强力震退周围 `220～250px` 怪群并仅击破贴身内圈最多 12～16 只怪，外圈怪物仅压血并击退，避免一帧杀光百怪并连续弹出 5 次升级框。
    - **命运神龛「大吉 / 大凶」范围收敛**：`DestinyShrine._eventGood` 由秒杀全图所有小怪改为仅净化神龛周围 `210px` 内最多 12 只普通怪并掉落宝箱与晶石；`_eventBad` 由全图怪物移速翻倍改为强化周围 `320px` 内敌人并召唤 8 只精英守卫。
    - **经验球平滑磁吸**：75 连杀、磁铁道具与 `magnet_pull` 随机事件统一改为设置 `g.magnetized = true`，让经验球以高速平滑飞向玩家，不再直接瞬移坐标。
-   - **消除镜头突兀瞬移**：地图 `teleporter`（裂隙法阵）由随机瞬移玩家 `200～400px` 改为赋予短暂相位无敌与疾行并震退贴身怪物；暗影刺客主动技能「影袭」索敌半径限制在视野内 `320px`，避免镜头跳变导致原屏幕怪物瞬间消失。
+   - **消除镜头突兀瞬移**：地图 `teleporter`（裂隙法阵）由随机瞬移玩家 `200～400px` 改为赋予短暂相位无敌与疾行并震退贴身怪物；暗影刺客主动技能「影袭」索敌半径限制在视野内 `400 * p.area`（支持索敌首领）并赋予 `0.8s` 落地无敌帧，避免镜头跳变导致原屏幕怪物瞬间消失或瞬移暴毙。
 
 4. **修正随机事件无效怪名与移速 `NaN` 防护（`EventSystem.js`、`Player.js`）**
    - 修复 `EventSystem.js` 中 `elite_challenge`、`monster_nest`、`boss_vanguard`、`void_hunt` 引用不存在的怪名（`OrcWarrior`、`CrystalGolem`、`Zombie`、`PoisonCrawler`、`EliteKnight`、`VoidHunter`）导致全部静默退化为小蝙蝠（`Bat`）的 Bug，替换为真实存在的精锐与巢穴怪种。
@@ -102,9 +102,14 @@
 5. **UI 与战斗 HUD 精修（`flux.css`、`flux/folio.css`、`flux/theme.mjs`）**
    - 营地首页、手札弹窗与战斗 HUD 升级为鎏金羊皮纸标题、双层古铜线框、玻璃拟态暗夜石板、玉石经验条、红宝石血条与快捷状态胶囊，桌面与移动端布局自适应。
 
-6. **武器机制 Bug 修复与全角色/技能范围/刷怪/首领数值平衡（`Weapons.js`、`WeaponData.js`、`SkillSystem.js`、`SpawnSystem.js`、`Game.js`）**
+6. **武器机制 Bug 修复与全角色/技能范围/刷怪/首领数值平衡（`Weapons.js`、`WeaponData.js`、`SkillSystem.js`、`SynergySystem.js`、`SpawnSystem.js`、`Player.js`、`Game.js`）**
    - **修复全武器隐形辐射光环 Bug**：`Weapons.js` 中 `this._radTickTimer` 补回 `if (this.id === 'radiation_field')` 守卫，消除所有武器无条件自带隐形近战辐射圈的漏洞，并为 `radiation_field` 本身赋予微减速与进化黑洞牵引吸血效果。
    - **拉平 9 名角色初始武器开局强度**：优化 `flux_bolt`（双发+基础穿透）、`soul_drain`（多重锁定吸血+灵魂溅射）、`shadow_clone`（环绕近身斩击+高频穿透飞镖）、`plasma_arc`、`ice_shard`、`chain_spark`、`toxin_spray` 的前期弹道数、穿透与冷却节奏，使全部 9 名角色在非无敌实战模拟中均能稳定清怪升级。
-   - **角色主动技能与区域武器范围适配宽屏 & 修复漏乘 `p.area`**：修复 `pulse_ring`、`chain_drill`、`nano_swarm`、`shadow_clone`、`soul_drain` 漏乘玩家范围属性 `p.area` 的问题；将原竖屏窄画布下过低的地面池/光环硬上限（`napalm`、`acid_pool`、`holy_water`、`gravity_cannon`、`glacial_nova`、`radiation_field`、`phase_blade`）整体上调并补齐超武进化面积倍率；主动技能 `cryomancer`（冰封风暴）、`biohazard`（病毒风暴）、`engineer`（紧急部署炮台射程）、`assassin`（影袭索敌与落点 AOE 爆发）同步接入 `p.area` 与 Boss 判定。
+   - **全技能、全武器、融合超武与元素协同范围适配宽屏 & 统一接入 `p.area`**：
+     - 修复 `pulse_ring`、`chain_drill`、`nano_swarm`、`shadow_clone`、`soul_drain` 漏乘玩家范围属性 `p.area` 的问题。
+     - 将原竖屏窄画布下过低的地面池/光环硬上限（`napalm`、`acid_pool`、`holy_water`、`gravity_cannon`、`glacial_nova`、`radiation_field`、`phase_blade`）整体上调并补齐超武进化面积倍率。
+     - 为全部 6 把融合超武（`fusion_orbital_cannon`、`fusion_absolute_zero`、`fusion_singularity`、`fusion_meat_grinder`、`fusion_cryo_toxic`、`fusion_doom_storm`）及全部投射物武器（`flux_bolt`、`chain_spark`、`plasma_arc`、`rocket_swarm`、`ice_shard`、`frozen_orb`、`toxin_spray`、`boomerang`、`venom_sting`）的弹体碰撞半径接入 `p.area` 加成。
+     - 主动技能 `cryomancer`（冰封风暴）、`biohazard`（病毒风暴）、`engineer`（紧急部署炮台射程）、`assassin`（影袭索敌与 `165 * p.area` 落点 AOE 爆发）同步接入 `p.area` 与首领判定。
+     - 元素协同（`SynergySystem.js` 蒸发爆炸、碎裂闪电链、毒链传染、冻结毒爆）与遗物「反物质引擎」半径全部接入 `p.area` 加成；玩家基础拾取半径 `Player.pickup` 上调 `25%` 适配宽屏视野。
    - **刷怪定位分层加权与重装怪同屏上限**：`SpawnSystem.js` 按潮怪、中甲机制怪、巨型重装怪分层设定权重；前 60 秒提高脆皮潮怪比重保障前期割草爽感，巨型重装怪（`RoyalSlime`、`PlagueSource`、`FrostTitan`、`IronGolem`）设为低权重精英、限制同屏最多 4 只并上调 2.2 倍经验回报。
    - **首领登场节奏优化**：`Game.js` 首只 Boss 计时 `bossTimer` 由 `60s` 调整为 `90s`，后续基础间隔调整为 `75s`，给玩家留出充足的前期构筑成型时间。
