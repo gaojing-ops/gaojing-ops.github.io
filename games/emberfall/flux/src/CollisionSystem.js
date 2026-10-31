@@ -72,20 +72,6 @@ function installCollisionSystem(Game) {
 						this.synergy.processSynergy(e, b, b.damage);
 					}
 
-					// Apply status effects from bullet
-					if (b.freezeChance && Math.random() < b.freezeChance) {
-						e.frozen = Math.max(e.frozen || 0, b.freezeDur || 1);
-						this.totalFreezeApplies++;
-					}
-					if (b.slowAmount && b.slowAmount < 1) {
-						e.slowed = 2;
-						e.slowAmount = b.slowAmount;
-					}
-					if (b.poisonChance && Math.random() < b.poisonChance) {
-						e.poisoned = 3;
-						e.poisonStacks += b.poisonStacks || 1;
-						this.totalPoisonApplies++;
-					}
 
 					b.onHit();
 					if (!b.active) break;
@@ -177,9 +163,14 @@ function installCollisionSystem(Game) {
 			const rSumEb = pr + eb.radius;
 			if (dx * dx + dy * dy < rSumEb * rSumEb) {
 				if (this.playerInvincible > 0) { eb.active = false; continue; }
-				p.takeDamage(eb.damage);
+				const hit = p.takeDamage(eb.damage);
 				if (this._runSettled) return;
-				if (this.eventSystem) this.eventSystem.onPlayerHit();
+				if (hit) {
+					// A volley must leave a reaction window instead of stacking
+					// multiple projectile hits on a fragile watcher in one frame.
+					this.playerInvincible = Math.max(this.playerInvincible || 0, 0.2);
+					if (this.eventSystem) this.eventSystem.onPlayerHit();
+				}
 				eb.active = false;
 			}
 		}

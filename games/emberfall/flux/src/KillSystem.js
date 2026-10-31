@@ -108,7 +108,7 @@ function installKillSystem(Game) {
 				if (!this.player.relics) this.player.relics = [];
 				if (this.player.relics.length < 3) {
 					const { grantRelic, getRandomRelics } = require('./Relic');
-					const relics = getRandomRelics(this.player, 1);
+					const relics = getRandomRelics(this.player, 1, { automatic: true });
 					if (relics.length > 0) {
 						grantRelic(this.player, relics[0]);
 						this.spawnDamageNumber(this.player.x, this.player.y - 60, '★ 虚空契约: ' + relics[0].name, '#ff4444');

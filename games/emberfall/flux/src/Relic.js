@@ -21,6 +21,7 @@ const RELIC_DEFS = [
     },
     {
         id: 'overload_core',
+        requiresChoice: true,
         name: '过载核心',
         desc: '伤害 ×2，无法回血',
         rarity: 'red',
@@ -81,6 +82,7 @@ const RELIC_DEFS = [
     },
     {
         id: 'greed_protocol',
+        requiresChoice: true,
         name: '贪婪协议',
         desc: '芯片掉落 ×2，最大 HP -30%',
         rarity: 'gold',
@@ -297,9 +299,9 @@ function checkRelicSynergies(player) {
 /**
  * 从遗物池中随机取 n 个
  */
-function getRandomRelics(player, n = 1) {
+function getRandomRelics(player, n = 1, { automatic = false } = {}) {
     const owned = player.relics || [];
-    const available = RELIC_DEFS.filter(r => !owned.find(o => o.id === r.id));
+    const available = RELIC_DEFS.filter(r => !owned.find(o => o.id === r.id) && (!automatic || !r.requiresChoice));
     const result = [];
     const pool = [...available];
     for (let i = 0; i < n && pool.length > 0; i++) {

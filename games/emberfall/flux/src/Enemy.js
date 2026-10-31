@@ -1041,6 +1041,24 @@ class Enemy {
             this.game.spawnDamageNumber(this.x, this.y - this.radius, Math.ceil(amount), '#ffcc00');
         }
 
+        // Resolve the hit's statuses before death callbacks. A lethal first
+        // poison/frost hit must still count for traits and fusion trials, while
+        // damage multipliers above continue to use the pre-hit status.
+        if (bullet) {
+            if (bullet.freezeChance && Math.random() < bullet.freezeChance) {
+                this.frozen = Math.max(this.frozen || 0, bullet.freezeDur || 1);
+                this.game.totalFreezeApplies++;
+            }
+            if (bullet.slowAmount && bullet.slowAmount < 1) {
+                this.slowed = 2;
+                this.slowAmount = bullet.slowAmount;
+            }
+            if (bullet.poisonChance && Math.random() < bullet.poisonChance) {
+                this.poisoned = 3;
+                this.poisonStacks = Math.min(50, this.poisonStacks + (bullet.poisonStacks || 1));
+                this.game.totalPoisonApplies++;
+            }
+        }
         if (this.hp <= 0) {
             this.die();
         }
