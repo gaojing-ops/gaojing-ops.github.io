@@ -702,7 +702,7 @@ function drawHostileProjectiles(c,group,color){
  c.beginPath();for(const b of group){const r=b.radius,k=r*Math.SQRT1_2;c.moveTo(b.x,b.y-r);c.lineTo(b.x+k,b.y-k);c.lineTo(b.x+r,b.y);c.lineTo(b.x+k,b.y+k);c.lineTo(b.x,b.y+r);c.lineTo(b.x-k,b.y+k);c.lineTo(b.x-r,b.y);c.lineTo(b.x-k,b.y-k);c.closePath();}c.fill();c.stroke();
  c.fillStyle=BONE;c.beginPath();for(const b of group){const r=Math.min(2,b.radius*.38);c.moveTo(b.x,b.y-r);c.lineTo(b.x+r,b.y);c.lineTo(b.x,b.y+r);c.lineTo(b.x-r,b.y);c.closePath();}c.fill();c.restore();
 }
-function drawMortarWarnings(c,warnings,time){for(const w of warnings||[])if(w.active)circleWarning(c,w.x,w.y,w.radius,time,1-w.timer/1.5);}
+function drawMortarWarnings(c,warnings,time){for(const w of warnings||[])if(w.active)circleWarning(c,w.x,w.y,w.radius,time,1-w.timer/(w.duration||1.5));}
 function drawPulse(c,p,time){if(!p)return;c.save();c.globalAlpha*=p.a;F.drawArea(c,p.x,p.y,p.r,p.color,time);const color=F.pigment(p.color).light;for(let i=0;i<8;i++){const a=i*TAU/8;diamond(c,p.x+Math.cos(a)*p.r*.72,p.y+Math.sin(a)*p.r*.72,Math.min(7,p.r*.08),color);}c.restore();}
 function drawPlayerActor(c,p,heroDraw=F.drawHero){
  const time=p.game.time||0,aura=p.game.meta?.data.selectedAura;c.save();
@@ -6313,22 +6313,15 @@ class Enemy {
         }
 
         // ═══ 新死亡效果 ═══
-        if (this.deathEffect === 'explosion') {
-            // Bomber: 爆炸伤害周围敌人和玩家
-            const radius = 100;
-            const radiusSq = radius * radius;
-            // 伤害玩家
-            const pdx = p.x - this.x;
-            const pdy = p.y - this.y;
-            if (pdx * pdx + pdy * pdy < radiusSq) {
-                p.takeDamage(this.damage);
-            }
-            // 视觉
-            if (this.game.particles) {
-                this.game.particles.emit(this.x, this.y, { count: 30, speed: 200, life: 0.5, color: '#ff6600', size: 6 });
-            }
-            this.game.shakeAmount = Math.max(this.game.shakeAmount, 2);
-            this.game.shakeDuration = 0.2;
+        // Leave a readable fuse after death instead of punishing a point-blank kill instantly.
+        // Copy values: the corpse can return to the enemy pool before the blast resolves.
+        if (this.deathEffect === 'explosion' || this.explosiveAffix) {
+            const radius = Math.max(this.deathEffect === 'explosion' ? 100 : 0, this.explosionRadius || 0);
+            const damage = (this.deathEffect === 'explosion' ? this.damage : 0) + (this.explosiveAffix ? this.explosionDamage : 0);
+            this.game.mortarWarnings = this.game.mortarWarnings || [];
+            this.game.mortarWarnings.push({ x: this.x, y: this.y, radius, damage,
+                timer: 0.85, duration: 0.85, active: true, color: '#edb674', source: 'death_blast' });
+            this.game.spawnDamageNumber(this.x, this.y - 30, '余爆将至', '#edb674');
         }
 
         if (this.deathEffect === 'miniPoison') {
@@ -6401,25 +6394,6 @@ class Enemy {
                 child.affix = null; // 防止子体继续分裂
                 this.game.enemies.push(child);
             }
-        }
-
-        // 自爆词缀
-        if (this.explosiveAffix) {
-            const radiusSq = this.explosionRadius * this.explosionRadius;
-            // 伤害玩家
-            const pdx = p.x - this.x;
-            const pdy = p.y - this.y;
-            if (pdx * pdx + pdy * pdy < radiusSq) {
-                p.takeDamage(this.explosionDamage);
-            }
-            // 视觉
-            if (this.game.particles) {
-                this.game.particles.emit(this.x, this.y, { count: 40, speed: 250, life: 0.6, color: '#ff6600', size: 8 });
-            }
-            this.game.radiationPulse = { x: this.x, y: this.y, r: this.explosionRadius, a: 0.8, color: '#ff4400' };
-            this.game.shakeAmount = Math.max(this.game.shakeAmount, 2);
-            this.game.shakeDuration = 0.3;
-            this.game.spawnDamageNumber(this.x, this.y - 30, '💥 自爆!', '#ff6600');
         }
 
         this.game.onEnemyKilled(this);
@@ -7140,6 +7114,13 @@ const EVENT_DEFS = [
 // ─── 事件分类权重 ───
 const CATEGORY_WEIGHTS = { positive: 0.60, challenge: 0.30, negative: 0.10 };
 
+// Events must not skip the opening's enemy/tutorial progression.
+const EVENT_START = {
+	monster_nest: 90, survival_test: 90,
+	time_rift: 240, density_surge: 240,
+	elite_challenge: 360, boss_vanguard: 480,
+};
+
 // 预计算分类池，避免每次触发事件时重新过滤
 const _EVENT_POOLS = {};
 for (const e of EVENT_DEFS) {
@@ -7343,7 +7324,9 @@ class EventSystem {
 			category = 'negative';
 		}
 
-		const pool = _EVENT_POOLS[category] || [];
+		const eligible = event => this.game.time >= (EVENT_START[event.id] ?? (event.category === 'negative' ? 480 : 0));
+		let pool = (_EVENT_POOLS[category] || []).filter(eligible);
+		if (!pool.length) { category = 'positive'; pool = _EVENT_POOLS.positive; }
 		if (pool.length === 0) return;
 
 		const event = pool[Math.floor(Math.random() * pool.length)];
@@ -9678,7 +9661,7 @@ class Game {
 				// 判断子弹是否朝我飞来（点积检测）
 				const bvx = eb.vx || 0, bvy = eb.vy || 0;
 				const dot = dx * bvx + dy * bvy;
-				if (dot < 0) { // 子弹朝我方向运动
+				if (dot > 0) { // dx/dy 从子弹指向玩家；正点积才是迎面飞来
 					const pushForce = Math.pow((bulletAvoidR - d) / bulletAvoidR, 2) * 10.0;
 					// 往子弹飞行方向的垂直方向闪避
 					const cross = dx * bvy - dy * bvx;
@@ -9687,6 +9670,21 @@ class Game {
 					forceX += (bvy / bMag) * escDir * pushForce;
 					forceY += (-bvx / bMag) * escDir * pushForce;
 				}
+			}
+		}
+
+		// Ground warnings (mortar shells and death blasts) share the visible fuse.
+		// Resolve a zero-distance escape deterministically instead of normalizing 0.
+		for (const w of this.mortarWarnings || []) {
+			if (!w.active) continue;
+			const dx = p.x - w.x, dy = p.y - w.y;
+			const d = Math.sqrt(dx * dx + dy * dy);
+			const safeR = w.radius + p.radius + 45;
+			if (d < safeR) {
+				const push = 18 * (1 - d / safeR) + 6;
+				forceX += (d > 0 ? dx / d : 1) * push;
+				forceY += (d > 0 ? dy / d : 0) * push;
+				dangerCount += 6;
 			}
 		}
 
@@ -21983,7 +21981,7 @@ function installSpawnSystem(Game) {
 
 		// ─── 核心生成池 (覆盖全 33 种常规/精英机制怪，随时间平滑解锁) ───
 		let pool = [];
-		if (t > 240) { // 4分钟+：全图鉴满编（含巨型母体、霜岩巨人、瘟疫母巢、铸铁魔像）
+		if (t > 480) { // 第三章起全图鉴满编；先留出两章构筑时间
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
@@ -21991,30 +21989,30 @@ function installSpawnSystem(Game) {
 				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech',
 				'FrostTitan', 'PlagueSource', 'IronGolem', 'RoyalSlime'
 			];
-		} else if (t > 150) { // 2.5～4分钟
+		} else if (t > 360) { // 第二章后半：重装与密集弹幕
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
 				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech', 'IronGolem', 'FrostTitan'
 			];
-		} else if (t > 90) { // 1.5～2.5分钟
+		} else if (t > 240) { // 第二章：冲锋、支援与刺客
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech'
 			];
-		} else if (t > 45) { // 45～90秒
+		} else if (t > 120) { // 第一章后半：首次引入远程与盾卫
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'SwarmDrone', 'Hornet', 'Crawler', 'ToxicBlob',
 				'SlimeGlob', 'FrostWisp', 'DataWorm', 'Turret', 'Splitter', 'WarpMite', 'LaserDrone', 'Bomber', 'ShieldBearer', 'Phantom'
 			];
-		} else if (t > 18) { // 18～45秒
+		} else if (t > 45) { // 45～120秒：先学习追猎、群怪和地面威胁
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly', 'SwarmDrone',
-				'Crawler', 'ToxicBlob', 'SlimeGlob', 'FrostWisp', 'Splitter', 'DataWorm', 'Turret'
+				'Crawler', 'ToxicBlob', 'SlimeGlob', 'FrostWisp', 'Splitter', 'DataWorm'
 			];
-		} else { // 0～18秒：开局即有 5 种不同形态与移速的林间怪物组合
+		} else { // 0～45秒：五种林间追猎者，留出首次武器成长窗口
 			pool = ['Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly'];
 		}
 
@@ -22101,8 +22099,6 @@ function installSpawnSystem(Game) {
 			const existing = weightedPool.find(x => x.type === bw.type);
 			if (existing) {
 				existing.weight += bw.weight;
-			} else if (t > 30) {
-				weightedPool.push({ type: bw.type, weight: bw.weight * 0.55 });
 			}
 		}
 
@@ -22170,7 +22166,9 @@ function installSpawnSystem(Game) {
 				enemy.applyEliteAffixes(affixes);
 			}
 		} else if (type !== 'SwarmDrone' && type !== 'Hornet' && type !== 'FireFly' && type !== 'MiniSpider' && type !== 'ToxicBlob') {
-			const baseEliteChance = Math.min(0.20, 0.04 + this.time / 5000);
+			// First boss at 90s introduces pressure before random affixes ramp in.
+			const eliteRamp = Math.max(0, Math.min(1, (t - 90) / 150));
+			const baseEliteChance = Math.min(0.20, 0.04 + t / 5000) * eliteRamp;
 			if (Math.random() < baseEliteChance) {
 				const affixes = this._rollEnemyAffixes(1);
 				enemy.applyEliteAffixes(affixes);
@@ -23862,10 +23860,23 @@ class UpgradeSystem {
 		// 遗物：量子骰子 — 升级选项变为 5 选 1
 		const pickCount = (p.relicFlags && p.relicFlags.quantumDice) ? 5 : 3;
 		const selected = this._weightedPick(pool, pickCount);
+		// Opening offers must let a new watcher strengthen a carried weapon.
+		// Reserve an option, not a reward; choosing another path remains possible.
+		if (p.level <= 12 && !selected.some(o => o.type === 'weapon_up')) {
+			const carried = this._weightedPick(pool.filter(o => o.type === 'weapon_up'), 1)[0];
+			if (carried) selected.splice(0, 1, carried);
+		}
 		// 返回可选择的选项和预览选项
 		if (p.level % 3 === 0 && this.game.pantheon) {
 			const boon = this.game.pantheon.offer(this.banishList);
-			if (boon) { if (selected.length >= 5) selected.pop(); selected.push(boon); }
+			if (boon) {
+				if (selected.length >= 5) {
+					let drop = selected.length - 1;
+					while (drop > 0 && selected[drop].type === 'weapon_up') drop--;
+					selected.splice(drop, 1);
+				}
+				selected.push(boon);
+			}
 		}
 		return { options: selected, previews };
 	}

@@ -65,7 +65,7 @@ function installSpawnSystem(Game) {
 
 		// ─── 核心生成池 (覆盖全 33 种常规/精英机制怪，随时间平滑解锁) ───
 		let pool = [];
-		if (t > 240) { // 4分钟+：全图鉴满编（含巨型母体、霜岩巨人、瘟疫母巢、铸铁魔像）
+		if (t > 480) { // 第三章起全图鉴满编；先留出两章构筑时间
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
@@ -73,30 +73,30 @@ function installSpawnSystem(Game) {
 				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech',
 				'FrostTitan', 'PlagueSource', 'IronGolem', 'RoyalSlime'
 			];
-		} else if (t > 150) { // 2.5～4分钟
+		} else if (t > 360) { // 第二章后半：重装与密集弹幕
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'FireFly', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'MortarDrone', 'ChainGunner',
 				'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech', 'IronGolem', 'FrostTitan'
 			];
-		} else if (t > 90) { // 1.5～2.5分钟
+		} else if (t > 240) { // 第二章：冲锋、支援与刺客
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'DataWorm', 'SwarmDrone', 'Hornet', 'Crawler', 'WarpMite', 'ToxicBlob',
 				'FrostWisp', 'SlimeGlob', 'CyberSpider', 'Splitter', 'Bomber', 'Phantom', 'GlitchEntity', 'Assassin',
 				'Turret', 'LaserDrone', 'ScatterGun', 'SpiralCaster', 'ShieldBearer', 'Charger', 'Healer', 'ShieldPriest', 'VoidLeech'
 			];
-		} else if (t > 45) { // 45～90秒
+		} else if (t > 120) { // 第一章后半：首次引入远程与盾卫
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'SwarmDrone', 'Hornet', 'Crawler', 'ToxicBlob',
 				'SlimeGlob', 'FrostWisp', 'DataWorm', 'Turret', 'Splitter', 'WarpMite', 'LaserDrone', 'Bomber', 'ShieldBearer', 'Phantom'
 			];
-		} else if (t > 18) { // 18～45秒
+		} else if (t > 45) { // 45～120秒：先学习追猎、群怪和地面威胁
 			pool = [
 				'Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly', 'SwarmDrone',
-				'Crawler', 'ToxicBlob', 'SlimeGlob', 'FrostWisp', 'Splitter', 'DataWorm', 'Turret'
+				'Crawler', 'ToxicBlob', 'SlimeGlob', 'FrostWisp', 'Splitter', 'DataWorm'
 			];
-		} else { // 0～18秒：开局即有 5 种不同形态与移速的林间怪物组合
+		} else { // 0～45秒：五种林间追猎者，留出首次武器成长窗口
 			pool = ['Bat', 'Skeleton', 'Ghost', 'CyberSpider', 'FireFly'];
 		}
 
@@ -183,8 +183,6 @@ function installSpawnSystem(Game) {
 			const existing = weightedPool.find(x => x.type === bw.type);
 			if (existing) {
 				existing.weight += bw.weight;
-			} else if (t > 30) {
-				weightedPool.push({ type: bw.type, weight: bw.weight * 0.55 });
 			}
 		}
 
@@ -252,7 +250,9 @@ function installSpawnSystem(Game) {
 				enemy.applyEliteAffixes(affixes);
 			}
 		} else if (type !== 'SwarmDrone' && type !== 'Hornet' && type !== 'FireFly' && type !== 'MiniSpider' && type !== 'ToxicBlob') {
-			const baseEliteChance = Math.min(0.20, 0.04 + this.time / 5000);
+			// First boss at 90s introduces pressure before random affixes ramp in.
+			const eliteRamp = Math.max(0, Math.min(1, (t - 90) / 150));
+			const baseEliteChance = Math.min(0.20, 0.04 + t / 5000) * eliteRamp;
 			if (Math.random() < baseEliteChance) {
 				const affixes = this._rollEnemyAffixes(1);
 				enemy.applyEliteAffixes(affixes);

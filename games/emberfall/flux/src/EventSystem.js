@@ -325,6 +325,13 @@ const EVENT_DEFS = [
 // ─── 事件分类权重 ───
 const CATEGORY_WEIGHTS = { positive: 0.60, challenge: 0.30, negative: 0.10 };
 
+// Events must not skip the opening's enemy/tutorial progression.
+const EVENT_START = {
+	monster_nest: 90, survival_test: 90,
+	time_rift: 240, density_surge: 240,
+	elite_challenge: 360, boss_vanguard: 480,
+};
+
 // 预计算分类池，避免每次触发事件时重新过滤
 const _EVENT_POOLS = {};
 for (const e of EVENT_DEFS) {
@@ -528,7 +535,9 @@ class EventSystem {
 			category = 'negative';
 		}
 
-		const pool = _EVENT_POOLS[category] || [];
+		const eligible = event => this.game.time >= (EVENT_START[event.id] ?? (event.category === 'negative' ? 480 : 0));
+		let pool = (_EVENT_POOLS[category] || []).filter(eligible);
+		if (!pool.length) { category = 'positive'; pool = _EVENT_POOLS.positive; }
 		if (pool.length === 0) return;
 
 		const event = pool[Math.floor(Math.random() * pool.length)];

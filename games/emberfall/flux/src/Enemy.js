@@ -1101,22 +1101,15 @@ class Enemy {
         }
 
         // ═══ 新死亡效果 ═══
-        if (this.deathEffect === 'explosion') {
-            // Bomber: 爆炸伤害周围敌人和玩家
-            const radius = 100;
-            const radiusSq = radius * radius;
-            // 伤害玩家
-            const pdx = p.x - this.x;
-            const pdy = p.y - this.y;
-            if (pdx * pdx + pdy * pdy < radiusSq) {
-                p.takeDamage(this.damage);
-            }
-            // 视觉
-            if (this.game.particles) {
-                this.game.particles.emit(this.x, this.y, { count: 30, speed: 200, life: 0.5, color: '#ff6600', size: 6 });
-            }
-            this.game.shakeAmount = Math.max(this.game.shakeAmount, 2);
-            this.game.shakeDuration = 0.2;
+        // Leave a readable fuse after death instead of punishing a point-blank kill instantly.
+        // Copy values: the corpse can return to the enemy pool before the blast resolves.
+        if (this.deathEffect === 'explosion' || this.explosiveAffix) {
+            const radius = Math.max(this.deathEffect === 'explosion' ? 100 : 0, this.explosionRadius || 0);
+            const damage = (this.deathEffect === 'explosion' ? this.damage : 0) + (this.explosiveAffix ? this.explosionDamage : 0);
+            this.game.mortarWarnings = this.game.mortarWarnings || [];
+            this.game.mortarWarnings.push({ x: this.x, y: this.y, radius, damage,
+                timer: 0.85, duration: 0.85, active: true, color: '#edb674', source: 'death_blast' });
+            this.game.spawnDamageNumber(this.x, this.y - 30, '余爆将至', '#edb674');
         }
 
         if (this.deathEffect === 'miniPoison') {
@@ -1189,25 +1182,6 @@ class Enemy {
                 child.affix = null; // 防止子体继续分裂
                 this.game.enemies.push(child);
             }
-        }
-
-        // 自爆词缀
-        if (this.explosiveAffix) {
-            const radiusSq = this.explosionRadius * this.explosionRadius;
-            // 伤害玩家
-            const pdx = p.x - this.x;
-            const pdy = p.y - this.y;
-            if (pdx * pdx + pdy * pdy < radiusSq) {
-                p.takeDamage(this.explosionDamage);
-            }
-            // 视觉
-            if (this.game.particles) {
-                this.game.particles.emit(this.x, this.y, { count: 40, speed: 250, life: 0.6, color: '#ff6600', size: 8 });
-            }
-            this.game.radiationPulse = { x: this.x, y: this.y, r: this.explosionRadius, a: 0.8, color: '#ff4400' };
-            this.game.shakeAmount = Math.max(this.game.shakeAmount, 2);
-            this.game.shakeDuration = 0.3;
-            this.game.spawnDamageNumber(this.x, this.y - 30, '💥 自爆!', '#ff6600');
         }
 
         this.game.onEnemyKilled(this);
