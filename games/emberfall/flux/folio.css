@@ -98,3 +98,16 @@
 .web-folio[aria-label="远征结算"] .folio-stats dd{font-weight:600}
 .folio-loadout small{font-size:12px;color:#e3edcf}.folio-card small{font-size:11.5px}
 @media(max-width:620px){.web-folio[aria-label="选择强化"] .folio-card p{font-size:13.5px}.folio-header p{font-size:13px}.folio-watch p{font-size:12.5px}}
+
+/* Surviving gods: one portrait atlas, carved sigils, the camp's brass selection. */
+.god-art{display:block;flex:none;width:84px;height:84px;background-image:url('../assets/pantheon/eight-gods-v1.png');background-size:400% 200%;background-position:var(--god-x) var(--god-y);background-repeat:no-repeat;border:1px solid #b8ae7c;border-radius:4px;box-shadow:inset 0 0 18px #06140f66}
+.camp-pantheon{padding:28px 30px;border-top:1px solid #879e7b;background:linear-gradient(160deg,#183024,#11271f)}
+.pantheon-lore,.pantheon-rule{max-width:900px;color:#e7edda;font-size:14px;line-height:1.9;margin:10px 0 22px}.pantheon-rule{padding:16px 18px;border:1px solid #839c7b;border-radius:4px;margin:22px 0 0;background:#10241b}
+.god-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.god-card{display:flex;flex-direction:column;min-width:0;text-align:left;padding:0;overflow:hidden;border:1px solid #8da68e;border-radius:6px;background:#243e30;color:#eff4df;position:relative;box-shadow:0 4px 12px #0005}
+.god-card .god-art{width:100%;height:auto;aspect-ratio:1;border:0;border-bottom:1px solid #849a77;border-radius:0}
+.god-copy{display:flex;flex-direction:column;gap:7px;padding:16px;flex:1}.god-copy strong{font:600 25px/1.3 var(--font-serif);letter-spacing:3px;color:#ffe8ae}.god-copy small{color:#ecdfb3;letter-spacing:2px;font-size:12px}.god-copy>span{font-size:13px;line-height:1.8;color:#f2f5e8}.god-copy em{font-size:12px;line-height:1.8;font-style:normal;color:#dae5d2;border-top:1px solid #6d896d;padding-top:9px;margin-top:auto}
+.god-choice-mark{display:block;align-self:stretch;background:#13291e;color:#d6e2c8;font-size:12px;line-height:32px;text-align:center;visibility:hidden}.god-card[aria-pressed=true]{border-color:#ffe2a1;box-shadow:inset 0 0 0 2px #f9d58a,0 0 0 1px #f9d58a;background:#3f442b}.god-card[aria-pressed=true] .god-choice-mark{visibility:visible;background:#f3cf86;color:#1a2b1c;font-weight:700}.god-card:hover{border-color:#ffe2a1}.god-card:focus-visible{outline:3px solid #fff0bf;outline-offset:3px}
+.folio-card>.god-art{width:100%;height:auto;aspect-ratio:1}.folio-watch>.god-art{width:86px;height:86px}
+[data-view=upgrade] .folio-grid:has(>.folio-card:nth-child(4)){grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:900px){.god-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.camp-pantheon{padding:22px 14px}.god-grid{gap:10px}.god-copy{padding:12px;gap:6px}.god-copy strong{font-size:23px}.god-copy>span{font-size:12.5px}.god-copy em{display:none}.pantheon-lore,.pantheon-rule{font-size:13px}.folio-watch>.god-art{width:64px;height:64px}[data-view=upgrade] .folio-grid:has(>.folio-card:nth-child(4)){grid-template-columns:minmax(0,1fr)}}

@@ -457,9 +457,9 @@ module.exports.ACHIEVEMENT_DEFS = ACHIEVEMENT_DEFS;
 "src/Art.js":[function(require,module,exports){
 // Shared native art, matching the first courtyard. Gameplay IDs remain unchanged.
 const Facets=require('./FacetedArt');
-module.exports={...Facets,...require('./BattleArt'),HEROES:Object.keys(Facets.HEROES),MONSTERS:Object.keys(Facets.MONSTERS)};
+module.exports={...Facets,...require('./BattleArt'),...require('./NightMagic'),HEROES:Object.keys(Facets.HEROES),MONSTERS:Object.keys(Facets.MONSTERS)};
 
-},{"./FacetedArt":"src/FacetedArt.js","./BattleArt":"src/BattleArt.js"}],
+},{"./FacetedArt":"src/FacetedArt.js","./BattleArt":"src/BattleArt.js","./NightMagic":"src/NightMagic.js"}],
 "src/ArtLayout.js":[function(require,module,exports){
 // Generated sprite atlas coordinates; source images are preserved.
 module.exports = {"heroes":{"width":1254,"height":1254,"columns":3,"rows":3,"rects":[[0,23,418,375],[419,0,417,398],[837,31,399,365],[0,398,418,420],[418,398,418,420],[836,401,406,413],[17,818,401,436],[418,818,418,422],[836,825,404,429]],"alpha":[0,255],"bytes":2305417},"terrain":{"width":1536,"height":1024,"columns":3,"rows":2,"rects":[[0,0,512,512],[512,0,512,512],[1024,0,512,512],[0,512,512,512],[512,512,512,512],[1024,512,512,512]],"alpha":[255,255],"bytes":3600923},"monsters":{"width":1254,"height":1254,"columns":6,"rows":6,"rects":[[0,23,216,189],[216,17,213,195],[429,0,198,212],[627,17,210,195],[837,30,202,182],[1039,5,215,207],[0,212,216,200],[216,212,213,200],[429,212,198,200],[627,212,210,200],[837,212,202,200],[1039,212,201,200],[0,412,216,195],[216,412,213,195],[429,412,198,195],[627,412,210,195],[837,412,202,195],[1039,412,215,195],[0,607,216,208],[216,607,213,208],[429,607,198,208],[627,607,210,208],[837,607,202,208],[1039,607,201,208],[0,815,216,188],[216,815,213,188],[429,815,198,188],[627,815,210,188],[837,815,202,188],[1039,815,205,188],[0,1003,216,251],[216,1003,213,251],[429,1003,198,251],[627,1003,210,251],[837,1003,202,251],[1039,1003,215,251]],"alpha":[0,255],"bytes":2790439},"bosses":{"width":1983,"height":793,"columns":5,"rows":2,"rects":[[0,0,379,392],[379,0,405,392],[784,0,420,392],[1204,0,384,392],[1588,0,395,392],[0,392,379,401],[379,392,405,401],[784,392,420,401],[1204,392,384,401],[1588,392,395,401]],"alpha":[0,255],"bytes":3244105}};
@@ -8221,6 +8221,7 @@ module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawIcon,draw
 // 移除所有 DOM 操作，UI 交给 SceneManager + Canvas 场景
 
 const Input = require('./Input');
+const { Pantheon } = require('./Pantheon');
 const Player = require('./Player');
 const { Enemy } = require('./Enemy');
 const { Weapon } = require('./Weapons');
@@ -8689,6 +8690,7 @@ class Game {
 
 		// 初始化技能系统（在 characterId 设置后）
 		if (this.skillSystem) this.skillSystem.init();
+		this.pantheon = new Pantheon(this, this.selectedPatron);
 
 		// 绑定技能按钮 touchEnd 回调
 		if (this.input && this.skillSystem) {
@@ -8890,6 +8892,7 @@ class Game {
 			
 			// 优先级3：遗物是极其稀有的全局乘区加成，必选
 			if (!pick) pick = options.find(o => o.type === 'relic');
+			if (!pick) pick = options.find(o => o.type === 'blessing' && o.deity === this.pantheon?.patron);
 			
 			// 优先级4：有协同标签的选项（进化就绪/解锁进化），有极高收益
 			if (!pick) pick = options.find(o => o.synergy);
@@ -9069,6 +9072,7 @@ class Game {
 		this.lastTouchState = input.active;
 
 		if (this.isPaused) return;
+		if (this.pantheon) this.pantheon.update(dt);
 
 		// 构建空间网格（必须在 player.update 之前，否则武器的火池/酸池无法查询敌人）
 		this._buildEnemyGrid();
@@ -10462,7 +10466,7 @@ installRenderSystem(Game);
 
 module.exports = Game;
 
-},{"./Input":"src/Input.js","./Player":"src/Player.js","./Enemy":"src/Enemy.js","./Weapons":"src/Weapons.js","./Gem":"src/Gem.js","./Boss":"src/Boss.js","./Pickup":"src/Pickup.js","./EventSystem":"src/EventSystem.js","./ParticleSystem":"src/ParticleSystem.js","./MapManager":"src/MapManager.js","./Renderer":"src/Renderer.js","./SFX":"src/SFX.js","./CurseSystem":"src/CurseSystem.js","./SynergySystem":"src/SynergySystem.js","./EventEnhancer":"src/EventEnhancer.js","./AchievementSystem":"src/AchievementSystem.js","./UpgradeSystem":"src/UpgradeSystem.js","./platform":"src/platform.js","./MetaSystem":"src/MetaSystem.js","./Character":"src/Character.js","./DailyChallenge":"src/DailyChallenge.js","./UIRenderer":"src/UIRenderer.js","./WeaponCombos":"src/WeaponCombos.js","./HUD":"src/HUD.js","./ComboSystem":"src/ComboSystem.js","./SpawnSystem":"src/SpawnSystem.js","./CollisionSystem":"src/CollisionSystem.js","./ChestSystem":"src/ChestSystem.js","./KillSystem":"src/KillSystem.js","./RenderSystem":"src/RenderSystem.js","./SpriteCache":"src/SpriteCache.js","./ObjectPool":"src/ObjectPool.js","./Bullet":"src/Bullet.js","./BuildPreset":"src/BuildPreset.js","./BossRushMode":"src/BossRushMode.js","./StageSystem":"src/StageSystem.js","./DestinyShrine":"src/DestinyShrine.js","./SkillSystem":"src/SkillSystem.js","./MathLUT":"src/MathLUT.js","./TalentTree":"src/TalentTree.js","./scenes/SpeedRunScene":"src/scenes/SpeedRunScene.js"}],
+},{"./Input":"src/Input.js","./Pantheon":"src/Pantheon.js","./Player":"src/Player.js","./Enemy":"src/Enemy.js","./Weapons":"src/Weapons.js","./Gem":"src/Gem.js","./Boss":"src/Boss.js","./Pickup":"src/Pickup.js","./EventSystem":"src/EventSystem.js","./ParticleSystem":"src/ParticleSystem.js","./MapManager":"src/MapManager.js","./Renderer":"src/Renderer.js","./SFX":"src/SFX.js","./CurseSystem":"src/CurseSystem.js","./SynergySystem":"src/SynergySystem.js","./EventEnhancer":"src/EventEnhancer.js","./AchievementSystem":"src/AchievementSystem.js","./UpgradeSystem":"src/UpgradeSystem.js","./platform":"src/platform.js","./MetaSystem":"src/MetaSystem.js","./Character":"src/Character.js","./DailyChallenge":"src/DailyChallenge.js","./UIRenderer":"src/UIRenderer.js","./WeaponCombos":"src/WeaponCombos.js","./HUD":"src/HUD.js","./ComboSystem":"src/ComboSystem.js","./SpawnSystem":"src/SpawnSystem.js","./CollisionSystem":"src/CollisionSystem.js","./ChestSystem":"src/ChestSystem.js","./KillSystem":"src/KillSystem.js","./RenderSystem":"src/RenderSystem.js","./SpriteCache":"src/SpriteCache.js","./ObjectPool":"src/ObjectPool.js","./Bullet":"src/Bullet.js","./BuildPreset":"src/BuildPreset.js","./BossRushMode":"src/BossRushMode.js","./StageSystem":"src/StageSystem.js","./DestinyShrine":"src/DestinyShrine.js","./SkillSystem":"src/SkillSystem.js","./MathLUT":"src/MathLUT.js","./TalentTree":"src/TalentTree.js","./scenes/SpeedRunScene":"src/scenes/SpeedRunScene.js"}],
 "src/Gem.js":[function(require,module,exports){
 const { drawGem } = require('./Renderer');
 const { sfxGem, sfxGemChain } = require('./SFX');
@@ -12517,6 +12521,102 @@ module.exports = MetaSystem;
 module.exports.META_UPGRADES = META_UPGRADES;
 
 },{}],
+"src/NightMagic.js":[function(require,module,exports){
+// Deterministic carved sigils and spell animation. No combat RNG or state writes.
+const F=require('./FacetedArt');
+const {DEITIES}=require('./Pantheon');
+const TAU=Math.PI*2;
+const SKILL_ART={
+ tracer:{deity:'ember',symbol:'lantern',life:1.5,radius:48,follow:true},
+ walker:{deity:'forge',symbol:'shield',life:5,radius:43,follow:true},
+ gunner:{deity:'wind',symbol:'arrow',life:6,radius:55,follow:true},
+ cryomancer:{deity:'moon',symbol:'snow',life:1.1},
+ biohazard:{deity:'grove',symbol:'thorn',life:1.1},
+ berserker:{deity:'ember',symbol:'axe',life:8,radius:60,follow:true},
+ arcane:{deity:'night',symbol:'moon',life:6,radius:58,follow:true},
+ engineer:{deity:'forge',symbol:'hammer',life:1.5,radius:72},
+ assassin:{deity:'night',symbol:'dagger',life:.8},
+};
+function path(c,points,fill,stroke){c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
+function line(c,points,color,width=2){c.beginPath();c.strokeStyle=color;c.lineWidth=width;points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.stroke();}
+function gem(c,x,y,r,color){path(c,[[x,y-r],[x+r*.6,y],[x,y+r],[x-r*.6,y]],color);}
+function sigil(c,id,x,y,size){
+ const deity=id.startsWith('god_')?id.slice(4):SKILL_ART[id.slice(6)]?.deity;
+ const d=DEITIES[deity];if(!d)return false;
+ const symbol=id.startsWith('god_')?d.icon:SKILL_ART[id.slice(6)].symbol;
+ c.save();c.translate(x+size/2,y+size/2);c.scale(size/80,size/80);c.lineWidth=1.5;
+ const points=[];for(let i=0;i<8;i++)points.push([Math.cos(i*TAU/8)*35,Math.sin(i*TAU/8)*35]);path(c,points,'#12291f',d.color);
+ F.drawIcon(c,symbol,-28,-28,56);
+ if(id.startsWith('god_')){gem(c,0,-33,5,d.color);gem(c,0,33,4,d.color);}
+ else{line(c,[[-25,28],[0,33],[25,28]],d.color,2.5);for(const v of [-1,1])gem(c,v*29,-19,3,d.color);}
+ c.restore();return true;
+}
+function drawIcon(c,id,x,y,size){if(!sigil(c,id,x,y,size))return F.drawIcon(c,id,x,y,size);return id;}
+function makeSkillEffect(game,from){
+ const p=game.player,id=p.characterId,s=SKILL_ART[id];if(!s)return null;
+ let radius=s.radius||60;
+ if(id==='cryomancer')radius=Math.max(540,Math.hypot(game.width||800,game.height||600)*.58)*p.area;
+ if(id==='biohazard')radius=Math.min(440*p.area,640);
+ if(id==='assassin')radius=165*p.area;
+ const points=['cryomancer','biohazard'].includes(id)?(game.enemies||[]).filter(e=>e.active&&Math.hypot(e.x-p.x,e.y-p.y)<=radius).slice(0,48).map(e=>({x:e.x,y:e.y})):[];
+ return {kind:id,deity:s.deity,x:p.x,y:p.y,from,age:0,life:s.life,radius,follow:!!s.follow,points};
+}
+function ring(c,x,y,r,color,alpha=1){c.save();c.globalAlpha*=alpha;c.strokeStyle=color;c.lineWidth=2;const points=[];for(let i=0;i<12;i++)points.push([x+Math.cos(i*TAU/12)*r,y+Math.sin(i*TAU/12)*r]);path(c,points,null,color);c.restore();}
+function drawSpell(c,fx,game){
+ const p=game.player,x=fx.follow?p.x:fx.x,y=fx.follow?p.y:fx.y;
+ const color=DEITIES[fx.deity]?.color||'#efd18e',t=fx.age,q=Math.min(1,t/fx.life),fade=Math.min(1,(fx.life-t)*4),kind=fx.kind,r=fx.radius;
+ c.save();c.globalAlpha*=fade;
+ if(kind==='storm'){
+  let prev={x,y};for(const point of fx.points||[]){const dx=point.x-prev.x,dy=point.y-prev.y;line(c,[[prev.x,prev.y],[prev.x+dx*.32-dy*.08,prev.y+dy*.32+dx*.08],[prev.x+dx*.63+dy*.07,prev.y+dy*.63-dx*.07],[point.x,point.y]],color,3);gem(c,point.x,point.y,8,color);prev=point;}
+ }else if(kind==='assassin'){
+  if(fx.from)line(c,[[fx.from.x,fx.from.y],[x,y]],color,2);
+  for(const a of [-.6,.6]){c.save();c.translate(x,y);c.rotate(a);path(c,[[-r*.8,-5],[r*.85,-12],[r*.55,5],[-r*.7,8]],color);c.restore();}ring(c,x,y,r*(.3+q*.7),color,.5);
+ }else if(kind==='engineer'){
+  const pts=(p.turrets||[]).filter(o=>o.active).map(o=>[o.x,o.y]);if(pts.length>1)line(c,[...pts,pts[0]],color,2);
+  for(const [tx,ty] of pts){ring(c,tx,ty,24+q*15,color,.6);gem(c,tx,ty-45-q*10,6,color);}
+ }else if(kind==='walker'){
+  ring(c,x,y-9,r,color,.7);for(let i=0;i<5;i++){const a=i*TAU/5+t*.35,tx=x+Math.cos(a)*r,ty=y-9+Math.sin(a)*r*.7;drawIcon(c,'skill_walker',tx-9,ty-9,18);}
+ }else if(kind==='gunner'){
+  const a=p.facingAngle||0;for(let i=0;i<3;i++){const dist=r+16+i*20;const tx=x+Math.cos(a)*dist,ty=y+Math.sin(a)*dist;line(c,[[tx+Math.cos(a+2.5)*9,ty+Math.sin(a+2.5)*9],[tx,ty],[tx+Math.cos(a-2.5)*9,ty+Math.sin(a-2.5)*9]],color,2);}
+  ring(c,x,y,r*.6,color,.35);
+ }else if(kind==='arcane'){
+  const points=[];for(let i=0;i<5;i++){const a=i*TAU/5+t*.35,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r*.7;points.push([px,py]);gem(c,px,py,6,color);}line(c,[points[0],points[2],points[4],points[1],points[3],points[0]],color,1.4);
+ }else if(kind==='berserker'){
+  for(let i=0;i<2;i++){const a=t*3+i*Math.PI;c.save();c.translate(x,y);c.rotate(a);path(c,[[r*.4,-r*.65],[r,-r*.25],[r*.85,r*.55],[r*.65,0]],color);c.restore();}
+  ring(c,x,y,r*.65,color,.3);
+ }else if(kind==='tracer'){
+  for(let i=0;i<6;i++){const a=i*TAU/6-t*2;gem(c,x+Math.cos(a)*r,y+Math.sin(a)*r*.65,4+i%2*2,color);}ring(c,x,y,r*.6,color,.5);
+ }else{
+  const radius=r*Math.min(1,q*2+.15);ring(c,x,y,radius,color,.7);ring(c,x,y,radius*.85,color,.3);
+  // A readable casting seal stays near the hero even when a viewport-sized
+  // wave has already expanded beyond the screen. Impact shards mark real targets.
+  if(['cryomancer','biohazard','moon'].includes(kind)){
+   const inner=Math.min(72,r*.45);ring(c,x,y,inner,color,.8);
+   for(let i=0;i<6;i++){const a=i*TAU/6+t*.25,tx=x+Math.cos(a)*inner,ty=y+Math.sin(a)*inner;
+    line(c,[[x+Math.cos(a)*(inner-13),y+Math.sin(a)*(inner-13)],[tx,ty],[x+Math.cos(a)*(inner+9),y+Math.sin(a)*(inner+9)]],color,2.5);gem(c,tx,ty,5,color);
+   }
+   for(const target of fx.points||[]){const rise=(1-q)*18;
+    if(kind==='biohazard')line(c,[[target.x-10,target.y+8],[target.x-6,target.y-rise],[target.x+2,target.y-10],[target.x+8,target.y-rise-9]],color,2);
+    else for(const side of [-1,1])path(c,[[target.x+side*12,target.y+7],[target.x+side*16,target.y-12-rise],[target.x+side*8,target.y-22-rise],[target.x+side*5,target.y+7]],'#547e88',color);
+   }
+  }
+  c.save();c.globalAlpha*=.06;const pts=[];for(let i=0;i<12;i++)pts.push([x+Math.cos(i*TAU/12)*radius,y+Math.sin(i*TAU/12)*radius]);path(c,pts,color);c.restore();
+  for(let i=0;i<8;i++){
+   const a=i*TAU/8+t*.2,tx=x+Math.cos(a)*radius*.8,ty=y+Math.sin(a)*radius*.8;
+   if(kind==='biohazard'){line(c,[[x+Math.cos(a)*radius*.4,y+Math.sin(a)*radius*.4],[tx,ty]],color,1.5);gem(c,tx,ty,7,color);}
+   else if(kind==='cryomancer'||kind==='moon'){line(c,[[tx-5,ty-6],[tx,ty+6],[tx+5,ty-6]],color,2);gem(c,tx,ty-8,4,color);}
+   else{gem(c,tx,ty-(1-q)*15,6,color);}
+  }
+ }
+ c.restore();
+}
+function drawNightMagic(c,game){
+ for(const fx of game.skillSystem?.visualEffects||[])drawSpell(c,fx,game);
+ for(const fx of game.pantheon?.effects||[])drawSpell(c,fx,game);
+}
+module.exports={SKILL_ART,makeSkillEffect,drawNightMagic,drawIcon,drawSpell};
+
+},{"./FacetedArt":"src/FacetedArt.js","./Pantheon":"src/Pantheon.js"}],
 "src/ObjectPool.js":[function(require,module,exports){
 // ─── 对象池 ──────────────────────────
 // 通用对象池，复用已失活对象避免频繁 new/GC
@@ -12571,6 +12671,89 @@ class ObjectPool {
 }
 
 module.exports = ObjectPool;
+
+},{}],
+"src/Pantheon.js":[function(require,module,exports){
+// The eight surviving echoes of the gods. Run-local; never writes progression saves.
+const DEITIES = {
+ ember:{name:'烛照',title:'余火之神',color:'#efb36c',icon:'flame',verse:'诸神沉寂之后，他仍把最后一簇火留在人间。',gift:'伤害加成 +8 个百分点，攻击范围 +8%。',stats:{bonusMight:.08,bonusArea:.08}},
+ wind:{name:'乘岚',title:'归途之神',color:'#add2ae',icon:'feather',verse:'循着羽声走，迷失在长夜里的人终能找到归途。',gift:'移动速度 +8%，闪避冷却缩短 10%。',stats:{bonusSpeed:.08},dash:.9},
+ storm:{name:'震霄',title:'惊雷之神',color:'#f5dc92',icon:'lightning',verse:'当黑潮遮住群星，雷声便替守夜者回答。',gift:'对普通与精英敌人的暴击率 +4 个百分点，暴击倍率 +0.2。',stats:{luckyChance:.04,criticalDamage:.2}},
+ moon:{name:'凝月',title:'霜夜之神',color:'#addce8',icon:'snow',verse:'她将月光凝成霜，留住火焰将熄前的那一刻。',gift:'护甲 +1，冻结持续时间 +15%。',stats:{bonusArmor:1,bonusFreezeDur:.15}},
+ grove:{name:'青萝',title:'复苏之神',color:'#c2dc93',icon:'leaf',verse:'灰烬落进泥土的地方，总有新芽记得春天。',gift:'生命上限 +15，每秒恢复 0.2 生命。',stats:{bonusRegen:.2},health:15},
+ night:{name:'玄瞳',title:'司夜之神',color:'#c7b5ef',icon:'eye',verse:'他的眼中藏着熄灭的群星，也藏着尚未抵达的路。',gift:'获得经验 +10%，拾取范围 +15%。',stats:{bonusXp:.1,bonusPickup:.15}},
+ forge:{name:'余铸',title:'炉誓之神',color:'#edac87',icon:'hammer',verse:'以旧铁铸成灯架，以未冷的炉火铸成不退之誓。',gift:'护甲 +1，接触反伤比例 +10 个百分点。',stats:{bonusArmor:1,thornDamage:.1}},
+ dawn:{name:'曦衡',title:'黎明之神',color:'#fff0b1',icon:'crown',verse:'黎明并非天赐，而是每一位守夜者借来的希望。',gift:'伤害加成 +4 个百分点，冷却缩减 +4 个百分点。',stats:{bonusMight:.04,bonusCdr:.04}},
+};
+const row=(deity,id,name,desc,stats={},extra={})=>({deity,id:'boon_'+id,name,desc,stats,maxRank:3,...extra});
+const BLESSINGS=[
+ row('ember','coal','余炭长明','每阶使伤害加成增加 6 个百分点。',{bonusMight:.06}),
+ row('ember','wildfire','沿灯燎原','每阶使攻击范围增加 8%。',{bonusArea:.08}),
+ row('ember','breath','余火吐息','每 5 秒灼烧周围 130 × 范围倍率内的敌人；每阶造成 12 × 伤害倍率的伤害。',{}, {pulse:'ember',interval:5}),
+ row('wind','stride','归途轻履','每阶使移动速度增加 6%。',{bonusSpeed:.06}),
+ row('wind','evade','借风一跃','每阶将闪避冷却再缩短 10%，最低 0.9 秒。',{}, {dash:.9}),
+ row('wind','carry','风携余烬','每阶使拾取范围增加 15%、投射物速度增加 6%。',{bonusPickup:.15,bonusProjSpeed:.06}),
+ row('storm','omen','惊雷之签','每阶使对普通与精英敌人的暴击率增加 4 个百分点。',{luckyChance:.04}),
+ row('storm','edge','雷枝裂夜','每阶使对普通与精英敌人的暴击倍率增加 0.2。',{criticalDamage:.2}),
+ row('storm','chain','鸣雷巡林','每 4 秒召雷，击中附近最多 3 名敌人；每阶造成 14 × 伤害倍率的伤害。',{}, {pulse:'storm',interval:4}),
+ row('moon','mail','月下霜衣','每阶增加 1 护甲；每点护甲提供 8% 减伤，总减伤上限 60%。',{bonusArmor:1}),
+ row('moon','still','留住月光','每阶使冻结持续时间增加 15%。',{bonusFreezeDur:.15}),
+ row('moon','tide','霜月止潮','每 6 秒冻结周围 150 × 范围倍率内的普通敌人，每阶持续 0.6 秒，另受冻结时长加成；首领仅减速 1 秒。',{}, {pulse:'moon',interval:6}),
+ row('grove','root','烬土新芽','每阶使生命上限增加 12，并恢复至多 12 生命。',{}, {health:12}),
+ row('grove','sap','枝间回春','每阶增加每秒 0.25 生命恢复。',{bonusRegen:.25}),
+ row('grove','thorn','春荆藏锋','每阶使毒素伤害增加 15%。',{bonusToxicDmg:.15}),
+ row('night','lore','拾星成卷','每阶使获得的经验增加 8%。',{bonusXp:.08}),
+ row('night','gather','群星引路','每阶使拾取范围增加 18%。',{bonusPickup:.18}),
+ row('night','chant','星夜低吟','每阶使冷却缩减增加 3 个百分点；遵守武器 50%、咏誓 70% 上限。',{bonusCdr:.03}),
+ row('forge','return','旧铁还誓','每阶使接触反伤比例增加 8 个百分点。',{thornDamage:.08}),
+ row('forge','anvil','炉前不退','每阶增加 1 护甲；每点护甲提供 8% 减伤，总减伤上限 60%。',{bonusArmor:1}),
+ row('forge','twins','双芯符灯','投射物数量增加 1。此赐福仅有一阶。',{bonusProjectile:1},{maxRank:1}),
+ row('dawn','vigil','残灯续明','每阶使生命上限增加 10、恢复至多 10 生命，并增加每秒 0.1 生命恢复。',{bonusRegen:.1},{health:10}),
+ row('dawn','promise','未至之晨','每阶使伤害加成增加 5 个百分点、冷却缩减增加 1 个百分点。',{bonusMight:.05,bonusCdr:.01}),
+ row('dawn','bell','破晓钟声','每 8 秒恢复 2 × 阶数生命，并以晨光伤及周围 150 × 范围倍率内的敌人；每阶造成 10 × 伤害倍率的伤害。',{}, {pulse:'dawn',interval:8}),
+];
+function applyStats(game,def,opening=false){
+ const p=game.player;for(const [key,value] of Object.entries(def.stats||{}))p[key]=(p[key]||0)+value;
+ if(def.dash)p.dashMaxCooldown=Math.max(.9,p.dashMaxCooldown*def.dash);
+ if(def.health){p.maxHp+=def.health;if(opening){p.hp=Math.min(p.maxHp,p.hp+def.health);}else if(!game.curseNoHeal){const healed=Math.min(def.health,p.maxHp-p.hp);p.hp+=healed;p.totalHealed+=healed;}}
+}
+class Pantheon{
+ constructor(game,id){this.game=game;this.patron=Object.hasOwn(DEITIES,id)?id:null;this.ranks={};this.timers={};this.effects=[];if(this.patron)applyStats(game,DEITIES[id],true);}
+ offer(banished=[]){
+  const pool=BLESSINGS.filter(b=>(this.ranks[b.id]||0)<b.maxRank&&!banished.includes(b.id));if(!pool.length||!this.patron)return null;
+  const kin=pool.filter(b=>b.deity===this.patron),choices=kin.length&&Math.random()<.5?kin:pool;
+  const def=choices[Math.floor(Math.random()*choices.length)],rank=(this.ranks[def.id]||0)+1;
+  return {type:'blessing',id:def.id,deity:def.deity,name:def.name,desc:def.desc,color:DEITIES[def.deity].color,rank,rarity:'rare'};
+ }
+ grant(option){
+  if(!option)return false;
+  const def=BLESSINGS.find(b=>b.id===option.id);if(!def||option.type!=='blessing'||option.rank!==(this.ranks[def.id]||0)+1||option.rank>def.maxRank)return false;
+  this.ranks[def.id]=option.rank;applyStats(this.game,def);if(def.pulse&&this.timers[def.id]===undefined)this.timers[def.id]=def.interval;
+  const p=this.game.player;this.effects.push({kind:'vow',deity:def.deity,x:p.x,y:p.y,age:0,life:1.2,radius:65});this.effects=this.effects.slice(-20);return true;
+ }
+ update(dt){
+  const g=this.game;if(!g.isRunning||g.isPaused||g._runSettled)return;
+  this.effects=this.effects.filter(e=>(e.age+=dt)<e.life);
+  for(const def of BLESSINGS){if(!def.pulse||!this.ranks[def.id])continue;this.timers[def.id]-=dt;
+   if(this.timers[def.id]<=0){this.timers[def.id]+=def.interval;this.pulse(def,this.ranks[def.id]);}
+  }
+ }
+ pulse(def,rank){
+  const g=this.game,p=g.player,kind=def.pulse,radius=(kind==='ember'?130:kind==='storm'?420:150)*p.area;
+  const targets=[...g.enemies,...g.bosses].filter(e=>e.active&&Math.hypot(e.x-p.x,e.y-p.y)<=radius).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y));
+  const hits=kind==='storm'?targets.slice(0,3):targets;
+  const effect={kind,deity:def.deity,x:p.x,y:p.y,radius,age:0,life:kind==='moon'?1:.8,points:hits.map(e=>({x:e.x,y:e.y}))};
+  for(const target of hits){
+   if(kind==='moon'){
+    if(g.bosses.includes(target)){target.slowed=Math.max(target.slowed||0,1);target.slowAmount=.6;}
+    else target.frozen=Math.max(target.frozen||0,.6*rank*(1+(p.bonusFreezeDur||0)));
+   }else target.takeDamage((kind==='ember'?12:kind==='storm'?14:10)*rank*p.might,def.id);
+  }
+  if(kind==='dawn'&&!g.curseNoHeal){const healed=Math.max(0,Math.min(p.maxHp-p.hp,rank*2));p.hp+=healed;p.totalHealed+=healed;}
+  this.effects.push(effect);this.effects=this.effects.slice(-20);
+ }
+}
+module.exports={DEITIES,BLESSINGS,Pantheon};
 
 },{}],
 "src/ParticleSystem.js":[function(require,module,exports){
@@ -15794,6 +15977,8 @@ function installRenderSystem(GameClass) {
                 ctx.fill();
                 ctx.restore();
             }
+
+            Art.drawNightMagic(ctx, this);
 
             for (const d of this.damageNumbers) { drawDamageNumber(ctx, d.x, d.y, d.text, d.a, d.color, d.scale || 1, d.glow || false, d.bounce || false, d.bouncePhase || -1); }
             ctx.restore();
@@ -20709,6 +20894,7 @@ module.exports = {
 },{}],
 "src/SkillSystem.js":[function(require,module,exports){
 const { fastSin, fastCos } = require('./MathLUT');
+const { makeSkillEffect } = require('./NightMagic');
 const { now: perfNow } = require('./platform');
 // ─── 角色专属技能系统 ──────────────────────────
 // 每个角色1个主动技能，触摸右侧按钮触发，冷却管理
@@ -20721,7 +20907,7 @@ const SKILL_DEFS = {
 		icon: '⚡',
 		cooldown: 12,
 		desc: '1.5秒内移速×3，无敌',
-		color: '#00ffcc',
+		color: '#efb36c',
 		use: (game) => {
 			const p = game.player;
 			const duration = 1.5;
@@ -20729,9 +20915,9 @@ const SKILL_DEFS = {
 			const origSpeed = p.bonusSpeed;
 			p.bonusSpeed += 2.0; // 移速×3 (基础+200%)
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 20, speed: 150, life: 0.4, color: '#00ffcc', size: 3 });
+game.particles.emit(p.x, p.y, { count: 20, speed: 150, life: 0.4, color: '#efb36c', size: 3 });
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, '超速冲刺!', '#00ffcc');
+			game.spawnDamageNumber(p.x, p.y - 40, '超速冲刺!', '#efb36c');
 			game.skillSystem.addTimedEffect(() => { game.player.bonusSpeed -= 2.0; }, duration);
 		},
 	},
@@ -20742,16 +20928,16 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 150, life: 0.4, color: '#00ffc
 		icon: '🛡',
 		cooldown: 20,
 		desc: '5秒内护甲+15，反弹+50%',
-		color: '#aa44ff',
+		color: '#edac87',
 		use: (game) => {
 			const p = game.player;
 			const duration = 5;
 			p.bonusArmor += 15;
 			const origThorn = p.thornDamage;
 			p.thornDamage = (p.thornDamage || 0) + 0.50;
-			game.spawnDamageNumber(p.x, p.y - 40, '铁壁堡垒!', '#aa44ff');
+			game.spawnDamageNumber(p.x, p.y - 40, '铁壁堡垒!', '#edac87');
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff', size: 4 });
+game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#edac87', size: 4 });
 			}
 			game.skillSystem.addTimedEffect(() => { game.player.bonusArmor -= 15; game.player.thornDamage = Math.max(0, game.player.thornDamage - 0.50); }, duration);
 		},
@@ -20763,13 +20949,13 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		icon: '🎯',
 		cooldown: 15,
 		desc: '6秒内伤害×2',
-		color: '#ff6600',
+		color: '#add2ae',
 		use: (game) => {
 			const p = game.player;
 			const duration = 6;
 			p.bonusMight += 1.0;
-			game.spawnDamageNumber(p.x, p.y - 40, '聚焦射击!', '#ff6600');
-			if (game.triggerScreenPulse) game.triggerScreenPulse('#ff660033', 0.3);
+			game.spawnDamageNumber(p.x, p.y - 40, '聚焦射击!', '#add2ae');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#add2ae33', 0.3);
 			game.skillSystem.addTimedEffect(() => { game.player.bonusMight -= 1.0; }, duration);
 		},
 	},
@@ -20780,7 +20966,7 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		icon: '❄',
 		cooldown: 25,
 		desc: '冻结屏幕内所有敌人4秒',
-		color: '#66ccff',
+		color: '#addce8',
 		use: (game) => {
 			const p = game.player;
 			const freezeDur = 4;
@@ -20806,10 +20992,10 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 					b.slowAmount = 0.6;
 				}
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, `冰封风暴! ×${count}`, '#66ccff');
-			if (game.triggerScreenPulse) game.triggerScreenPulse('#66ccff22', 0.6);
+			game.spawnDamageNumber(p.x, p.y - 40, `冰封风暴! ×${count}`, '#addce8');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#addce822', 0.6);
 			if (game.particles) {
-				game.particles.emit(p.x, p.y, { count: 30, speed: 200, life: 0.6, color: '#66ccff', size: 4 });
+				game.particles.emit(p.x, p.y, { count: 30, speed: 200, life: 0.6, color: '#addce8', size: 4 });
 			}
 		},
 	},
@@ -20820,7 +21006,7 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		icon: '☣',
 		cooldown: 20,
 		desc: '对附近所有敌人施加强力毒素',
-		color: '#88ff00',
+		color: '#c2dc93',
 		use: (game) => {
 			const p = game.player;
 			const radius = Math.min(440 * (p.area || 1), 640);
@@ -20844,9 +21030,9 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 					count++;
 				}
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, `病毒风暴! ×${count}`, '#88ff00');
+			game.spawnDamageNumber(p.x, p.y - 40, `病毒风暴! ×${count}`, '#c2dc93');
 			if (game.particles) {
-				game.particles.emit(p.x, p.y, { count: 25, speed: 160, life: 0.5, color: '#88ff00', size: 3 });
+				game.particles.emit(p.x, p.y, { count: 25, speed: 160, life: 0.5, color: '#c2dc93', size: 3 });
 			}
 		},
 	},
@@ -20857,16 +21043,16 @@ game.particles.emit(p.x, p.y, { count: 15, speed: 60, life: 0.5, color: '#aa44ff
 		icon: '🔥',
 		cooldown: 18,
 		desc: '8秒内移速+30%，伤害+60%',
-		color: '#ff0044',
+		color: '#efb36c',
 		use: (game) => {
 			const p = game.player;
 			const duration = 8;
 			p.bonusSpeed += 0.30;
 			p.bonusMight += 0.60;
-			game.spawnDamageNumber(p.x, p.y - 40, '血怒爆发!', '#ff0044');
-			if (game.triggerScreenPulse) game.triggerScreenPulse('#ff004422', 0.4);
+			game.spawnDamageNumber(p.x, p.y - 40, '血怒爆发!', '#efb36c');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#efb36c22', 0.4);
 			if (game.particles) {
-game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff0044', size: 3 });
+game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#efb36c', size: 3 });
 			}
 			game.skillSystem.addTimedEffect(() => { game.player.bonusSpeed -= 0.30; game.player.bonusMight -= 0.60; }, duration);
 		},
@@ -20878,7 +21064,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		icon: '✨',
 		cooldown: 22,
 		desc: '6秒内冷却-50%',
-		color: '#ff44ff',
+		color: '#c7b5ef',
 		use: (game) => {
 			const p = game.player;
 			const duration = 6;
@@ -20887,8 +21073,8 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 				if (w.cooldown !== undefined) w.cooldown = 0;
 			}
 			p.bonusCdr += 0.50;
-			game.spawnDamageNumber(p.x, p.y - 40, '魔力潮汐!', '#ff44ff');
-			if (game.triggerScreenPulse) game.triggerScreenPulse('#ff44ff22', 0.5);
+			game.spawnDamageNumber(p.x, p.y - 40, '魔力潮汐!', '#c7b5ef');
+			if (game.triggerScreenPulse) game.triggerScreenPulse('#c7b5ef22', 0.5);
 			game.skillSystem.addTimedEffect(() => { game.player.bonusCdr -= 0.50; }, duration);
 		},
 	},
@@ -20899,7 +21085,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		icon: '⚙',
 		cooldown: 25,
 		desc: '立即部署3座强化炮台',
-		color: '#ffcc00',
+		color: '#edac87',
 		use: (game) => {
 			const p = game.player;
 			p.turrets = p.turrets || [];
@@ -20923,7 +21109,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 				};
 				p.turrets.push(turret);
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, '紧急部署! ×3炮台', '#ffcc00');
+			game.spawnDamageNumber(p.x, p.y - 40, '紧急部署! ×3炮台', '#edac87');
 		},
 	},
 
@@ -20933,7 +21119,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 		icon: '🌑',
 		cooldown: 15,
 		desc: '瞬移至最近敌人，AOE爆发伤害',
-		color: '#8800ff',
+		color: '#c7b5ef',
 		use: (game) => {
 			const p = game.player;
 			const searchR = 400 * (p.area || 1);
@@ -20954,7 +21140,7 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 				}
 			}
 			if (!closest) {
-				game.spawnDamageNumber(p.x, p.y - 40, '无目标', '#8800ff');
+				game.spawnDamageNumber(p.x, p.y - 40, '无目标', '#c7b5ef');
 				return;
 			}
 			// 瞬移（保持安全距离）并赋予短暂无敌帧保护
@@ -20983,9 +21169,9 @@ game.particles.emit(p.x, p.y, { count: 20, speed: 100, life: 0.5, color: '#ff004
 					hits++;
 				}
 			}
-			game.spawnDamageNumber(p.x, p.y - 40, `影袭! ×${hits}`, '#8800ff');
+			game.spawnDamageNumber(p.x, p.y - 40, `影袭! ×${hits}`, '#c7b5ef');
 			if (game.particles) {
-				game.particles.emit(p.x, p.y, { count: 25, speed: 180, life: 0.4, color: '#8800ff', size: 4 });
+				game.particles.emit(p.x, p.y, { count: 25, speed: 180, life: 0.4, color: '#c7b5ef', size: 4 });
 			}
 		},
 	},
@@ -21010,9 +21196,12 @@ class SkillSystem {
 		}
 		this.cooldown = 0;
 		this._activeEffects = []; // 清除上局残留效果
+		this.visualEffects = [];
 	}
 
 	update(dt) {
+		if (this.game.isPaused || !this.game.isRunning) return;
+		this.visualEffects = (this.visualEffects || []).filter(e => (e.age += dt) < e.life);
 		if (!this.skillDef) return;
 		if (this.cooldown > 0) {
 			this.cooldown = Math.max(0, this.cooldown - dt);
@@ -21035,8 +21224,12 @@ class SkillSystem {
 	tryUse() {
 		if (!this.skillDef) return false;
 		if (this.cooldown > 0) return false;
+		if (this.game.isPaused || !this.game.isRunning) return false;
+		const origin = { x: this.game.player.x, y: this.game.player.y };
 		try {
 			this.skillDef.use(this.game);
+			const fx = makeSkillEffect(this.game, origin);
+			if (fx) this.visualEffects = [...(this.visualEffects || []), fx].slice(-12);
 		} catch (e) {
 			console.error('[SkillSystem] skill error:', e);
 		}
@@ -21131,7 +21324,7 @@ class SkillSystem {
 
 module.exports = { SkillSystem, SKILL_DEFS };
 
-},{"./MathLUT":"src/MathLUT.js","./platform":"src/platform.js"}],
+},{"./MathLUT":"src/MathLUT.js","./NightMagic":"src/NightMagic.js","./platform":"src/platform.js"}],
 "src/Skins.js":[function(require,module,exports){
 // ─── 角色外观系统 ──────────────────────────────────────
 // 每个角色可以有多种外观，用金币解锁
@@ -23585,12 +23778,17 @@ class UpgradeSystem {
 		const pickCount = (p.relicFlags && p.relicFlags.quantumDice) ? 5 : 3;
 		const selected = this._weightedPick(pool, pickCount);
 		// 返回可选择的选项和预览选项
+		if (p.level % 3 === 0 && this.game.pantheon) {
+			const boon = this.game.pantheon.offer(this.banishList);
+			if (boon) { if (selected.length >= 5) selected.pop(); selected.push(boon); }
+		}
 		return { options: selected, previews };
 	}
 
 	applyOption(option) {
 		const p = this.game.player;
 		switch (option.type) {
+			case 'blessing': this.game.pantheon?.grant(option); break;
 			case 'weapon_new': {
 				const w = new Weapon(this.game, option.id);
 				p.weapons.push(w);
@@ -26177,7 +26375,7 @@ runtime.art=load('src/Art.js');
 const catalog=(file,key)=>load('src/'+file+'.js')[key];
 runtime.catalogs={
  weaponType:catalog('Weapons','Weapon'),weapons:catalog('WeaponData','weapons'),passives:catalog('WeaponData','passives'),evolution:catalog('Evolution','EVOLUTION_RECIPES'),
- skills:catalog('SkillSystem','SKILL_DEFS'),characters:catalog('Character','CHARACTERS'),
+ pantheon:load('src/Pantheon.js'),skills:catalog('SkillSystem','SKILL_DEFS'),characters:catalog('Character','CHARACTERS'),
  meta:catalog('MetaSystem','META_UPGRADES'),talents:load('src/TalentTree.js'),skins:catalog('Skins','SKINS'),
  petType:catalog('Pet','Pet'),pets:catalog('Pet','PET_TYPES'),auras:catalog('Auras','AURA_TYPES'),relics:Object.fromEntries(catalog('Relic','RELIC_DEFS').map(row=>[row.id,row])),
  achievements:catalog('AchievementSystem','ACHIEVEMENT_DEFS'),builds:load('src/BuildPreset.js'),

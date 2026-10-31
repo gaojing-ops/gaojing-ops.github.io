@@ -1,16 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+const {DEITIES,BLESSINGS}=createRequire(import.meta.url)('../games/emberfall/flux/src/Pantheon.js');
 import {createCamp} from '../games/emberfall/flux/camp.mjs';
 
-function environment(){
+function environment(pantheon=null){
  const registry=new Map(),gradient={addColorStop(){}};
  const context=new Proxy({}, {get:(o,k)=>o[k]??(k==='createRadialGradient'?()=>gradient:()=>{}),set:(o,k,v)=>(o[k]=v,true)});
  class Element{
-  constructor(){this.children=[];this.dataset={};this.attrs={};this.events={};this.classList={toggle:(name,on)=>{this[name]=on;}};}
+  constructor(){this.parentElement={after(){}};this.children=[];this.dataset={};this.attrs={};this.events={};this.classList={toggle:(name,on)=>{this[name]=on;}};}
   setAttribute(k,v){this.attrs[k]=v;}append(...nodes){this.children.push(...nodes);}replaceChildren(){this.children=[];}
   addEventListener(k,fn){this.events[k]=fn;}getContext(){return context;}getBoundingClientRect(){return {width:1000,height:560};}
   querySelector(selector){if(selector==='canvas'){if(!this.portrait)this.portrait=new Element();return this.portrait;}return node(selector.slice(1));}
-  querySelectorAll(){return modes;}
+  querySelectorAll(selector){return selector==='button'?this.children:modes;}
   click(){this.events.click?.();}
  }
  function node(id){if(!registry.has(id))registry.set(id,new Element());return registry.get(id);}
@@ -25,6 +27,7 @@ function environment(){
  const sm={currentSceneName:'title',scenes:{curseSelect:curseScene,charSelect:selectScene},switchTo(name,data={}){this.currentSceneName=name;this.currentScene=name==='charSelect'?selectScene:curseScene;if(name==='charSelect'){selectScene.bossRushMode=!!data.bossRushMode;selectScene.speedRunMode=!!data.speedRunMode;}}};
  const hero=(name,hp)=>({name,desc:name,passive:'原特性',stats:{maxHp:hp,speed:200,might:1}});
  const runtime={game,sm,CHARACTERS:{tracer:hero('守灯人',80),walker:hero('铁卫',150)},art:{drawPortrait(){}}};
+ if(pantheon)runtime.catalogs={pantheon,skills:{tracer:{cooldown:12},walker:{cooldown:20}}};
  const camp=createCamp(runtime,{api:{setStorageSync:(k,v)=>stored.set(k,v)}});
  return {camp,game,sm,node,modes,starts,stored};
 }
@@ -43,4 +46,12 @@ test('homepage mode choices preserve the original boss and speed mode flags',()=
   const e=environment();e.camp.sync();e.modes[index].click();e.node('camp-start').click();
   assert.equal(e.starts[0].mode,mode);assert.equal(e.starts[0].charId,'tracer');assert.equal(e.starts[0].curses,undefined);e.camp.destroy();
  }
+});
+
+
+test('all eight opening gods are selectable on the homepage and persist across journey modes',()=>{
+ const e=environment({DEITIES,BLESSINGS});const gods=e.node('god-grid').children;
+ assert.equal(gods.length,8);assert.equal(e.game.selectedPatron,'ember');
+ for(const b of gods){b.click();assert.equal(e.game.selectedPatron,b.dataset.god);assert.equal(b.attrs['aria-pressed'],'true');assert.equal(gods.filter(other=>other.attrs['aria-pressed']==='true').length,1);assert.match(e.node('camp-start-hero').textContent,new RegExp(DEITIES[b.dataset.god].name));}
+ e.modes[1].click();e.node('camp-start').click();assert.equal(e.game.selectedPatron,'dawn');
 });
