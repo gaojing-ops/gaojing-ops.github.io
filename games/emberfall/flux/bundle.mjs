@@ -13526,7 +13526,7 @@ class Player {
     }
     get cdr() { return Math.min(this.bonusCdr, 0.50); }
     get area() { return 1 + this.bonusArea; }
-    get pickup() { return this.basePickup * (1 + this.bonusPickup); }
+    get pickup() { return this.basePickup * (1 + this.bonusPickup) * 1.25; }
     // 护甲改为百分比减伤：每点护甲减 8% 伤害，上限 60%
     get armor() { const base = Math.min(0.6, this.bonusArmor * 0.08); return (this.game && this.game.curseArmorBreak) ? base * 0.5 : base; }
     get projSpeed() { return 1 + this.bonusProjSpeed; }
@@ -13647,7 +13647,7 @@ class Player {
                 if (this._antimatterTimer >= 0.25) {
                     this._antimatterTimer = 0;
                     const dmg = Math.ceil(this.might * 10 * (this.relicFlags.destructionTrail ? 2 : 1));
-                    const r = 65, rSq = r * r;
+                    const r = 95 * (this.area || 1), rSq = r * r;
                     for (const e of this.game.enemies) {
                         if (!e.active) continue;
                         const dx = e.x - this.x, dy = e.y - this.y;
@@ -22644,7 +22644,8 @@ class SynergySystem {
      * 蒸发爆炸 - 冻结敌人被火击中后爆炸
      */
     _triggerEvaporation(enemy, baseDamage) {
-        const radius = 100;
+        const area = (this.game.player && this.game.player.area) || 1;
+        const radius = 135 * area;
         const explosionDamage = baseDamage * 1.5;
         const radiusSq = radius * radius;
 
@@ -22684,7 +22685,8 @@ class SynergySystem {
      */
     _triggerShatter(enemy, baseDamage) {
         const chainDamage = baseDamage * 0.8;
-        const chainRange = 150;
+        const area = (this.game.player && this.game.player.area) || 1;
+        const chainRange = 210 * area;
         const maxChains = 3;
 
         let chains = 0;
@@ -22811,7 +22813,8 @@ class SynergySystem {
      * 电毒素 - 闪电链传递毒素
      */
     _triggerPoisonChain(enemy, baseDamage) {
-        const chainRange = 120;
+        const area = (this.game.player && this.game.player.area) || 1;
+        const chainRange = 180 * area;
         const chainDamage = baseDamage * 0.6;
         const stacks = enemy.poisonStacks || 1;
         let chains = 0;
@@ -22845,7 +22848,8 @@ class SynergySystem {
      * 冰毒素 - 冻结毒素爆炸
      */
     _triggerCryoPoison(enemy, baseDamage) {
-        const radius = 80;
+        const area = (this.game.player && this.game.player.area) || 1;
+        const radius = 125 * area;
         const stacks = enemy.poisonStacks || 0;
         const explosionDamage = baseDamage + stacks * 3;
         const radiusSq = radius * radius;
@@ -25073,7 +25077,7 @@ class Weapon {
         }
 
         const dmg = this.damage;
-        const radius = 100;
+        const radius = 160 * (p.area || 1);
         const radiusSq = radius * radius;
 
         // 造成范围伤害
@@ -25118,9 +25122,8 @@ class Weapon {
     }
 
     _fireFusionAbsoluteZero(p, enemies) {
-        // 娴犮儳甯虹规湹璐熸稉顓炵妇鐏炴洖绱戠紒婵嗩嚠闂嗚泛瀹虫０鍡楃厵
         const dmg = this.damage;
-        const radius = 250; // 大范围但不再无脑清屏
+        const radius = 280 * (p.area || 1);
         const radiusSq = radius * radius;
 
         const nearbyAZ = this.game._getNearbyEnemies(p.x, p.y, radius);
@@ -25176,8 +25179,8 @@ class Weapon {
 
         this.game.bullets.push(this.game.bulletPool.get().reset(this.game, p.x, p.y,
             fastCos(angle), fastSin(angle), dmg, {
-            color: '#aa44ff', speed: 120 * p.projSpeed, // 绉婚€熸瀬鎱?
-            radius: 45, pierce: 9999, homing: 0.1, // 寰急杩借釜锛岃寖鍥寸缉灏忎慨姝?
+            color: '#aa44ff', speed: 120 * p.projSpeed,
+            radius: 65 * (p.area || 1), pierce: 9999, homing: 0.15,
             lifetime: 6.0, element: 'void', shape: 'singularity',
             evolved: true,
         }));
@@ -25191,7 +25194,7 @@ class Weapon {
     // 鈹鈹鈹 缁炶倝鏃嬮庯紙閾鹃敮+鐩镐綅鍒冭瀺鍚堬級鈹鈹鈹
     _fireFusionMeatGrinder(p, enemies) {
         const dmg = this.damage;
-        const radius = 80 * p.area;
+        const radius = 145 * (p.area || 1);
         const radiusSq = radius * radius;
         const nearby = this.game._getNearbyEnemies(p.x, p.y, radius);
         for (const e of nearby) {
@@ -25217,7 +25220,7 @@ class Weapon {
     // 鈹鈹鈹 鍐版瘨棰嗗煙锛堝啺鏅+姣掗浘铻嶅悎锛夆攢鈹鈹
     _fireFusionCryoToxic(p, enemies) {
         const dmg = this.damage;
-        const radius = 180 * p.area;
+        const radius = 220 * (p.area || 1);
         const radiusSq = radius * radius;
         const nearby = this.game._getNearbyEnemies(p.x, p.y, radius);
         for (const e of nearby) {
@@ -25259,7 +25262,7 @@ class Weapon {
             this.game.bullets.push(this.game.bulletPool.get().reset(this.game, p.x, p.y,
                 fastCos(angle), fastSin(angle), dmg, {
                 color: '#ff8800', speed: 250 * p.projSpeed,
-                radius: 12, pierce: 5, homing: 0.3,
+                radius: 18 * (p.area || 1), pierce: 5, homing: 0.3,
                 lifetime: 3.0, element: 'plasma', shape: 'boomerang',
                 evolved: true, returning: true,
             }));
@@ -25275,12 +25278,13 @@ class Weapon {
         const baseAngle = this._getAimAngle(p, enemies, 800);
         const count = 2 + Math.floor(this.level / 2) + p.bonusProjectile + (this.evolved ? 3 : 0);
         const pierce = this.evolved ? 10 : (1 + Math.floor(this.level / 2));
+        const areaMult = Math.min(1.6, p.area || 1);
         for (let i = 0; i < count; i++) {
             const a = baseAngle + (i - (count - 1) / 2) * 0.14;
             this.game.bullets.push(this.game.bulletPool.get().reset(this.game, p.x, p.y,
                 fastCos(a), fastSin(a), this.damage * 1.15, {
                 color: this.def.color, speed: 440 * p.projSpeed,
-                radius: 5 + this.level * 0.5, pierce, homing: 0.6,
+                radius: (5 + this.level * 0.5) * areaMult, pierce, homing: 0.6,
                 lifetime: 1.5,
                 element: this.def.element, shape: this.def.shape,
                 evolved: this.evolved,
@@ -25295,12 +25299,13 @@ class Weapon {
     _fireChainSpark(p, enemies) {
         const baseAngle = this._getAimAngle(p, enemies, 800);
         const count = 2 + Math.floor(this.level / 2) + p.bonusProjectile;
+        const areaMult = Math.min(1.6, p.area || 1);
         for (let i = 0; i < count; i++) {
             const a = baseAngle + (i - (count - 1) / 2) * 0.2;
             this.game.bullets.push(this.game.bulletPool.get().reset(this.game, p.x, p.y,
                 fastCos(a), fastSin(a), this.damage, {
                 color: this.def.color, speed: 420 * p.projSpeed,
-                radius: 6 + this.level * 0.4, pierce: 2 + this.level,
+                radius: (6 + this.level * 0.4) * areaMult, pierce: 2 + this.level,
                 homing: 0.75, lifetime: 2, element: this.def.element,
                 shape: this.def.shape,
                 evolved: this.evolved,
@@ -25400,12 +25405,13 @@ class Weapon {
     _firePlasmaArc(p, enemies) {
         const baseAngle = this._getAimAngle(p, enemies, 600);
         const count = 2 + Math.floor(this.level / 2) + p.bonusProjectile;
+        const areaMult = Math.min(1.6, p.area || 1);
         for (let i = 0; i < count; i++) {
             const a = baseAngle + (i - (count - 1) / 2) * 0.28;
             this.game.bullets.push(this.game.bulletPool.get().reset(this.game, p.x, p.y,
                 fastCos(a), fastSin(a), this.damage, {
                 color: this.def.color, speed: 340 * p.projSpeed,
-                radius: 13 + this.level * 1.5, pierce: 4 + this.level,
+                radius: (13 + this.level * 1.5) * areaMult, pierce: 4 + this.level,
                 lifetime: 2, homing: 0.45, element: this.def.element,
                 shape: this.def.shape,
                 evolved: this.evolved,
@@ -25454,13 +25460,14 @@ class Weapon {
     // 鈼忊棌 鐏鐞冭拷韪
     _fireRocketSwarm(p, enemies) {
         const count = 2 + Math.floor(this.level / 2) + p.bonusProjectile;
+        const areaMult = Math.min(1.6, p.area || 1);
         for (let i = 0; i < count; i++) {
             const a = Math.random() * Math.PI * 2;
             this.game.bullets.push(this.game.bulletPool.get().reset(this.game, p.x, p.y,
                 fastCos(a), fastSin(a), this.damage, {
-                color: this.def.color, speed: 200 * p.projSpeed,
-                radius: 5 + this.level * 0.3, pierce: 0,
-                homing: 0.9, lifetime: 2, element: this.def.element,
+                color: this.def.color, speed: 220 * p.projSpeed,
+                radius: (6 + this.level * 0.4) * areaMult, pierce: 0,
+                homing: 0.9, lifetime: 2.2, element: this.def.element,
                 shape: this.def.shape,
                 evolved: this.evolved,
             }));
@@ -25474,13 +25481,14 @@ class Weapon {
         const baseAngle = this._getAimAngle(p, enemies, 600);
         const count = 3 + Math.floor(this.level / 2) + p.bonusProjectile;
         const freezeDur = 0.5 + p.bonusFreezeDur;
+        const areaMult = Math.min(1.6, p.area || 1);
 
         for (let i = 0; i < count; i++) {
             const a = baseAngle + (i - (count - 1) / 2) * 0.2;
             const b = this.game.bulletPool.get().reset(this.game, p.x, p.y,
                 fastCos(a), fastSin(a), this.damage, {
                 color: this.def.color, speed: 460 * p.projSpeed,
-                radius: 7 + this.level * 0.5, pierce: 2 + Math.floor(this.level / 2),
+                radius: (7 + this.level * 0.5) * areaMult, pierce: 2 + Math.floor(this.level / 2),
                 lifetime: 2, homing: 0.55, element: this.def.element,
                 shape: this.def.shape,
                 freezeChance: 0.45, freezeDur: freezeDur, slowAmount: 0.6,
@@ -25541,7 +25549,7 @@ class Weapon {
             timer: 3 + this.level * 0.3,
             shootTimer: 0,
             damage: this.damage,
-            radius: 15 + this.level * 2,
+            radius: (18 + this.level * 2.5) * Math.min(1.6, p.area || 1),
         };
         this._orbList = this._orbList || [];
         this._orbList.push(orb);
@@ -25554,14 +25562,15 @@ class Weapon {
         const baseAngle = this._getAimAngle(p, enemies, 420);
         const count = 4 + Math.floor(this.level / 2) + p.bonusProjectile;
         const toxicMult = 1 + p.bonusToxicDmg;
+        const areaMult = Math.min(1.6, p.area || 1);
 
         for (let i = 0; i < count; i++) {
             const a = baseAngle + (i - (count - 1) / 2) * 0.28;
             const b = this.game.bulletPool.get().reset(this.game, p.x, p.y,
                 fastCos(a), fastSin(a), this.damage * toxicMult, {
                 color: this.def.color, speed: 290 * p.projSpeed,
-                radius: 10 + this.level * 0.8, pierce: 2 + this.level,
-                lifetime: 0.9, homing: 0.2, element: this.def.element,
+                radius: (10 + this.level * 0.8) * areaMult, pierce: 2 + this.level,
+                lifetime: 0.9 * Math.min(1.4, p.area || 1), homing: 0.2, element: this.def.element,
                 shape: this.def.shape,
                 poisonChance: 1.0, poisonDmg: 2 + this.level, poisonStacks: 1,
                 evolved: this.evolved,
@@ -25596,6 +25605,7 @@ class Weapon {
         const baseAngle = this._getAimAngle(p, enemies, 500);
         // 每级增加数量
         const count = 1 + Math.floor(this.level / 2) + p.bonusProjectile;
+        const areaMult = Math.min(1.6, p.area || 1);
 
         for (let i = 0; i < count; i++) {
             const a = baseAngle + (i - (count - 1) / 2) * 0.4;
@@ -25603,8 +25613,8 @@ class Weapon {
                 fastCos(a), fastSin(a), this.damage, {
                 color: this.def.color,
                 speed: 400 * p.projSpeed,  // 出手速度
-                radius: 12 + this.level * 1.5,
-                pierce: 9999, // 鏃犻檺绌块€?
+                radius: (13 + this.level * 1.5) * areaMult,
+                pierce: 9999,
                 lifetime: 2.5, // 存活时间
                 element: this.def.element,
                 shape: this.def.shape,
@@ -25664,17 +25674,18 @@ class Weapon {
     // ●● 冰冻地带
     _fireVenomSting(p, enemies) {
         const baseAngle = this._getAimAngle(p, enemies, 500);
-        const count = 1 + Math.floor(this.level / 4) + p.bonusProjectile;
+        const count = 2 + Math.floor(this.level / 3) + p.bonusProjectile;
         const toxicMult = 1 + p.bonusToxicDmg;
         const stacks = 1 + Math.floor(this.level / 2);
+        const areaMult = Math.min(1.6, p.area || 1);
 
         for (let i = 0; i < count; i++) {
             const a = baseAngle + (i - (count - 1) / 2) * 0.15;
             const b = this.game.bulletPool.get().reset(this.game, p.x, p.y,
                 fastCos(a), fastSin(a), this.damage * toxicMult, {
                 color: this.def.color, speed: 500 * p.projSpeed,
-                radius: 5 + this.level * 0.3, pierce: 0,
-                lifetime: 1.5, homing: 0.4, element: this.def.element,
+                radius: (5.5 + this.level * 0.4) * areaMult, pierce: 1 + Math.floor(this.level / 3),
+                lifetime: 1.5, homing: 0.45, element: this.def.element,
                 shape: this.def.shape,
                 poisonChance: 1.0, poisonDmg: 3 + this.level * 2, poisonStacks: stacks,
                 evolved: this.evolved,

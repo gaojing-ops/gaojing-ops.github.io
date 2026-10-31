@@ -208,7 +208,8 @@ class SynergySystem {
      * 蒸发爆炸 - 冻结敌人被火击中后爆炸
      */
     _triggerEvaporation(enemy, baseDamage) {
-        const radius = 100;
+        const area = (this.game.player && this.game.player.area) || 1;
+        const radius = 135 * area;
         const explosionDamage = baseDamage * 1.5;
         const radiusSq = radius * radius;
 
@@ -248,7 +249,8 @@ class SynergySystem {
      */
     _triggerShatter(enemy, baseDamage) {
         const chainDamage = baseDamage * 0.8;
-        const chainRange = 150;
+        const area = (this.game.player && this.game.player.area) || 1;
+        const chainRange = 210 * area;
         const maxChains = 3;
 
         let chains = 0;
@@ -375,7 +377,8 @@ class SynergySystem {
      * 电毒素 - 闪电链传递毒素
      */
     _triggerPoisonChain(enemy, baseDamage) {
-        const chainRange = 120;
+        const area = (this.game.player && this.game.player.area) || 1;
+        const chainRange = 180 * area;
         const chainDamage = baseDamage * 0.6;
         const stacks = enemy.poisonStacks || 1;
         let chains = 0;
@@ -409,7 +412,8 @@ class SynergySystem {
      * 冰毒素 - 冻结毒素爆炸
      */
     _triggerCryoPoison(enemy, baseDamage) {
-        const radius = 80;
+        const area = (this.game.player && this.game.player.area) || 1;
+        const radius = 125 * area;
         const stacks = enemy.poisonStacks || 0;
         const explosionDamage = baseDamage + stacks * 3;
         const radiusSq = radius * radius;

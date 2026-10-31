@@ -148,7 +148,7 @@ class Player {
     }
     get cdr() { return Math.min(this.bonusCdr, 0.50); }
     get area() { return 1 + this.bonusArea; }
-    get pickup() { return this.basePickup * (1 + this.bonusPickup); }
+    get pickup() { return this.basePickup * (1 + this.bonusPickup) * 1.25; }
     // 护甲改为百分比减伤：每点护甲减 8% 伤害，上限 60%
     get armor() { const base = Math.min(0.6, this.bonusArmor * 0.08); return (this.game && this.game.curseArmorBreak) ? base * 0.5 : base; }
     get projSpeed() { return 1 + this.bonusProjSpeed; }
@@ -269,7 +269,7 @@ class Player {
                 if (this._antimatterTimer >= 0.25) {
                     this._antimatterTimer = 0;
                     const dmg = Math.ceil(this.might * 10 * (this.relicFlags.destructionTrail ? 2 : 1));
-                    const r = 65, rSq = r * r;
+                    const r = 95 * (this.area || 1), rSq = r * r;
                     for (const e of this.game.enemies) {
                         if (!e.active) continue;
                         const dx = e.x - this.x, dy = e.y - this.y;
