@@ -14,6 +14,20 @@ function start(hero='tracer'){const g=new Game(canvas());g.resize(1000,620);g.st
 function full(g,id){const w=new Weapon(g,id);w.level=w.def.maxLevel;g.player.weapons.push(w);return w;}
 function unlocked(g){g.player.kills=5000;g.player.totalHealed=1000;g.player.totalGemsCollected=1000;g.bossKills=10;g.frozenKills=g.poisonKills=100;}
 
+test('a helper crossing a risky shrine preserves its core weapon until the player approaches manually',()=>{
+ const g=start('assassin'),p=g.player,old=p.weapons[0];old.level=6;
+ const shrine=new DestinyShrine(g,p.x,p.y),random=Math.random;g.autoPlay=true;g.input.active=false;
+ Math.random=()=>{throw Error('automatic crossing must not roll a risky shrine');};
+ try{shrine.update(1/60);}finally{Math.random=random;}
+ assert.equal(shrine.active,true);assert.equal(p.weapons[0],old);assert.equal(old.level,6);
+ g.input.active=true;Math.random=()=>.8;
+ try{shrine.update(1/60);}finally{Math.random=random;}
+ assert.equal(shrine.active,false);assert.notEqual(p.weapons[0],old,'manual approach still performs the real transmutation');
+ const h=start('assassin'),manual=new DestinyShrine(h,h.player.x,h.player.y);h.autoPlay=false;h.input.active=false;Math.random=()=>.8;
+ try{manual.update(1/60);}finally{Math.random=random;}
+ assert.equal(manual.active,false,'ordinary manual play keeps proximity interaction');
+});
+
 test('natural shrine transmutation replaces old awakening state and recalculates lost resonance',()=>{
  const g=start(),p=g.player;p.weapons=[];unlocked(g);
  const old=full(g,'toxin_spray');full(g,'acid_pool');full(g,'venom_sting');p.passives.push({id:EVOLUTION_RECIPES.toxin_spray.requirePassive,level:1});

@@ -5,7 +5,7 @@ const require=createRequire(new URL('../games/emberfall/flux/entry.js',import.me
 const gradient={addColorStop(){}},ctx=new Proxy({}, {get:(o,k)=>o[k]??(k==='measureText'?()=>({width:100}):k.startsWith('create')?()=>gradient:()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas=()=>({width:1000,height:620,getContext:()=>ctx});
 globalThis.wx={getStorageSync:()=>'',setStorageSync(){},getSystemInfoSync:()=>({screenWidth:1000,screenHeight:620,pixelRatio:1,safeArea:{top:0,bottom:620}}),createCanvas:canvas,createOffscreenCanvas:canvas,createImage:()=>({}),onTouchStart(){},onTouchMove(){},onTouchEnd(){},onTouchCancel(){}};
-const Game=require('./src/Game'),{Enemy}=require('./src/Enemy'),Bullet=require('./src/Bullet');
+const Game=require('./src/Game'),{Enemy}=require('./src/Enemy'),Bullet=require('./src/Bullet'),Boss=require('./src/Boss');
 const {RELIC_DEFS,grantRelic,getRandomRelics}=require('./src/Relic');
 function start(hero){const g=new Game(canvas());g.startWithCharacter(hero,[]);g._tutorialStep=-1;g.enemies=[];g.bosses=[];g.bullets=[];g.enemyBullets=[];g.synergy.processSynergy=()=>{};g._checkWeaponCombo=()=>{};return g;}
 function projectileKill(g,options){const e=new Enemy(g,500,500,'Bat');e.hp=e.maxHp=1;g.enemies=[e];g._getNearbyEnemies=()=>g.enemies.filter(e=>e.active);g.bullets=[new Bullet(g,e.x,e.y,0,0,100,options)];g._checkCollisions(1/60);return e;}
@@ -63,4 +63,48 @@ test('unprompted random relics cannot impose a life or healing sacrifice, while 
  const automatic=getRandomRelics(g.player,100,{automatic:true}),manual=getRandomRelics(g.player,100);
  for(const id of ['greed_protocol','overload_core']){assert.ok(!automatic.some(r=>r.id===id));assert.ok(manual.some(r=>r.id===id));}
  assert.ok(automatic.some(r=>r.id==='echo_chip'),'ordinary rewards remain available');
+});
+
+test('imminent ground escape overrides later warnings, loot and steering inertia without a ready dash',()=>{
+ const g=start('assassin'),p=g.player;p.x=p.y=0;g.autoPlay=g.autoUpgrade=true;
+ g.input.vector={x:1,y:0};g._aiVector={x:1,y:0};p.dashCooldown=2;
+ g.gems=[{active:true,x:300,y:0,value:10,update(){}}];g.pickups=[];g.spawnTimer=g.bossTimer=999;g.skillSystem.cooldown=999;
+ g.mortarWarnings=[{active:true,x:90,y:0,radius:100,damage:100,timer:.18},{active:true,x:-40,y:0,radius:100,damage:100,timer:.7}];
+ const hp=p.hp;for(let i=0;i<60;i++){g.time+=1/60;g.update(1/60);}
+ assert.equal(p.hp,hp,'normal movement must clear both real blast checks');assert.equal(g.mortarWarnings.length,0);
+ assert.equal(p.dashActiveTimer,0,'survival must not bypass the existing dash cooldown');
+});
+
+test('helpers react to an active boss shockwave with a normal ready dash after its telegraph ends',()=>{
+ const g=start('assassin'),p=g.player;p.x=160;p.y=0;g.autoPlay=g.autoUpgrade=true;
+ g.gems=[];g.pickups=[];g.spawnTimer=g.bossTimer=999;g.skillSystem.cooldown=999;
+ const b=new Boss(g,1);Object.assign(b,{x:0,y:0,speed:0,damage:0,skillTimer:999,_behaviorTimer:999,telegraph:null,_sustainedEffect:{type:'shockwave',timer:.7,radius:60,speed:520,triggered:false}});g.bosses=[b];
+ const hp=p.hp;for(let i=0;i<45;i++){g.time+=1/60;g.update(1/60);}
+ assert.equal(p.hp,hp,'the expanding real wave must not hit a watcher with a ready dash');assert.ok(p.dashCooldown>0);
+});
+
+test('late high speed refreshes stale helper steering before crossing into a real imminent blast',()=>{
+ const g=start('assassin'),p=g.player;p.x=107;p.y=0;p.baseSpeed=2400;p.bonusSpeed=0;p.dashCooldown=2;
+ g.autoPlay=g.autoUpgrade=true;g.spawnTimer=g.bossTimer=999;g.skillSystem.cooldown=999;g.gems=[];g.pickups=[];
+ g._aiTimer=.1;g._aiVector={x:-1,y:0};g.input.vector={x:-1,y:0};
+ g.mortarWarnings=[{active:true,x:0,y:0,radius:100,damage:400,timer:1/60}];
+ const hp=p.hp;g.time+=1/60;g.update(1/60);
+ assert.equal(p.hp,hp,'cached direction must not carry a fast watcher into the actual explosion');
+ assert.ok(p.x>107);assert.equal(p.dashActiveTimer,0,'escape still uses ordinary movement');
+});
+
+test('helper refresh budget accounts for the next whole movement frame rather than rounding travel upward',()=>{
+ const g=start('assassin'),p=g.player;p.x=115;p.y=0;p.baseSpeed=1080;p.bonusSpeed=0;p.dashCooldown=2;
+ g.autoPlay=g.autoUpgrade=true;g.spawnTimer=g.bossTimer=999;g.skillSystem.cooldown=999;g.gems=[];g.pickups=[];
+ g._aiTimer=24/p.speed;g._aiVector={x:-1,y:0};g.input.vector={x:-1,y:0};
+ g.mortarWarnings=[{active:true,x:0,y:0,radius:100,damage:400,timer:1/60}];
+ const hp=p.hp;g.time+=1/60;g.update(1/60);assert.equal(p.hp,hp);assert.ok(p.x>115);
+});
+
+test('starter shadow clones can acquire and damage a lone real boss without ordinary mobs',()=>{
+ const g=start('assassin');g.player.x=g.player.y=0;g.spawnTimer=g.bossTimer=999;g.skillSystem.cooldown=999;
+ const b=new Boss(g,1);Object.assign(b,{x:200,y:0,speed:0,damage:0,hp:10000,maxHp:10000,skillTimer:999,_behaviorTimer:999});g.bosses=[b];
+ for(let i=0;i<360;i++){g.time+=1/60;g.update(1/60);}
+ assert.ok(b.hp<10000,'the actual starter shots must reach a boss absent from the ordinary-enemy grid');
+ assert.ok(g._weaponDamageStats.shadow_clone>0,'damage must retain the starter weapon attribution');
 });

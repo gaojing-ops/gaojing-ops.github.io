@@ -175,6 +175,13 @@ class Weapon {
                     const dSq = edx * edx + edy * edy;
                     if (dSq < minDSq) { minDSq = dSq; nearest = e; }
                 }
+                // Bosses are not in the ordinary-enemy grid. Keep nearest-target
+                // selection consistent when a clone's only target is a boss.
+                for (const boss of this.game.bosses || []) {
+                    if (!boss.active) continue;
+                    const dx = boss.x - cx, dy = boss.y - cy, dSq = dx * dx + dy * dy;
+                    if (dSq < minDSq) { minDSq = dSq; nearest = boss; }
+                }
                 if (nearest) {
                     const a = Math.atan2(nearest.y - cy, nearest.x - cx);
                     this.game.bullets.push(this.game.bulletPool.get().reset(this.game, cx, cy,
