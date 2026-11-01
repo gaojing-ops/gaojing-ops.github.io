@@ -5014,6 +5014,9 @@ class DestinyShrine {
         // 检查玩家靠近
         const p = this.game.player;
         if (!p) return;
+        // Risky shrines can replace the core weapon or summon elite enemies.
+        // The helper must leave that decision to the player moving manually.
+        if (this.game.autoPlay && !this.game.input?.active) return;
         const dx = p.x - this.x;
         const dy = p.y - this.y;
         if (dx * dx + dy * dy < this.radius * this.radius) {
@@ -5028,6 +5031,15 @@ class DestinyShrine {
         Art.drawArea(ctx, this.x, this.y, this.radius, '#e7bd70', this.timer,
             this.game.qualityLevel >= 0.5 ? 0.06 : 0, this.game.qualityLevel >= 0.5);
         Art.drawIcon(ctx, 'rune', this.x - 18, this.y - 43, 36);
+        if (this.game.autoPlay) {
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffe2a6';
+            ctx.strokeStyle = '#09130f';
+            ctx.lineWidth = 4;
+            ctx.strokeText('手动靠近 · 命运难测', this.x, this.y - 52);
+            ctx.fillText('手动靠近 · 命运难测', this.x, this.y - 52);
+        }
         ctx.restore();
     }
 
@@ -9602,17 +9614,22 @@ class Game {
 			return;
 		}
 
-		// 每0.12秒重新计算一次目标向量（比原来0.15更灵敏）
-		this._aiTimer = (this._aiTimer || 0) - dt;
-		if (this._aiTimer > 0) {
+		// Bound ordinary travel between decisions as speed grows in long runs.
+		// A fixed 0.12s cache can otherwise carry a fast watcher into a blast.
+		const decisionInterval = Math.min(0.12, 24 / Math.max(1, p.speed));
+		this._aiTimer = Math.min(this._aiTimer || 0, decisionInterval) - dt;
+		// Reserve the next whole movement frame; rounding a 1.3-frame budget
+		// upward would still travel too far before the next decision.
+		if (this._aiTimer > dt) {
 			input.vector = this._aiVector || { x: 0, y: 0 };
 			return;
 		}
-		this._aiTimer = 0.12;
+		this._aiTimer = decisionInterval;
 
 		const hpRatio = p.hp / p.maxHp;
 		let forceX = 0, forceY = 0;
 		let dangerCount = 0;
+		let urgentDash = null, hazardEscape = null;
 
 		// ═══ 层1: 敌人避让 (动态半径) ═══
 		// 血量越低，回避半径越大（低血量时更怂）
@@ -9636,7 +9653,21 @@ class Game {
 
 		// ═══ 层2: Boss 预警躲避 (telegraph dodging) ═══
 		for (const boss of this.bosses) {
-			if (!boss.active || !boss.telegraph) continue;
+			if (!boss.active) continue;
+			const wave = boss._sustainedEffect;
+			if (wave?.type === 'shockwave' && !wave.triggered && wave.timer > 0 && wave.speed > 0) {
+				const dx = p.x - boss.x, dy = p.y - boss.y, d = Math.hypot(dx, dy);
+				const gap = d - wave.radius - 42;
+				if (d > 0 && d >= wave.radius - 42 && gap <= wave.speed * wave.timer) {
+					const x = dx / d, y = dy / d, remaining = Math.max(0, gap / wave.speed);
+					forceX += x * 18; forceY += y * 18; dangerCount += 6;
+					if (remaining <= 0.2) {
+						if (!hazardEscape || remaining < hazardEscape.remaining) hazardEscape = { remaining, x, y };
+						if (!urgentDash || remaining < urgentDash.remaining) urgentDash = { remaining, angle: Math.atan2(y, x) };
+					}
+				}
+			}
+			if (!boss.telegraph) continue;
 			const tg = boss.telegraph;
 			if (!tg.timer || tg.timer <= 0 || tg.type === 'none') continue;
 
@@ -9685,7 +9716,6 @@ class Game {
 		// Fast watchers need time to react before crossing a shot.
 		const bulletAvoidR = 100 + Math.min(80, Math.max(0, p.speed - 200) * 0.25);
 		const bulletAvoidRSq = bulletAvoidR * bulletAvoidR;
-		let urgentDash = null;
 		for (const eb of this.enemyBullets) {
 			if (!eb.active) continue;
 			const dx = p.x - eb.x, dy = p.y - eb.y;
@@ -9737,6 +9767,10 @@ class Game {
 				const remaining = Math.max(0, w.timer || 0);
 				const escapeDistance = Math.max(0, w.radius + p.radius + 16 - d);
 				const walkTime = escapeDistance / Math.max(1, p.speed) + 0.12;
+				if (escapeDistance > 0 && remaining <= Math.max(0.35, Math.min(0.85, walkTime + 0.2)) &&
+					(!hazardEscape || remaining < hazardEscape.remaining)) {
+					hazardEscape = { remaining, x: d > 0 ? dx / d : 1, y: d > 0 ? dy / d : 0 };
+				}
 				const moveTime = Math.max(0, remaining - 0.12);
 				const dashDistance = p.speed * (moveTime + (p.dashSpeedMult - 1) * Math.min(0.25, moveTime));
 				if (remaining > 0 && walkTime > remaining &&
@@ -9889,6 +9923,14 @@ class Game {
 				vx = totalForceX / finalMag;
 				vy = totalForceY / finalMag;
 			}
+		}
+
+		// Imminent hazards take priority over later circles, loot and orbiting.
+		// Steering inertia must not leave the watcher on the lethal circle edge.
+		if (hazardEscape) {
+			this._aiVector = { x: hazardEscape.x, y: hazardEscape.y };
+			input.vector = this._aiVector;
+			return;
 		}
 
 		// ═══ 向量平滑 (Lerp) ═══
@@ -25253,6 +25295,13 @@ class Weapon {
                     const edx = e.x - cx, edy = e.y - cy;
                     const dSq = edx * edx + edy * edy;
                     if (dSq < minDSq) { minDSq = dSq; nearest = e; }
+                }
+                // Bosses are not in the ordinary-enemy grid. Keep nearest-target
+                // selection consistent when a clone's only target is a boss.
+                for (const boss of this.game.bosses || []) {
+                    if (!boss.active) continue;
+                    const dx = boss.x - cx, dy = boss.y - cy, dSq = dx * dx + dy * dy;
+                    if (dSq < minDSq) { minDSq = dSq; nearest = boss; }
                 }
                 if (nearest) {
                     const a = Math.atan2(nearest.y - cy, nearest.x - cx);

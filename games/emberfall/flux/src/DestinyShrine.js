@@ -22,6 +22,9 @@ class DestinyShrine {
         // 检查玩家靠近
         const p = this.game.player;
         if (!p) return;
+        // Risky shrines can replace the core weapon or summon elite enemies.
+        // The helper must leave that decision to the player moving manually.
+        if (this.game.autoPlay && !this.game.input?.active) return;
         const dx = p.x - this.x;
         const dy = p.y - this.y;
         if (dx * dx + dy * dy < this.radius * this.radius) {
@@ -36,6 +39,15 @@ class DestinyShrine {
         Art.drawArea(ctx, this.x, this.y, this.radius, '#e7bd70', this.timer,
             this.game.qualityLevel >= 0.5 ? 0.06 : 0, this.game.qualityLevel >= 0.5);
         Art.drawIcon(ctx, 'rune', this.x - 18, this.y - 43, 36);
+        if (this.game.autoPlay) {
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffe2a6';
+            ctx.strokeStyle = '#09130f';
+            ctx.lineWidth = 4;
+            ctx.strokeText('手动靠近 · 命运难测', this.x, this.y - 52);
+            ctx.fillText('手动靠近 · 命运难测', this.x, this.y - 52);
+        }
         ctx.restore();
     }
 
