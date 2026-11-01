@@ -3,6 +3,7 @@
 
 const Input = require('./Input');
 const { Pantheon, preferBlessing } = require('./Pantheon');
+const { RELIC_DEFS } = require('./Relic');
 const Player = require('./Player');
 const { Enemy } = require('./Enemy');
 const { Weapon } = require('./Weapons');
@@ -666,9 +667,11 @@ class Game {
 		if (this.autoUpgrade && options && options.length > 0) {
 			const p = this.player;
 			const hpRatio = p.hp / p.maxHp;
-			const canSacrificeHealing = !p.canHeal || (hpRatio >= 0.8 && p.regen <= 0.25 && !p.poisonLeech && !p.voidLeech && !p.weapons.some(w => w.id === 'soul_drain' || w.id === 'radiation_field' && w.evolved));
-			const usable = options.filter(o => (p.canHeal || !['heal', 'chest_heal'].includes(o.type)) && (o.type !== 'relic' || o.id !== 'overload_core' || canSacrificeHealing) && (o.type !== 'relic' || o.id !== 'greed_protocol'));
-			const autoOptions = usable.length ? usable : options;
+			// Irreversible sacrifices need the player's choice. A full-health
+			// starter may still depend on healing acquired later in this run.
+			const autoOptions = options.filter(o => (p.canHeal || !['heal', 'chest_heal'].includes(o.type)) &&
+				!(o.type === 'relic' && (o.relic || RELIC_DEFS.find(r => r.id === o.id))?.requiresChoice));
+			if (!autoOptions.length) { this._closeUpgrade(); return; }
 			let pick = null;
 
 			// 优先级1：进化选项必选，收益最大
@@ -1592,13 +1595,15 @@ class Game {
 			let bestPickScore = -Infinity;
 			for (const pk of this.pickups) {
 				if (!pk.active) continue;
+				if (pk.type === 'trap') continue;
 				const dx = pk.x - p.x, dy = pk.y - p.y;
 				const d = Math.sqrt(dx * dx + dy * dy);
 				if (d <= 0 || d > 600) continue;
 
 				let score = 100 / d; // 基础：距离越近分越高
 				// 血包权重极高（低血量时优先捡）
-				if (pk.type === 'heal' || pk.type === 'food' || pk.type === 'heart') {
+				if (pk.type === 'potion' || pk.type === 'heal_shrine') {
+					if (!p.canHeal || this.curseNoPickup || hpRatio >= 1) continue;
 					score *= (hpRatio < 0.5) ? 20 : 5;
 				} else if (pk.type === 'magnet' || pk.type === 'xp_magnet') {
 					score *= 8; // 磁铁也很值钱

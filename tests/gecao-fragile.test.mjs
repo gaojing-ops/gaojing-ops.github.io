@@ -5,7 +5,7 @@ const require=createRequire(new URL('../games/emberfall/flux/entry.js',import.me
 const gradient={addColorStop(){}},ctx=new Proxy({}, {get:(o,k)=>o[k]??(k==='measureText'?()=>({width:100}):k.startsWith('create')?()=>gradient:()=>{}),set:(o,k,v)=>(o[k]=v,true)});
 const canvas=()=>({width:1000,height:620,getContext:()=>ctx});
 globalThis.wx={getStorageSync:()=>'',setStorageSync(){},getSystemInfoSync:()=>({screenWidth:1000,screenHeight:620,pixelRatio:1,safeArea:{top:0,bottom:620}}),createCanvas:canvas,createOffscreenCanvas:canvas,createImage:()=>({}),onTouchStart(){},onTouchMove(){},onTouchEnd(){},onTouchCancel(){}};
-const Game=require('./src/Game'),{Enemy}=require('./src/Enemy'),Bullet=require('./src/Bullet'),Boss=require('./src/Boss');
+const Game=require('./src/Game'),{Enemy}=require('./src/Enemy'),Bullet=require('./src/Bullet'),Boss=require('./src/Boss'),Pickup=require('./src/Pickup');
 const {RELIC_DEFS,grantRelic,getRandomRelics}=require('./src/Relic');
 function start(hero){const g=new Game(canvas());g.startWithCharacter(hero,[]);g._tutorialStep=-1;g.enemies=[];g.bosses=[];g.bullets=[];g.enemyBullets=[];g.synergy.processSynergy=()=>{};g._checkWeaponCombo=()=>{};return g;}
 function projectileKill(g,options){const e=new Enemy(g,500,500,'Bat');e.hp=e.maxHp=1;g.enemies=[e];g._getNearbyEnemies=()=>g.enemies.filter(e=>e.active);g.bullets=[new Bullet(g,e.x,e.y,0,0,100,options)];g._checkCollisions(1/60);return e;}
@@ -30,6 +30,17 @@ test('automatic growth skips the HP-sacrificing economy relic while manual choic
  g.upgradeSystem.generateOptions=()=>({options:[{type:'relic',id:relic.id,relic,rarity:'epic'},{type:'weapon_up',id:p.weapons[0].id}],previews:[]});
  g.showUpgradeScreen();assert.equal(p.maxHp,95);assert.equal(p.weapons[0].level,2);assert.equal(p.relics?.length||0,0);
  g.upgradeSystem.applyOption({type:'relic',id:relic.id,relic});assert.equal(p.maxHp,66);assert.equal(p.relicFlags.greedProtocol,true);
+});
+
+test('helpers cannot permanently sacrifice future healing even on a full-health starter with no current regeneration',()=>{
+ const g=start('assassin'),p=g.player,relic=RELIC_DEFS.find(r=>r.id==='overload_core');g.autoUpgrade=true;
+ assert.equal(p.hp,p.maxHp);assert.equal(p.regen,0);
+ g.upgradeSystem.generateOptions=()=>({options:[{type:'relic',id:relic.id,relic},{type:'weapon_up',id:p.weapons[0].id}],previews:[]});
+ g.showUpgradeScreen();assert.equal(p.canHeal,true);assert.equal(p.weapons[0].level,2);assert.equal(p.relicFlags?.overloadCore,undefined);
+ p.hp=20;assert.equal(p.heal(30),30);assert.equal(p.hp,50,'later healing must remain available');
+ g.upgradeSystem.applyOption({type:'relic',id:relic.id,relic});assert.equal(p.canHeal,false,'manual sacrifice remains an explicit choice');
+ const h=start('assassin');h.autoUpgrade=true;h.upgradeSystem.generateOptions=()=>({options:RELIC_DEFS.filter(r=>r.requiresChoice).map(r=>({type:'relic',id:r.id,relic:r})),previews:[]});
+ h.showUpgradeScreen();assert.equal(h.player.canHeal,true);assert.equal(h.player.maxHp,65);assert.equal(h.isRunning,true,'an all-risk fallback must neither choose a sacrifice nor stall helpers');
 });
 
 test('a fast watcher evades a slower receding projectile it would catch, but not one that outruns it',()=>{
@@ -107,4 +118,22 @@ test('starter shadow clones can acquire and damage a lone real boss without ordi
  for(let i=0;i<360;i++){g.time+=1/60;g.update(1/60);}
  assert.ok(b.hp<10000,'the actual starter shots must reach a boss absent from the ordinary-enemy grid');
  assert.ok(g._weaponDamageStats.shadow_clone>0,'damage must retain the starter weapon attribution');
+});
+
+test('a wounded helper prioritizes the real potion over a chest and receives its actual healing',()=>{
+ const g=start('assassin'),p=g.player;p.x=p.y=0;p.hp=20;g.autoPlay=g.autoUpgrade=true;
+ g.gems=[];g.spawnTimer=g.bossTimer=999;g.skillSystem.cooldown=999;
+ const potion=new Pickup(g,100,0,'potion');g.pickups=[potion,new Pickup(g,-150,0,'chest')];
+ g._updateAutoPlayAI(1/60);assert.ok(g.input.vector.x>.5,'the healing item must win the real target comparison');
+ for(let i=0;i<120&&potion.active;i++){g.time+=1/60;g.update(1/60);}
+ assert.equal(potion.active,false);assert.equal(p.hp,50);assert.equal(p.totalHealed,30);
+});
+
+test('helpers do not seek traps or unusable real healing pickups instead of a useful chest',()=>{
+ for(const state of ['full','no-heal','no-pickup']){
+  const g=start('assassin'),p=g.player;p.x=p.y=0;if(state!=='full')p.hp=20;
+  g.curseNoHeal=state==='no-heal';g.curseNoPickup=state==='no-pickup';g.gems=[];
+  g.pickups=[new Pickup(g,50,0,'trap'),new Pickup(g,100,0,'potion'),new Pickup(g,110,0,'heal_shrine'),new Pickup(g,-200,0,'chest')];
+  g._updateAutoPlayAI(1/60);assert.ok(g.input.vector.x<-.5,state+': ordinary pathing must not chase harmful or unusable pickups');
+ }
 });

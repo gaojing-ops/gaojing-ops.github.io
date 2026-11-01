@@ -8203,7 +8203,15 @@ function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
  }else if(['crescent','slash'].includes(shape)){
   poly(c,[[s*.4,-s*1.6],[s*1.1,-s*.7],[s*1.3,s*.1],[s*.9,s],[s*.1,s*1.5],[s*.5,s*.1]],d.main);line(c,[[s*.4,-s*1.6],[s*1.1,-s*.7],[s*1.3,s*.1],[s*.9,s]],d.light,Math.max(.8,s*.16));
  }else if(shape==='boomerang'){poly(c,[[-s*1.8,-s*.8],[-s*.3,-s*1.1],[s*1.8,s*.8],[s*.9,s*1.3],[-s*.5,-s*.2],[-s*1.8,0]],d.main,d.light);}
- else if(shape==='cloud'){c.globalAlpha*=.5;for(const [px,py,r] of [[-s*.6,0,s],[s*.6,-s*.3,s*.8],[s*.2,s*.7,s*.7]])poly(c,[[px-r,py],[px-r*.5,py-r],[px+r*.6,py-r*.8],[px+r,py+r*.3],[px,py+r]],d.main);}
+ else if(shape==='cloud'){
+  // Overlapping poison shots keep their silhouette without painting a wall
+  // over the watcher. Only the small seed is filled; hit radii stay intact.
+  c.globalAlpha*=.28;c.strokeStyle=d.main;c.lineWidth=1;
+  for(const [px,py,r] of [[-s*.6,0,s],[s*.6,-s*.3,s*.8],[s*.2,s*.7,s*.7]]){
+   c.beginPath();c.moveTo(px-r,py);c.lineTo(px-r*.5,py-r);c.lineTo(px+r*.6,py-r*.8);c.lineTo(px+r,py+r*.3);c.lineTo(px,py+r);c.closePath();c.stroke();
+  }
+  gem(c,0,0,Math.min(3,s*.18),d.main,d.light);
+ }
  else if(shape==='flask'){poly(c,[[-s*.4,-s*1.3],[s*.4,-s*1.3],[s*.4,-s*.4],[s,s*.4],[s*.7,s*1.1],[-s*.8,s*1.1],[-s,s*.3],[-s*.4,-s*.4]],d.main,d.light);}
  else if(shape==='saw'){const points=[];for(let i=0;i<16;i++){const a=i*TAU/16,r=s*(i%2?.72:1.2);points.push([Math.cos(a)*r,Math.sin(a)*r]);}poly(c,points,P.steel,P.bone);gem(c,0,0,s*.4,d.dark);}
  else if(shape==='singularity'){const points=[];for(let i=0;i<6;i++)points.push([Math.cos(i*TAU/6)*s*1.25,Math.sin(i*TAU/6)*s*1.25]);poly(c,points,d.dark,d.main);gem(c,0,0,s*.6,P.ink,d.main);}
@@ -8259,6 +8267,7 @@ module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawIcon,draw
 
 const Input = require('./Input');
 const { Pantheon, preferBlessing } = require('./Pantheon');
+const { RELIC_DEFS } = require('./Relic');
 const Player = require('./Player');
 const { Enemy } = require('./Enemy');
 const { Weapon } = require('./Weapons');
@@ -8922,9 +8931,11 @@ class Game {
 		if (this.autoUpgrade && options && options.length > 0) {
 			const p = this.player;
 			const hpRatio = p.hp / p.maxHp;
-			const canSacrificeHealing = !p.canHeal || (hpRatio >= 0.8 && p.regen <= 0.25 && !p.poisonLeech && !p.voidLeech && !p.weapons.some(w => w.id === 'soul_drain' || w.id === 'radiation_field' && w.evolved));
-			const usable = options.filter(o => (p.canHeal || !['heal', 'chest_heal'].includes(o.type)) && (o.type !== 'relic' || o.id !== 'overload_core' || canSacrificeHealing) && (o.type !== 'relic' || o.id !== 'greed_protocol'));
-			const autoOptions = usable.length ? usable : options;
+			// Irreversible sacrifices need the player's choice. A full-health
+			// starter may still depend on healing acquired later in this run.
+			const autoOptions = options.filter(o => (p.canHeal || !['heal', 'chest_heal'].includes(o.type)) &&
+				!(o.type === 'relic' && (o.relic || RELIC_DEFS.find(r => r.id === o.id))?.requiresChoice));
+			if (!autoOptions.length) { this._closeUpgrade(); return; }
 			let pick = null;
 
 			// 优先级1：进化选项必选，收益最大
@@ -9848,13 +9859,15 @@ class Game {
 			let bestPickScore = -Infinity;
 			for (const pk of this.pickups) {
 				if (!pk.active) continue;
+				if (pk.type === 'trap') continue;
 				const dx = pk.x - p.x, dy = pk.y - p.y;
 				const d = Math.sqrt(dx * dx + dy * dy);
 				if (d <= 0 || d > 600) continue;
 
 				let score = 100 / d; // 基础：距离越近分越高
 				// 血包权重极高（低血量时优先捡）
-				if (pk.type === 'heal' || pk.type === 'food' || pk.type === 'heart') {
+				if (pk.type === 'potion' || pk.type === 'heal_shrine') {
+					if (!p.canHeal || this.curseNoPickup || hpRatio >= 1) continue;
 					score *= (hpRatio < 0.5) ? 20 : 5;
 				} else if (pk.type === 'magnet' || pk.type === 'xp_magnet') {
 					score *= 8; // 磁铁也很值钱
@@ -10617,7 +10630,7 @@ installRenderSystem(Game);
 
 module.exports = Game;
 
-},{"./Input":"src/Input.js","./Pantheon":"src/Pantheon.js","./Player":"src/Player.js","./Enemy":"src/Enemy.js","./Weapons":"src/Weapons.js","./Gem":"src/Gem.js","./Boss":"src/Boss.js","./Pickup":"src/Pickup.js","./EventSystem":"src/EventSystem.js","./ParticleSystem":"src/ParticleSystem.js","./MapManager":"src/MapManager.js","./Renderer":"src/Renderer.js","./SFX":"src/SFX.js","./CurseSystem":"src/CurseSystem.js","./SynergySystem":"src/SynergySystem.js","./EventEnhancer":"src/EventEnhancer.js","./AchievementSystem":"src/AchievementSystem.js","./UpgradeSystem":"src/UpgradeSystem.js","./platform":"src/platform.js","./MetaSystem":"src/MetaSystem.js","./Character":"src/Character.js","./DailyChallenge":"src/DailyChallenge.js","./UIRenderer":"src/UIRenderer.js","./WeaponCombos":"src/WeaponCombos.js","./HUD":"src/HUD.js","./ComboSystem":"src/ComboSystem.js","./SpawnSystem":"src/SpawnSystem.js","./CollisionSystem":"src/CollisionSystem.js","./ChestSystem":"src/ChestSystem.js","./KillSystem":"src/KillSystem.js","./RenderSystem":"src/RenderSystem.js","./SpriteCache":"src/SpriteCache.js","./ObjectPool":"src/ObjectPool.js","./Bullet":"src/Bullet.js","./BuildPreset":"src/BuildPreset.js","./BossRushMode":"src/BossRushMode.js","./StageSystem":"src/StageSystem.js","./DestinyShrine":"src/DestinyShrine.js","./SkillSystem":"src/SkillSystem.js","./MathLUT":"src/MathLUT.js","./TalentTree":"src/TalentTree.js","./scenes/SpeedRunScene":"src/scenes/SpeedRunScene.js"}],
+},{"./Input":"src/Input.js","./Pantheon":"src/Pantheon.js","./Relic":"src/Relic.js","./Player":"src/Player.js","./Enemy":"src/Enemy.js","./Weapons":"src/Weapons.js","./Gem":"src/Gem.js","./Boss":"src/Boss.js","./Pickup":"src/Pickup.js","./EventSystem":"src/EventSystem.js","./ParticleSystem":"src/ParticleSystem.js","./MapManager":"src/MapManager.js","./Renderer":"src/Renderer.js","./SFX":"src/SFX.js","./CurseSystem":"src/CurseSystem.js","./SynergySystem":"src/SynergySystem.js","./EventEnhancer":"src/EventEnhancer.js","./AchievementSystem":"src/AchievementSystem.js","./UpgradeSystem":"src/UpgradeSystem.js","./platform":"src/platform.js","./MetaSystem":"src/MetaSystem.js","./Character":"src/Character.js","./DailyChallenge":"src/DailyChallenge.js","./UIRenderer":"src/UIRenderer.js","./WeaponCombos":"src/WeaponCombos.js","./HUD":"src/HUD.js","./ComboSystem":"src/ComboSystem.js","./SpawnSystem":"src/SpawnSystem.js","./CollisionSystem":"src/CollisionSystem.js","./ChestSystem":"src/ChestSystem.js","./KillSystem":"src/KillSystem.js","./RenderSystem":"src/RenderSystem.js","./SpriteCache":"src/SpriteCache.js","./ObjectPool":"src/ObjectPool.js","./Bullet":"src/Bullet.js","./BuildPreset":"src/BuildPreset.js","./BossRushMode":"src/BossRushMode.js","./StageSystem":"src/StageSystem.js","./DestinyShrine":"src/DestinyShrine.js","./SkillSystem":"src/SkillSystem.js","./MathLUT":"src/MathLUT.js","./TalentTree":"src/TalentTree.js","./scenes/SpeedRunScene":"src/scenes/SpeedRunScene.js"}],
 "src/Gem.js":[function(require,module,exports){
 const { drawGem } = require('./Renderer');
 const { sfxGem, sfxGemChain } = require('./SFX');
