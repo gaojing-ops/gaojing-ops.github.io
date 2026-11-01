@@ -649,8 +649,8 @@ function drawGem(ctx, x, y, size) {
     Facets.drawGem(ctx,x,y,size);
 }
 
-function drawBullet(ctx, x, y, size, color = '#ffcc00', shape = 'circle', angle = 0, glowIntensity = 10, evolved = false) {
-    Facets.drawProjectile(ctx,x,y,size,color,shape,angle,evolved);
+function drawBullet(ctx, x, y, size, color = '#ffcc00', shape = 'circle', angle = 0, glowIntensity = 10, evolved = false, phase = 0, detail = true) {
+    Facets.drawProjectile(ctx,x,y,size,color,shape,angle,evolved,phase,detail);
 }
 
 function drawDamageNumber(ctx, x, y, text, alpha, color = '#fff', scale = 1, glow = false, bounce = false, bouncePhase = -1) {

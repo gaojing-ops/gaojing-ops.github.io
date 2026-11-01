@@ -1,0 +1,293 @@
+{
+  "date": "2026-11-01",
+  "baseCommit": "9addcdc230bc9f16c0b5eaa2366fbfff90a899bd",
+  "bundleSha256NormalizedLF": "7ee8244a7a84281cd00e9494da6d76ba335ec9fb50a75e3a143b9ca29a4dd1b9",
+  "tests": {
+    "total": 222,
+    "passed": 222,
+    "failed": 0
+  },
+  "scope": "Presentation: nine role skills, eight divine themes, projectile details, persistent fields, clone casting wakes and bounded hit feedback. Damage, radii, cooldowns, IDs and saves are not modified. Drawing uses no combat RNG; original particle emission RNG counts are preserved.",
+  "budgets": {
+    "invocationsHigh": 8,
+    "invocationsLow": 4,
+    "impactBuffer": 24,
+    "impactDrawLow": 12,
+    "detailedDomainsHigh": 6,
+    "detailedDomainsLow": 2,
+    "glowTexturePixels": [
+      96,
+      96
+    ]
+  },
+  "rendererFixtureBefore": {
+    "sourceBundleSha256NormalizedLF": "754ca6a962612e81b2fe198386402ef7dfe15a08f8fa3b3352bc7ea1d08137fa",
+    "kind": "before",
+    "method": "60 warmed stationary renderer samples per tier: eight skills and eight divine effects supplied, 100 projectiles and six fields at 1200x660. Current presentation budget draws eight/four invocations at high/low quality. CPU only; no combat, no GPU/FPS claim.",
+    "tiers": [
+      {
+        "quality": 1,
+        "samples": 60,
+        "medianMs": 1.5,
+        "p95Ms": 2.5,
+        "maxMs": 3.3000000715255737
+      },
+      {
+        "quality": 0,
+        "samples": 60,
+        "medianMs": 1.600000023841858,
+        "p95Ms": 2.299999952316284,
+        "maxMs": 2.600000023841858
+      }
+    ],
+    "errors": []
+  },
+  "rendererFixtureAfter": {
+    "sourceBundleSha256NormalizedLF": "171f9809588eb45b33a6230a752899ec59e719ecb78dd24f312183799eb7256e",
+    "kind": "after",
+    "method": "60 warmed stationary renderer samples per tier: eight skills and eight divine effects supplied, 100 projectiles and six fields at 1200x660. Current presentation budget draws eight/four invocations at high/low quality. CPU only; no combat, no GPU/FPS claim.",
+    "tiers": [
+      {
+        "quality": 1,
+        "samples": 60,
+        "medianMs": 3.1999999284744263,
+        "p95Ms": 4.900000095367432,
+        "maxMs": 10
+      },
+      {
+        "quality": 0,
+        "samples": 60,
+        "medianMs": 1.2000000476837158,
+        "p95Ms": 1.9000000953674316,
+        "maxMs": 2.200000047683716
+      }
+    ],
+    "errors": []
+  },
+  "combatSmokeChecks": [
+    {
+      "method": "180-second normal-speed visual smoke check, zero camp and isolated store, normal camp and helper UI plus E key events; no forced in-run rewards/time/stats; stopped deliberately, not a 20-minute victory",
+      "sourceBundleSha256NormalizedLF": "171f9809588eb45b33a6230a752899ec59e719ecb78dd24f312183799eb7256e",
+      "case": "tracer",
+      "errors": [],
+      "casts": [
+        {
+          "time": 0.016666666666666666,
+          "kind": "tracer"
+        },
+        {
+          "time": 12.02240000000017,
+          "kind": "tracer"
+        },
+        {
+          "time": 24.029766666714302,
+          "kind": "tracer"
+        },
+        {
+          "time": 36.03823333333265,
+          "kind": "tracer"
+        },
+        {
+          "time": 48.05789999999865,
+          "kind": "tracer"
+        },
+        {
+          "time": 59.341866666617044,
+          "kind": "tracer"
+        },
+        {
+          "time": 70.6518999999975,
+          "kind": "tracer"
+        },
+        {
+          "time": 81.93810000004457,
+          "kind": "tracer"
+        },
+        {
+          "time": 93.22833333335345,
+          "kind": "tracer"
+        },
+        {
+          "time": 104.5445333332813,
+          "kind": "tracer"
+        },
+        {
+          "time": 115.86039999999502,
+          "kind": "tracer"
+        },
+        {
+          "time": 127.19889999999447,
+          "kind": "tracer"
+        },
+        {
+          "time": 138.480500000026,
+          "kind": "tracer"
+        },
+        {
+          "time": 149.81119999996284,
+          "kind": "tracer"
+        },
+        {
+          "time": 161.1001999999711,
+          "kind": "tracer"
+        },
+        {
+          "time": 172.32673333336038,
+          "kind": "tracer"
+        }
+      ],
+      "images": [
+        {
+          "file": "rich-vfx-combat-tracer-0.png",
+          "gameTime": 0.3217,
+          "skillAge": 0.3050333333333333
+        },
+        {
+          "file": "rich-vfx-combat-tracer-70.png",
+          "gameTime": 70.88279999997364,
+          "skillAge": 0.23089999997615815
+        },
+        {
+          "file": "rich-vfx-combat-tracer-127.png",
+          "gameTime": 127.4140000000183,
+          "skillAge": 0.21510000002384186
+        }
+      ],
+      "peakFeedback": 3,
+      "peakProjectiles": 38,
+      "current": {
+        "time": 180.19040000003298,
+        "scene": "playing",
+        "paused": true,
+        "hp": 78.89845333300428,
+        "maxHp": 80,
+        "level": 19,
+        "kills": 1414,
+        "visible": true,
+        "quality": 1,
+        "stoppedByQa": true
+      },
+      "elapsedWallSeconds": 179.97680000007153,
+      "timing": {
+        "samples": 11445,
+        "medianMs": 4,
+        "p95Ms": 6.100000023841858,
+        "maxMs": 18.799999952316284,
+        "over33": 0
+      }
+    },
+    {
+      "method": "180-second normal-speed visual smoke check, zero camp and isolated store, normal camp and helper UI plus E key events; no forced in-run rewards/time/stats; stopped deliberately, not a 20-minute victory",
+      "sourceBundleSha256NormalizedLF": "171f9809588eb45b33a6230a752899ec59e719ecb78dd24f312183799eb7256e",
+      "case": "biohazard",
+      "errors": [],
+      "casts": [
+        {
+          "time": 0.016666666666666666,
+          "kind": "biohazard"
+        },
+        {
+          "time": 20.017100000000056,
+          "kind": "biohazard"
+        },
+        {
+          "time": 40.02590000000012,
+          "kind": "biohazard"
+        },
+        {
+          "time": 60.026366666666256,
+          "kind": "biohazard"
+        },
+        {
+          "time": 79.85566666666833,
+          "kind": "biohazard"
+        },
+        {
+          "time": 99.66826666667131,
+          "kind": "biohazard"
+        },
+        {
+          "time": 118.48316666667401,
+          "kind": "biohazard"
+        },
+        {
+          "time": 137.2939000000132,
+          "kind": "biohazard"
+        },
+        {
+          "time": 156.1004000000177,
+          "kind": "biohazard"
+        },
+        {
+          "time": 174.90280000002272,
+          "kind": "biohazard"
+        }
+      ],
+      "images": [
+        {
+          "file": "rich-vfx-combat-biohazard-0.png",
+          "gameTime": 0.2128999999999999,
+          "skillAge": 0.19623333333333323
+        },
+        {
+          "file": "rich-vfx-combat-biohazard-60.png",
+          "gameTime": 60.16829999999957,
+          "skillAge": 0.14193333333333183
+        },
+        {
+          "file": "rich-vfx-combat-biohazard-137.png",
+          "gameTime": 137.41910000001326,
+          "skillAge": 0.12520000000001164
+        }
+      ],
+      "peakFeedback": 2,
+      "peakProjectiles": 39,
+      "current": {
+        "time": 180.1379000000249,
+        "scene": "playing",
+        "paused": true,
+        "hp": 110,
+        "maxHp": 110,
+        "level": 19,
+        "kills": 1562,
+        "visible": true,
+        "quality": 1,
+        "stoppedByQa": true
+      },
+      "elapsedWallSeconds": 180.01670000004768,
+      "timing": {
+        "samples": 11471,
+        "medianMs": 3.5,
+        "p95Ms": 5.5,
+        "maxMs": 23.09999990463257,
+        "over33": 0
+      }
+    }
+  ],
+  "recording": {
+    "sourceBundleSha256NormalizedLF": "171f9809588eb45b33a6230a752899ec59e719ecb78dd24f312183799eb7256e",
+    "method": "Zoomed looping renderer fixture, nine role skills; not real gameplay or a completion",
+    "seconds": 22.753599999904633,
+    "bytes": 3243025
+  },
+  "visualReview": {
+    "sheets": [
+      "docs/assets/emberfall-vfx/roles.png",
+      "docs/assets/emberfall-vfx/gods.png",
+      "docs/assets/emberfall-vfx/weapons.png"
+    ],
+    "movie": "docs/assets/emberfall-vfx/skills.mp4",
+    "observations": [
+      "Bright spell cores and cached local bloom give depth without filling the whole damage volume.",
+      "Nine role and eight deity style families use visibly distinct motifs; the preview includes expanded seals and real glyph renderers.",
+      "Actual tracer and biohazard canvas exports show hero locator, health HUD and skill cooldowns readable during casts.",
+      "Preview sheets/movie use controlled poses, targets and looping animation; they are not normal gameplay or completions. Combat checks stop deliberately at 180 seconds.",
+      "Renderer microbenchmarks are CPU measurements, not GPU/FPS or late-game acceptance claims."
+    ]
+  },
+  "finalLowDetailCorrection": {
+    "description": "After the recorded high-detail fixtures and 180-second high-detail combat checks, the final patch limits low-detail hit feedback to the latest 12 echoes and disables its bloom. High-detail drawing is unchanged. The final source passes all 222 checks, including direct high/low hit-feedback draw-work regression.",
+    "recordedSourceSha256NormalizedLF": "171f9809588eb45b33a6230a752899ec59e719ecb78dd24f312183799eb7256e",
+    "finalSourceSha256NormalizedLF": "7ee8244a7a84281cd00e9494da6d76ba335ec9fb50a75e3a143b9ca29a4dd1b9"
+  }
+}

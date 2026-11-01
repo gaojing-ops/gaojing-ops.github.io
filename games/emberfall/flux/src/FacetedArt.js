@@ -1,3 +1,4 @@
+const Vfx=require('./SpellVfx');
 // Shared, code-native artwork: the same flat facets as Emberfall's first courtyard.
 // World actors, portraits and interface emblems all use these models and pigments.
 const TAU=Math.PI*2;
@@ -277,8 +278,9 @@ function pigment(color){
  }
  pigments.set(color,value);return value;
 }
-function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
+function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false,phase=0,detail=true){
  const d=pigment(color),radius=Math.max(.5,size);let s=radius;c.save();c.translate(x,y);c.rotate(angle);
+ if(detail)Vfx.drawProjectileDetail(c,radius,color,shape,phase,evolved);
  if(shape==='orbital_beam'||shape==='zero_domain'){
   c.save();c.globalAlpha*=.55;c.strokeStyle=d.main;c.lineWidth=1.5;c.beginPath();c.arc(0,0,s,0,TAU);c.stroke();
   gem(c,0,0,Math.min(24,s*.2),d.dark,d.light);

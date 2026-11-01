@@ -259,7 +259,7 @@ class Bullet {
 
         // The native glyph stays compact; its outline preserves the actual hit radius.
         const drawSize = this.radius;
-        drawBullet(ctx, this.x, this.y, drawSize, this.color, this.shape, drawAngle, 0, this.evolved);
+        drawBullet(ctx, this.x, this.y, drawSize, this.color, this.shape, drawAngle, 0, this.evolved, this.glowTimer, this.game.qualityLevel >= .5);
         ctx.restore();
     }
 }
