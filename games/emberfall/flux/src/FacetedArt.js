@@ -303,7 +303,15 @@ function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
  }else if(['crescent','slash'].includes(shape)){
   poly(c,[[s*.4,-s*1.6],[s*1.1,-s*.7],[s*1.3,s*.1],[s*.9,s],[s*.1,s*1.5],[s*.5,s*.1]],d.main);line(c,[[s*.4,-s*1.6],[s*1.1,-s*.7],[s*1.3,s*.1],[s*.9,s]],d.light,Math.max(.8,s*.16));
  }else if(shape==='boomerang'){poly(c,[[-s*1.8,-s*.8],[-s*.3,-s*1.1],[s*1.8,s*.8],[s*.9,s*1.3],[-s*.5,-s*.2],[-s*1.8,0]],d.main,d.light);}
- else if(shape==='cloud'){c.globalAlpha*=.5;for(const [px,py,r] of [[-s*.6,0,s],[s*.6,-s*.3,s*.8],[s*.2,s*.7,s*.7]])poly(c,[[px-r,py],[px-r*.5,py-r],[px+r*.6,py-r*.8],[px+r,py+r*.3],[px,py+r]],d.main);}
+ else if(shape==='cloud'){
+  // Overlapping poison shots keep their silhouette without painting a wall
+  // over the watcher. Only the small seed is filled; hit radii stay intact.
+  c.globalAlpha*=.28;c.strokeStyle=d.main;c.lineWidth=1;
+  for(const [px,py,r] of [[-s*.6,0,s],[s*.6,-s*.3,s*.8],[s*.2,s*.7,s*.7]]){
+   c.beginPath();c.moveTo(px-r,py);c.lineTo(px-r*.5,py-r);c.lineTo(px+r*.6,py-r*.8);c.lineTo(px+r,py+r*.3);c.lineTo(px,py+r);c.closePath();c.stroke();
+  }
+  gem(c,0,0,Math.min(3,s*.18),d.main,d.light);
+ }
  else if(shape==='flask'){poly(c,[[-s*.4,-s*1.3],[s*.4,-s*1.3],[s*.4,-s*.4],[s,s*.4],[s*.7,s*1.1],[-s*.8,s*1.1],[-s,s*.3],[-s*.4,-s*.4]],d.main,d.light);}
  else if(shape==='saw'){const points=[];for(let i=0;i<16;i++){const a=i*TAU/16,r=s*(i%2?.72:1.2);points.push([Math.cos(a)*r,Math.sin(a)*r]);}poly(c,points,P.steel,P.bone);gem(c,0,0,s*.4,d.dark);}
  else if(shape==='singularity'){const points=[];for(let i=0;i<6;i++)points.push([Math.cos(i*TAU/6)*s*1.25,Math.sin(i*TAU/6)*s*1.25]);poly(c,points,d.dark,d.main);gem(c,0,0,s*.6,P.ink,d.main);}

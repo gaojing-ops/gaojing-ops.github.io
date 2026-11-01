@@ -176,6 +176,21 @@ test('dense evolved crescents keep their hit radius while bounding opaque cores 
  assert.ok(strokes.some(s=>s.width<=4&&s.alpha<=.18),'thick opaque trails cannot cover incoming attacks');assert.equal(alpha,1);assert.equal(width,1);assert.equal(JSON.stringify([b.x,b.y,b.radius,b.damage,b.historyCount]),before);
 });
 
+test('overlapping real poison clouds leave only tiny filled cores while preserving hit outlines and combat state',()=>{
+ const g=start(),arcs=[],fills=[],stack=[];let alpha=1,path=[];
+ const c=new Proxy({save(){stack.push(alpha);},restore(){alpha=stack.pop();},beginPath(){path=[];},arc(x,y,r){arcs.push(r);},moveTo(x,y){path.push([x,y]);},lineTo(x,y){path.push([x,y]);},fill(){fills.push({alpha,extent:Math.max(0,...path.flat().map(Math.abs))});}},{get:(o,k)=>k==='globalAlpha'?alpha:o[k]??(()=>{}),set:(o,k,v)=>{if(k==='globalAlpha')alpha=v;else o[k]=v;return true;}});
+ const bullets=[10,120].map(radius=>new Bullet(g,0,0,1,0,12,{radius,shape:'cloud',color:'#88ff00',evolved:true}));
+ const random=Math.random;Math.random=()=>{throw Error('poison rendering used combat RNG');};
+ try{for(const b of bullets){
+  const before=JSON.stringify([b.x,b.y,b.radius,b.damage,b.active]);
+  for(let i=0;i<20;i++)b.draw(c);
+  assert.equal(JSON.stringify([b.x,b.y,b.radius,b.damage,b.active]),before);
+ }}finally{Math.random=random;}
+ assert.ok(arcs.includes(120),'large cloud keeps the real hit boundary');
+ assert.ok(fills.every(f=>f.extent<=4?f.alpha<=.35:f.alpha<=.06),'poison sheets must not paint large solid overlapping facets');
+ assert.equal(alpha,1);
+});
+
 test('hostile shots and the player locator draw after friendly spell layers',()=>{
  const g=start(),p=g.player,order=[],saved={};g.camera.x=p.x-g.width/2;g.camera.y=p.y-g.height/2;
  g.enemyBullets=[{active:true,x:p.x,y:p.y,radius:5,color:'#ff0000'}];
