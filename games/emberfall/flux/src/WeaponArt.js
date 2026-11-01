@@ -35,7 +35,7 @@ function drawWeaponAir(c, w) {
     }
     for (const orb of w._orbList) if (visible(g, orb.x, orb.y, orb.radius)) F.drawProjectile(c, orb.x, orb.y, orb.radius, '#88ddff', 'crystal', g.time * .4, w.evolved && g.qualityLevel >= .5, g.time * 3, g.qualityLevel >= .5);
     for (const bot of w._nanoSwarm) if (visible(g, bot.x, bot.y, bot.hitRadius)) {
-        F.drawProjectile(c, bot.x, bot.y, 5, '#88ff00', 'sting', bot.angle + Math.PI / 2);
+        F.drawProjectile(c, bot.x, bot.y, 5, '#88ff00', 'sting', bot.angle + Math.PI / 2, false, g.time * 3, g.qualityLevel >= .5);
         if (g.qualityLevel >= .5) { c.save(); c.globalAlpha *= .25; c.strokeStyle = '#b0cb84'; c.beginPath(); c.arc(bot.x, bot.y, bot.hitRadius, 0, Math.PI * 2); c.stroke(); c.restore(); }
     }
 }

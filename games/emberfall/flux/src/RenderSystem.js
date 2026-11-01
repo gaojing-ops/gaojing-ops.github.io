@@ -6,6 +6,7 @@ const { drawSentry } = Art;
 const { fastSin, fastCos } = require('./MathLUT');
 const { now: perfNow } = require('./platform');
 const SpeedRunSceneModule = require('./scenes/SpeedRunScene');
+const { beginFrame, friendlyProjectileAlpha } = require('./SpellVfx');
 
 function installRenderSystem(GameClass) {
     // 注意: _drawLastStand 和 _drawBossEntrance 在 HUD.js 中定义，此处不再重复定义
@@ -29,6 +30,7 @@ function installRenderSystem(GameClass) {
             if (!this.stageSystem) {
                 this.mapManager.updateStyleByTime(this.time);
             }
+            beginFrame(ctx, this.qualityLevel >= .5);
             this.mapManager.draw(ctx, this.camera.x, this.camera.y, this.width, this.height, this.frameDt || 0.016);
 
             ctx.save();
@@ -117,7 +119,10 @@ function installRenderSystem(GameClass) {
 
             for (const bul of this.bullets) {
                 if (bul.x > camLeft && bul.x < camRight && bul.y > camTop && bul.y < camBottom) {
-                    bul.draw(ctx);
+                    const alpha = friendlyProjectileAlpha(bul, this.player);
+                    if (alpha < 1) {
+                        ctx.save(); ctx.globalAlpha *= alpha; bul.draw(ctx); ctx.restore();
+                    } else bul.draw(ctx);
                 }
             }
 
@@ -152,6 +157,10 @@ function installRenderSystem(GameClass) {
             }
 
             Art.drawNightMagic(ctx, this);
+            // Restore the same skinned body above friendly bloom, then draw danger
+            // shots above it. Do not repeat trails, auras, pets or other actor effects.
+            Art.drawHero(ctx, this.player.characterId, this.player.x, this.player.y,
+                this.player.radius, this.player.facingAngle, this.player.isMoving, this.time);
             Art.drawPlayerFocus(ctx, this.player);
 
             // Danger shots remain legible above every friendly spell layer.

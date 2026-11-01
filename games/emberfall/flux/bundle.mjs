@@ -8228,12 +8228,22 @@ function drawArea(c,x,y,r,color,time=0,opacity=.18,details=true){
  c.restore();
 }
 function drawGem(c,x,y,size){c.save();gem(c,x,y,size,'#b7d976','#eff2bd');c.restore();}
-function drawPickup(c,x,y,type,alpha=1){
- const icons={magnet:'bell',bomb:'flame',potion:'flask',chest:'chest',evolution_core:'crystal',weapon_altar:'sword',merchant:'coin',grass:'leaf',teleporter:'rune',heal_shrine:'leaf',power_shrine:'sword',speed_shrine:'feather',shield_orb:'shield',xp_orb:'book',lucky_coin:'coin',trap:'thorn'};
- c.save();c.globalAlpha*=alpha;oval(c,x,y+9,15,5,P.shadow);
+const PICKUP_ICONS={magnet:'bell',bomb:'flame',potion:'flask',chest:'chest',evolution_core:'crystal',weapon_altar:'sword',merchant:'coin',grass:'leaf',teleporter:'rune',heal_shrine:'leaf',power_shrine:'sword',speed_shrine:'feather',shield_orb:'shield',xp_orb:'book',lucky_coin:'coin',trap:'thorn'};
+function drawPickupModel(c,x,y,type){
+ c.save();oval(c,x,y+9,15,5,P.shadow);
  if(type==='chest'){
   c.translate(x,y);poly(c,[[-15,-10],[-11,-18],[13,-18],[17,-9],[17,11],[-16,11]],P.wood,P.gold);poly(c,[[-15,-10],[17,-9],[13,-18],[-11,-18]],'#96784c');line(c,[[-15,-1],[17,-1]],P.gold,2);gem(c,1,0,5,P.light);
- }else drawIcon(c,icons[type]||'rune',x-17,y-20,34);
+ }else drawIcon(c,PICKUP_ICONS[type]||'rune',x-17,y-20,34);
+ c.restore();
+}
+function drawPickup(c,x,y,type,alpha=1){
+ c.save();c.globalAlpha*=alpha;
+ if(typeof wx==='undefined'||!wx.createCanvas)drawPickupModel(c,x,y,type);
+ else{
+  const kind=PICKUP_ICONS[type]?type:'default',key='pickup:'+kind;let sprite=cache.get(key);
+  if(!sprite){sprite=wx.createCanvas();sprite.width=sprite.height=96;const sc=sprite.getContext('2d');sc.scale(2,2);drawPickupModel(sc,24,24,kind);cache.set(key,sprite);}
+  c.drawImage(sprite,x-24,y-24,48,48);
+ }
  c.restore();
 }
 function drawSentry(c,t,time=0){
@@ -15441,6 +15451,14 @@ function drawBullet(ctx, x, y, size, color = '#ffcc00', shape = 'circle', angle 
 }
 
 function drawDamageNumber(ctx, x, y, text, alpha, color = '#fff', scale = 1, glow = false, bounce = false, bouncePhase = -1) {
+    // Beam ticks can be fractional. Keep their display compact without touching damage.
+    if (typeof text === 'number' || /^[+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i.test(String(text))) {
+        const value = Number(text), magnitude = Math.abs(value), sign = value < 0 ? '-' : String(text).startsWith('+') ? '+' : '';
+        if (Number.isFinite(value)) {
+            const trim = n => n.toFixed(1).replace(/\.0$/, '');
+            text = sign + (magnitude >= 1e8 ? trim(magnitude / 1e8) + '亿' : magnitude >= 1e4 ? trim(magnitude / 1e4) + '万' : magnitude > 0 && magnitude < .1 ? '<0.1' : trim(magnitude));
+        }
+    }
     ctx.save();
     ctx.globalAlpha = alpha;
 
@@ -16053,6 +16071,7 @@ const { drawSentry } = Art;
 const { fastSin, fastCos } = require('./MathLUT');
 const { now: perfNow } = require('./platform');
 const SpeedRunSceneModule = require('./scenes/SpeedRunScene');
+const { beginFrame, friendlyProjectileAlpha } = require('./SpellVfx');
 
 function installRenderSystem(GameClass) {
     // 注意: _drawLastStand 和 _drawBossEntrance 在 HUD.js 中定义，此处不再重复定义
@@ -16076,6 +16095,7 @@ function installRenderSystem(GameClass) {
             if (!this.stageSystem) {
                 this.mapManager.updateStyleByTime(this.time);
             }
+            beginFrame(ctx, this.qualityLevel >= .5);
             this.mapManager.draw(ctx, this.camera.x, this.camera.y, this.width, this.height, this.frameDt || 0.016);
 
             ctx.save();
@@ -16164,7 +16184,10 @@ function installRenderSystem(GameClass) {
 
             for (const bul of this.bullets) {
                 if (bul.x > camLeft && bul.x < camRight && bul.y > camTop && bul.y < camBottom) {
-                    bul.draw(ctx);
+                    const alpha = friendlyProjectileAlpha(bul, this.player);
+                    if (alpha < 1) {
+                        ctx.save(); ctx.globalAlpha *= alpha; bul.draw(ctx); ctx.restore();
+                    } else bul.draw(ctx);
                 }
             }
 
@@ -16199,6 +16222,10 @@ function installRenderSystem(GameClass) {
             }
 
             Art.drawNightMagic(ctx, this);
+            // Restore the same skinned body above friendly bloom, then draw danger
+            // shots above it. Do not repeat trails, auras, pets or other actor effects.
+            Art.drawHero(ctx, this.player.characterId, this.player.x, this.player.y,
+                this.player.radius, this.player.facingAngle, this.player.isMoving, this.time);
             Art.drawPlayerFocus(ctx, this.player);
 
             // Danger shots remain legible above every friendly spell layer.
@@ -16312,7 +16339,7 @@ function installRenderSystem(GameClass) {
 
 module.exports = installRenderSystem;
 
-},{"./Renderer":"src/Renderer.js","./Art":"src/Art.js","./MathLUT":"src/MathLUT.js","./platform":"src/platform.js","./scenes/SpeedRunScene":"src/scenes/SpeedRunScene.js"}],
+},{"./Renderer":"src/Renderer.js","./Art":"src/Art.js","./MathLUT":"src/MathLUT.js","./platform":"src/platform.js","./scenes/SpeedRunScene":"src/scenes/SpeedRunScene.js","./SpellVfx":"src/SpellVfx.js"}],
 "src/SceneManager.js":[function(require,module,exports){
 // ─── 场景管理器 ──────────────────────────
 // 管理游戏的各个 UI 场景（标题、选角色、选诅咒、游戏中、升级、结算等）
@@ -22406,6 +22433,22 @@ const THEMES = {
     dawn: ['#edd497', '#fff9d9', '#9e8355'],
 };
 const glowCache = new Map();
+// A canvas-local presentation budget: never stored on combat actors or weapons.
+const frameBudgets = new WeakMap();
+function beginFrame(c, detail = true) {
+    let budget = frameBudgets.get(c);
+    if (!budget) { budget = {}; frameBudgets.set(c, budget); }
+    budget.projectiles = detail ? 48 : 0;
+    budget.domains = detail ? 8 : 0;
+}
+function friendlyProjectileAlpha(bullet, player) {
+    if (!player) return 1;
+    const reach = 28 + Math.min(24, Math.max(0, bullet.radius || 0)) * 1.2;
+    const dx = bullet.x - player.x, dy = bullet.y - (player.y - 18);
+    if (Math.abs(dx) >= reach + 28 || Math.abs(dy) >= reach + 28) return 1;
+    const ramp = Math.max(0, Math.min(1, (Math.hypot(dx, dy) - reach) / 28));
+    return .32 + .68 * ramp;
+}
 function glow(c, x, y, r, color, alpha) {
     if (typeof wx === 'undefined' || !wx.createCanvas) return;
     let sprite = glowCache.get(color);
@@ -22516,7 +22559,7 @@ function drawInvocation(c, fx, game) {
         let prev = {x, y};
         for (const point of (fx.points || []).slice(0, 8)) {
             lightning(c, prev.x, prev.y, point.x, point.y, theme, t, .5 + .5 * Math.abs(Math.sin(t * 28)), quality);
-            drawImpact(c, {kind: 'storm', x: point.x, y: point.y, age: t, life: fx.life, color: main});
+            drawImpact(c, {kind: 'storm', x: point.x, y: point.y, age: t, life: fx.life, color: main}, quality);
             prev = point;
         }
     } else if (kind === 'assassin') {
@@ -22634,6 +22677,12 @@ function drawDomain(c, x, y, r, time, color, kind, detail = true) {
     c.restore();
 }
 function drawProjectileDetail(c, size, color, shape, time = 0, evolved = false) {
+    const budget = frameBudgets.get(c);
+    if (budget) {
+        const key = ['zero_domain', 'orbital_beam', 'singularity'].includes(shape) ? 'domains' : 'projectiles';
+        if (budget[key] <= 0) return;
+        budget[key]--;
+    }
     const theme = palette(color), s = Math.min(14, Math.max(1, size * .55));
     c.save();
     if (shape !== 'cloud') glow(c, 0, 0, Math.min(18, s * 1.3), theme[0], .32);
@@ -22688,7 +22737,7 @@ function drawCloneWake(c, x, y, angle, time, shooting) {
         for (let i = 0; i < 4; i++) { const a = i * TAU / 4 + time; stroke(c, [[x + Math.cos(a) * 6, y - 10 + Math.sin(a) * 6], [x + Math.cos(a) * 11, y - 10 + Math.sin(a) * 11]], theme[1], 1, .7); }
     }
 }
-module.exports = { THEMES, drawInvocation, drawDomain, drawProjectileDetail, drawImpact, drawCloneWake };
+module.exports = { THEMES, beginFrame, friendlyProjectileAlpha, drawInvocation, drawDomain, drawProjectileDetail, drawImpact, drawCloneWake };
 
 },{}],
 "src/SpriteCache.js":[function(require,module,exports){
@@ -24562,7 +24611,7 @@ function drawWeaponAir(c, w) {
     }
     for (const orb of w._orbList) if (visible(g, orb.x, orb.y, orb.radius)) F.drawProjectile(c, orb.x, orb.y, orb.radius, '#88ddff', 'crystal', g.time * .4, w.evolved && g.qualityLevel >= .5, g.time * 3, g.qualityLevel >= .5);
     for (const bot of w._nanoSwarm) if (visible(g, bot.x, bot.y, bot.hitRadius)) {
-        F.drawProjectile(c, bot.x, bot.y, 5, '#88ff00', 'sting', bot.angle + Math.PI / 2);
+        F.drawProjectile(c, bot.x, bot.y, 5, '#88ff00', 'sting', bot.angle + Math.PI / 2, false, g.time * 3, g.qualityLevel >= .5);
         if (g.qualityLevel >= .5) { c.save(); c.globalAlpha *= .25; c.strokeStyle = '#b0cb84'; c.beginPath(); c.arc(bot.x, bot.y, bot.hitRadius, 0, Math.PI * 2); c.stroke(); c.restore(); }
     }
 }
