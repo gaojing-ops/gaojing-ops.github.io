@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 const require=createRequire(new URL('../games/emberfall/flux/entry.js',import.meta.url));
 const layout=require('./src/ArtLayout');
 const loaded=[];
-function drawingContext(){const ops=[];return new Proxy({globalAlpha:1,ops},{get:(o,k)=>o[k]??((...args)=>{ops.push([k,...args]);}),set:(o,k,v)=>{o[k]=v;if(['fillStyle','strokeStyle'].includes(k))ops.push([k,v]);return true;}});}
+function drawingContext(){const ops=[];return new Proxy({globalAlpha:1,ops,createRadialGradient(...args){ops.push(['createRadialGradient',...args]);return {addColorStop(...stop){ops.push(['addColorStop',...stop]);}};}},{get:(o,k)=>o[k]??((...args)=>{ops.push([k,...args]);}),set:(o,k,v)=>{o[k]=v;if(['fillStyle','strokeStyle'].includes(k))ops.push([k,v]);return true;}});}
 globalThis.wx={createCanvas:()=>{const context=drawingContext();return {getContext:()=>context,context};},createImage:()=>({set src(value){loaded.push(value);this.onload?.();}})};
 const Art=require('./src/Art');await Art.preload();
 const calls=[];const ctx=new Proxy({globalAlpha:1,drawImage(...args){calls.push(args);}}, {get:(o,k)=>o[k]??(()=>{}),set:(o,k,v)=>(o[k]=v,true)});

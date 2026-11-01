@@ -1,4 +1,5 @@
 const { fastSin, fastCos } = require('./MathLUT');
+const { drawImpact } = require('./SpellVfx');
 // ─── 粒子特效系统 ──────────────────────────
 // 轻量级粒子系统，用于爆炸、命中、收集等效果
 
@@ -6,6 +7,7 @@ class ParticleSystem {
     constructor() {
         this.particles = [];
         this.maxParticles = 80; // 性能保护：最大粒子数
+        this.feedback = [];
     }
 
     /** 发射粒子 */
@@ -50,6 +52,7 @@ class ParticleSystem {
             count: 1, speed: 60, life: 0.08,
             size: 1.5, sizeEnd: 0, color,
         });
+        this._feedback(x, y, color, 'hit');
     }
 
     /** 终极武器命中特效（优化：减少粒子数） */
@@ -64,6 +67,7 @@ class ParticleSystem {
             count: 1, speed: 80, life: 0.12,
             size: 2, sizeEnd: 0, color: '#ffffff',
         });
+        this._feedback(x, y, color, 'evolved');
     }
 
     /** 冰冻命中 */
@@ -73,6 +77,7 @@ class ParticleSystem {
             count: 3, speed: 100, life: 0.2,
             size: 2, sizeEnd: 0, color: '#88ddff',
         });
+        this._feedback(x, y, '#88ddff', 'frost');
     }
 
     /** 毒素命中 */
@@ -83,6 +88,7 @@ class ParticleSystem {
             size: 3, sizeEnd: 1, color: '#88ff00',
             gravity: -20,
         });
+        this._feedback(x, y, '#88ff00', 'grove');
     }
 
     /** 宝石收集 */
@@ -117,7 +123,17 @@ class ParticleSystem {
         });
     }
 
+    _feedback(x, y, color, kind) {
+        if (this.feedback.length >= 24) return;
+        const last = this.feedback[this.feedback.length - 1];
+        if (last && last.age < .06 && Math.hypot(x - last.x, y - last.y) < 14) return;
+        this.feedback.push({x, y, color, kind, age: 0, life: .26});
+    }
+
     update(dt) {
+        let visible = 0;
+        for (const fx of this.feedback) if ((fx.age += dt) < fx.life) this.feedback[visible++] = fx;
+        this.feedback.length = visible;
         // 原地更新，避免创建新数组
         let alive = 0;
         for (let i = 0; i < this.particles.length; i++) {
@@ -136,7 +152,10 @@ class ParticleSystem {
         this.particles.length = alive;
     }
 
-    draw(ctx) {
+    draw(ctx, detail = true) {
+        for (let i = Math.max(0, this.feedback.length - (detail ? 24 : 12)); i < this.feedback.length; i++) {
+            drawImpact(ctx, this.feedback[i], detail);
+        }
         ctx.save();
         ctx.globalCompositeOperation = 'lighter'; // 💥 让特效叠加发亮，有更强视觉冲击
         for (const p of this.particles) {

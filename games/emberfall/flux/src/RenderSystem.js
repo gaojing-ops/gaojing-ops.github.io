@@ -122,7 +122,7 @@ function installRenderSystem(GameClass) {
             }
 
 
-            try { this.particles.draw(ctx); } catch (_e) { throw new Error('particles.draw: ' + _e.message); }
+            try { this.particles.draw(ctx, this.qualityLevel >= .5); } catch (_e) { throw new Error('particles.draw: ' + _e.message); }
 
             if (this.player.turrets) {
                 for (const t of this.player.turrets) {

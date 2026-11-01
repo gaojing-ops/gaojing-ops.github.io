@@ -3838,7 +3838,7 @@ class Bullet {
 
         // The native glyph stays compact; its outline preserves the actual hit radius.
         const drawSize = this.radius;
-        drawBullet(ctx, this.x, this.y, drawSize, this.color, this.shape, drawAngle, 0, this.evolved);
+        drawBullet(ctx, this.x, this.y, drawSize, this.color, this.shape, drawAngle, 0, this.evolved, this.glowTimer, this.game.qualityLevel >= .5);
         ctx.restore();
     }
 }
@@ -7898,6 +7898,7 @@ module.exports = {
 
 },{"./Weapons":"src/Weapons.js"}],
 "src/FacetedArt.js":[function(require,module,exports){
+const Vfx=require('./SpellVfx');
 // Shared, code-native artwork: the same flat facets as Emberfall's first courtyard.
 // World actors, portraits and interface emblems all use these models and pigments.
 const TAU=Math.PI*2;
@@ -8177,8 +8178,9 @@ function pigment(color){
  }
  pigments.set(color,value);return value;
 }
-function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false){
+function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false,phase=0,detail=true){
  const d=pigment(color),radius=Math.max(.5,size);let s=radius;c.save();c.translate(x,y);c.rotate(angle);
+ if(detail)Vfx.drawProjectileDetail(c,radius,color,shape,phase,evolved);
  if(shape==='orbital_beam'||shape==='zero_domain'){
   c.save();c.globalAlpha*=.55;c.strokeStyle=d.main;c.lineWidth=1.5;c.beginPath();c.arc(0,0,s,0,TAU);c.stroke();
   gem(c,0,0,Math.min(24,s*.2),d.dark,d.light);
@@ -8260,7 +8262,7 @@ function drawCompanion(c,pet){
 }
 module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawIcon,drawProjectile,drawArea,drawGem,drawPickup,drawSentry,drawCompanion,pigment,iconKey,HEROES,MONSTERS,BOSSES,P,cache};
 
-},{}],
+},{"./SpellVfx":"src/SpellVfx.js"}],
 "src/Game.js":[function(require,module,exports){
 // ─── 主游戏类（微信小游戏版） ──────────────────────────
 // 移除所有 DOM 操作，UI 交给 SceneManager + Canvas 场景
@@ -12684,6 +12686,7 @@ module.exports.META_UPGRADES = META_UPGRADES;
 "src/NightMagic.js":[function(require,module,exports){
 // Deterministic carved sigils and spell animation. No combat RNG or state writes.
 const F=require('./FacetedArt');
+const V=require('./SpellVfx');
 const {DEITIES}=require('./Pantheon');
 const TAU=Math.PI*2;
 const SKILL_ART={
@@ -12721,62 +12724,16 @@ function makeSkillEffect(game,from){
  const points=['cryomancer','biohazard'].includes(id)?(game.enemies||[]).filter(e=>e.active&&Math.hypot(e.x-p.x,e.y-p.y)<=radius).slice(0,48).map(e=>({x:e.x,y:e.y})):[];
  return {kind:id,deity:s.deity,x:p.x,y:p.y,from,age:0,life:s.life,radius,follow:!!s.follow,points};
 }
-function ring(c,x,y,r,color,alpha=1){c.save();c.globalAlpha*=alpha;c.strokeStyle=color;c.lineWidth=2;const points=[];for(let i=0;i<12;i++)points.push([x+Math.cos(i*TAU/12)*r,y+Math.sin(i*TAU/12)*r]);path(c,points,null,color);c.restore();}
-function drawSpell(c,fx,game){
- const p=game.player,x=fx.follow?p.x:fx.x,y=fx.follow?p.y:fx.y;
- const color=DEITIES[fx.deity]?.color||'#efd18e',t=fx.age,q=Math.min(1,t/fx.life),fade=Math.min(1,(fx.life-t)*4),kind=fx.kind,r=fx.radius;
- c.save();c.globalAlpha*=fade;
- if(kind==='storm'){
-  let prev={x,y};for(const point of fx.points||[]){const dx=point.x-prev.x,dy=point.y-prev.y;line(c,[[prev.x,prev.y],[prev.x+dx*.32-dy*.08,prev.y+dy*.32+dx*.08],[prev.x+dx*.63+dy*.07,prev.y+dy*.63-dx*.07],[point.x,point.y]],color,3);gem(c,point.x,point.y,8,color);prev=point;}
- }else if(kind==='assassin'){
-  if(fx.from)line(c,[[fx.from.x,fx.from.y],[x,y]],color,2);
-  for(const a of [-.6,.6]){c.save();c.translate(x,y);c.rotate(a);path(c,[[-r*.8,-5],[r*.85,-12],[r*.55,5],[-r*.7,8]],color);c.restore();}ring(c,x,y,r*(.3+q*.7),color,.5);
- }else if(kind==='engineer'){
-  const pts=(p.turrets||[]).filter(o=>o.active).map(o=>[o.x,o.y]);if(pts.length>1)line(c,[...pts,pts[0]],color,2);
-  for(const [tx,ty] of pts){ring(c,tx,ty,24+q*15,color,.6);gem(c,tx,ty-45-q*10,6,color);}
- }else if(kind==='walker'){
-  ring(c,x,y-9,r,color,.7);for(let i=0;i<5;i++){const a=i*TAU/5+t*.35,tx=x+Math.cos(a)*r,ty=y-9+Math.sin(a)*r*.7;drawIcon(c,'skill_walker',tx-9,ty-9,18);}
- }else if(kind==='gunner'){
-  const a=p.facingAngle||0;for(let i=0;i<3;i++){const dist=r+16+i*20;const tx=x+Math.cos(a)*dist,ty=y+Math.sin(a)*dist;line(c,[[tx+Math.cos(a+2.5)*9,ty+Math.sin(a+2.5)*9],[tx,ty],[tx+Math.cos(a-2.5)*9,ty+Math.sin(a-2.5)*9]],color,2);}
-  ring(c,x,y,r*.6,color,.35);
- }else if(kind==='arcane'){
-  const points=[];for(let i=0;i<5;i++){const a=i*TAU/5+t*.35,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r*.7;points.push([px,py]);gem(c,px,py,6,color);}line(c,[points[0],points[2],points[4],points[1],points[3],points[0]],color,1.4);
- }else if(kind==='berserker'){
-  for(let i=0;i<2;i++){const a=t*3+i*Math.PI;c.save();c.translate(x,y);c.rotate(a);path(c,[[r*.4,-r*.65],[r,-r*.25],[r*.85,r*.55],[r*.65,0]],color);c.restore();}
-  ring(c,x,y,r*.65,color,.3);
- }else if(kind==='tracer'){
-  for(let i=0;i<6;i++){const a=i*TAU/6-t*2;gem(c,x+Math.cos(a)*r,y+Math.sin(a)*r*.65,4+i%2*2,color);}ring(c,x,y,r*.6,color,.5);
- }else{
-  const radius=r*Math.min(1,q*2+.15);ring(c,x,y,radius,color,.7);ring(c,x,y,radius*.85,color,.3);
-  // A readable casting seal stays near the hero even when a viewport-sized
-  // wave has already expanded beyond the screen. Impact shards mark real targets.
-  if(['cryomancer','biohazard','moon'].includes(kind)){
-   const inner=Math.min(72,r*.45);ring(c,x,y,inner,color,.8);
-   for(let i=0;i<6;i++){const a=i*TAU/6+t*.25,tx=x+Math.cos(a)*inner,ty=y+Math.sin(a)*inner;
-    line(c,[[x+Math.cos(a)*(inner-13),y+Math.sin(a)*(inner-13)],[tx,ty],[x+Math.cos(a)*(inner+9),y+Math.sin(a)*(inner+9)]],color,2.5);gem(c,tx,ty,5,color);
-   }
-   for(const target of fx.points||[]){const rise=(1-q)*18;
-    if(kind==='biohazard')line(c,[[target.x-10,target.y+8],[target.x-6,target.y-rise],[target.x+2,target.y-10],[target.x+8,target.y-rise-9]],color,2);
-    else for(const side of [-1,1])path(c,[[target.x+side*12,target.y+7],[target.x+side*16,target.y-12-rise],[target.x+side*8,target.y-22-rise],[target.x+side*5,target.y+7]],'#547e88',color);
-   }
-  }
-  c.save();c.globalAlpha*=.06;const pts=[];for(let i=0;i<12;i++)pts.push([x+Math.cos(i*TAU/12)*radius,y+Math.sin(i*TAU/12)*radius]);path(c,pts,color);c.restore();
-  for(let i=0;i<8;i++){
-   const a=i*TAU/8+t*.2,tx=x+Math.cos(a)*radius*.8,ty=y+Math.sin(a)*radius*.8;
-   if(kind==='biohazard'){line(c,[[x+Math.cos(a)*radius*.4,y+Math.sin(a)*radius*.4],[tx,ty]],color,1.5);gem(c,tx,ty,7,color);}
-   else if(kind==='cryomancer'||kind==='moon'){line(c,[[tx-5,ty-6],[tx,ty+6],[tx+5,ty-6]],color,2);gem(c,tx,ty-8,4,color);}
-   else{gem(c,tx,ty-(1-q)*15,6,color);}
-  }
- }
- c.restore();
-}
+function drawSpell(c,fx,game){V.drawInvocation(c,fx,game);}
 function drawNightMagic(c,game){
- for(const fx of game.skillSystem?.visualEffects||[])drawSpell(c,fx,game);
- for(const fx of game.pantheon?.effects||[])drawSpell(c,fx,game);
+ const cap=game.qualityLevel>=.5?8:4;
+ const skills=(game.skillSystem?.visualEffects||[]).slice(-(cap>=8?3:2));
+ for(const fx of skills)drawSpell(c,fx,game);
+ for(const fx of (game.pantheon?.effects||[]).slice(-(cap-skills.length)))drawSpell(c,fx,game);
 }
 module.exports={SKILL_ART,makeSkillEffect,drawNightMagic,drawIcon,drawSpell};
 
-},{"./FacetedArt":"src/FacetedArt.js","./Pantheon":"src/Pantheon.js"}],
+},{"./FacetedArt":"src/FacetedArt.js","./SpellVfx":"src/SpellVfx.js","./Pantheon":"src/Pantheon.js"}],
 "src/ObjectPool.js":[function(require,module,exports){
 // ─── 对象池 ──────────────────────────
 // 通用对象池，复用已失活对象避免频繁 new/GC
@@ -12962,6 +12919,7 @@ module.exports={DEITIES,BLESSINGS,Pantheon,divineStage,pulseValues,blessingPrevi
 },{}],
 "src/ParticleSystem.js":[function(require,module,exports){
 const { fastSin, fastCos } = require('./MathLUT');
+const { drawImpact } = require('./SpellVfx');
 // ─── 粒子特效系统 ──────────────────────────
 // 轻量级粒子系统，用于爆炸、命中、收集等效果
 
@@ -12969,6 +12927,7 @@ class ParticleSystem {
     constructor() {
         this.particles = [];
         this.maxParticles = 80; // 性能保护：最大粒子数
+        this.feedback = [];
     }
 
     /** 发射粒子 */
@@ -13013,6 +12972,7 @@ class ParticleSystem {
             count: 1, speed: 60, life: 0.08,
             size: 1.5, sizeEnd: 0, color,
         });
+        this._feedback(x, y, color, 'hit');
     }
 
     /** 终极武器命中特效（优化：减少粒子数） */
@@ -13027,6 +12987,7 @@ class ParticleSystem {
             count: 1, speed: 80, life: 0.12,
             size: 2, sizeEnd: 0, color: '#ffffff',
         });
+        this._feedback(x, y, color, 'evolved');
     }
 
     /** 冰冻命中 */
@@ -13036,6 +12997,7 @@ class ParticleSystem {
             count: 3, speed: 100, life: 0.2,
             size: 2, sizeEnd: 0, color: '#88ddff',
         });
+        this._feedback(x, y, '#88ddff', 'frost');
     }
 
     /** 毒素命中 */
@@ -13046,6 +13008,7 @@ class ParticleSystem {
             size: 3, sizeEnd: 1, color: '#88ff00',
             gravity: -20,
         });
+        this._feedback(x, y, '#88ff00', 'grove');
     }
 
     /** 宝石收集 */
@@ -13080,7 +13043,17 @@ class ParticleSystem {
         });
     }
 
+    _feedback(x, y, color, kind) {
+        if (this.feedback.length >= 24) return;
+        const last = this.feedback[this.feedback.length - 1];
+        if (last && last.age < .06 && Math.hypot(x - last.x, y - last.y) < 14) return;
+        this.feedback.push({x, y, color, kind, age: 0, life: .26});
+    }
+
     update(dt) {
+        let visible = 0;
+        for (const fx of this.feedback) if ((fx.age += dt) < fx.life) this.feedback[visible++] = fx;
+        this.feedback.length = visible;
         // 原地更新，避免创建新数组
         let alive = 0;
         for (let i = 0; i < this.particles.length; i++) {
@@ -13099,7 +13072,10 @@ class ParticleSystem {
         this.particles.length = alive;
     }
 
-    draw(ctx) {
+    draw(ctx, detail = true) {
+        for (let i = Math.max(0, this.feedback.length - (detail ? 24 : 12)); i < this.feedback.length; i++) {
+            drawImpact(ctx, this.feedback[i], detail);
+        }
         ctx.save();
         ctx.globalCompositeOperation = 'lighter'; // 💥 让特效叠加发亮，有更强视觉冲击
         for (const p of this.particles) {
@@ -13126,7 +13102,7 @@ class ParticleSystem {
 
 module.exports = ParticleSystem;
 
-},{"./MathLUT":"src/MathLUT.js"}],
+},{"./MathLUT":"src/MathLUT.js","./SpellVfx":"src/SpellVfx.js"}],
 "src/Pet.js":[function(require,module,exports){
 const { fastSin, fastCos } = require('./MathLUT');
 const Bullet = require('./Bullet');
@@ -15460,8 +15436,8 @@ function drawGem(ctx, x, y, size) {
     Facets.drawGem(ctx,x,y,size);
 }
 
-function drawBullet(ctx, x, y, size, color = '#ffcc00', shape = 'circle', angle = 0, glowIntensity = 10, evolved = false) {
-    Facets.drawProjectile(ctx,x,y,size,color,shape,angle,evolved);
+function drawBullet(ctx, x, y, size, color = '#ffcc00', shape = 'circle', angle = 0, glowIntensity = 10, evolved = false, phase = 0, detail = true) {
+    Facets.drawProjectile(ctx,x,y,size,color,shape,angle,evolved,phase,detail);
 }
 
 function drawDamageNumber(ctx, x, y, text, alpha, color = '#fff', scale = 1, glow = false, bounce = false, bouncePhase = -1) {
@@ -16193,7 +16169,7 @@ function installRenderSystem(GameClass) {
             }
 
 
-            try { this.particles.draw(ctx); } catch (_e) { throw new Error('particles.draw: ' + _e.message); }
+            try { this.particles.draw(ctx, this.qualityLevel >= .5); } catch (_e) { throw new Error('particles.draw: ' + _e.message); }
 
             if (this.player.turrets) {
                 for (const t of this.player.turrets) {
@@ -22416,6 +22392,305 @@ function installSpawnSystem(Game) {
 module.exports = installSpawnSystem;
 
 },{"./MathLUT":"src/MathLUT.js"}],
+"src/SpellVfx.js":[function(require,module,exports){
+// Presentation geometry only: no combat RNG, collision objects or damage writes.
+const TAU = Math.PI * 2;
+const THEMES = {
+    ember: ['#e7a25b', '#fff0bd', '#8d5539'],
+    wind: ['#b7d3b1', '#f3edc9', '#557c70'],
+    storm: ['#e5c979', '#fff6d7', '#8b7651'],
+    moon: ['#9ed8df', '#efffff', '#507987'],
+    grove: ['#b4cb7e', '#eef0b6', '#577953'],
+    night: ['#baa2db', '#f0dfff', '#6b5687'],
+    forge: ['#dba274', '#ffe2b0', '#876b52'],
+    dawn: ['#edd497', '#fff9d9', '#9e8355'],
+};
+const glowCache = new Map();
+function glow(c, x, y, r, color, alpha) {
+    if (typeof wx === 'undefined' || !wx.createCanvas) return;
+    let sprite = glowCache.get(color);
+    if (!sprite) {
+        sprite = wx.createCanvas(); sprite.width = sprite.height = 96;
+        const sc = sprite.getContext('2d'), gradient = sc.createRadialGradient(48, 48, 0, 48, 48, 48);
+        gradient.addColorStop(0, '#fff6dcbb'); gradient.addColorStop(.16, color + '88');
+        gradient.addColorStop(.48, color + '33'); gradient.addColorStop(1, color + '00');
+        sc.fillStyle = gradient; sc.fillRect(0, 0, 96, 96); glowCache.set(color, sprite);
+    }
+    c.save(); c.globalAlpha *= alpha; c.globalCompositeOperation = 'lighter'; c.drawImage(sprite, x - r, y - r, r * 2, r * 2); c.restore();
+}
+function flame(c, x, y, size, angle, time, theme, alpha = .6, bloom = true) {
+    c.save(); c.translate(x, y); c.rotate(angle); c.globalAlpha *= alpha;
+    const flicker = Math.sin(time * 11 + x * .1) * size * .15;
+    if(bloom)glow(c, 0, -size * .6, size * 1.5, theme[0], .45);
+    c.fillStyle = theme[0]; c.beginPath(); c.moveTo(-size * .38, 2);
+    c.quadraticCurveTo(-size * .65, -size * .5, -size * .12, -size * .9);
+    c.lineTo(size * .1, -size * 1.5 - flicker); c.quadraticCurveTo(size * .15, -size * .6, size * .43, -size * .35); c.quadraticCurveTo(size * .55, size * .1, 0, size * .28); c.closePath(); c.fill();
+    c.fillStyle = theme[1]; c.beginPath(); c.moveTo(-size * .15, 0); c.lineTo(size * .05, -size * .75); c.lineTo(size * .22, 0); c.closePath(); c.fill(); c.restore();
+}
+function palette(color) {
+    if (!/^#[\da-f]{6}$/i.test(color || '')) return THEMES.dawn;
+    const n = parseInt(color.slice(1), 16), r = n >> 16, g = n >> 8 & 255, b = n & 255;
+    return b > r * 1.1 && b > g * 1.25 ? THEMES.night : g > r * 1.1 && g > b * 1.4 ? THEMES.grove : b > r * 1.2 ? THEMES.moon : r > g * 1.3 ? THEMES.ember : THEMES.dawn;
+}
+function stroke(c, points, color, width = 1, alpha = 1, close = false) {
+    if (!points.length) return;
+    c.save(); c.globalAlpha *= alpha; c.strokeStyle = color; c.lineWidth = width;
+    c.beginPath(); points.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y));
+    if (close) c.closePath(); c.stroke(); c.restore();
+}
+function arc(c, x, y, r, a, b, color, width = 1, alpha = 1) {
+    if (r <= 0) return;
+    c.save(); c.globalAlpha *= alpha; c.strokeStyle = color; c.lineWidth = width;
+    c.beginPath(); c.arc(x, y, r, a, b); c.stroke(); c.restore();
+}
+function shard(c, x, y, size, angle, color, alpha = .7) {
+    c.save(); c.translate(x, y); c.rotate(angle); c.globalAlpha *= alpha;
+    c.fillStyle = color; c.beginPath(); c.moveTo(0, -size); c.lineTo(size * .32, 0); c.lineTo(0, size * .5); c.lineTo(-size * .32, 0); c.closePath(); c.fill(); c.restore();
+}
+function seal(c, x, y, r, time, theme, count = 8) {
+    const [main, light, dark] = theme;
+    arc(c, x, y, r, time * .16, time * .16 + TAU * .82, dark, 4, .26);
+    arc(c, x, y, r, time * .16, time * .16 + TAU * .82, main, 1, .7);
+    arc(c, x, y, r * .82, -time * .22, -time * .22 + Math.PI * 1.4, main, 1, .28);
+    for (let i = 0; i < count; i++) {
+        const a = i * TAU / count + time * .12, cs = Math.cos(a), sn = Math.sin(a);
+        const tx = x + cs * r, ty = y + sn * r;
+        stroke(c, [[tx - cs * 4 - sn * 3, ty - sn * 4 + cs * 3], [tx + cs * 5, ty + sn * 5], [tx + cs * 4 + sn * 3, ty + sn * 4 - cs * 3]], light, 1, .65);
+    }
+}
+function lightning(c, x, y, tx, ty, theme, phase, strength = 1, bloom = true) {
+    const dx = tx - x, dy = ty - y, len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
+    const points = [[x, y]];
+    for (let i = 1; i < 6; i++) {
+        const u = i / 6, off = Math.sin(i * 7.1 + Math.floor(phase * 18) * 2.3) * Math.min(13, len * .08);
+        points.push([x + dx * u + nx * off, y + dy * u + ny * off]);
+    }
+    points.push([tx, ty]);
+    stroke(c, points, theme[0], 5, .14 * strength);
+    stroke(c, points, theme[0], 2, .9 * strength);
+    stroke(c, points, theme[1], .75, .9 * strength);
+    if(bloom)glow(c, tx, ty, 20, theme[0], .35 * strength);
+}
+function motes(c, x, y, r, time, theme, count, mode) {
+    for (let i = 0; i < count; i++) {
+        const a = i * 2.39996 + time * .35, u = (time * .65 + i * .173) % 1;
+        const d = r * (.45 + u * .5), px = x + Math.cos(a) * d, py = y + Math.sin(a) * d - u * 10;
+        if (mode === 'grove') {
+            stroke(c, [[px - 3, py + 4], [px + Math.sin(a) * 3, py - 4], [px + 4, py - 1]], theme[0], 1, (1 - u) * .65);
+        } else shard(c, px, py, 2 + (i % 3), a + time, theme[i % 2], (1 - u) * .65);
+    }
+}
+function targetMarks(c, fx, q, theme, quality, mode) {
+    const points = fx.points || [], count = Math.min(points.length, quality ? 12 : 5);
+    for (let i = 0; i < count; i++) {
+        const p = points[i], rise = 16 * Math.sin(Math.min(1, q * 2) * Math.PI * .5);
+        if (mode === 'grove') {
+            stroke(c, [[p.x - 12, p.y + 7], [p.x - 6, p.y - rise], [p.x + 1, p.y - 4], [p.x + 9, p.y - rise - 7]], theme[0], 2, 1 - q);
+            shard(c, p.x + 7, p.y - rise - 4, 5, .6, theme[1], (1 - q) * .7);
+        } else {
+            for (const side of [-1, 1]) {
+                stroke(c, [[p.x + side * 13, p.y + 6], [p.x + side * 16, p.y - rise - 6], [p.x + side * 6, p.y - rise - 16]], theme[0], 2, 1 - q);
+                shard(c, p.x + side * 9, p.y - rise - 5, 7, side * .18, theme[1], (1 - q) * .65);
+            }
+        }
+    }
+}
+function drawInvocation(c, fx, game) {
+    const p = game.player, x = fx.follow ? p.x : fx.x, y = fx.follow ? p.y : fx.y;
+    const theme = THEMES[fx.deity] || THEMES.dawn, [main, light, dark] = theme;
+    const t = fx.age, q = Math.max(0, Math.min(1, t / fx.life)), r = Math.max(1, fx.radius || 60);
+    const quality = game.qualityLevel >= .5, n = quality ? 8 : 4;
+    const fade = Math.min(1, (1 - q) * 7), burst = Math.max(0, 1 - t * 2.8);
+    const inner = Math.min(76, r * .5), kind = fx.kind;
+    c.save(); c.globalAlpha *= fade; c.lineCap = 'round'; c.lineJoin = 'round';
+    if(quality)glow(c, x, y + 8, 28, main, .22 + burst * .25);
+    // Layered engraved casting seal, expanding echo and rising elemental debris.
+    seal(c, x, y, inner * (.9 + Math.sin(t * 5) * .025), t, theme, n);
+    if (burst > 0) {
+        const ring = Math.min(r, inner * (1 + t * 3));
+        arc(c, x, y, ring, 0, TAU, main, 5, burst * .1);
+        arc(c, x, y, ring, 0, TAU, light, 1, burst * .7);
+    }
+    motes(c, x, y, inner, t, theme, n, fx.deity);
+    if (kind === 'storm') {
+        let prev = {x, y};
+        for (const point of (fx.points || []).slice(0, 8)) {
+            lightning(c, prev.x, prev.y, point.x, point.y, theme, t, .5 + .5 * Math.abs(Math.sin(t * 28)), quality);
+            drawImpact(c, {kind: 'storm', x: point.x, y: point.y, age: t, life: fx.life, color: main});
+            prev = point;
+        }
+    } else if (kind === 'assassin') {
+        if (fx.from) {
+            const dx = x - fx.from.x, dy = y - fx.from.y;
+            const bend = Math.min(35, Math.hypot(dx, dy) * .1);
+            const points = [[fx.from.x, fx.from.y], [fx.from.x + dx * .35 - bend, fx.from.y + dy * .35], [x - dx * .18, y - dy * .18 + bend], [x, y]];
+            stroke(c, points, dark, 13, .25 * (1 - q)); stroke(c, points, main, 2, .8 * (1 - q));
+            seal(c, fx.from.x, fx.from.y, 22 * (1 - q), -t, theme, 4);
+        }
+        for (let i = 0; i < 3; i++) {
+            const a = -.9 + i * .7 + q * 1.5, length = Math.min(r, 150);
+            arc(c, x, y, length * (.5 + i * .16), a, a + 1.7, dark, 8, .18 * (1 - q));
+            arc(c, x, y, length * (.5 + i * .16), a, a + 1.7, light, 1.5, 1 - q);
+        }
+    } else if (kind === 'walker') {
+        for (let i = 0; i < 6; i++) {
+            const a = i * TAU / 6 + t * .12, tx = x + Math.cos(a) * r, ty = y - 10 + Math.sin(a) * r * .8;
+            stroke(c, [[tx - 7, ty - 10], [tx + 7, ty - 10], [tx + 8, ty + 1], [tx, ty + 10], [tx - 8, ty + 1]], main, 2, .7, true);
+            stroke(c, [[tx, ty - 5], [tx, ty + 4]], light, 1, .65);
+            if(quality)glow(c, tx, ty - 6, 12, main, .45);
+        }
+    } else if (kind === 'gunner') {
+        const a = p.facingAngle || 0;
+        c.save(); c.translate(x, y); c.rotate(a);
+        for (let i = 0; i < 3; i++) {
+            const d = 34 + i * 23 + (t * 16 % 23);
+            stroke(c, [[d - 11, -7], [d, 0], [d - 11, 7]], light, 1.8, .7 - i * .16);
+        }
+        arc(c, 0, 0, 40, -.7, .7, main, 2, .55); c.restore();
+    } else if (kind === 'arcane') {
+        const points = [];
+        for (let i = 0; i < 5; i++) {
+            const a = i * TAU / 5 + t * .4; points.push([x + Math.cos(a) * r, y + Math.sin(a) * r * .8]);
+            shard(c, points[i][0], points[i][1], 7, a + Math.PI / 2, light, .85);
+            if(quality)glow(c, points[i][0], points[i][1], 13, main, .4);
+        }
+        stroke(c, [points[0], points[2], points[4], points[1], points[3], points[0]], main, 1, .5);
+        arc(c, x, y, r * .38, t, t + Math.PI * 1.6, light, 2, .7);
+    } else if (kind === 'engineer') {
+        const turrets = (p.turrets || []).filter(o => o.active).slice(0, 6);
+        for (const turret of turrets) {
+            seal(c, turret.x, turret.y, 27, -t, theme, 4);
+            const h = 35 * (1 - q);
+            stroke(c, [[turret.x - 13, turret.y - h], [turret.x - 13, turret.y + 5], [turret.x + 13, turret.y + 5], [turret.x + 13, turret.y - h]], light, 1.5, 1 - q);
+            motes(c, turret.x, turret.y, 26, t, THEMES.ember, 4, 'ember');
+        }
+    } else if (kind === 'berserker' || kind === 'tracer') {
+        for (let i = 0; i < (kind === 'berserker' ? (quality ? 3 : 2) : (quality ? 6 : 3)); i++) {
+            const a = i * TAU / (kind === 'berserker' ? (quality ? 3 : 2) : (quality ? 6 : 3)) + t * (kind === 'berserker' ? 2.5 : -2);
+            arc(c, x, y, r * .8, a, a + .65, main, 4, .45);
+            arc(c, x, y, r * .8, a, a + .65, light, 1, .8);
+            flame(c, x + Math.cos(a) * r * .8, y + Math.sin(a) * r * .8, kind === 'berserker' ? 14 : 9, a + Math.PI / 2, t, theme, .65, quality);
+        }
+        if (kind === 'tracer') for (const point of (p.trail || []).slice(-8)) {
+            shard(c, point.x, point.y - 8, 4, p.facingAngle || 0, main, .3);
+        }
+    } else {
+        const wave = r * Math.min(1, .12 + q * 2.3);
+        arc(c, x, y, wave, 0, TAU, main, 2, .55 * (1 - q));
+        arc(c, x, y, wave * .93, -.4, TAU - .6, light, 1, .35 * (1 - q));
+        const mode = kind === 'biohazard' || fx.deity === 'grove' ? 'grove' : fx.deity === 'moon' ? 'moon' : fx.deity;
+        for (let i = 0; i < n; i++) {
+            const a = i * TAU / n + t * .12, d = Math.min(wave * .75, 190), tx = x + Math.cos(a) * d, ty = y + Math.sin(a) * d;
+            if (mode === 'moon') {
+                const len = 10 + 10 * Math.sin(Math.min(1, q * 3) * Math.PI);
+                for (let j = 0; j < 3; j++) { const b = a + j * TAU / 3; stroke(c, [[tx - Math.cos(b) * len, ty - Math.sin(b) * len], [tx + Math.cos(b) * len, ty + Math.sin(b) * len]], light, 1, .7 * (1 - q)); }
+                if(quality)glow(c, tx, ty, 19, main, .4 * (1 - q));
+                shard(c, tx, ty, 12 * (1 - q) + 3, a, light, .5 * (1 - q));
+            } else if (mode === 'grove') {
+                stroke(c, [[x + Math.cos(a) * d * .7, y + Math.sin(a) * d * .7], [tx - Math.sin(a) * 7, ty + Math.cos(a) * 7], [tx + Math.cos(a) * 9, ty + Math.sin(a) * 9]], main, 2, .7 * (1 - q));
+                shard(c, tx, ty, 9, a - .4, main, .65 * (1 - q));
+                if(quality)glow(c, tx, ty, 13, main, .35 * (1 - q));
+            } else if (mode === 'dawn') {
+                stroke(c, [[x + Math.cos(a) * inner, y + Math.sin(a) * inner], [tx, ty]], main, 3, .2 * (1 - q));
+                shard(c, tx, ty - (1 - q) * 14, 8, a, light, .7 * (1 - q));
+                if(quality)glow(c, tx, ty - (1 - q) * 14, 24, main, .55 * (1 - q));
+            } else if (mode === 'wind') {
+                const dx = Math.cos(a), dy = Math.sin(a);
+                stroke(c, [[tx - dx * 12, ty - dy * 12], [tx, ty], [tx + dx * 9, ty + dy * 9]], light, 1, .75 * (1 - q));
+                for (const side of [-1, 1]) stroke(c, [[tx - dx * 6 - dy * side * 6, ty - dy * 6 + dx * side * 6], [tx + dx * 3, ty + dy * 3]], main, 1.5, .7 * (1 - q));
+            } else if (mode === 'forge') {
+                stroke(c, [[tx - 8, ty - 10], [tx + 8, ty - 10], [tx + 7, ty + 2], [tx, ty + 10], [tx - 7, ty + 2]], main, 2, .8 * (1 - q), true);
+                stroke(c, [[tx - 3, ty - 4], [tx + 3, ty - 4], [tx, ty + 4]], light, 1, .75 * (1 - q));
+                if(quality)glow(c, tx, ty, 18, main, .5 * (1 - q));
+            } else if (mode === 'night') {
+                arc(c, tx, ty, 9, t + a, t + a + Math.PI * 1.4, main, 2, .65 * (1 - q));
+                stroke(c, [[tx - 3, ty], [tx + 3, ty]], light, 1, .6 * (1 - q));
+                if(quality)glow(c, tx, ty, 16, main, .45 * (1 - q));
+            } else if (mode === 'storm') {
+                lightning(c, tx - Math.cos(a) * 12, ty - Math.sin(a) * 12, tx + Math.cos(a) * 12, ty + Math.sin(a) * 12, theme, t + i, (1 - q) * .7, quality);
+            } else {
+                const len = 8 + 11 * (1 - q);
+                stroke(c, [[tx, ty], [tx - Math.sin(a) * len * .35, ty - Math.cos(a) * len], [tx + Math.sin(a) * 4, ty - Math.cos(a) * len * 1.4]], main, 2, .7 * (1 - q));
+                if (mode === 'ember') flame(c, tx, ty, 13, a + Math.PI / 2, t, theme, .7 * (1 - q), quality);
+            }
+        }
+        if (['cryomancer', 'biohazard', 'moon'].includes(kind)) targetMarks(c, fx, q, theme, quality, mode);
+    }
+    c.restore();
+}
+function drawDomain(c, x, y, r, time, color, kind, detail = true) {
+    const theme = palette(color), core = Math.min(r * .6, 80), n = detail ? 6 : 3;
+    c.save(); c.lineCap = 'round';
+    seal(c, x, y, core, time * .5, theme, n);
+    if (detail) for (let i = 0; i < n; i++) {
+        const a = i * TAU / n + time * (kind === 'gravity' ? -.3 : .12), d = core * (.8 + Math.sin(time * 1.6 + i) * .12);
+        const tx = x + Math.cos(a) * d, ty = y + Math.sin(a) * d;
+        if (kind === 'fire') flame(c, tx, ty, 10, 0, time + i, theme, .55);
+        else if (kind === 'gravity') arc(c, x, y, d, a, a + .8, theme[1], 1, .5);
+        else if (kind === 'grove') stroke(c, [[tx - 5, ty + 6], [tx - 2, ty - 6], [tx + 3, ty - 2], [tx + 6, ty - 9]], theme[0], 1.5, .6);
+        else if (kind === 'holy') stroke(c, [[tx, ty - 7], [tx, ty + 7], [tx - 4, ty], [tx + 4, ty]], theme[1], 1, .6);
+        else stroke(c, [[tx - 4, ty], [tx, ty - 6], [tx + 4, ty]], theme[1], 1, .5);
+    }
+    c.restore();
+}
+function drawProjectileDetail(c, size, color, shape, time = 0, evolved = false) {
+    const theme = palette(color), s = Math.min(14, Math.max(1, size * .55));
+    c.save();
+    if (shape !== 'cloud') glow(c, 0, 0, Math.min(18, s * 1.3), theme[0], .32);
+    if (['bolt', 'rocket', 'sting', 'needle', 'arrow'].includes(shape)) {
+        for (const side of [-1, 1]) stroke(c, [[-s * 1.7, side * s * .32], [-s * .7, side * s * .2], [s * .8, 0]], theme[0], 1, .4);
+        stroke(c, [[-s, 0], [s * .8, 0]], theme[1], 1, .8);
+    } else if (['crystal', 'circle', 'spark', 'orb'].includes(shape)) {
+        arc(c, 0, 0, s * .9, time, time + Math.PI * 1.3, theme[0], 1, .65);
+        stroke(c, [[-s * .4, -s * .8], [0, -s * 1.2], [s * .4, -s * .8]], theme[1], 1, .7);
+    } else if (shape === 'cloud') {
+        for (let i = 0; i < 3; i++) { const a = i * TAU / 3 + time * .2; stroke(c, [[Math.cos(a) * s, Math.sin(a) * s], [Math.cos(a + .5) * s * 1.25, Math.sin(a + .5) * s * 1.25]], theme[0], 1, .45); }
+    } else if (['crescent', 'slash', 'boomerang', 'saw'].includes(shape)) {
+        arc(c, 0, 0, s * 1.3, time * .3, time * .3 + Math.PI * .8, theme[1], 1, .55);
+    } else if (['zero_domain', 'orbital_beam', 'singularity'].includes(shape)) {
+        const r = Math.min(size * .7, 100);
+        seal(c, 0, 0, r, time, theme, evolved ? 8 : 4);
+        if (shape === 'orbital_beam') {
+            const height = Math.min(size, 180);
+            for (const side of [-1, 1]) stroke(c, [[side * 7, -height], [side * 3, -20], [side * 3, 20], [side * 7, height]], theme[1], 1.5, .6);
+        } else if (shape === 'singularity') {
+            for (let i = 0; i < 3; i++) {
+                const points = [];
+                for (let j = 0; j < 12; j++) { const a = time * .4 + i * TAU / 3 + j * .16, d = r * (1 - j / 14); points.push([Math.cos(a) * d, Math.sin(a) * d]); }
+                stroke(c, points, theme[0], 1.5, .55);
+            }
+        }
+    }
+    c.restore();
+}
+function drawImpact(c, fx, detail = true) {
+    const q = Math.min(1, fx.age / fx.life), theme = palette(fx.color), r = 4 + q * 16, fade = (1 - q) * .8;
+    c.save();
+    if(detail)glow(c, fx.x, fx.y, 10 + q * 10, theme[0], (1 - q) * .45);
+    arc(c, fx.x, fx.y, r, q, q + Math.PI * 1.5, theme[0], 1.2, fade);
+    const count = fx.kind === 'frost' || fx.kind === 'evolved' ? 6 : fx.kind === 'grove' ? 3 : 4;
+    for (let i = 0; i < count; i++) {
+        const a = i * 2.39996 + fx.x * .01, d = r * .8;
+        if (fx.kind === 'grove') {
+            const px = fx.x + Math.cos(a) * d, py = fx.y - q * 16 + Math.sin(a) * d * .4;
+            shard(c, px, py, 3, a, theme[0], fade);
+        } else if (fx.kind === 'frost') {
+            const a = i * TAU / count;
+            stroke(c, [[fx.x + Math.cos(a) * 3, fx.y + Math.sin(a) * 3], [fx.x + Math.cos(a) * (r + 5), fx.y + Math.sin(a) * (r + 5)]], theme[1], 1, fade);
+        } else stroke(c, [[fx.x + Math.cos(a) * d, fx.y + Math.sin(a) * d], [fx.x + Math.cos(a) * (d + 5 * (1 - q)), fx.y + Math.sin(a) * (d + 5 * (1 - q))]], theme[i % 2], 1.5, fade);
+    }
+    c.restore();
+}
+function drawCloneWake(c, x, y, angle, time, shooting) {
+    const theme = THEMES.night;
+    arc(c, x, y + 9, 16, angle - .9, angle + .4, theme[0], 2, .45);
+    if (shooting) {
+        for (let i = 0; i < 4; i++) { const a = i * TAU / 4 + time; stroke(c, [[x + Math.cos(a) * 6, y - 10 + Math.sin(a) * 6], [x + Math.cos(a) * 11, y - 10 + Math.sin(a) * 11]], theme[1], 1, .7); }
+    }
+}
+module.exports = { THEMES, drawInvocation, drawDomain, drawProjectileDetail, drawImpact, drawCloneWake };
+
+},{}],
 "src/SpriteCache.js":[function(require,module,exports){
 // ─── 精灵缓存 ──────────────────────────
 // 预渲染敌人/宝石精灵到离屏 Canvas，运行时用 drawImage 替代实时绘制
@@ -24252,23 +24527,25 @@ module.exports = UpgradeSystem;
 "src/WeaponArt.js":[function(require,module,exports){
 // Friendly spell geometry follows live damage objects. Drawing never consumes combat RNG.
 const F = require('./FacetedArt');
+const V = require('./SpellVfx');
 function visible(g, x, y, r) {
     const c = g.camera || {x: 0, y: 0};
     return x + r >= c.x && x - r <= c.x + g.width && y + r >= c.y && y - r <= c.y + g.height;
 }
-function area(c, w, x, y, r, color) {
+function area(c, w, x, y, r, color, kind = 'frost') {
     const g = w.game;
     if (!visible(g, x, y, r)) return;
     const count = g._friendlyAreaFills || 0;
     g._friendlyAreaFills = count + 1;
     F.drawArea(c, x, y, r, color, g.time, count < 3 ? (g.qualityLevel < .5 ? .035 : .075) : 0, g.qualityLevel >= .5);
+    if (count < (g.qualityLevel >= .5 ? 6 : 2)) V.drawDomain(c, x, y, r, g.time, color, kind, g.qualityLevel >= .5);
 }
 function drawWeaponGround(c, w) {
     const g = w.game, p = g.player;
     if (!p) return;
-    for (const pool of w._firePools) area(c, w, pool.x, pool.y, pool.radius, '#ff6600');
-    for (const pool of w._acidPools) area(c, w, pool.x, pool.y, pool.radius, pool.isHolyWater ? '#88ddff' : '#88ff00');
-    for (const zone of w._gravityZones) area(c, w, zone.x, zone.y, zone.radius, '#aa44ff');
+    for (const pool of w._firePools) area(c, w, pool.x, pool.y, pool.radius, '#ff6600', 'fire');
+    for (const pool of w._acidPools) area(c, w, pool.x, pool.y, pool.radius, pool.isHolyWater ? '#88ddff' : '#88ff00', pool.isHolyWater ? 'holy' : 'grove');
+    for (const zone of w._gravityZones) area(c, w, zone.x, zone.y, zone.radius, '#aa44ff', 'gravity');
     if (w.id === 'radiation_field') area(c, w, p.x, p.y, Math.min((75 + w.level * 8) * p.area * (w.evolved ? 1.35 : 1), 240), '#aa44ff');
     if (w.id === 'fusion_meat_grinder') area(c, w, p.x, p.y, 145 * p.area, '#ff2288');
     if (w.id === 'fusion_cryo_toxic') area(c, w, p.x, p.y, 220 * p.area, '#66ccff');
@@ -24278,9 +24555,12 @@ function drawWeaponAir(c, w) {
     if (!p) return;
     for (const clone of w._clones) {
         const x = p.x + Math.cos(clone.angle) * clone.dist, y = p.y + Math.sin(clone.angle) * clone.dist;
-        if (visible(g, x, y, 30)) F.drawHero(c, p.characterId, x, y, 13, clone.angle, true, g.time, .28);
+        if (visible(g, x, y, 30)) {
+            F.drawHero(c, p.characterId, x, y, 13, clone.angle, true, g.time, .28);
+            if (g.qualityLevel >= .5) V.drawCloneWake(c, x, y, clone.angle, g.time, clone.shootTimer > .38);
+        }
     }
-    for (const orb of w._orbList) if (visible(g, orb.x, orb.y, orb.radius)) F.drawProjectile(c, orb.x, orb.y, orb.radius, '#88ddff', 'crystal', g.time * .4, w.evolved && g.qualityLevel >= .5);
+    for (const orb of w._orbList) if (visible(g, orb.x, orb.y, orb.radius)) F.drawProjectile(c, orb.x, orb.y, orb.radius, '#88ddff', 'crystal', g.time * .4, w.evolved && g.qualityLevel >= .5, g.time * 3, g.qualityLevel >= .5);
     for (const bot of w._nanoSwarm) if (visible(g, bot.x, bot.y, bot.hitRadius)) {
         F.drawProjectile(c, bot.x, bot.y, 5, '#88ff00', 'sting', bot.angle + Math.PI / 2);
         if (g.qualityLevel >= .5) { c.save(); c.globalAlpha *= .25; c.strokeStyle = '#b0cb84'; c.beginPath(); c.arc(bot.x, bot.y, bot.hitRadius, 0, Math.PI * 2); c.stroke(); c.restore(); }
@@ -24288,7 +24568,7 @@ function drawWeaponAir(c, w) {
 }
 module.exports = { drawWeaponGround, drawWeaponAir };
 
-},{"./FacetedArt":"src/FacetedArt.js"}],
+},{"./FacetedArt":"src/FacetedArt.js","./SpellVfx":"src/SpellVfx.js"}],
 "src/WeaponCombos.js":[function(require,module,exports){
 // ─── 武器连携定义（从 Game.js 提取） ──────────────────────────
 // 按武器 id 排序拼接为 key，击杀时触发双武器连携效果
