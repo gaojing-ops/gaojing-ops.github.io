@@ -654,6 +654,14 @@ function drawBullet(ctx, x, y, size, color = '#ffcc00', shape = 'circle', angle 
 }
 
 function drawDamageNumber(ctx, x, y, text, alpha, color = '#fff', scale = 1, glow = false, bounce = false, bouncePhase = -1) {
+    // Beam ticks can be fractional. Keep their display compact without touching damage.
+    if (typeof text === 'number' || /^[+-]?\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i.test(String(text))) {
+        const value = Number(text), magnitude = Math.abs(value), sign = value < 0 ? '-' : String(text).startsWith('+') ? '+' : '';
+        if (Number.isFinite(value)) {
+            const trim = n => n.toFixed(1).replace(/\.0$/, '');
+            text = sign + (magnitude >= 1e8 ? trim(magnitude / 1e8) + '亿' : magnitude >= 1e4 ? trim(magnitude / 1e4) + '万' : magnitude > 0 && magnitude < .1 ? '<0.1' : trim(magnitude));
+        }
+    }
     ctx.save();
     ctx.globalAlpha = alpha;
 

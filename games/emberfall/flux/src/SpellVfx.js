@@ -11,6 +11,22 @@ const THEMES = {
     dawn: ['#edd497', '#fff9d9', '#9e8355'],
 };
 const glowCache = new Map();
+// A canvas-local presentation budget: never stored on combat actors or weapons.
+const frameBudgets = new WeakMap();
+function beginFrame(c, detail = true) {
+    let budget = frameBudgets.get(c);
+    if (!budget) { budget = {}; frameBudgets.set(c, budget); }
+    budget.projectiles = detail ? 48 : 0;
+    budget.domains = detail ? 8 : 0;
+}
+function friendlyProjectileAlpha(bullet, player) {
+    if (!player) return 1;
+    const reach = 28 + Math.min(24, Math.max(0, bullet.radius || 0)) * 1.2;
+    const dx = bullet.x - player.x, dy = bullet.y - (player.y - 18);
+    if (Math.abs(dx) >= reach + 28 || Math.abs(dy) >= reach + 28) return 1;
+    const ramp = Math.max(0, Math.min(1, (Math.hypot(dx, dy) - reach) / 28));
+    return .32 + .68 * ramp;
+}
 function glow(c, x, y, r, color, alpha) {
     if (typeof wx === 'undefined' || !wx.createCanvas) return;
     let sprite = glowCache.get(color);
@@ -121,7 +137,7 @@ function drawInvocation(c, fx, game) {
         let prev = {x, y};
         for (const point of (fx.points || []).slice(0, 8)) {
             lightning(c, prev.x, prev.y, point.x, point.y, theme, t, .5 + .5 * Math.abs(Math.sin(t * 28)), quality);
-            drawImpact(c, {kind: 'storm', x: point.x, y: point.y, age: t, life: fx.life, color: main});
+            drawImpact(c, {kind: 'storm', x: point.x, y: point.y, age: t, life: fx.life, color: main}, quality);
             prev = point;
         }
     } else if (kind === 'assassin') {
@@ -239,6 +255,12 @@ function drawDomain(c, x, y, r, time, color, kind, detail = true) {
     c.restore();
 }
 function drawProjectileDetail(c, size, color, shape, time = 0, evolved = false) {
+    const budget = frameBudgets.get(c);
+    if (budget) {
+        const key = ['zero_domain', 'orbital_beam', 'singularity'].includes(shape) ? 'domains' : 'projectiles';
+        if (budget[key] <= 0) return;
+        budget[key]--;
+    }
     const theme = palette(color), s = Math.min(14, Math.max(1, size * .55));
     c.save();
     if (shape !== 'cloud') glow(c, 0, 0, Math.min(18, s * 1.3), theme[0], .32);
@@ -293,4 +315,4 @@ function drawCloneWake(c, x, y, angle, time, shooting) {
         for (let i = 0; i < 4; i++) { const a = i * TAU / 4 + time; stroke(c, [[x + Math.cos(a) * 6, y - 10 + Math.sin(a) * 6], [x + Math.cos(a) * 11, y - 10 + Math.sin(a) * 11]], theme[1], 1, .7); }
     }
 }
-module.exports = { THEMES, drawInvocation, drawDomain, drawProjectileDetail, drawImpact, drawCloneWake };
+module.exports = { THEMES, beginFrame, friendlyProjectileAlpha, drawInvocation, drawDomain, drawProjectileDetail, drawImpact, drawCloneWake };

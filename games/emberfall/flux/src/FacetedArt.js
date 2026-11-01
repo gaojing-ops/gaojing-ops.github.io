@@ -328,12 +328,22 @@ function drawArea(c,x,y,r,color,time=0,opacity=.18,details=true){
  c.restore();
 }
 function drawGem(c,x,y,size){c.save();gem(c,x,y,size,'#b7d976','#eff2bd');c.restore();}
-function drawPickup(c,x,y,type,alpha=1){
- const icons={magnet:'bell',bomb:'flame',potion:'flask',chest:'chest',evolution_core:'crystal',weapon_altar:'sword',merchant:'coin',grass:'leaf',teleporter:'rune',heal_shrine:'leaf',power_shrine:'sword',speed_shrine:'feather',shield_orb:'shield',xp_orb:'book',lucky_coin:'coin',trap:'thorn'};
- c.save();c.globalAlpha*=alpha;oval(c,x,y+9,15,5,P.shadow);
+const PICKUP_ICONS={magnet:'bell',bomb:'flame',potion:'flask',chest:'chest',evolution_core:'crystal',weapon_altar:'sword',merchant:'coin',grass:'leaf',teleporter:'rune',heal_shrine:'leaf',power_shrine:'sword',speed_shrine:'feather',shield_orb:'shield',xp_orb:'book',lucky_coin:'coin',trap:'thorn'};
+function drawPickupModel(c,x,y,type){
+ c.save();oval(c,x,y+9,15,5,P.shadow);
  if(type==='chest'){
   c.translate(x,y);poly(c,[[-15,-10],[-11,-18],[13,-18],[17,-9],[17,11],[-16,11]],P.wood,P.gold);poly(c,[[-15,-10],[17,-9],[13,-18],[-11,-18]],'#96784c');line(c,[[-15,-1],[17,-1]],P.gold,2);gem(c,1,0,5,P.light);
- }else drawIcon(c,icons[type]||'rune',x-17,y-20,34);
+ }else drawIcon(c,PICKUP_ICONS[type]||'rune',x-17,y-20,34);
+ c.restore();
+}
+function drawPickup(c,x,y,type,alpha=1){
+ c.save();c.globalAlpha*=alpha;
+ if(typeof wx==='undefined'||!wx.createCanvas)drawPickupModel(c,x,y,type);
+ else{
+  const kind=PICKUP_ICONS[type]?type:'default',key='pickup:'+kind;let sprite=cache.get(key);
+  if(!sprite){sprite=wx.createCanvas();sprite.width=sprite.height=96;const sc=sprite.getContext('2d');sc.scale(2,2);drawPickupModel(sc,24,24,kind);cache.set(key,sprite);}
+  c.drawImage(sprite,x-24,y-24,48,48);
+ }
  c.restore();
 }
 function drawSentry(c,t,time=0){
