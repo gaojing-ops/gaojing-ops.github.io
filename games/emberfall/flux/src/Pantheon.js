@@ -75,7 +75,7 @@ function preferBlessing(game,options){
  if(!healingBlocked(game)&&p.hp/p.maxHp<.35){const heal=candidates.find(o=>{const b=BLESSINGS.find(b=>b.id===o.id);return b.health||b.stats.bonusRegen;});if(heal)return heal;}
  // Leave early levels for the core weapon. A divine pick every six levels
  // complements it instead of repeatedly delaying the first weapon upgrades.
- if(p.level>=6&&p.level%6===0&&p.weapons.some(w=>w.level>=3))return candidates.find(o=>o.deity===game.pantheon?.patron)||null;
+ if(p.level>=6&&p.level%6===0&&p.weapons.some(w=>w.level>=Math.min(3,w.def?.maxLevel||3)))return candidates.find(o=>o.deity===game.pantheon?.patron)||null;
  return null;
 }
 function applyStats(game,def,opening=false){

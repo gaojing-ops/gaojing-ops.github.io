@@ -33,4 +33,4 @@ function progression(game) {
         element, count: counts[element] || 0, tier: Math.min(3, (counts[element] || 0) >= 2 ? counts[element] : 0), bonuses,
     })), reactions: SYNERGY_RULES.map(rule => ({ ...rule, available: rule.elements.every(el => counts[el] > 0) })) };
 }
-module.exports = { progression, RESONANCES };
+module.exports = { progression, RESONANCES, fusionPlan: require('./FusionGuidance').fusionPlan };

@@ -4311,7 +4311,7 @@ function installChestSystem(Game) {
 
 		// 自动升级：随机选一个宝箱奖励，不打开UI
 		if (this.autoUpgrade && options && options.length > 0) {
-			const pick = options[Math.floor(Math.random() * options.length)];
+			const pick = (p.hp / p.maxHp < .35 && p.canHeal && options.find(o => o.type === 'chest_heal')) || options.find(o => o.type === 'chest_evolution' && o._isUnion) || options.find(o => o.type === 'chest_evolution') || options[Math.floor(Math.random() * options.length)];
 			this._applyChestReward(pick);
 			// 显示选择了什么
 			this.spawnDamageNumber(this.player.x, this.player.y - 60, '🎁 ' + pick.name, pick.color || '#ffcc00', false);
@@ -8295,11 +8295,38 @@ function drawCompanion(c,pet){
 module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawIcon,drawProjectile,projectileCache,drawArea,drawGem,drawPickup,drawSentry,drawCompanion,pigment,iconKey,HEROES,MONSTERS,BOSSES,P,cache};
 
 },{"./SpellVfx":"src/SpellVfx.js"}],
+"src/FusionGuidance.js":[function(require,module,exports){
+// Follow a feasible recipe from carried weapons; never invent rewards or replace slots.
+const { UNION_RECIPES } = require('./Evolution');
+function fusionPlan(game) {
+ const p=game.player,carried=p?.weapons||[],banned=game.upgradeSystem?.banishList||[];
+ if(!p||game.curseSingleWeapon)return null;
+ const routes=Object.entries(UNION_RECIPES).flatMap(([id,recipe])=>{
+  if(carried.some(w=>w.id===recipe.resultId)||banned.includes('union_'+id))return [];
+  const ids=[id,recipe.requireWeapon],held=ids.map(id=>carried.find(w=>w.id===id));
+  if(!held.some(Boolean))return [];
+  if(ids.some((id,i)=>!held[i]&&(banned.includes(id)||carried.length>=6)||held[i]&&held[i].level<held[i].def.maxLevel&&banned.includes(id)))return [];
+  const score=held.filter(Boolean).length*100-carried.findIndex(w=>ids.includes(w.id));
+  return [{id,recipe,ids,held,score}];
+ });
+ routes.sort((a,b)=>b.score-a.score);return routes[0]||null;
+}
+function fusionRole(option,plan) {
+ if(!plan)return '';
+ if(option.type==='evolve'&&option.isUnion&&option.weaponId===plan.id)return 'ready';
+ if(option.type==='weapon_new'&&plan.ids.includes(option.id))return 'partner';
+ if(option.type==='weapon_up'&&plan.ids.includes(option.id))return 'temper';
+ return '';
+}
+module.exports={fusionPlan,fusionRole};
+
+},{"./Evolution":"src/Evolution.js"}],
 "src/Game.js":[function(require,module,exports){
 // ─── 主游戏类（微信小游戏版） ──────────────────────────
 // 移除所有 DOM 操作，UI 交给 SceneManager + Canvas 场景
 
 const Input = require('./Input');
+const { fusionPlan, fusionRole } = require('./FusionGuidance');
 const { Pantheon, preferBlessing } = require('./Pantheon');
 const { RELIC_DEFS } = require('./Relic');
 const Player = require('./Player');
@@ -8973,7 +9000,7 @@ class Game {
 			let pick = null;
 
 			// 优先级1：进化选项必选，收益最大
-			pick = pick || autoOptions.find(o => o.type === 'evolve');
+			pick = pick || autoOptions.find(o => o.type === 'evolve' && o.isUnion) || autoOptions.find(o => o.type === 'evolve');
 			
 			// 优先级2：濒死护命，血量<35% 优先紧急治疗
 			if (!pick && hpRatio < 0.35 && this.player.canHeal) {
@@ -8981,8 +9008,18 @@ class Game {
 			}
 			
 			// 优先级3：遗物是极其稀有的全局乘区加成，必选
-			if (!pick) pick = autoOptions.find(o => o.type === 'relic');
+			if (!pick && hpRatio < 0.35) pick = preferBlessing(this, autoOptions);
+            if (!pick) pick = autoOptions.find(o => o.type === 'relic');
 			if (!pick) pick = preferBlessing(this, autoOptions);
+            if (!pick && (p.weapons[0]?.level || 0) >= Math.min(3, p.weapons[0]?.def?.maxLevel || 3)) {
+                const plan = fusionPlan(this);
+                pick = autoOptions.find(o => fusionRole(o, plan) === 'partner') || autoOptions.find(o => fusionRole(o, plan) === 'temper');
+                if (!pick && !plan && !this.curseSingleWeapon && p.weapons.length < 6) {
+                    const recipes = Object.entries(require('./Evolution').UNION_RECIPES);
+                    pick = autoOptions.find(o => o.type === 'weapon_new' && recipes.some(([id, r]) => !p.hasWeapon(r.resultId) && !this.upgradeSystem.banishList.includes('union_' + id) && [id, r.requireWeapon].every(material => !this.upgradeSystem.banishList.includes(material)) && (id === o.id || r.requireWeapon === o.id)));
+                }
+            }
+
 			
 			// 优先级4：有协同标签的选项（进化就绪/解锁进化），有极高收益
 			if (!pick) pick = autoOptions.find(o => o.synergy);
@@ -10664,7 +10701,7 @@ installRenderSystem(Game);
 
 module.exports = Game;
 
-},{"./Input":"src/Input.js","./Pantheon":"src/Pantheon.js","./Relic":"src/Relic.js","./Player":"src/Player.js","./Enemy":"src/Enemy.js","./Weapons":"src/Weapons.js","./Gem":"src/Gem.js","./Boss":"src/Boss.js","./Pickup":"src/Pickup.js","./EventSystem":"src/EventSystem.js","./ParticleSystem":"src/ParticleSystem.js","./MapManager":"src/MapManager.js","./Renderer":"src/Renderer.js","./SFX":"src/SFX.js","./CurseSystem":"src/CurseSystem.js","./SynergySystem":"src/SynergySystem.js","./EventEnhancer":"src/EventEnhancer.js","./AchievementSystem":"src/AchievementSystem.js","./UpgradeSystem":"src/UpgradeSystem.js","./platform":"src/platform.js","./MetaSystem":"src/MetaSystem.js","./Character":"src/Character.js","./DailyChallenge":"src/DailyChallenge.js","./UIRenderer":"src/UIRenderer.js","./WeaponCombos":"src/WeaponCombos.js","./HUD":"src/HUD.js","./ComboSystem":"src/ComboSystem.js","./SpawnSystem":"src/SpawnSystem.js","./CollisionSystem":"src/CollisionSystem.js","./ChestSystem":"src/ChestSystem.js","./KillSystem":"src/KillSystem.js","./RenderSystem":"src/RenderSystem.js","./SpriteCache":"src/SpriteCache.js","./ObjectPool":"src/ObjectPool.js","./Bullet":"src/Bullet.js","./BuildPreset":"src/BuildPreset.js","./BossRushMode":"src/BossRushMode.js","./StageSystem":"src/StageSystem.js","./DestinyShrine":"src/DestinyShrine.js","./SkillSystem":"src/SkillSystem.js","./MathLUT":"src/MathLUT.js","./TalentTree":"src/TalentTree.js","./scenes/SpeedRunScene":"src/scenes/SpeedRunScene.js"}],
+},{"./Input":"src/Input.js","./FusionGuidance":"src/FusionGuidance.js","./Pantheon":"src/Pantheon.js","./Relic":"src/Relic.js","./Player":"src/Player.js","./Enemy":"src/Enemy.js","./Weapons":"src/Weapons.js","./Gem":"src/Gem.js","./Boss":"src/Boss.js","./Pickup":"src/Pickup.js","./EventSystem":"src/EventSystem.js","./ParticleSystem":"src/ParticleSystem.js","./MapManager":"src/MapManager.js","./Renderer":"src/Renderer.js","./SFX":"src/SFX.js","./CurseSystem":"src/CurseSystem.js","./SynergySystem":"src/SynergySystem.js","./EventEnhancer":"src/EventEnhancer.js","./AchievementSystem":"src/AchievementSystem.js","./UpgradeSystem":"src/UpgradeSystem.js","./platform":"src/platform.js","./MetaSystem":"src/MetaSystem.js","./Character":"src/Character.js","./DailyChallenge":"src/DailyChallenge.js","./UIRenderer":"src/UIRenderer.js","./WeaponCombos":"src/WeaponCombos.js","./HUD":"src/HUD.js","./ComboSystem":"src/ComboSystem.js","./SpawnSystem":"src/SpawnSystem.js","./CollisionSystem":"src/CollisionSystem.js","./ChestSystem":"src/ChestSystem.js","./KillSystem":"src/KillSystem.js","./RenderSystem":"src/RenderSystem.js","./SpriteCache":"src/SpriteCache.js","./ObjectPool":"src/ObjectPool.js","./Bullet":"src/Bullet.js","./BuildPreset":"src/BuildPreset.js","./BossRushMode":"src/BossRushMode.js","./StageSystem":"src/StageSystem.js","./DestinyShrine":"src/DestinyShrine.js","./SkillSystem":"src/SkillSystem.js","./MathLUT":"src/MathLUT.js","./TalentTree":"src/TalentTree.js","./Evolution":"src/Evolution.js","./scenes/SpeedRunScene":"src/scenes/SpeedRunScene.js"}],
 "src/Gem.js":[function(require,module,exports){
 const { drawGem } = require('./Renderer');
 const { sfxGem, sfxGemChain } = require('./SFX');
@@ -12900,7 +12937,7 @@ function preferBlessing(game,options){
  if(!healingBlocked(game)&&p.hp/p.maxHp<.35){const heal=candidates.find(o=>{const b=BLESSINGS.find(b=>b.id===o.id);return b.health||b.stats.bonusRegen;});if(heal)return heal;}
  // Leave early levels for the core weapon. A divine pick every six levels
  // complements it instead of repeatedly delaying the first weapon upgrades.
- if(p.level>=6&&p.level%6===0&&p.weapons.some(w=>w.level>=3))return candidates.find(o=>o.deity===game.pantheon?.patron)||null;
+ if(p.level>=6&&p.level%6===0&&p.weapons.some(w=>w.level>=Math.min(3,w.def?.maxLevel||3)))return candidates.find(o=>o.deity===game.pantheon?.patron)||null;
  return null;
 }
 function applyStats(game,def,opening=false){
@@ -14443,9 +14480,9 @@ function progression(game) {
         element, count: counts[element] || 0, tier: Math.min(3, (counts[element] || 0) >= 2 ? counts[element] : 0), bonuses,
     })), reactions: SYNERGY_RULES.map(rule => ({ ...rule, available: rule.elements.every(el => counts[el] > 0) })) };
 }
-module.exports = { progression, RESONANCES };
+module.exports = { progression, RESONANCES, fusionPlan: require('./FusionGuidance').fusionPlan };
 
-},{"./Evolution":"src/Evolution.js","./WeaponData":"src/WeaponData.js","./SynergySystem":"src/SynergySystem.js"}],
+},{"./Evolution":"src/Evolution.js","./WeaponData":"src/WeaponData.js","./SynergySystem":"src/SynergySystem.js","./FusionGuidance":"src/FusionGuidance.js"}],
 "src/Relic.js":[function(require,module,exports){
 // ─── 遗物系统 ──────────────────────────
 // 强力局内随机道具，改变玩法规则，每局最多 3 个
@@ -24203,6 +24240,7 @@ module.exports = {
 
 },{}],
 "src/UpgradeSystem.js":[function(require,module,exports){
+const { fusionPlan, fusionRole } = require('./FusionGuidance');
 // ─── 升级系统（微信小游戏版） ──────────────────────────
 // UI 部分已移至 UpgradeScene.js
 
@@ -24417,20 +24455,35 @@ class UpgradeSystem {
 
 		// 遗物：量子骰子 — 升级选项变为 5 选 1
 		const pickCount = (p.relicFlags && p.relicFlags.quantumDice) ? 5 : 3;
-		const selected = this._weightedPick(pool, pickCount);
+		const plan = fusionPlan(this.game);
+        for (const option of pool) {
+            const role = fusionRole(option, plan);
+            if (role) { option.fusionRole = role; option.weight += 15; }
+        }
+        const selected = this._weightedPick(pool, pickCount);
 		// Opening offers must let a new watcher strengthen a carried weapon.
 		// Reserve an option, not a reward; choosing another path remains possible.
 		if (p.level <= 12 && !selected.some(o => o.type === 'weapon_up')) {
 			const carried = this._weightedPick(pool.filter(o => o.type === 'weapon_up'), 1)[0];
 			if (carried) selected.splice(0, 1, carried);
 		}
-		// 返回可选择的选项和预览选项
+		// Keep one selectable path to a carried fusion: periodic guidance, and
+        // protect the final free slot from being filled before its partner appears.
+        const ready = pool.find(o => o.type === 'evolve' && o.isUnion);
+        const guided = ready || (p.level >= 8 && (p.level % 4 === 0 || p.weapons.length === 5)
+            ? pool.find(o => o.fusionRole === 'partner') || pool.find(o => o.fusionRole === 'temper') : null);
+        if (guided && !selected.includes(guided)) {
+            const drop = selected.findLastIndex(o => o.type !== 'evolve');
+            if (drop >= 0) selected[drop] = guided;
+        }
+        // 返回可选择的选项和预览选项
 		if (p.level % 3 === 0 && this.game.pantheon) {
 			const boon = this.game.pantheon.offer(this.banishList);
 			if (boon) {
 				if (selected.length >= 5) {
 					let drop = selected.length - 1;
-					while (drop > 0 && selected[drop].type === 'weapon_up') drop--;
+					while (drop > 0 && (selected[drop].type === 'weapon_up' || selected[drop].type === 'evolve' || selected[drop].fusionRole)) drop--;
+                    if (selected[drop].type === 'evolve' || selected[drop].fusionRole) return { options: selected, previews };
 					selected.splice(drop, 1);
 				}
 				selected.push(boon);
@@ -24599,7 +24652,7 @@ class UpgradeSystem {
 
 module.exports = UpgradeSystem;
 
-},{"./Weapons":"src/Weapons.js","./Evolution":"src/Evolution.js","./Pet":"src/Pet.js","./Relic":"src/Relic.js","./platform":"src/platform.js"}],
+},{"./FusionGuidance":"src/FusionGuidance.js","./Weapons":"src/Weapons.js","./Evolution":"src/Evolution.js","./Pet":"src/Pet.js","./Relic":"src/Relic.js","./platform":"src/platform.js"}],
 "src/WeaponArt.js":[function(require,module,exports){
 // Friendly spell geometry follows live damage objects. Drawing never consumes combat RNG.
 const F = require('./FacetedArt');
