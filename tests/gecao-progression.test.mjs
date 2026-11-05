@@ -207,3 +207,64 @@ test('large persistent loot fields skip offscreen drawing while preserving every
  g.pickups=[{x:p.x,y:p.y,active:true,draw(){visible++;}},...Array.from({length:800},(_,i)=>({x:p.x+10000+i,y:p.y,active:true,draw(){offscreen++;}}))];
  g.draw();assert.equal(visible,1);assert.equal(offscreen,0);assert.equal(g.pickups.length,801);assert.ok(g.pickups.every(p=>p.active),'render culling never deletes or collects an offscreen reward');
 });
+
+test('fusion guidance reserves the missing partner before the sixth slot and respects blocked routes',()=>{
+ const {fusionPlan}=require('./src/FusionGuidance'),g=start('biohazard'),p=g.player;p.level=12;
+ for(const id of ['phase_blade','nano_swarm','shadow_clone','plasma_arc'])full(g,id);
+ const us=g.upgradeSystem;us._weightedPick=(pool,n)=>pool.filter(o=>o.id!=='ice_shard'&&!o.fusionRole).slice(0,n);
+ assert.equal(fusionPlan(g).recipe.requireWeapon,'toxin_spray');
+ let offer=us.generateOptions();assert.ok(offer.options.some(o=>o.type==='weapon_new'&&o.id==='ice_shard'));
+ us.banishList.push('ice_shard');offer=us.generateOptions();assert.ok(!offer.options.some(o=>o.id==='ice_shard'));
+ full(g,'holy_water');assert.equal(fusionPlan(g),null,'full unrelated loadout cannot promise a missing partner');
+ g.curseSingleWeapon=true;assert.equal(fusionPlan(g),null);
+});
+
+test('normal automatic choices take an offered fusion partner before unrelated additions',()=>{
+ const g=start('biohazard'),p=g.player;p.weapons[0].level=3;g.autoUpgrade=true;
+ g.upgradeSystem.generateOptions=()=>({options:[{type:'weapon_new',id:'holy_water',name:'other'},{type:'weapon_new',id:'ice_shard',name:'partner'}],previews:[]});
+ g.showUpgradeScreen();assert.ok(p.hasWeapon('ice_shard'));assert.ok(!p.hasWeapon('holy_water'));
+});
+
+test('ready union survives weighted offers and five-choice blessings, but trials are still enforced',()=>{
+ const g=start('biohazard'),p=g.player;p.weapons=[];p.level=12;p.relicFlags={quantumDice:true};
+ full(g,'ice_shard');full(g,'toxin_spray');g.frozenKills=0;
+ const us=g.upgradeSystem;us._weightedPick=(pool,n)=>pool.filter(o=>o.type!=='evolve').slice(0,n);
+ assert.ok(!us.generateOptions().options.some(o=>o.isUnion),'materials alone never bypass the trial');
+ g.frozenKills=30;const options=us.generateOptions().options;assert.ok(options.length<=5);assert.ok(options.some(o=>o.type==='evolve'&&o.isUnion));
+ g.autoUpgrade=true;us.generateOptions=()=>({options,previews:[]});g.showUpgradeScreen();assert.ok(p.hasWeapon('fusion_cryo_toxic'));assert.ok(!p.hasWeapon('toxin_spray'));assert.equal(p.weapons.length,1);
+});
+
+test('automatic chest choices accept an available fusion instead of rolling past it',()=>{
+ const g=start('biohazard'),p=g.player;p.weapons=[];full(g,'ice_shard');full(g,'toxin_spray');g.frozenKills=30;g.time=600;g.autoUpgrade=true;
+ g._weightedPickChest=pool=>[pool.find(o=>o.type==='chest_gold'),pool.find(o=>o.type==='chest_evolution'&&o._isUnion)];
+ g.triggerChest();assert.ok(p.hasWeapon('fusion_cryo_toxic'));assert.equal(p.weapons.length,1);
+});
+
+test('a fixed-level-one fusion does not block automatic planning for the next carried pair',()=>{
+ const g=start(),p=g.player;p.weapons=[new Weapon(g,'fusion_cryo_toxic'),new Weapon(g,'plasma_arc')];p.weapons[1].level=3;p.passives=[{id:'armor',level:1}];g.autoUpgrade=true;
+ g.upgradeSystem.generateOptions=()=>({options:[{type:'passive',id:'armor',name:'armor'},{type:'weapon_new',id:'pulse_ring',name:'partner'}],previews:[]});
+ g.showUpgradeScreen();assert.ok(p.hasWeapon('pulse_ring'));assert.equal(p.getPassiveLevel('armor'),1);
+});
+
+test('non-fusing starters seed a feasible pair before repeating unrelated passives and respect banishment',()=>{
+ for(const banned of [false,true]){
+  const g=start('assassin'),p=g.player;p.weapons[0].level=3;p.passives=[{id:'armor',level:1}];g.autoUpgrade=true;
+  if(banned)g.upgradeSystem.banishList=['chain_drill'];
+  g.upgradeSystem.generateOptions=()=>({options:[{type:'passive',id:'armor',name:'armor'},{type:'weapon_new',id:'phase_blade',name:'seed'}],previews:[]});
+  g.showUpgradeScreen();assert.equal(p.hasWeapon('phase_blade'),!banned);assert.equal(p.getPassiveLevel('armor'),banned?2:1);
+ }
+});
+
+test('critical health blessings retain priority over chasing a fusion partner',()=>{
+ const g=start('biohazard'),p=g.player;p.weapons[0].level=3;p.hp=8;g.autoUpgrade=true;
+ const b=require('./src/Pantheon').BLESSINGS.find(b=>b.health);
+ g.upgradeSystem.generateOptions=()=>({options:[{type:'weapon_new',id:'ice_shard',name:'partner'},{type:'blessing',id:b.id,deity:b.deity,rank:1,name:'health'}],previews:[]});
+ g.showUpgradeScreen();assert.ok(p.hp>8);assert.ok(!p.hasWeapon('ice_shard'));
+});
+
+test('scheduled patron blessings remain available after a fixed-level-one fusion',()=>{
+ const g=start(),p=g.player;g.pantheon.patron='ember';p.level=6;p.weapons=[new Weapon(g,'fusion_cryo_toxic')];g.autoUpgrade=true;
+ const b=require('./src/Pantheon').BLESSINGS.find(b=>b.deity===g.pantheon.patron);
+ g.upgradeSystem.generateOptions=()=>({options:[{type:'weapon_new',id:'plasma_arc',name:'seed'},{type:'blessing',id:b.id,deity:b.deity,rank:1,name:b.name}],previews:[]});
+ g.showUpgradeScreen();assert.equal(g.pantheon.ranks[b.id],1);assert.ok(!p.hasWeapon('plasma_arc'),'scheduled divine growth is not displaced by another fusion route');
+});

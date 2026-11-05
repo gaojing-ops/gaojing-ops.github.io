@@ -257,3 +257,10 @@ test('divine offers show capped actual values and paused records expose real sta
  e.click('祈誓与神赐');assert.match(e.root.html,/已触发 1 次/);assert.match(e.root.html,/实际伤害/);assert.match(e.root.html,/神息「破晓」/);
  e.click('锋芒记录');assert.match(e.root.html,/余火吐息 · 烛照/);assert.doesNotMatch(e.root.html,/>boon_breath</);
 });
+
+test('upgrade guidance names the missing fusion material, live trial progress and full-slot blockage',()=>{
+ const e=environment(),g=e.game;g.startWithCharacter('biohazard',[]);const p=g.player;p.level=12;g.showUpgradeScreen();e.sync();
+ assert.match(e.root.html,/融合之途 · 寒毒结界/);assert.match(e.root.html,/霜棘 0\/6/);assert.match(e.root.html,/冻结击败 0 \/ 30/);
+ g._closeUpgrade();for(const id of ['phase_blade','nano_swarm','shadow_clone','plasma_arc','boomerang'])p.weapons.push(new e.catalogs.weaponType(g,id));
+ g.showUpgradeScreen();e.sync();assert.match(e.root.html,/六格武器已满/);assert.match(e.root.html,/下一局提前留一格/);
+});

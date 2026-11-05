@@ -2,6 +2,7 @@
 // 移除所有 DOM 操作，UI 交给 SceneManager + Canvas 场景
 
 const Input = require('./Input');
+const { fusionPlan, fusionRole } = require('./FusionGuidance');
 const { Pantheon, preferBlessing } = require('./Pantheon');
 const { RELIC_DEFS } = require('./Relic');
 const Player = require('./Player');
@@ -675,7 +676,7 @@ class Game {
 			let pick = null;
 
 			// 优先级1：进化选项必选，收益最大
-			pick = pick || autoOptions.find(o => o.type === 'evolve');
+			pick = pick || autoOptions.find(o => o.type === 'evolve' && o.isUnion) || autoOptions.find(o => o.type === 'evolve');
 			
 			// 优先级2：濒死护命，血量<35% 优先紧急治疗
 			if (!pick && hpRatio < 0.35 && this.player.canHeal) {
@@ -683,8 +684,18 @@ class Game {
 			}
 			
 			// 优先级3：遗物是极其稀有的全局乘区加成，必选
-			if (!pick) pick = autoOptions.find(o => o.type === 'relic');
+			if (!pick && hpRatio < 0.35) pick = preferBlessing(this, autoOptions);
+            if (!pick) pick = autoOptions.find(o => o.type === 'relic');
 			if (!pick) pick = preferBlessing(this, autoOptions);
+            if (!pick && (p.weapons[0]?.level || 0) >= Math.min(3, p.weapons[0]?.def?.maxLevel || 3)) {
+                const plan = fusionPlan(this);
+                pick = autoOptions.find(o => fusionRole(o, plan) === 'partner') || autoOptions.find(o => fusionRole(o, plan) === 'temper');
+                if (!pick && !plan && !this.curseSingleWeapon && p.weapons.length < 6) {
+                    const recipes = Object.entries(require('./Evolution').UNION_RECIPES);
+                    pick = autoOptions.find(o => o.type === 'weapon_new' && recipes.some(([id, r]) => !p.hasWeapon(r.resultId) && !this.upgradeSystem.banishList.includes('union_' + id) && [id, r.requireWeapon].every(material => !this.upgradeSystem.banishList.includes(material)) && (id === o.id || r.requireWeapon === o.id)));
+                }
+            }
+
 			
 			// 优先级4：有协同标签的选项（进化就绪/解锁进化），有极高收益
 			if (!pick) pick = autoOptions.find(o => o.synergy);

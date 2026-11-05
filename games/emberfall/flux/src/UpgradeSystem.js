@@ -1,3 +1,4 @@
+const { fusionPlan, fusionRole } = require('./FusionGuidance');
 // ─── 升级系统（微信小游戏版） ──────────────────────────
 // UI 部分已移至 UpgradeScene.js
 
@@ -212,20 +213,35 @@ class UpgradeSystem {
 
 		// 遗物：量子骰子 — 升级选项变为 5 选 1
 		const pickCount = (p.relicFlags && p.relicFlags.quantumDice) ? 5 : 3;
-		const selected = this._weightedPick(pool, pickCount);
+		const plan = fusionPlan(this.game);
+        for (const option of pool) {
+            const role = fusionRole(option, plan);
+            if (role) { option.fusionRole = role; option.weight += 15; }
+        }
+        const selected = this._weightedPick(pool, pickCount);
 		// Opening offers must let a new watcher strengthen a carried weapon.
 		// Reserve an option, not a reward; choosing another path remains possible.
 		if (p.level <= 12 && !selected.some(o => o.type === 'weapon_up')) {
 			const carried = this._weightedPick(pool.filter(o => o.type === 'weapon_up'), 1)[0];
 			if (carried) selected.splice(0, 1, carried);
 		}
-		// 返回可选择的选项和预览选项
+		// Keep one selectable path to a carried fusion: periodic guidance, and
+        // protect the final free slot from being filled before its partner appears.
+        const ready = pool.find(o => o.type === 'evolve' && o.isUnion);
+        const guided = ready || (p.level >= 8 && (p.level % 4 === 0 || p.weapons.length === 5)
+            ? pool.find(o => o.fusionRole === 'partner') || pool.find(o => o.fusionRole === 'temper') : null);
+        if (guided && !selected.includes(guided)) {
+            const drop = selected.findLastIndex(o => o.type !== 'evolve');
+            if (drop >= 0) selected[drop] = guided;
+        }
+        // 返回可选择的选项和预览选项
 		if (p.level % 3 === 0 && this.game.pantheon) {
 			const boon = this.game.pantheon.offer(this.banishList);
 			if (boon) {
 				if (selected.length >= 5) {
 					let drop = selected.length - 1;
-					while (drop > 0 && selected[drop].type === 'weapon_up') drop--;
+					while (drop > 0 && (selected[drop].type === 'weapon_up' || selected[drop].type === 'evolve' || selected[drop].fusionRole)) drop--;
+                    if (selected[drop].type === 'evolve' || selected[drop].fusionRole) return { options: selected, previews };
 					selected.splice(drop, 1);
 				}
 				selected.push(boon);

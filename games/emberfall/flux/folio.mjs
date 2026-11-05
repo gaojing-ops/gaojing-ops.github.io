@@ -16,7 +16,7 @@ export function routeCopy(route,c){
 export function progressionHint(option,c,game){
  if(!game||!c.progression||!['weapon_new','weapon_up','passive'].includes(option.type))return '';
  const routes=c.progression.progression(game).routes.filter(r=>!r.complete&&(r.id===option.id||r.isUnion&&r.recipe.requireWeapon===option.id||option.type==='passive'&&r.recipe.requirePassive===option.id&&r.relevant));
- const hints=routes.slice(0,2).map(r=>{const copy=routeCopy(r,c);return `${r.isUnion?'融合':'觉醒'}之途 · ${copy.name}：${copy.ingredients}；${copy.progress}`;});
+ const hints=routes.sort((a,b)=>Number(b.isUnion)-Number(a.isUnion)).slice(0,2).map(r=>{const copy=routeCopy(r,c);return `${r.isUnion?'融合':'觉醒'}之途 · ${copy.name}：${copy.ingredients}；${copy.progress}`;});
  if(option.type==='weapon_new'){
   const snapshot=c.progression.progression(game),el=c.weapons[option.id]?.element,resonance=snapshot.resonances.find(r=>r.element===el);
   if(resonance&&[1,2].includes(resonance.count))hints.push(`选择后形成 ${resonance.count+1} 件${ELEMENT_NAMES[el]}共鸣：${resonance.bonuses[resonance.count-1]}。`);
@@ -161,6 +161,9 @@ export function createFolio(runtime,platform,hooks={}){
  }
  function upgrades(scene){
   let body=header(scene.chestMode?'A GIFT IN THE ASHES':'LET THE EMBER GROW',scene.chestMode?'余烬中的馈赠':scene.banishMode?'舍去一条命途':'让火光再盛一分',scene.banishMode?'选中的强化将不再出现在本次远征中。':'长夜暂歇。选一份力量，再踏入林间。',false);
+  const planned=c.progression.fusionPlan(game);
+  if(planned){const r=c.progression.progression(game).routes.find(r=>r.isUnion&&r.id===planned.id),copy=routeCopy(r,c);body+=note(`融合之途 · ${copy.name}：${copy.ingredients}；${copy.progress}。两件满级且试炼达成后，等待融合馈赠；觉醒不消耗融合资格。`);}
+  else if(game.player.weapons.length>=6)body+=note('六格武器已满。若没有配对材料，本局暂时无法融合；可在暂停「流派之途」核对，下一局提前留一格给搭档。');
   body+=`<div class="folio-choice-label"><span>01 / 选择馈赠</span><span>THE EMBER’S GIFT</span></div>`;
   body+=grid(scene.options.map((option,i)=>{const copy=optionCopy(option,c,game);return card(copy.name,copy.desc,copy.detail?note(copy.detail):'',button(scene.banishMode?'放逐此项':`选择 ${i+1} ↗`,()=>chooseUpgrade(scene,option)),badge(copy.tag)+badge(({rare:'稀有',epic:'史诗',legendary:'传说'})[option.rarity]||''),icon(option.isUnion||option._isUnion?(option.recipe||c.unions?.[option.weaponId||option._weaponId])?.resultId:option.type==='blessing'?'god_'+option.deity:option.type==='heal'?'heart':option.type==='chest_gold'?'coin':option.type==='chest_heal'?'heart':option.id),'is-choice' );}).join(''));
   if(!game.player.canHeal)body+=note('禁疗中，恢复生命的效果无效；生命上限加成仍可生效。');

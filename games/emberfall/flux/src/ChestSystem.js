@@ -99,7 +99,7 @@ function installChestSystem(Game) {
 
 		// 自动升级：随机选一个宝箱奖励，不打开UI
 		if (this.autoUpgrade && options && options.length > 0) {
-			const pick = options[Math.floor(Math.random() * options.length)];
+			const pick = (p.hp / p.maxHp < .35 && p.canHeal && options.find(o => o.type === 'chest_heal')) || options.find(o => o.type === 'chest_evolution' && o._isUnion) || options.find(o => o.type === 'chest_evolution') || options[Math.floor(Math.random() * options.length)];
 			this._applyChestReward(pick);
 			// 显示选择了什么
 			this.spawnDamageNumber(this.player.x, this.player.y - 60, '🎁 ' + pick.name, pick.color || '#ffcc00', false);
