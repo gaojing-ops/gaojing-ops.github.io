@@ -200,3 +200,9 @@ test('a narrow desktop sidebar also fits without the old 460-high phone minimum'
  assert.equal(e.game.width,390);assert.equal(e.game.height,353);
  assert.ok(e.game.height*574/390<=720-120-56-24);
 });
+
+test('hidden site headers measure as zero instead of reserving the old phone header height',()=>{
+ const e=environment(390);window.innerHeight=844;
+ document.querySelector=selector=>({getBoundingClientRect:()=>({height:selector==='.site-header'?0:32})});
+ e.windowEvents.resize();assert.equal(e.game.height,788,'the hidden header frees the full 120 pixels');
+});

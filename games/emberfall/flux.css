@@ -184,3 +184,14 @@ dialog button:hover{background:linear-gradient(135deg,#ead08e,#cba965)}
 .site-header nav button:disabled,.game-toolbar button:disabled{opacity:1;background:#182c21;color:#b4c5af;border:1px dashed #758b70;box-shadow:none}
 .run-modes button[aria-pressed=true] span{color:#34422b}
 .curse-option:has(input:disabled) strong,.curse-option:has(input:disabled) small{color:#b4c5ad}
+
+/* Keep the phone battlefield clear while an expedition is active. */
+@media(max-width:620px),(max-width:1000px) and (max-height:500px){
+ body.in-expedition .site-header,body.in-expedition .game-switcher,body.in-expedition .page-heading,body.in-expedition .page-footer{display:none!important}
+ body.in-expedition .page-shell{padding:4px!important}
+ body.in-expedition #game-shell{scroll-margin-top:0;border-radius:4px}
+ body.in-expedition .game-toolbar{min-height:32px;padding:3px 8px;gap:8px}
+ body.in-expedition .game-toolbar #status{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;min-width:0}
+ body.in-expedition .game-toolbar #status:before,body.in-expedition #pause-web{display:none}
+ body.in-expedition .game-toolbar button{font-size:10px;min-width:44px;padding:3px 8px}
+}
