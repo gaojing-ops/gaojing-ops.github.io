@@ -278,9 +278,31 @@ function pigment(color){
  }
  pigments.set(color,value);return value;
 }
+// Only static core geometry is cached: rotation, opacity and animated ornament
+// remain live. Bound both entries and pixel memory even with fractional radii.
+const projectileCache=new Map();let projectilePixels=0;
 function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false,phase=0,detail=true){
- const d=pigment(color),radius=Math.max(.5,size);let s=radius;c.save();c.translate(x,y);c.rotate(angle);
+ const radius=Math.max(.5,size);
+ c.save();c.translate(x,y);c.rotate(angle);
  if(detail)Vfx.drawProjectileDetail(c,radius,color,shape,phase,evolved);
+ c.restore();
+ const special=shape==='orbital_beam'||shape==='zero_domain'||shape==='singularity';
+ if(special||typeof wx==='undefined'||!wx.createCanvas){drawProjectileModel(c,x,y,size,color,shape,angle,evolved,phase,false);return;}
+ if(radius>24){const d=pigment(color);c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha*=.24;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,radius,0,TAU);c.stroke();c.restore();}
+ const coreRadius=radius>24?18:radius,coreEvolved=radius<=24&&evolved;
+ const key=JSON.stringify([coreRadius,color,shape,!!coreEvolved]);let sprite=projectileCache.get(key);
+ if(!sprite){
+  const span=Math.ceil(coreRadius*3.3+4)*2,pixels=span*span*4;
+  while(projectileCache.size>=48||projectilePixels+pixels>4194304){const first=projectileCache.keys().next().value,old=projectileCache.get(first);if(!old)break;projectilePixels-=old.pixels;projectileCache.delete(first);}
+  const canvas=wx.createCanvas();canvas.width=canvas.height=span*2;
+  const off=canvas.getContext('2d');off.scale(2,2);drawProjectileModel(off,span/2,span/2,coreRadius,color,shape,0,coreEvolved,0,false);
+  sprite={canvas,span,pixels};projectileCache.set(key,sprite);projectilePixels+=pixels;
+ }else{projectileCache.delete(key);projectileCache.set(key,sprite);}
+ c.save();c.translate(x,y);c.rotate(angle);c.drawImage(sprite.canvas,-sprite.span/2,-sprite.span/2,sprite.span,sprite.span);c.restore();
+}
+function drawProjectileModel(c,x,y,size,color,shape='circle',angle=0,evolved=false,phase=0,detail=true){
+ const d=pigment(color),radius=Math.max(.5,size);let s=radius;c.save();c.translate(x,y);c.rotate(angle);
+
  if(shape==='orbital_beam'||shape==='zero_domain'){
   c.save();c.globalAlpha*=.55;c.strokeStyle=d.main;c.lineWidth=1.5;c.beginPath();c.arc(0,0,s,0,TAU);c.stroke();
   gem(c,0,0,Math.min(24,s*.2),d.dark,d.light);
@@ -370,4 +392,4 @@ function drawCompanion(c,pet){
  }
  c.restore();
 }
-module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawIcon,drawProjectile,drawArea,drawGem,drawPickup,drawSentry,drawCompanion,pigment,iconKey,HEROES,MONSTERS,BOSSES,P,cache};
+module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawIcon,drawProjectile,projectileCache,drawArea,drawGem,drawPickup,drawSentry,drawCompanion,pigment,iconKey,HEROES,MONSTERS,BOSSES,P,cache};

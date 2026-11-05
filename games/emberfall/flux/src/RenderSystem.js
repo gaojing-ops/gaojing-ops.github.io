@@ -6,7 +6,7 @@ const { drawSentry } = Art;
 const { fastSin, fastCos } = require('./MathLUT');
 const { now: perfNow } = require('./platform');
 const SpeedRunSceneModule = require('./scenes/SpeedRunScene');
-const { beginFrame, friendlyProjectileAlpha } = require('./SpellVfx');
+const { beginFrame, friendlySceneAlpha, friendlyProjectileAlpha } = require('./SpellVfx');
 
 function installRenderSystem(GameClass) {
     // 注意: _drawLastStand 和 _drawBossEntrance 在 HUD.js 中定义，此处不再重复定义
@@ -117,9 +117,12 @@ function installRenderSystem(GameClass) {
                 if (e.active && e.type === 'LootGoblin') drawOffscreenPointer(e, '#ffcc00');
             }
 
+            let visibleFriendly = 0;
+            for (const bul of this.bullets) if (bul.x > camLeft && bul.x < camRight && bul.y > camTop && bul.y < camBottom) visibleFriendly++;
+            const sceneAlpha = friendlySceneAlpha(visibleFriendly);
             for (const bul of this.bullets) {
                 if (bul.x > camLeft && bul.x < camRight && bul.y > camTop && bul.y < camBottom) {
-                    const alpha = friendlyProjectileAlpha(bul, this.player);
+                    const alpha = sceneAlpha * friendlyProjectileAlpha(bul, this.player);
                     if (alpha < 1) {
                         ctx.save(); ctx.globalAlpha *= alpha; bul.draw(ctx); ctx.restore();
                     } else bul.draw(ctx);

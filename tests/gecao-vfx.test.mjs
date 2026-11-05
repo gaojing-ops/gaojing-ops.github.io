@@ -104,7 +104,12 @@ test('the live render pipeline fades friendly shots and restores full opacity fo
  const old={hero:Art.drawHero,focus:Art.drawPlayerFocus,shots:Art.drawHostileProjectiles,magic:Art.drawNightMagic,error:console.error};
  Art.drawHero=ctx=>seen.push(['hero',ctx.globalAlpha]);Art.drawPlayerFocus=noop;Art.drawNightMagic=noop;Art.drawHostileProjectiles=ctx=>seen.push(['hostile',ctx.globalAlpha]);console.error=(...args)=>errors.push(args.map(String).join(' '));
  const before=JSON.stringify(g.enemyBullets);
- try{g.draw();assert.deepEqual(errors,[]);assert.deepEqual(seen,[['near',.32],['far',1],['hero',1],['hostile',1]]);assert.equal(c.globalAlpha,1);assert.equal(JSON.stringify(g.enemyBullets),before);}
+ try{g.draw();assert.deepEqual(errors,[]);assert.deepEqual(seen,[['near',.32],['far',1],['hero',1],['hostile',1]]);assert.equal(c.globalAlpha,1);assert.equal(JSON.stringify(g.enemyBullets),before);
+  seen.length=0;let drawn=0;g.bullets=Array.from({length:200},()=>({x:400,y:82,radius:20,draw:ctx=>{drawn++;seen.push(['dense',ctx.globalAlpha]);}}));
+  g.draw();assert.equal(drawn,200,'density does not omit any friendly core');assert.ok(seen.filter(v=>v[0]==='dense').every(v=>v[1]===.55));assert.deepEqual(seen.at(-1),['hostile',1]);
+  seen.length=0;g.bullets.push(...Array.from({length:1000},()=>({x:9000,y:9000,draw:()=>{throw Error('offscreen draw');}})));
+  g.bullets.splice(0,199);g.draw();assert.equal(seen[0][1],1,'offscreen volleys do not fade a sparse viewport');
+ }
  finally{Art.drawHero=old.hero;Art.drawPlayerFocus=old.focus;Art.drawHostileProjectiles=old.shots;Art.drawNightMagic=old.magic;console.error=old.error;}
 });
 test('repeated static loot uses one bounded cached model and preserves per-instance opacity',()=>{
@@ -117,4 +122,26 @@ test('repeated static loot uses one bounded cached model and preserves per-insta
   const images=target.calls.filter(c=>c[0]==='drawImage');assert.equal(images.length,201);assert.equal(images[0][6],.4);assert.equal(images[1][6],.6);assert.equal(target.c.globalAlpha,1);
   for(let i=0;i<20;i++)F.drawPickup(target.c,0,0,'unknown-'+i);assert.equal(canvases,2,'unknown IDs share one fallback instead of growing the cache');
  }finally{if(previous===undefined)delete globalThis.wx;else globalThis.wx=previous;F.cache.delete(key);F.cache.delete('pickup:default');if(oldSprite)F.cache.set(key,oldSprite);}
+});
+
+test('static projectile cores reuse bounded sprites while live opacity, rotation and ornament remain independent',()=>{
+ const F=require('./src/FacetedArt'),previous=globalThis.wx,originalRandom=Math.random;
+ const off=recorder(),target=recorder();let canvases=0;
+ globalThis.wx={createCanvas:()=>{canvases++;return{getContext:()=>off.c};}};
+ Math.random=()=>{throw Error('drawing consumed combat RNG');};
+ try{
+  target.c.globalAlpha=.32;
+  F.drawProjectile(target.c,10,20,13.125,'#aaee77','cloud',.4,true,.1,false);
+  const commands=off.calls.length;
+  F.drawProjectile(target.c,30,40,13.125,'#aaee77','cloud',.9,true,.8,false);
+  assert.equal(canvases,1);assert.equal(off.calls.length,commands);
+  const images=target.calls.filter(row=>row[0]==='drawImage');assert.equal(images.length,2);assert.equal(images[0][6],.32);assert.equal(target.c.globalAlpha,.32);
+  assert.ok(target.calls.some(row=>row[0]==='rotate'&&row[1]===.9),'each projectile retains its rotation');
+  for(let i=0;i<160;i++)F.drawProjectile(target.c,0,0,1+i/10,'#aaee77','cloud',0,false,0,false);
+  assert.ok(F.projectileCache.size<=48);
+  assert.ok([...F.projectileCache.values()].reduce((n,s)=>n+s.pixels,0)<=4194304);
+  const n=canvases;F.drawProjectile(target.c,0,0,120,'#aaee77','zero_domain',0,true,0,false);
+  assert.equal(canvases,n,'large and fusion boundaries retain vector geometry');
+  assert.ok(target.calls.some(row=>row[0]==='arc'&&row[3]===120),'full fusion hit radius is retained');
+ }finally{Math.random=originalRandom;if(previous===undefined)delete globalThis.wx;else globalThis.wx=previous;}
 });
