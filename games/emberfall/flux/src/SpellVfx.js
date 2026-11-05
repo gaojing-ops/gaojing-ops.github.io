@@ -19,6 +19,8 @@ function beginFrame(c, detail = true) {
     budget.projectiles = detail ? 48 : 0;
     budget.domains = detail ? 8 : 0;
 }
+// Fade dense friendly volleys smoothly; every core remains present.
+function friendlySceneAlpha(visibleCount) { return 1 - .45 * Math.max(0, Math.min(1, (visibleCount - 64) / 128)); }
 function friendlyProjectileAlpha(bullet, player) {
     if (!player) return 1;
     const reach = 28 + Math.min(24, Math.max(0, bullet.radius || 0)) * 1.2;
@@ -315,4 +317,4 @@ function drawCloneWake(c, x, y, angle, time, shooting) {
         for (let i = 0; i < 4; i++) { const a = i * TAU / 4 + time; stroke(c, [[x + Math.cos(a) * 6, y - 10 + Math.sin(a) * 6], [x + Math.cos(a) * 11, y - 10 + Math.sin(a) * 11]], theme[1], 1, .7); }
     }
 }
-module.exports = { THEMES, beginFrame, friendlyProjectileAlpha, drawInvocation, drawDomain, drawProjectileDetail, drawImpact, drawCloneWake };
+module.exports = { THEMES, beginFrame, friendlySceneAlpha, friendlyProjectileAlpha, drawInvocation, drawDomain, drawProjectileDetail, drawImpact, drawCloneWake };

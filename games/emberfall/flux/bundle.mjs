@@ -8178,9 +8178,31 @@ function pigment(color){
  }
  pigments.set(color,value);return value;
 }
+// Only static core geometry is cached: rotation, opacity and animated ornament
+// remain live. Bound both entries and pixel memory even with fractional radii.
+const projectileCache=new Map();let projectilePixels=0;
 function drawProjectile(c,x,y,size,color,shape='circle',angle=0,evolved=false,phase=0,detail=true){
- const d=pigment(color),radius=Math.max(.5,size);let s=radius;c.save();c.translate(x,y);c.rotate(angle);
+ const radius=Math.max(.5,size);
+ c.save();c.translate(x,y);c.rotate(angle);
  if(detail)Vfx.drawProjectileDetail(c,radius,color,shape,phase,evolved);
+ c.restore();
+ const special=shape==='orbital_beam'||shape==='zero_domain'||shape==='singularity';
+ if(special||typeof wx==='undefined'||!wx.createCanvas){drawProjectileModel(c,x,y,size,color,shape,angle,evolved,phase,false);return;}
+ if(radius>24){const d=pigment(color);c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha*=.24;c.strokeStyle=d.main;c.lineWidth=1;c.beginPath();c.arc(0,0,radius,0,TAU);c.stroke();c.restore();}
+ const coreRadius=radius>24?18:radius,coreEvolved=radius<=24&&evolved;
+ const key=JSON.stringify([coreRadius,color,shape,!!coreEvolved]);let sprite=projectileCache.get(key);
+ if(!sprite){
+  const span=Math.ceil(coreRadius*3.3+4)*2,pixels=span*span*4;
+  while(projectileCache.size>=48||projectilePixels+pixels>4194304){const first=projectileCache.keys().next().value,old=projectileCache.get(first);if(!old)break;projectilePixels-=old.pixels;projectileCache.delete(first);}
+  const canvas=wx.createCanvas();canvas.width=canvas.height=span*2;
+  const off=canvas.getContext('2d');off.scale(2,2);drawProjectileModel(off,span/2,span/2,coreRadius,color,shape,0,coreEvolved,0,false);
+  sprite={canvas,span,pixels};projectileCache.set(key,sprite);projectilePixels+=pixels;
+ }else{projectileCache.delete(key);projectileCache.set(key,sprite);}
+ c.save();c.translate(x,y);c.rotate(angle);c.drawImage(sprite.canvas,-sprite.span/2,-sprite.span/2,sprite.span,sprite.span);c.restore();
+}
+function drawProjectileModel(c,x,y,size,color,shape='circle',angle=0,evolved=false,phase=0,detail=true){
+ const d=pigment(color),radius=Math.max(.5,size);let s=radius;c.save();c.translate(x,y);c.rotate(angle);
+
  if(shape==='orbital_beam'||shape==='zero_domain'){
   c.save();c.globalAlpha*=.55;c.strokeStyle=d.main;c.lineWidth=1.5;c.beginPath();c.arc(0,0,s,0,TAU);c.stroke();
   gem(c,0,0,Math.min(24,s*.2),d.dark,d.light);
@@ -8270,7 +8292,7 @@ function drawCompanion(c,pet){
  }
  c.restore();
 }
-module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawIcon,drawProjectile,drawArea,drawGem,drawPickup,drawSentry,drawCompanion,pigment,iconKey,HEROES,MONSTERS,BOSSES,P,cache};
+module.exports={preload,drawHero,drawPortrait,drawMonster,drawBoss,drawIcon,drawProjectile,projectileCache,drawArea,drawGem,drawPickup,drawSentry,drawCompanion,pigment,iconKey,HEROES,MONSTERS,BOSSES,P,cache};
 
 },{"./SpellVfx":"src/SpellVfx.js"}],
 "src/Game.js":[function(require,module,exports){
@@ -16071,7 +16093,7 @@ const { drawSentry } = Art;
 const { fastSin, fastCos } = require('./MathLUT');
 const { now: perfNow } = require('./platform');
 const SpeedRunSceneModule = require('./scenes/SpeedRunScene');
-const { beginFrame, friendlyProjectileAlpha } = require('./SpellVfx');
+const { beginFrame, friendlySceneAlpha, friendlyProjectileAlpha } = require('./SpellVfx');
 
 function installRenderSystem(GameClass) {
     // 注意: _drawLastStand 和 _drawBossEntrance 在 HUD.js 中定义，此处不再重复定义
@@ -16182,9 +16204,12 @@ function installRenderSystem(GameClass) {
                 if (e.active && e.type === 'LootGoblin') drawOffscreenPointer(e, '#ffcc00');
             }
 
+            let visibleFriendly = 0;
+            for (const bul of this.bullets) if (bul.x > camLeft && bul.x < camRight && bul.y > camTop && bul.y < camBottom) visibleFriendly++;
+            const sceneAlpha = friendlySceneAlpha(visibleFriendly);
             for (const bul of this.bullets) {
                 if (bul.x > camLeft && bul.x < camRight && bul.y > camTop && bul.y < camBottom) {
-                    const alpha = friendlyProjectileAlpha(bul, this.player);
+                    const alpha = sceneAlpha * friendlyProjectileAlpha(bul, this.player);
                     if (alpha < 1) {
                         ctx.save(); ctx.globalAlpha *= alpha; bul.draw(ctx); ctx.restore();
                     } else bul.draw(ctx);
@@ -22441,6 +22466,8 @@ function beginFrame(c, detail = true) {
     budget.projectiles = detail ? 48 : 0;
     budget.domains = detail ? 8 : 0;
 }
+// Fade dense friendly volleys smoothly; every core remains present.
+function friendlySceneAlpha(visibleCount) { return 1 - .45 * Math.max(0, Math.min(1, (visibleCount - 64) / 128)); }
 function friendlyProjectileAlpha(bullet, player) {
     if (!player) return 1;
     const reach = 28 + Math.min(24, Math.max(0, bullet.radius || 0)) * 1.2;
@@ -22737,7 +22764,7 @@ function drawCloneWake(c, x, y, angle, time, shooting) {
         for (let i = 0; i < 4; i++) { const a = i * TAU / 4 + time; stroke(c, [[x + Math.cos(a) * 6, y - 10 + Math.sin(a) * 6], [x + Math.cos(a) * 11, y - 10 + Math.sin(a) * 11]], theme[1], 1, .7); }
     }
 }
-module.exports = { THEMES, beginFrame, friendlyProjectileAlpha, drawInvocation, drawDomain, drawProjectileDetail, drawImpact, drawCloneWake };
+module.exports = { THEMES, beginFrame, friendlySceneAlpha, friendlyProjectileAlpha, drawInvocation, drawDomain, drawProjectileDetail, drawImpact, drawCloneWake };
 
 },{}],
 "src/SpriteCache.js":[function(require,module,exports){
