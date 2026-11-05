@@ -43,12 +43,13 @@ export function themeCanvas(canvas){
 }
 
 export function combatUILayout(width,height){
- const narrow=width<600,compact=height<420,short=narrow&&compact,r=compact?28:32;
- return {narrow,short,health:{x:10,y:10,w:narrow?width-(compact?76:20):288,h:short?90:118},
-  mode:{x:narrow?10:width-238,y:narrow?(short?106:138):10,w:narrow?width-(compact?120:76):226,h:short?42:58},
-  pause:{x:width-56,y:narrow?(compact?10:145):82,w:44,h:44},
-  dash:{cx:width-54,cy:height-(compact?60:66),r},
-  skill:{cx:width-54,cy:height-(compact?148:164),r},comboY:narrow?(short?164:226):164};
+ const compact=height<420,narrow=width<600||(compact&&width<1000),short=narrow&&compact,r=compact?28:32;
+ if(narrow)return {narrow,short,health:{x:8,y:8,w:width-68,h:60},mode:{x:8,y:76,w:width-16,h:24},
+  pause:{x:width-52,y:8,w:44,h:44},dash:{cx:width-54,cy:height-(compact?60:66),r},
+  skill:{cx:width-54,cy:height-(compact?148:164),r},comboY:62};
+ return {narrow,short,health:{x:10,y:10,w:288,h:118},mode:{x:width-238,y:10,w:226,h:58},
+  pause:{x:width-56,y:82,w:44,h:44},dash:{cx:width-54,cy:height-(compact?60:66),r},
+  skill:{cx:width-54,cy:height-(compact?148:164),r},comboY:164};
 }
 
 export function installWebHUD(runtime){
@@ -73,6 +74,8 @@ export function installWebHUD(runtime){
   ctx.strokeStyle=active?'#e3c99244':'#a2ae7c2e';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+cut+2,y+2);ctx.lineTo(x+w-cut-2,y+2);ctx.stroke();
  };
  const outlined=(ctx,value,x,y,color='#fff3cf')=>{ctx.lineWidth=3;ctx.strokeStyle='#07110d';ctx.lineJoin='round';ctx.strokeText(value,x,y);ctx.fillStyle=color;ctx.fillText(value,x,y);};
+ const fit=(ctx,value,width)=>{let v=text(value);while(v.length&&ctx.measureText(v).width>width)v=v.slice(0,-1);return v===text(value)?v:v.slice(0,-1)+'…';};
+ const mobileToast=(ctx,value,w,y)=>{const bw=Math.min(360,w-130);ctx.save();stone(ctx,8,y,bw,28);ctx.font='600 11px "Microsoft YaHei"';ctx.textAlign='left';ctx.fillStyle='#fff0c4';ctx.fillText(fit(ctx,value,bw-16),16,y+18);ctx.restore();};
  const control=(ctx,key,layout,label,cooldown,maxCooldown)=>{
   const {cx,cy,r}=layout,ready=cooldown<=0;
   ctx.save();stone(ctx,cx-r,cy-r,r*2,r*2,ready);
@@ -100,20 +103,22 @@ export function installWebHUD(runtime){
   ctx.save();ctx.font='600 12px "Microsoft YaHei"';const lines=rows.flatMap(row=>wrap(ctx,row,w<600?combatUILayout(w,game.height).mode.w-24:264));ctx.restore();return lines;
  };
  const drawAchievementToast=function(ctx,w,h){
-  const toast=this.currentToast;if(!toast)return;const bw=Math.min(360,w-145),x=16;
+  const toast=this.currentToast;if(!toast)return;if(combatUILayout(w,h).narrow){mobileToast(ctx,text(toast.text)+' · '+text(toast.sub),w,h-78);return;}const bw=Math.min(360,w-145),x=16;
   ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,toast.timer));ctx.font='11px "Microsoft YaHei"';
   const lines=wrap(ctx,toast.sub,bw-68),height=50+lines.length*18,y=h-height-56;stone(ctx,x,y,bw,height,true);
   art.drawIcon?.(ctx,'crown',x+12,y+15,30);ctx.textAlign='left';ctx.fillStyle='#dec58c';ctx.font='16px "SimSun",serif';ctx.fillText(text(toast.text),x+55,y+28);
   ctx.font='12px "Microsoft YaHei"';ctx.fillStyle='#e0e9cd';lines.forEach((line,i)=>ctx.fillText(line,x+55,y+49+i*18));ctx.restore();
  };
  const drawEventBanner=function(ctx,w,h){
-  const banner=this.eventBanner;if(!banner)return;ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,banner.timer));ctx.font='12px "Microsoft YaHei"';
+  const banner=this.eventBanner;if(!banner)return;if(combatUILayout(w,h).narrow){mobileToast(ctx,banner.text,w,h-112);return;}ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,banner.timer));ctx.font='12px "Microsoft YaHei"';
   const bw=Math.min(550,w-36),lines=wrap(ctx,banner.text,bw-68),height=24+lines.length*20,x=(w-bw)/2,y=Math.max(h*.32,combatUILayout(w,h).comboY+statusLines(ctx,w).length*20+50);
   stone(ctx,x,y,bw,height,true);art.drawIcon?.(ctx,'rune',x+12,y+height/2-15,30);ctx.fillStyle='#fff0c4';ctx.textAlign='left';lines.forEach((line,i)=>ctx.fillText(line,x+54,y+23+i*20));ctx.restore();
  };
  const drawCombatNotices=function(ctx,w){
   const lines=statusLines(ctx,w);if(!lines.length)return;
-  const narrow=w<600,short=narrow&&game.height<420,x=10,y=short?game.height-100:narrow?204:138,bw=narrow?(game.height<420?w-120:w-20):288;
+  const mobile=combatUILayout(w,game.height).narrow;
+  if(mobile){ctx.save();ctx.font='600 10px "Microsoft YaHei"';ctx.textAlign='left';stone(ctx,8,106,w-16,20);ctx.fillStyle='#f5edcd';ctx.fillText(fit(ctx,lines.join(' · '),w-32),16,120);ctx.restore();return;}
+  const short=false,x=10,y=138,bw=288;
   if(short&&lines.length>2){lines.splice(2);lines[1]+=' …';}
   ctx.save();stone(ctx,x,y,bw,12+lines.length*20);ctx.textAlign='left';ctx.font='600 12px "Microsoft YaHei"';ctx.fillStyle='#f5edcd';lines.forEach((row,i)=>ctx.fillText(row,x+12,y+20+i*20));ctx.restore();
  };
@@ -122,6 +127,18 @@ export function installWebHUD(runtime){
  if(game.eventEnhancer)game.eventEnhancer.draw=drawCombatNotices;
  game._drawHUD=function(){
   const ctx=this.ctx,p=this.player,layout=combatUILayout(this.width,this.height),box=layout.health;
+  if(layout.narrow){
+   const hp=Math.max(0,Math.min(1,p.hp/p.maxHp)),low=hp<.3,left=box.x+10,right=box.x+box.w-10,bw=box.w-20;
+   ctx.save();stone(ctx,box.x,box.y,box.w,box.h);ctx.textAlign='left';ctx.font='700 12px "Microsoft YaHei"';ctx.fillStyle='#fff0bd';ctx.fillText(catalogs.characters[p.characterId]?.name||'守夜者',left,box.y+16);
+   ctx.textAlign='right';outlined(ctx,`${Math.ceil(p.hp)} / ${p.maxHp}`,right,box.y+16,low?'#ffb19b':'#fff7dc');
+   ctx.fillStyle='#040e09';ctx.fillRect(left,box.y+22,bw,10);ctx.fillStyle=low?'#ed8a71':'#b9d96e';ctx.fillRect(left+1,box.y+23,(bw-2)*hp,8);ctx.strokeStyle=low?'#ffc3aa':'#deedb4';ctx.lineWidth=1;ctx.strokeRect(left,box.y+22,bw,10);
+   ctx.fillStyle='#040e09';ctx.fillRect(left,box.y+37,bw,4);ctx.fillStyle='#a7dce1';ctx.fillRect(left,box.y+37,bw*Math.max(0,Math.min(1,p.xp/p.maxXp)),4);
+   ctx.textAlign='left';ctx.font='600 10px "Microsoft YaHei"';ctx.fillStyle='#edf2dd';ctx.fillText(`${p.level} 阶 · 击败 ${p.kills.toLocaleString('zh-CN')}`,left,box.y+53);
+   if(this.killCombo>=5){ctx.textAlign='right';ctx.fillStyle='#ffe4a1';ctx.fillText(`连杀 ${this.killCombo}`,right,box.y+53);}
+   if(p.weapons.length)stone(ctx,8,this.height-39,p.weapons.length*22+10,28);
+   for(let i=0;i<p.weapons.length;i++)art.drawIcon?.(ctx,p.weapons[i].id,13+i*22,this.height-35,20);
+   ctx.restore();this._drawDashButton(ctx);return;
+  }
   const barX=box.x+64,barW=box.w-78,right=box.x+box.w-12,hp=Math.max(0,Math.min(1,p.hp/p.maxHp)),low=hp<.3;
   ctx.save();stone(ctx,box.x,box.y,box.w,box.h);
   art.drawPortrait(ctx,p.characterId,box.x+2,box.y+13,57);
@@ -144,7 +161,8 @@ export function installWebHUD(runtime){
   const {x,y,w,h}=rect;ctx.save();stone(ctx,x,y,w,h,true);ctx.fillStyle='#ffe1a0';ctx.fillRect(x+14,y+12,4,20);ctx.fillRect(x+25,y+12,4,20);ctx.restore();
  };
  const modePlate=(ctx,w,title,detail,ratio)=>{
-  const {x,y,w:bw,h}=combatUILayout(w,game.height).mode,short=h<50;
+  const layout=combatUILayout(w,game.height),{x,y,w:bw,h}=layout.mode,short=h<50;
+  if(layout.narrow){ctx.save();stone(ctx,x,y,bw,h);ctx.textAlign='left';ctx.font='600 11px "Microsoft YaHei"';ctx.fillStyle='#fff0bc';ctx.fillText(title,x+10,y+15);ctx.textAlign='right';ctx.fillText(detail,x+bw-10,y+15);ctx.fillStyle='#f1cc80';ctx.fillRect(x+10,y+h-4,(bw-20)*Math.max(0,Math.min(1,ratio)),2);ctx.restore();return;}
   ctx.save();stone(ctx,x,y,bw,h);ctx.textAlign='left';ctx.font='700 13px "Microsoft YaHei"';ctx.fillStyle='#fff0bc';ctx.fillText(title,x+12,y+21);
   ctx.textAlign='right';ctx.font='700 13px Georgia,serif';ctx.fillStyle='#fff4d4';ctx.fillText(detail,x+bw-12,y+(short?21:40));
   ctx.fillStyle='#07130c';ctx.fillRect(x+12,y+(short?31:47),bw-24,5);ctx.fillStyle='#f1cc80';ctx.fillRect(x+12,y+(short?31:47),(bw-24)*Math.max(0,Math.min(1,ratio)),5);ctx.restore();
@@ -159,7 +177,7 @@ export function installWebHUD(runtime){
   ctx.font='11px "Microsoft YaHei"';ctx.fillStyle='#ddc58c';ctx.fillText('完整记录：暂停 → 锋芒记录',x+12,y+82);ctx.restore();
  };
  game._drawBossEntrance=function(){
-  const be=this._bossEntrance;if(!be||be.timer<=0)return;
+  const be=this._bossEntrance;if(!be||be.timer<=0)return;if(combatUILayout(this.width,this.height).narrow){mobileToast(this.ctx,'强敌来临 · '+text(be.name),this.width,this.height-112);return;}
   const ctx=this.ctx,alpha=Math.min(1,be.timer*2,(1.5-be.timer)*4);ctx.save();ctx.globalAlpha=Math.max(0,alpha);
   const w=Math.min(440,this.width-40),x=(this.width-w)/2,y=this.height*.34;stone(ctx,x,y,w,124,true);
   art.drawIcon?.(ctx,'crown',this.width/2-15,y+10,30);
@@ -171,6 +189,7 @@ export function installWebHUD(runtime){
   control(ctx,'feather',layout,'闪避',this.player.dashCooldown,this.player.dashMaxCooldown);
  };
  game._drawComboDisplay=function(ctx,dt){
+  if(combatUILayout(this.width,this.height).narrow){if(this._comboBreakDisplay?.timer>0)this._comboBreakDisplay.timer=Math.max(0,this._comboBreakDisplay.timer-dt);return;}
   const narrow=this.width<600,noticeCount=statusLines(ctx,this.width).length,baseY=combatUILayout(this.width,this.height).comboY+(noticeCount?noticeCount*20+16:0)+(this.safeAreaTop||0);
   if(this.killCombo>=5){
    const combo=this.killCombo,size=combo>=100?28:combo>=75?26:combo>=50?24:combo>=30?22:combo>=15?20:18;

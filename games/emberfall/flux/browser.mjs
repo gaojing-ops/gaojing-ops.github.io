@@ -12,8 +12,8 @@ export function createBrowserPlatform(canvas){
  const getDimensions=()=>{
   const shell=canvas.closest?.('#game-shell'),width=shell?.clientWidth||0;
   const full=document.fullscreenElement===shell,w=Math.min(1280,width);
-  const header=document.querySelector?.('.site-header')?.getBoundingClientRect?.().height||(width<=620?120:78);
-  const toolbar=document.querySelector?.('.game-toolbar')?.getBoundingClientRect?.().height||56;
+  const header=document.querySelector?.('.site-header')?.getBoundingClientRect?.().height??(width<=620?120:78);
+  const toolbar=document.querySelector?.('.game-toolbar')?.getBoundingClientRect?.().height??56;
   const available=window.innerHeight?window.innerHeight-(full?toolbar:header+toolbar+24):0;
   if(width<=620){
    const height=width>0&&available>0?Math.max(320,Math.min(HEIGHT,Math.floor(available*WIDTH/width))):HEIGHT;
@@ -44,6 +44,7 @@ export function mountFlux(runtime,platform){
  const status=document.getElementById('status'),controls=document.getElementById('scene-controls');
  let viewW=info.screenWidth||WIDTH,viewH=info.screenHeight||HEIGHT,backgroundTimer=null,pendingTime=0,unfocused=false,soundSuppressed=false;
  const MAX_CATCHUP_SECONDS=30,MAX_STEPS_PER_TICK=120,MAX_STEP_MS=8;
+ let expeditionView=false;
  const keys=new Set();let primary=null,last=null,raf=0,disposed=false,signature='',suspended=false,campVisible=false;
  let keyboardVector={x:0,y:0};const originalVector=game.input.getVector.bind(game.input);
  game.input.getVector=()=>keys.size?keyboardVector:originalVector();
@@ -117,6 +118,8 @@ export function mountFlux(runtime,platform){
   const muted=soundSuppressed?!!SFX._savedMute:!!SFX.isMuted;
   const pauseButton=document.getElementById('pause-web');pauseButton.disabled=!game.isRunning;pauseButton.textContent=game.isRunning&&game.isPaused?'继续':'暂停';document.getElementById('sound-web').textContent=muted?'音效：关':'音效：开';
   campVisible=camp.sync();folio.sync(campVisible);
+  const expedition=!campVisible&&['playing','upgrade'].includes(sm.currentSceneName);
+  if(expedition!==expeditionView){expeditionView=expedition;document.body?.classList?.toggle?.('in-expedition',expedition);resize();}
   if(controls.children.length)controls.replaceChildren();
  }
  function renderScene(){

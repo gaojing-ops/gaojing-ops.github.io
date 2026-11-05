@@ -264,3 +264,11 @@ test('upgrade guidance names the missing fusion material, live trial progress an
  g._closeUpgrade();for(const id of ['phase_blade','nano_swarm','shadow_clone','plasma_arc','boomerang'])p.weapons.push(new e.catalogs.weaponType(g,id));
  g.showUpgradeScreen();e.sync();assert.match(e.root.html,/六格武器已满/);assert.match(e.root.html,/下一局提前留一格/);
 });
+
+test('phone HUD keeps combo text inside the top strip and leaves the battle center clear',()=>{
+ const e=environment(),g=e.game;g.resize(390,844);g.startWithCharacter('tracer',[]);g.killCombo=82;g.player.hp=33;g.player.maxHp=96;
+ draws.length=0;g._drawHUD();g._drawComboDisplay(g.ctx,1/60);
+ assert.ok(draws.includes('连杀 82'));assert.ok(!draws.includes('82 连杀!'),'no large combo label over the watcher');
+ const l=combatUILayout(390,844);assert.equal(l.health.h,60);assert.ok(l.mode.y+l.mode.h<=100);
+ for(const [w,h] of [[320,320],[390,844],[844,390]]){const m=combatUILayout(w,h);assert.ok(m.narrow);assert.ok(126<h/2-20,'persistent mobile notices stay above the player');}
+});
